@@ -1,0 +1,3 @@
+.DS_Store
+terraform-provisioner-ansible
+vendor/
