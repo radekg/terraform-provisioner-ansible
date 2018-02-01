@@ -20,15 +20,32 @@ import (
   "github.com/mitchellh/go-linereader"
 )
 
+const (
+  bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
+)
+
 type provisioner struct {
-  ModulePath  string
-  Playbook    string
-  Plays       []string
-  Hosts       []string
-  Groups      []string
-  UseSudo     bool
-  ExtraVars   map[string]string
-  SkipInstall bool
+  ModulePath     string
+  Playbook       string
+  Plays          []string
+  Hosts          []string
+  Groups         []string
+  Tags           []string
+  SkipTags       []string
+  StartAtTask    string
+  Limit          string
+  Forks          int
+  ExtraVars      map[string]string
+  Verbose        bool
+  ForceHandlers  bool
+
+  Become         bool
+  BecomeMethod   string
+  BecomeUser     string
+
+  useSudo        bool
+  skipInstall    bool
+  installVersion string
 }
 
 func Provisioner() terraform.ResourceProvisioner {
@@ -38,11 +55,6 @@ func Provisioner() terraform.ResourceProvisioner {
         Type:     schema.TypeString,
         Optional: true,
         Default: "ansible",
-      },
-      "use_sudo": &schema.Schema{
-        Type:     schema.TypeBool,
-        Optional: true,
-        Default:  true,
       },
       "playbook": &schema.Schema{
         Type:     schema.TypeString,
@@ -64,15 +76,77 @@ func Provisioner() terraform.ResourceProvisioner {
         Elem:     &schema.Schema{ Type: schema.TypeString },
         Optional: true,
       },
+      "tags": &schema.Schema{
+        Type:     schema.TypeList,
+        Elem:     &schema.Schema{ Type: schema.TypeString },
+        Optional: true,
+      },
+      "skip_tags": &schema.Schema{
+        Type:     schema.TypeList,
+        Elem:     &schema.Schema{ Type: schema.TypeString },
+        Optional: true,
+      },
+      "start_at_task": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default: "",
+      },
+      "limit": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default: "",
+      },
       "extra_vars": &schema.Schema{
         Type:     schema.TypeMap,
         Optional: true,
         Computed: true,
       },
+      "forks": &schema.Schema{
+        Type:     schema.TypeInt,
+        Optional: true,
+        Default: 0, // only added to the command when greater than 0
+      },
+      "verbose": &schema.Schema{
+        Type:     schema.TypeBool,
+        Optional: true,
+        Default:  false,
+      },
+      "force_handlers": &schema.Schema{
+        Type:     schema.TypeBool,
+        Optional: true,
+        Default:  false,
+      },
+
+      "become": &schema.Schema{
+        Type:     schema.TypeBool,
+        Optional: true,
+        Default:  false,
+      },
+      "become_method": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default:  "sudo",
+      },
+      "become_user": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default:  "user",
+      },
+
+      "use_sudo": &schema.Schema{
+        Type:     schema.TypeBool,
+        Optional: true,
+        Default:  true,
+      },
       "skip_install": &schema.Schema{
         Type:     schema.TypeBool,
         Optional: true,
         Default:  false,
+      },
+      "install_version": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default:  "", // latest
       },
     },
     ApplyFunc:    applyFn,
@@ -106,7 +180,7 @@ func applyFn(ctx context.Context) error {
   }
   defer comm.Disconnect()
 
-  if !p.SkipInstall {
+  if !p.skipInstall {
     if err := p.installAnsible(o, comm); err != nil {
       return err
     }
@@ -129,8 +203,14 @@ func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Com
     "/bin/bash -c 'until [[ -f /var/lib/cloud/instance/boot-finished ]]; do sleep 1; done'",
     "/bin/bash -c ' if [[ -f /etc/redhat-release ]];then yum update -y && yum groupinstall -y \"Development Tools\" &&  yum install -y python-devel; else apt-get update && apt-get install -y build-essential python-dev; fi'",
     "curl https://bootstrap.pypa.io/get-pip.py | sudo python",
-    "pip install ansible",
   }
+
+  if len(p.installVersion) > 0 {
+    provisionAnsibleCommands = append(provisionAnsibleCommands, fmt.Sprintf("pip install ansible==%s", p.installVersion))
+  } else {
+    provisionAnsibleCommands = append(provisionAnsibleCommands, "pip install ansible")
+  }
+
   for _, command := range provisionAnsibleCommands {
     o.Output(fmt.Sprintf("running command: %s", command))
     err := p.runCommand(o, comm, command)
@@ -158,32 +238,24 @@ func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicato
   // parse the playbook path's directory and upload the entire directory
   playbookDir := filepath.Dir(playbookPath)
 
-  remotePlaybookPath := filepath.Join("/tmp/ansible-terraform-bootstrap", filepath.Base(playbookPath))
+  remotePlaybookPath := filepath.Join(bootstrapDirectory, filepath.Base(playbookPath))
 
   // upload ansible source and playbook to the host
-  if err := comm.UploadDir("/tmp/ansible-terraform-bootstrap", playbookDir); err != nil {
-    return err
-  }
-
-  extraVars, err := json.Marshal(p.ExtraVars)
-  if err != nil {
+  if err := comm.UploadDir(bootstrapDirectory, playbookDir); err != nil {
     return err
   }
 
   // build a command to run ansible on the host machine
-  command := fmt.Sprintf("ansible - --playbook=%s --hosts=%s --plays=%s --groups=%s --extra-vars=%s",
-    remotePlaybookPath,
-    strings.Join(p.Hosts, ","),
-    strings.Join(p.Plays, ","),
-    strings.Join(p.Groups, ","),
-    string(extraVars))
+  if command, err := p.commandBuilder(remotePlaybookPath); err != nil {
+    return err
+  } else {
+    o.Output(command)
+  }
 
   //o.Output(fmt.Sprintf("running command: %s", command))
   //if err := p.runCommand(o, comm, command); err != nil {
   //  return err
   //}
-
-  o.Output(command)
 
   return nil
 }
@@ -215,7 +287,7 @@ func (p *provisioner) resolvePath(path string) (string, error) {
 // runCommand is used to run already prepared commands
 func (p *provisioner) runCommand(o terraform.UIOutput, comm communicator.Communicator, command string) error {
   // Unless prevented, prefix the command with sudo
-  if p.UseSudo {
+  if p.useSudo {
     command = "sudo " + command
   }
 
@@ -259,6 +331,43 @@ func (p *provisioner) copyOutput(o terraform.UIOutput, r io.Reader, doneCh chan<
     o.Output(line)
   }
 }
+
+func (p *provisioner) commandBuilder(playbookFile string) (string, error) {
+  command := fmt.Sprintf("ansible-playbook %s", playbookFile)
+  command = fmt.Sprintf("%s --inventory-file=%s", command, filepath.Join(filepath.Dir(playbookFile), ".inventory/hosts"))
+  if len(p.ExtraVars) > 0 {
+    extraVars, err := json.Marshal(p.ExtraVars)
+    if err != nil {
+      return "", err
+    }
+    command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
+  }
+  if len(p.SkipTags) > 0 {
+    command = fmt.Sprintf("%s --skip-tags=%s", command, strings.Join(p.SkipTags, ","))
+  }
+  if len(p.Tags) > 0 {
+    command = fmt.Sprintf("%s --tags=%s", command, strings.Join(p.Tags, ","))
+  }
+  if len(p.StartAtTask) > 0 {
+    command = fmt.Sprintf("%s --start-at-task=%s", command, p.StartAtTask)
+  }
+  if len(p.Limit) > 0 {
+    command = fmt.Sprintf("%s --limit=%s", command, p.Limit)
+  }
+  if p.Forks > 0 {
+    command = fmt.Sprintf("%s --forks=%d", command, p.Forks)
+  }
+  if p.Verbose {
+    command = fmt.Sprintf("%s --verbose", command)
+  }
+  if p.ForceHandlers {
+    command = fmt.Sprintf("%s --force-handlers", command)
+  }
+  if p.Become {
+    command = fmt.Sprintf("%s --become --become-method='%s' --become-user='%s'", command, p.BecomeMethod, p.BecomeUser)
+  }
+  return command, nil
+}
 /*
 func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
@@ -292,14 +401,27 @@ func retryFunc(timeout time.Duration, f func() error) error {
 
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
   p := &provisioner{
-    ModulePath:  d.Get("module_path").(string),
-    Playbook:    d.Get("playbook").(string),
-    Plays:       getStringList(d.Get("plays")),
-    Hosts:       getStringList(d.Get("hosts")),
-    Groups:      getStringList(d.Get("groups")),
-    UseSudo:     d.Get("use_sudo").(bool),
-    ExtraVars:   getStringMap(d.Get("extra_vars")),
-    SkipInstall: d.Get("skip_install").(bool),
+    ModulePath:     d.Get("module_path").(string),
+    Playbook:       d.Get("playbook").(string),
+    Plays:          getStringList(d.Get("plays")),
+    Hosts:          getStringList(d.Get("hosts")),
+    Groups:         getStringList(d.Get("groups")),
+    Tags:           getStringList(d.Get("tags")),
+    SkipTags:       getStringList(d.Get("skip_tags")),
+    StartAtTask:    d.Get("start_at_task").(string),
+    Limit:          d.Get("limit").(string),
+    Forks:          d.Get("forks").(int),
+    ExtraVars:      getStringMap(d.Get("extra_vars")),
+    Verbose:        d.Get("verbose").(bool),
+    ForceHandlers:  d.Get("force_handlers").(bool),
+
+    Become:         d.Get("become").(bool),
+    BecomeMethod:   d.Get("become_method").(string),
+    BecomeUser:     d.Get("become_user").(string),
+
+    useSudo:        d.Get("use_sudo").(bool),
+    skipInstall:    d.Get("skip_install").(bool),
+    installVersion: d.Get("install_version").(string),
   }
   return p, nil
 }
