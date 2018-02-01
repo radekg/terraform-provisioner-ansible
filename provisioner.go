@@ -1,6 +1,7 @@
 package main
 
 import (
+  "bytes"
   "context"
   "encoding/json"
   "fmt"
@@ -9,6 +10,7 @@ import (
   "os"
   "path/filepath"
   "strings"
+  "text/template"
   "time"
 
   "github.com/hashicorp/terraform/communicator"
@@ -22,10 +24,23 @@ import (
 
 const (
   bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
+  templateInventory string = "hosts"
 )
 
+const inventoryTemplate = `{{$top := . -}}
+{{range .Hosts -}}
+{{.}} ansible_connection=local
+{{end}}
+
+{{range .Groups -}}
+[{{.}}]
+{{range $top.Hosts -}}
+{{.}} ansible_connection=local
+{{end}}
+
+{{end}}`
+
 type provisioner struct {
-  ModulePath     string
   Playbook       string
   Plays          []string
   Hosts          []string
@@ -51,11 +66,6 @@ type provisioner struct {
 func Provisioner() terraform.ResourceProvisioner {
   return &schema.Provisioner{
     Schema: map[string]*schema.Schema{
-      "module_path": &schema.Schema{
-        Type:     schema.TypeString,
-        Optional: true,
-        Default: "ansible",
-      },
       "playbook": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
@@ -225,11 +235,8 @@ func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Com
 func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicator.Communicator) error {
   // parse the playbook path and ensure that it is valid
   pathToResolve := p.Playbook
-  if p.ModulePath != "" {
-    pathToResolve = filepath.Join(p.ModulePath, p.Playbook)
-  }
 
-  playbookPath, err := p.resolvePath(pathToResolve)
+  playbookPath, err := p.resolvePath(pathToResolve, o)
   if err != nil {
     return err
   }
@@ -246,41 +253,29 @@ func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicato
   }
 
   // build a command to run ansible on the host machine
-  if command, err := p.commandBuilder(remotePlaybookPath); err != nil {
+  command, err := p.commandBuilder(remotePlaybookPath)
+  if err != nil {
     return err
-  } else {
-    o.Output(command)
   }
 
-  //o.Output(fmt.Sprintf("running command: %s", command))
-  //if err := p.runCommand(o, comm, command); err != nil {
-  //  return err
-  //}
+  // create temp inventory:
+  if err = p.uploadInventory(o, comm); err != nil {
+    return err
+  }
+
+  o.Output(fmt.Sprintf("running command: %s", command))
+  if err := p.runCommand(o, comm, command); err != nil {
+    return err
+  }
 
   return nil
 }
 
-func (p *provisioner) resolvePath(path string) (string, error) {
+func (p *provisioner) resolvePath(path string, o terraform.UIOutput) (string, error) {
   expandedPath, _ := homedir.Expand(path)
   if _, err := os.Stat(expandedPath); err == nil {
     return expandedPath, nil
   }
-
-  cwd, err := os.Getwd()
-  if err != nil {
-    return "", fmt.Errorf("Unable to get current working directory to resolve path as a relative path")
-  }
-
-  relativePath := filepath.Join(cwd, path)
-  if _, err := os.Stat(relativePath); err == nil {
-    return relativePath, nil
-  }
-
-  modulePath := filepath.Join(p.ModulePath, path)
-  if _, err := os.Stat(modulePath); err == nil {
-    return modulePath, nil
-  }
-
   return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
 }
 
@@ -322,6 +317,33 @@ func (p *provisioner) runCommand(o terraform.UIOutput, comm communicator.Communi
   <-errDoneCh
 
   return err
+}
+
+func (p *provisioner) uploadInventory(o terraform.UIOutput, comm communicator.Communicator) error {
+  o.Output("Generating ansible inventory...")
+  t := template.Must(template.New(templateInventory).Parse(inventoryTemplate))
+  var buf bytes.Buffer
+  err := t.Execute(&buf, p)
+  if err != nil {
+    return fmt.Errorf("Error executing '%s' template: %s", templateInventory, err)
+  }
+  targetPath := filepath.Join(bootstrapDirectory, ".inventory/hosts")
+
+  commands := []string{
+    fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)),
+    fmt.Sprintf("chmod 0777 %s", filepath.Dir(targetPath)),
+  }
+
+  for _, command := range commands {
+    p.runCommand(o, comm, command)
+  }
+
+  o.Output(fmt.Sprintf("Uploading ansible inventory to %s...", targetPath))
+  if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+    return err
+  }
+  o.Output("Ansible inventory uploaded.")
+  return nil
 }
 
 func (p *provisioner) copyOutput(o terraform.UIOutput, r io.Reader, doneCh chan<- struct{}) {
@@ -401,7 +423,6 @@ func retryFunc(timeout time.Duration, f func() error) error {
 
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
   p := &provisioner{
-    ModulePath:     d.Get("module_path").(string),
     Playbook:       d.Get("playbook").(string),
     Plays:          getStringList(d.Get("plays")),
     Hosts:          getStringList(d.Get("hosts")),
@@ -423,6 +444,7 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
     skipInstall:    d.Get("skip_install").(bool),
     installVersion: d.Get("install_version").(string),
   }
+  p.Hosts = append(p.Hosts, "localhost")
   return p, nil
 }
 
