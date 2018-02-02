@@ -339,7 +339,9 @@ func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Com
     return err
   }
 
-  p.runCommand(o, comm, fmt.Sprintf("/bin/bash -c '%s && rm %s'", targetPath, targetPath))
+  if err := p.runCommand(o, comm, fmt.Sprintf("/bin/bash -c '%s && rm %s'", targetPath, targetPath)); err != nil {
+    return err
+  }
 
   o.Output("Ansible installed.")
   return nil
