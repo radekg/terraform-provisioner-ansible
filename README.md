@@ -1,6 +1,8 @@
 # Ansible provisioner for terraform
 
-**Work in progress**.
+Run ansible on the provisioned host to bootstrap that host.
+
+## Install
 
     mkdir -p $GOPATH/src/github.com/radekg
     cd $GOPATH/src/github.com/radekg
