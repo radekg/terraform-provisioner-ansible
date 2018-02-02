@@ -24,8 +24,49 @@ import (
 
 const (
   bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
-  templateInventory string = "hosts"
 )
+
+const installerProgramTemplate = `#!/usr/bin/env bash
+if [ -z "$(which ansible-playbook)" ]; then
+  
+  # only check the cloud boot finished if the directory exists
+  if [ -d /var/lib/cloud/instance ]; then
+    until [[ -f /var/lib/cloud/instance/boot-finished ]]; do
+      sleep 1
+    done
+  fi
+
+  # install dependencies
+  if [[ -f /etc/redhat-release ]]; then
+    yum update -y \
+    && yum groupinstall -y "Development Tools" \
+    && yum install -y python-devel
+  else
+    apt-get update \
+    && apt-get install -y build-essential python-dev
+  fi
+
+  # install pip, if necessary
+  if [ -z "$(which pip)" ]; then
+    curl https://bootstrap.pypa.io/get-pip.py | sudo python
+  fi
+
+  # install ansible
+  pip install {{ .AnsibleVersion}}
+
+else
+
+  expected_version="{{ .AnsibleVersion}}"
+  installed_version=$(ansible-playbook --version | head -n1 | awk '{print $2}')
+  installed_version="ansible==$installed_version"
+  if [[ "$expected_version" = *"=="* ]]; then
+    if [ "$expected_version" != "$installed_version" ]; then
+      pip install $expected_version
+    fi
+  fi
+  
+fi
+`
 
 const inventoryTemplate = `{{$top := . -}}
 {{range .Hosts -}}
@@ -39,6 +80,10 @@ const inventoryTemplate = `{{$top := . -}}
 {{end}}
 
 {{end}}`
+
+type ansibleInstaller struct {
+  AnsibleVersion string
+}
 
 type provisioner struct {
   Playbook       string
@@ -205,33 +250,6 @@ func applyFn(ctx context.Context) error {
 
 }
 
-func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
-  o.Output("Installing ansible...")
-  provisionAnsibleCommands := []string{
-    // https://github.com/hashicorp/terraform/issues/1025
-    // cloud-init runs on fresh sources and can interfere with apt-get update commands causing intermittent failures
-    "/bin/bash -c 'until [[ -f /var/lib/cloud/instance/boot-finished ]]; do sleep 1; done'",
-    "/bin/bash -c ' if [[ -f /etc/redhat-release ]];then yum update -y && yum groupinstall -y \"Development Tools\" &&  yum install -y python-devel; else apt-get update && apt-get install -y build-essential python-dev; fi'",
-    "curl https://bootstrap.pypa.io/get-pip.py | sudo python",
-  }
-
-  if len(p.installVersion) > 0 {
-    provisionAnsibleCommands = append(provisionAnsibleCommands, fmt.Sprintf("pip install ansible==%s", p.installVersion))
-  } else {
-    provisionAnsibleCommands = append(provisionAnsibleCommands, "pip install ansible")
-  }
-
-  for _, command := range provisionAnsibleCommands {
-    o.Output(fmt.Sprintf("running command: %s", command))
-    err := p.runCommand(o, comm, command)
-    if err != nil {
-      return err
-    }
-  }
-  o.Output("Ansible installed.")
-  return nil
-}
-
 func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicator.Communicator) error {
   // parse the playbook path and ensure that it is valid
   pathToResolve := p.Playbook
@@ -319,13 +337,43 @@ func (p *provisioner) runCommand(o terraform.UIOutput, comm communicator.Communi
   return err
 }
 
+func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
+
+  installer := &ansibleInstaller{
+    AnsibleVersion: "ansible",
+  }
+  if len(p.installVersion) > 0 {
+    installer.AnsibleVersion = fmt.Sprintf("%s==%s", installer.AnsibleVersion, p.installVersion)
+  }
+
+  o.Output(fmt.Sprintf("Installing '%s'...", installer.AnsibleVersion))
+
+  t := template.Must(template.New("installer").Parse(installerProgramTemplate))
+  var buf bytes.Buffer
+  err := t.Execute(&buf, installer)
+  if err != nil {
+    return fmt.Errorf("Error executing 'installer' template: %s", err)
+  }
+  targetPath := "/tmp/ansible-install.sh"
+
+  o.Output(fmt.Sprintf("Uploading ansible installer program to %s...", targetPath))
+  if err := comm.UploadScript(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+    return err
+  }
+
+  p.runCommand(o, comm, fmt.Sprintf("/bin/bash -c '%s && rm %s'", targetPath, targetPath))
+
+  o.Output("Ansible installed.")
+  return nil
+}
+
 func (p *provisioner) uploadInventory(o terraform.UIOutput, comm communicator.Communicator) error {
   o.Output("Generating ansible inventory...")
-  t := template.Must(template.New(templateInventory).Parse(inventoryTemplate))
+  t := template.Must(template.New("hosts").Parse(inventoryTemplate))
   var buf bytes.Buffer
   err := t.Execute(&buf, p)
   if err != nil {
-    return fmt.Errorf("Error executing '%s' template: %s", templateInventory, err)
+    return fmt.Errorf("Error executing 'hosts' template: %s", err)
   }
   targetPath := filepath.Join(bootstrapDirectory, ".inventory/hosts")
 
