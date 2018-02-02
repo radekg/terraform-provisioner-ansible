@@ -95,7 +95,7 @@ type provisioner struct {
   StartAtTask    string
   Limit          string
   Forks          int
-  ExtraVars      map[string]string
+  ExtraVars      map[string]interface{}
   Verbose        bool
   ForceHandlers  bool
 
@@ -513,16 +513,12 @@ func getStringList(v interface{}) []string {
   }
 }
 
-func getStringMap(v interface{}) map[string]string {
-  result := make(map[string]string)
+func getStringMap(v interface{}) map[string]interface{} {
   switch v := v.(type) {
   case nil:
-    return result
+    return make(map[string]interface{})
   case map[string]interface{}:
-    for key, val := range v {
-      result[key] = fmt.Sprintf("%+v", val)
-    }
-    return result
+    return v
   default:
     panic(fmt.Sprintf("Unsupported type: %T", v))
   }
