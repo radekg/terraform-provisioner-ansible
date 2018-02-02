@@ -216,7 +216,6 @@ func Provisioner() terraform.ResourceProvisioner {
       },
     },
     ApplyFunc:    applyFn,
-    //ValidateFunc: validateFn,
   }
 }
 
@@ -509,19 +508,6 @@ func (p *provisioner) copyOutput(o terraform.UIOutput, r io.Reader, doneCh chan<
   }
 }
 
-/*
-func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
-
-  if modulePath := c.Get("module")
-  playbook := c.Get("playbook")
-
-  if fmt.Sprintf("%+v::%+v", modulePath, playbook) == "::" {
-    es = append(es, errors.New("\"module\" and \"playbook\" are empty: set at least one"))
-  }
-
-  return ws, es
-}
-*/
 // retryFunc is used to retry a function for a given duration
 func retryFunc(timeout time.Duration, f func() error) error {
   finish := time.After(timeout)
