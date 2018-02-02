@@ -119,7 +119,7 @@ func Provisioner() terraform.ResourceProvisioner {
       "playbook": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
-        Default: "playbook.yaml",
+        Default: "~/ansible/playbook.yaml",
       },
       "hosts": &schema.Schema{
         Type:     schema.TypeList,
