@@ -87,7 +87,6 @@ type ansibleInstaller struct {
 
 type provisioner struct {
   Playbook       string
-  Plays          []string
   Hosts          []string
   Groups         []string
   Tags           []string
@@ -115,11 +114,6 @@ func Provisioner() terraform.ResourceProvisioner {
         Type:     schema.TypeString,
         Optional: true,
         Default: "playbook.yaml",
-      },
-      "plays": &schema.Schema{
-        Type:     schema.TypeList,
-        Elem:     &schema.Schema{ Type: schema.TypeString },
-        Optional: true,
       },
       "hosts": &schema.Schema{
         Type:     schema.TypeList,
@@ -472,7 +466,6 @@ func retryFunc(timeout time.Duration, f func() error) error {
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
   p := &provisioner{
     Playbook:       d.Get("playbook").(string),
-    Plays:          getStringList(d.Get("plays")),
     Hosts:          getStringList(d.Get("hosts")),
     Groups:         getStringList(d.Get("groups")),
     Tags:           getStringList(d.Get("tags")),
