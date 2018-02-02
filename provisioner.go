@@ -1,6 +1,7 @@
 package main
 
 import (
+  "bufio"
   "bytes"
   "context"
   "encoding/json"
@@ -81,30 +82,35 @@ const inventoryTemplate = `{{$top := . -}}
 
 {{end}}`
 
+var inventoryFilePath string = filepath.Join(bootstrapDirectory, ".inventory-ansible-bootstrap/hosts")
+
 type ansibleInstaller struct {
   AnsibleVersion string
 }
 
 type provisioner struct {
-  Playbook       string
-  Hosts          []string
-  Groups         []string
-  Tags           []string
-  SkipTags       []string
-  StartAtTask    string
-  Limit          string
-  Forks          int
-  ExtraVars      map[string]interface{}
-  Verbose        bool
-  ForceHandlers  bool
+  Playbook          string
+  Hosts             []string
+  Groups            []string
+  Tags              []string
+  SkipTags          []string
+  StartAtTask       string
+  Limit             string
+  Forks             int
+  ExtraVars         map[string]interface{}
+  Verbose           bool
+  ForceHandlers     bool
 
-  Become         bool
-  BecomeMethod   string
-  BecomeUser     string
+  Become            bool
+  BecomeMethod      string
+  BecomeUser        string
 
-  useSudo        bool
-  skipInstall    bool
-  installVersion string
+  VaultPasswordFile string
+
+  useSudo           bool
+  skipInstall       bool
+  skipCleanup       bool
+  installVersion    string
 }
 
 func Provisioner() terraform.ResourceProvisioner {
@@ -182,12 +188,23 @@ func Provisioner() terraform.ResourceProvisioner {
         Default:  "user",
       },
 
+      "vault_password_file": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default:  "",
+      },
+
       "use_sudo": &schema.Schema{
         Type:     schema.TypeBool,
         Optional: true,
         Default:  true,
       },
       "skip_install": &schema.Schema{
+        Type:     schema.TypeBool,
+        Optional: true,
+        Default:  false,
+      },
+      "skip_cleanup": &schema.Schema{
         Type:     schema.TypeBool,
         Optional: true,
         Default:  false,
@@ -245,10 +262,8 @@ func applyFn(ctx context.Context) error {
 }
 
 func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicator.Communicator) error {
-  // parse the playbook path and ensure that it is valid
-  pathToResolve := p.Playbook
-
-  playbookPath, err := p.resolvePath(pathToResolve, o)
+  
+  playbookPath, err := p.resolvePath(p.Playbook, o)
   if err != nil {
     return err
   }
@@ -264,8 +279,21 @@ func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicato
     return err
   }
 
+  vaultPasswordFilePath := p.VaultPasswordFile
+  uploadedVaultPasswordFilePath := ""
+  if len(vaultPasswordFilePath) > 0 {
+    vaultPasswordFilePath, err = p.resolvePath(vaultPasswordFilePath, o)
+    if err != nil {
+      return err
+    }
+    uploadedVaultPasswordFilePath, err = p.uploadVaultPasswordFile(o, comm, vaultPasswordFilePath)
+    if err != nil {
+      return err
+    }
+  }
+
   // build a command to run ansible on the host machine
-  command, err := p.commandBuilder(remotePlaybookPath)
+  command, err := p.commandBuilder(remotePlaybookPath, uploadedVaultPasswordFilePath)
   if err != nil {
     return err
   }
@@ -280,7 +308,147 @@ func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicato
     return err
   }
 
+  if !p.skipCleanup {
+    p.cleanupAfterBootstrap(o, comm)
+  }
+
   return nil
+}
+
+func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
+
+  installer := &ansibleInstaller{
+    AnsibleVersion: "ansible",
+  }
+  if len(p.installVersion) > 0 {
+    installer.AnsibleVersion = fmt.Sprintf("%s==%s", installer.AnsibleVersion, p.installVersion)
+  }
+
+  o.Output(fmt.Sprintf("Installing '%s'...", installer.AnsibleVersion))
+
+  t := template.Must(template.New("installer").Parse(installerProgramTemplate))
+  var buf bytes.Buffer
+  err := t.Execute(&buf, installer)
+  if err != nil {
+    return fmt.Errorf("Error executing 'installer' template: %s", err)
+  }
+  targetPath := "/tmp/ansible-install.sh"
+
+  o.Output(fmt.Sprintf("Uploading ansible installer program to %s...", targetPath))
+  if err := comm.UploadScript(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+    return err
+  }
+
+  p.runCommand(o, comm, fmt.Sprintf("/bin/bash -c '%s && rm %s'", targetPath, targetPath))
+
+  o.Output("Ansible installed.")
+  return nil
+}
+
+func (p *provisioner) uploadVaultPasswordFile(o terraform.UIOutput, comm communicator.Communicator, passwordFilePath string) (string, error) {
+
+  passwordFileName := filepath.Base(passwordFilePath)
+  targetPath := filepath.Join(bootstrapDirectory, ".vault-ansible-bootstrap", passwordFileName)
+
+  commands := []string{
+    fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)),
+    fmt.Sprintf("chmod 0777 %s", filepath.Dir(targetPath)),
+  }
+
+  for _, command := range commands {
+    p.runCommand(o, comm, command)
+  }
+
+  o.Output(fmt.Sprintf("Uploading ansible vault password file to '%s'...", targetPath))
+
+  file, err := os.Open(passwordFilePath)
+  if err != nil {
+    return "", err
+  }
+  defer file.Close()
+
+
+  if err := comm.Upload(targetPath, bufio.NewReader(file)); err != nil {
+    return "", err
+  }
+
+  o.Output("Ansible vault password file uploaded.")
+
+  return targetPath, nil
+}
+
+func (p *provisioner) uploadInventory(o terraform.UIOutput, comm communicator.Communicator) error {
+  o.Output("Generating ansible inventory...")
+  t := template.Must(template.New("hosts").Parse(inventoryTemplate))
+  var buf bytes.Buffer
+  err := t.Execute(&buf, p)
+  if err != nil {
+    return fmt.Errorf("Error executing 'hosts' template: %s", err)
+  }
+  targetPath := inventoryFilePath
+
+  commands := []string{
+    fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)),
+    fmt.Sprintf("chmod 0777 %s", filepath.Dir(targetPath)),
+  }
+
+  for _, command := range commands {
+    p.runCommand(o, comm, command)
+  }
+
+  o.Output(fmt.Sprintf("Uploading ansible inventory to %s...", targetPath))
+  if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+    return err
+  }
+  o.Output("Ansible inventory uploaded.")
+  return nil
+}
+
+func (p *provisioner) cleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
+  o.Output("Cleaning up after bootstrap...")
+  p.runCommand(o, comm, fmt.Sprintf("rm -rf %s", filepath.Dir(bootstrapDirectory)))
+  o.Output("Cleanup complete.")
+}
+
+func (p *provisioner) commandBuilder(playbookFile string, uploadedVaultPasswordFilePath string) (string, error) {
+
+  command := fmt.Sprintf("ansible-playbook %s", playbookFile)
+  command = fmt.Sprintf("%s --inventory-file=%s", command, inventoryFilePath)
+  if len(p.ExtraVars) > 0 {
+    extraVars, err := json.Marshal(p.ExtraVars)
+    if err != nil {
+      return "", err
+    }
+    command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
+  }
+  if len(p.SkipTags) > 0 {
+    command = fmt.Sprintf("%s --skip-tags=%s", command, strings.Join(p.SkipTags, ","))
+  }
+  if len(p.Tags) > 0 {
+    command = fmt.Sprintf("%s --tags=%s", command, strings.Join(p.Tags, ","))
+  }
+  if len(uploadedVaultPasswordFilePath) > 0 {
+    command = fmt.Sprintf("%s --vault-password-file=%s", command, uploadedVaultPasswordFilePath)
+  }
+  if len(p.StartAtTask) > 0 {
+    command = fmt.Sprintf("%s --start-at-task=%s", command, p.StartAtTask)
+  }
+  if len(p.Limit) > 0 {
+    command = fmt.Sprintf("%s --limit=%s", command, p.Limit)
+  }
+  if p.Forks > 0 {
+    command = fmt.Sprintf("%s --forks=%d", command, p.Forks)
+  }
+  if p.Verbose {
+    command = fmt.Sprintf("%s --verbose", command)
+  }
+  if p.ForceHandlers {
+    command = fmt.Sprintf("%s --force-handlers", command)
+  }
+  if p.Become {
+    command = fmt.Sprintf("%s --become --become-method='%s' --become-user='%s'", command, p.BecomeMethod, p.BecomeUser)
+  }
+  return command, nil
 }
 
 func (p *provisioner) resolvePath(path string, o terraform.UIOutput) (string, error) {
@@ -331,63 +499,6 @@ func (p *provisioner) runCommand(o terraform.UIOutput, comm communicator.Communi
   return err
 }
 
-func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
-
-  installer := &ansibleInstaller{
-    AnsibleVersion: "ansible",
-  }
-  if len(p.installVersion) > 0 {
-    installer.AnsibleVersion = fmt.Sprintf("%s==%s", installer.AnsibleVersion, p.installVersion)
-  }
-
-  o.Output(fmt.Sprintf("Installing '%s'...", installer.AnsibleVersion))
-
-  t := template.Must(template.New("installer").Parse(installerProgramTemplate))
-  var buf bytes.Buffer
-  err := t.Execute(&buf, installer)
-  if err != nil {
-    return fmt.Errorf("Error executing 'installer' template: %s", err)
-  }
-  targetPath := "/tmp/ansible-install.sh"
-
-  o.Output(fmt.Sprintf("Uploading ansible installer program to %s...", targetPath))
-  if err := comm.UploadScript(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
-    return err
-  }
-
-  p.runCommand(o, comm, fmt.Sprintf("/bin/bash -c '%s && rm %s'", targetPath, targetPath))
-
-  o.Output("Ansible installed.")
-  return nil
-}
-
-func (p *provisioner) uploadInventory(o terraform.UIOutput, comm communicator.Communicator) error {
-  o.Output("Generating ansible inventory...")
-  t := template.Must(template.New("hosts").Parse(inventoryTemplate))
-  var buf bytes.Buffer
-  err := t.Execute(&buf, p)
-  if err != nil {
-    return fmt.Errorf("Error executing 'hosts' template: %s", err)
-  }
-  targetPath := filepath.Join(bootstrapDirectory, ".inventory/hosts")
-
-  commands := []string{
-    fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)),
-    fmt.Sprintf("chmod 0777 %s", filepath.Dir(targetPath)),
-  }
-
-  for _, command := range commands {
-    p.runCommand(o, comm, command)
-  }
-
-  o.Output(fmt.Sprintf("Uploading ansible inventory to %s...", targetPath))
-  if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
-    return err
-  }
-  o.Output("Ansible inventory uploaded.")
-  return nil
-}
-
 func (p *provisioner) copyOutput(o terraform.UIOutput, r io.Reader, doneCh chan<- struct{}) {
   defer close(doneCh)
   lr := linereader.New(r)
@@ -396,42 +507,6 @@ func (p *provisioner) copyOutput(o terraform.UIOutput, r io.Reader, doneCh chan<
   }
 }
 
-func (p *provisioner) commandBuilder(playbookFile string) (string, error) {
-  command := fmt.Sprintf("ansible-playbook %s", playbookFile)
-  command = fmt.Sprintf("%s --inventory-file=%s", command, filepath.Join(filepath.Dir(playbookFile), ".inventory/hosts"))
-  if len(p.ExtraVars) > 0 {
-    extraVars, err := json.Marshal(p.ExtraVars)
-    if err != nil {
-      return "", err
-    }
-    command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
-  }
-  if len(p.SkipTags) > 0 {
-    command = fmt.Sprintf("%s --skip-tags=%s", command, strings.Join(p.SkipTags, ","))
-  }
-  if len(p.Tags) > 0 {
-    command = fmt.Sprintf("%s --tags=%s", command, strings.Join(p.Tags, ","))
-  }
-  if len(p.StartAtTask) > 0 {
-    command = fmt.Sprintf("%s --start-at-task=%s", command, p.StartAtTask)
-  }
-  if len(p.Limit) > 0 {
-    command = fmt.Sprintf("%s --limit=%s", command, p.Limit)
-  }
-  if p.Forks > 0 {
-    command = fmt.Sprintf("%s --forks=%d", command, p.Forks)
-  }
-  if p.Verbose {
-    command = fmt.Sprintf("%s --verbose", command)
-  }
-  if p.ForceHandlers {
-    command = fmt.Sprintf("%s --force-handlers", command)
-  }
-  if p.Become {
-    command = fmt.Sprintf("%s --become --become-method='%s' --become-user='%s'", command, p.BecomeMethod, p.BecomeUser)
-  }
-  return command, nil
-}
 /*
 func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
@@ -465,25 +540,28 @@ func retryFunc(timeout time.Duration, f func() error) error {
 
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
   p := &provisioner{
-    Playbook:       d.Get("playbook").(string),
-    Hosts:          getStringList(d.Get("hosts")),
-    Groups:         getStringList(d.Get("groups")),
-    Tags:           getStringList(d.Get("tags")),
-    SkipTags:       getStringList(d.Get("skip_tags")),
-    StartAtTask:    d.Get("start_at_task").(string),
-    Limit:          d.Get("limit").(string),
-    Forks:          d.Get("forks").(int),
-    ExtraVars:      getStringMap(d.Get("extra_vars")),
-    Verbose:        d.Get("verbose").(bool),
-    ForceHandlers:  d.Get("force_handlers").(bool),
+    Playbook:          d.Get("playbook").(string),
+    Hosts:             getStringList(d.Get("hosts")),
+    Groups:            getStringList(d.Get("groups")),
+    Tags:              getStringList(d.Get("tags")),
+    SkipTags:          getStringList(d.Get("skip_tags")),
+    StartAtTask:       d.Get("start_at_task").(string),
+    Limit:             d.Get("limit").(string),
+    Forks:             d.Get("forks").(int),
+    ExtraVars:         getStringMap(d.Get("extra_vars")),
+    Verbose:           d.Get("verbose").(bool),
+    ForceHandlers:     d.Get("force_handlers").(bool),
 
-    Become:         d.Get("become").(bool),
-    BecomeMethod:   d.Get("become_method").(string),
-    BecomeUser:     d.Get("become_user").(string),
+    Become:            d.Get("become").(bool),
+    BecomeMethod:      d.Get("become_method").(string),
+    BecomeUser:        d.Get("become_user").(string),
 
-    useSudo:        d.Get("use_sudo").(bool),
-    skipInstall:    d.Get("skip_install").(bool),
-    installVersion: d.Get("install_version").(string),
+    VaultPasswordFile: d.Get("vault_password_file").(string),
+
+    useSudo:           d.Get("use_sudo").(bool),
+    skipInstall:       d.Get("skip_install").(bool),
+    skipCleanup:       d.Get("skip_cleanup").(bool),
+    installVersion:    d.Get("install_version").(string),
   }
   p.Hosts = append(p.Hosts, "localhost")
   return p, nil
