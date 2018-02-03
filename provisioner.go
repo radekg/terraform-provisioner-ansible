@@ -303,7 +303,7 @@ func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicato
   }
 
   o.Output(fmt.Sprintf("running command: %s", command))
-  if err := p.runCommand(o, comm, command); err != nil {
+  if err := p.runCommandSudo(o, comm, command); err != nil {
     return err
   }
 
@@ -338,7 +338,7 @@ func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Com
     return err
   }
 
-  if err := p.runCommand(o, comm, fmt.Sprintf("/bin/bash -c '%s && rm %s'", targetPath, targetPath)); err != nil {
+  if err := p.runCommandSudo(o, comm, fmt.Sprintf("/bin/bash -c '%s && rm %s'", targetPath, targetPath)); err != nil {
     return err
   }
 
@@ -351,14 +351,8 @@ func (p *provisioner) uploadVaultPasswordFile(o terraform.UIOutput, comm communi
   passwordFileName := filepath.Base(passwordFilePath)
   targetPath := filepath.Join(bootstrapDirectory, ".vault-ansible-bootstrap", passwordFileName)
 
-  commands := []string{
-    fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)),
-    fmt.Sprintf("chmod 0777 %s", filepath.Dir(targetPath)),
-  }
-
-  for _, command := range commands {
-    p.runCommand(o, comm, command)
-  }
+  // create the directory for vault password file:
+  p.runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)))
 
   o.Output(fmt.Sprintf("Uploading ansible vault password file to '%s'...", targetPath))
 
@@ -388,14 +382,8 @@ func (p *provisioner) uploadInventory(o terraform.UIOutput, comm communicator.Co
   }
   targetPath := inventoryFilePath
 
-  commands := []string{
-    fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)),
-    fmt.Sprintf("chmod 0777 %s", filepath.Dir(targetPath)),
-  }
-
-  for _, command := range commands {
-    p.runCommand(o, comm, command)
-  }
+  // create directory for the inventory file:
+  p.runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)))
 
   o.Output(fmt.Sprintf("Uploading ansible inventory to %s...", targetPath))
   if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
@@ -407,7 +395,7 @@ func (p *provisioner) uploadInventory(o terraform.UIOutput, comm communicator.Co
 
 func (p *provisioner) cleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
   o.Output("Cleaning up after bootstrap...")
-  p.runCommand(o, comm, fmt.Sprintf("rm -rf %s", filepath.Dir(bootstrapDirectory)))
+  p.runCommandNoSudo(o, comm, fmt.Sprintf("rm -r %s", bootstrapDirectory))
   o.Output("Cleanup complete.")
 }
 
@@ -460,10 +448,18 @@ func (p *provisioner) resolvePath(path string, o terraform.UIOutput) (string, er
   return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
 }
 
+func (p *provisioner) runCommandSudo(o terraform.UIOutput, comm communicator.Communicator, command string) error {
+  return p.runCommand(o, comm, command, true)
+}
+
+func (p *provisioner) runCommandNoSudo(o terraform.UIOutput, comm communicator.Communicator, command string) error {
+  return p.runCommand(o, comm, command, false)
+}
+
 // runCommand is used to run already prepared commands
-func (p *provisioner) runCommand(o terraform.UIOutput, comm communicator.Communicator, command string) error {
+func (p *provisioner) runCommand(o terraform.UIOutput, comm communicator.Communicator, command string, shouldSudo bool) error {
   // Unless prevented, prefix the command with sudo
-  if p.useSudo {
+  if shouldSudo && p.useSudo {
     command = "sudo " + command
   }
 
