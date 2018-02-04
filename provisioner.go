@@ -4,13 +4,13 @@ import (
   "bufio"
   "bytes"
   "context"
-  "encoding/json"
+  //"encoding/json"
   "fmt"
   "io"
   "log"
   "os"
   "path/filepath"
-  "strings"
+  //"strings"
   "text/template"
   "time"
 
@@ -88,8 +88,19 @@ type ansibleInstaller struct {
   AnsibleVersion string
 }
 
-type provisioner struct {
-  Playbook          string
+type AnsibleCallbaleType int
+const (
+  AnsibleCallable_Playbook AnsibleCallbaleType = iota
+  AnsibleCallable_Module
+)
+
+type ansibleCallable struct {
+  Callable string
+  CallableType AnsibleCallbaleType
+  CallArgs *ansibleCallArgs
+}
+
+type ansibleCallArgs struct {
   Hosts             []string
   Groups            []string
   Tags              []string
@@ -97,16 +108,26 @@ type provisioner struct {
   StartAtTask       string
   Limit             string
   Forks             int
+  ModuleArgs        map[string]interface{}
   ExtraVars         map[string]interface{}
   Verbose           bool
   ForceHandlers     bool
+  OneLine           bool
 
   Become            bool
   BecomeMethod      string
   BecomeUser        string
 
   VaultPasswordFile string
+}
 
+type play struct {
+  Callable *ansibleCallable
+}
+
+type provisioner struct {
+  Plays             []*play
+  CallArgs          *ansibleCallArgs
   useSudo           bool
   skipInstall       bool
   skipCleanup       bool
@@ -116,11 +137,110 @@ type provisioner struct {
 func Provisioner() terraform.ResourceProvisioner {
   return &schema.Provisioner{
     Schema: map[string]*schema.Schema{
-      "playbook": &schema.Schema{
-        Type:     schema.TypeString,
+
+      "plays": &schema.Schema{
+        Type:     schema.TypeList,
         Optional: true,
-        Default: "~/ansible/playbook.yaml",
+        Computed: true,
+        Elem: &schema.Resource{
+          Schema: map[string]*schema.Schema{
+
+            "playbook": &schema.Schema{
+              ConflictsWith: []string{"plays.module"},
+              Type:     schema.TypeString,
+              Optional: true,
+            },
+            "module": &schema.Schema{
+              ConflictsWith: []string{"plays.playbook"},
+              Type:     schema.TypeString,
+              Optional: true,
+            },
+            "hosts": &schema.Schema{
+              Type:     schema.TypeList,
+              Elem:     &schema.Schema{ Type: schema.TypeString },
+              Optional: true,
+            },
+            "groups": &schema.Schema{
+              Type:     schema.TypeList,
+              Elem:     &schema.Schema{ Type: schema.TypeString },
+              Optional: true,
+            },
+            "tags": &schema.Schema{
+              Type:     schema.TypeList,
+              Elem:     &schema.Schema{ Type: schema.TypeString },
+              Optional: true,
+            },
+            "skip_tags": &schema.Schema{
+              Type:     schema.TypeList,
+              Elem:     &schema.Schema{ Type: schema.TypeString },
+              Optional: true,
+            },
+            "start_at_task": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default: "",
+            },
+            "limit": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default: "",
+            },
+            "extra_vars": &schema.Schema{
+              Type:     schema.TypeMap,
+              Optional: true,
+              Computed: true,
+            },
+            "module_args": &schema.Schema{
+              Type:     schema.TypeMap,
+              Optional: true,
+              Computed: true,
+            },
+            "forks": &schema.Schema{
+              Type:     schema.TypeInt,
+              Optional: true,
+              Default: 0, // only added to the command when greater than 0
+            },
+            "verbose": &schema.Schema{
+              Type:     schema.TypeBool,
+              Optional: true,
+              Default:  false,
+            },
+            "force_handlers": &schema.Schema{
+              Type:     schema.TypeBool,
+              Optional: true,
+              Default:  false,
+            },
+            "one_line": &schema.Schema{
+              Type:     schema.TypeBool,
+              Optional: true,
+              Default:  false,
+            },
+
+            "become": &schema.Schema{
+              Type:     schema.TypeBool,
+              Optional: true,
+              Default:  false,
+            },
+            "become_method": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default:  "sudo",
+            },
+            "become_user": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default:  "user",
+            },
+            "vault_password_file": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default:  "",
+            },
+
+          },
+        },
       },
+
       "hosts": &schema.Schema{
         Type:     schema.TypeList,
         Elem:     &schema.Schema{ Type: schema.TypeString },
@@ -156,6 +276,11 @@ func Provisioner() terraform.ResourceProvisioner {
         Optional: true,
         Computed: true,
       },
+      "module_args": &schema.Schema{
+        Type:     schema.TypeMap,
+        Optional: true,
+        Computed: true,
+      },
       "forks": &schema.Schema{
         Type:     schema.TypeInt,
         Optional: true,
@@ -167,6 +292,11 @@ func Provisioner() terraform.ResourceProvisioner {
         Default:  false,
       },
       "force_handlers": &schema.Schema{
+        Type:     schema.TypeBool,
+        Optional: true,
+        Default:  false,
+      },
+      "one_line": &schema.Schema{
         Type:     schema.TypeBool,
         Optional: true,
         Default:  false,
@@ -251,18 +381,21 @@ func applyFn(ctx context.Context) error {
     }
   }
 
-  if err := p.deployAnsibleModule(o, comm); err != nil {
-    o.Output(fmt.Sprintf("%+v", err))
-    return err
-  }
+  // TODO: restore
+  //if err := p.deployAnsibleModule(o, comm); err != nil {
+  //  o.Output(fmt.Sprintf("%+v", err))
+  //  return err
+  //}
 
   return nil
 
 }
 
+/*
 func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicator.Communicator) error {
   
-  playbookPath, err := p.resolvePath(p.Playbook, o)
+  playbookPath, err := p.resolvePath("", o) // TODO: fixme
+  //playbookPath, err := p.resolvePath(p.Playbook, o)
   if err != nil {
     return err
   }
@@ -313,6 +446,7 @@ func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicato
 
   return nil
 }
+*/
 
 func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
 
@@ -399,6 +533,7 @@ func (p *provisioner) cleanupAfterBootstrap(o terraform.UIOutput, comm communica
   o.Output("Cleanup complete.")
 }
 
+/*
 func (p *provisioner) commandBuilder(playbookFile string, uploadedVaultPasswordFilePath string) (string, error) {
 
   command := fmt.Sprintf("ansible-playbook %s", playbookFile)
@@ -439,6 +574,7 @@ func (p *provisioner) commandBuilder(playbookFile string, uploadedVaultPasswordF
   }
   return command, nil
 }
+*/
 
 func (p *provisioner) resolvePath(path string, o terraform.UIOutput) (string, error) {
   expandedPath, _ := homedir.Expand(path)
@@ -524,31 +660,48 @@ func retryFunc(timeout time.Duration, f func() error) error {
 
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
   p := &provisioner{
-    Playbook:          d.Get("playbook").(string),
-    Hosts:             getStringList(d.Get("hosts")),
-    Groups:            getStringList(d.Get("groups")),
-    Tags:              getStringList(d.Get("tags")),
-    SkipTags:          getStringList(d.Get("skip_tags")),
-    StartAtTask:       d.Get("start_at_task").(string),
-    Limit:             d.Get("limit").(string),
-    Forks:             d.Get("forks").(int),
-    ExtraVars:         getStringMap(d.Get("extra_vars")),
-    Verbose:           d.Get("verbose").(bool),
-    ForceHandlers:     d.Get("force_handlers").(bool),
+    useSudo:        d.Get("use_sudo").(bool),
+    skipInstall:    d.Get("skip_install").(bool),
+    skipCleanup:    d.Get("skip_cleanup").(bool),
+    installVersion: d.Get("install_version").(string),
+    Plays:          decodePlays(d.Get("plays")),
+    CallArgs:       &ansibleCallArgs{
+      Hosts:             getStringList(d.Get("hosts")),
+      Groups:            getStringList(d.Get("groups")),
+      Tags:              getStringList(d.Get("tags")),
+      SkipTags:          getStringList(d.Get("skip_tags")),
+      StartAtTask:       d.Get("start_at_task").(string),
+      Limit:             d.Get("limit").(string),
+      Forks:             d.Get("forks").(int),
+      ExtraVars:         getStringMap(d.Get("extra_vars")),
+      ModuleArgs:        getStringMap(d.Get("module_args")),
+      Verbose:           d.Get("verbose").(bool),
+      ForceHandlers:     d.Get("force_handlers").(bool),
+      OneLine:           d.Get("one_line").(bool),
 
-    Become:            d.Get("become").(bool),
-    BecomeMethod:      d.Get("become_method").(string),
-    BecomeUser:        d.Get("become_user").(string),
+      Become:            d.Get("become").(bool),
+      BecomeMethod:      d.Get("become_method").(string),
+      BecomeUser:        d.Get("become_user").(string),
 
-    VaultPasswordFile: d.Get("vault_password_file").(string),
-
-    useSudo:           d.Get("use_sudo").(bool),
-    skipInstall:       d.Get("skip_install").(bool),
-    skipCleanup:       d.Get("skip_cleanup").(bool),
-    installVersion:    d.Get("install_version").(string),
+      VaultPasswordFile: d.Get("vault_password_file").(string),
+    },
   }
-  p.Hosts = append(p.Hosts, "localhost")
+  //p.Hosts = append(p.Hosts, "localhost") // TODO: restore
   return p, nil
+}
+
+func decodePlays(v interface{}) []*play {
+  var result []*play
+  switch v := v.(type) {
+  case []interface{}:
+    for _, vv := range v {
+      panic(fmt.Sprintf(" =======================> %+v ", vv))
+    }
+    return result
+  default:
+    panic(fmt.Sprintf("Unsupported type: %T", v))
+  }
+  return make([]*play, 0)
 }
 
 func getStringList(v interface{}) []string {
