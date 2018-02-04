@@ -4,6 +4,7 @@ import (
   "bufio"
   "bytes"
   "context"
+  "errors"
   //"encoding/json"
   "fmt"
   "io"
@@ -28,12 +29,18 @@ const (
   defaultStartAtTask string = ""
   defaultLimit string = ""
   defaultForks int = 5
-  defaultVerbose bool = false
-  defaultForceHandlers bool = false
-  defaultOneLine bool = false
-  defaultBecome bool = false
-  defaultBecomeMethod string = "sudo"
-  defaultBecomeUser string = "root"
+  defaultVerbose string = ""
+  defaultVerbose_Set string = "no"
+  defaultForceHandlers string = ""
+  defaultForceHandlers_Set string = "no"
+  defaultOneLine string = ""
+  defaultOneLine_Set string = "no"
+  defaultBecome string = ""
+  defaultBecome_Set string = "no"
+  defaultBecomeMethod string = ""
+  defaultBecomeMethod_Set string = "sudo"
+  defaultBecomeUser string = ""
+  defaultBecomeUser_Set string = "root"
   defaultVaultPasswordFile string = ""
 )
 
@@ -92,6 +99,9 @@ const inventoryTemplate = `{{$top := . -}}
 
 {{end}}`
 
+var yesNoStates = map[string]bool{"yes": true, "no": true}
+var becomeMethods = map[string]bool{"sudo": true, "su": true, "pbrun": true, "pfexec": true, "doas": true, "dzdo": true, "ksu": true, "runas": true}
+
 var inventoryFilePath string = filepath.Join(bootstrapDirectory, ".inventory-ansible-bootstrap/hosts")
 
 type ansibleInstaller struct {
@@ -122,11 +132,11 @@ type ansibleCallArgs struct {
   Forks             int
   ModuleArgs        map[string]interface{}
   ExtraVars         map[string]interface{}
-  Verbose           bool
-  ForceHandlers     bool
-  OneLine           bool
+  Verbose           string
+  ForceHandlers     string
+  OneLine           string
 
-  Become            bool
+  Become            string
   BecomeMethod      string
   BecomeUser        string
 
@@ -213,23 +223,23 @@ func Provisioner() terraform.ResourceProvisioner {
               Default: defaultForks,
             },
             "verbose": &schema.Schema{
-              Type:     schema.TypeBool,
+              Type:     schema.TypeString,
               Optional: true,
               Default:  defaultVerbose,
             },
             "force_handlers": &schema.Schema{
-              Type:     schema.TypeBool,
+              Type:     schema.TypeString,
               Optional: true,
               Default:  defaultForceHandlers,
             },
             "one_line": &schema.Schema{
-              Type:     schema.TypeBool,
+              Type:     schema.TypeString,
               Optional: true,
               Default:  defaultOneLine,
             },
 
             "become": &schema.Schema{
-              Type:     schema.TypeBool,
+              Type:     schema.TypeString,
               Optional: true,
               Default:  defaultBecome,
             },
@@ -299,23 +309,23 @@ func Provisioner() terraform.ResourceProvisioner {
         Default: defaultForks,
       },
       "verbose": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
         Default:  defaultVerbose,
       },
       "force_handlers": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
         Default:  defaultForceHandlers,
       },
       "one_line": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
         Default:  defaultOneLine,
       },
 
       "become": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
         Default:  defaultBecome,
       },
@@ -358,6 +368,7 @@ func Provisioner() terraform.ResourceProvisioner {
       },
     },
     ApplyFunc:    applyFn,
+    ValidateFunc: validateFn,
   }
 }
 
@@ -401,6 +412,57 @@ func applyFn(ctx context.Context) error {
 
   return nil
 
+}
+
+func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
+  becomeMethod, ok := c.Get("become_method")
+  if ok {
+    if !becomeMethods[becomeMethod.(string)] {
+      es = append(es, errors.New(becomeMethod.(string)+" is not a valid become_method."))
+    }
+  }
+
+  fields := []string{"verbose", "force_handlers", "one_line", "become"}
+  for _, field := range fields {
+    v, ok := c.Get(field)
+    if ok && v.(string) != "" {
+      if !yesNoStates[v.(string)] {
+        es = append(es, errors.New(v.(string)+" is not a valid " + field + "."))
+      }
+    }
+  }
+
+  // Validate plays configs
+  plays, ok := c.Get("plays")
+  if ok {
+    for _, p := range plays.([]map[string]interface{}) {
+      playbook, okp := p["playbook"]
+      module, okm := p["module"]
+      if okp && okm && len(playbook.(string)) > 0 && len(module.(string)) > 0 {
+        es = append(es, errors.New("playbook and module can't be used together."))
+      }
+
+      becomeMethodPlay, ok := p["become_method"]
+      if ok {
+        if !becomeMethods[becomeMethodPlay.(string)] {
+          es = append(es, errors.New(becomeMethodPlay.(string)+" is not a valid become_method."))
+        }
+      }
+
+      for _, fieldPlay := range fields {
+        v, ok := p[fieldPlay]
+        if ok && v.(string) != "" {
+          if !yesNoStates[v.(string)] {
+            es = append(es, errors.New(v.(string)+" is not a valid " + fieldPlay + "."))
+          }
+        }
+      }
+    }
+  } else {
+    ws = append(ws, "Nothing to play.")
+  }
+
+  return ws, es
 }
 
 /*
@@ -687,11 +749,11 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
       Forks:             d.Get("forks").(int),
       ExtraVars:         getStringMap(d.Get("extra_vars")),
       ModuleArgs:        getStringMap(d.Get("module_args")),
-      Verbose:           d.Get("verbose").(bool),
-      ForceHandlers:     d.Get("force_handlers").(bool),
-      OneLine:           d.Get("one_line").(bool),
+      Verbose:           d.Get("verbose").(string),
+      ForceHandlers:     d.Get("force_handlers").(string),
+      OneLine:           d.Get("one_line").(string),
 
-      Become:            d.Get("become").(bool),
+      Become:            d.Get("become").(string),
       BecomeMethod:      d.Get("become_method").(string),
       BecomeUser:        d.Get("become_user").(string),
 
@@ -736,20 +798,20 @@ func decodePlays(v []interface{}, fallback ansibleCallArgs) []play {
           Groups:            withStringListFallback(getStringList(playData["groups"]), fallback.Groups),
           Tags:              withStringListFallback(getStringList(playData["tags"]), fallback.Tags),
           SkipTags:          withStringListFallback(getStringList(playData["skip_tags"]), fallback.SkipTags),
-          StartAtTask:       withStringFallback((playData["start_at_task"].(string)), defaultStartAtTask, fallback.StartAtTask),
-          Limit:             withStringFallback((playData["limit"].(string)), defaultLimit, fallback.Limit),
-          Forks:             withIntFallback((playData["forks"].(int)), defaultForks, fallback.Forks),
+          StartAtTask:       withStringFallback(playData["start_at_task"].(string), defaultStartAtTask, fallback.StartAtTask),
+          Limit:             withStringFallback(playData["limit"].(string), defaultLimit, fallback.Limit),
+          Forks:             withIntFallback(playData["forks"].(int), defaultForks, fallback.Forks),
           ModuleArgs:        withStringInterfaceMapFallback(getStringMap(playData["module_args"]), fallback.ModuleArgs),
           ExtraVars:         withStringInterfaceMapFallback(getStringMap(playData["extra_vars"]), fallback.ExtraVars),
-          Verbose:           withBoolFallback((playData["verbose"].(bool)), defaultVerbose, fallback.Verbose),
-          ForceHandlers:     withBoolFallback((playData["force_handlers"].(bool)), defaultForceHandlers, fallback.ForceHandlers),
-          OneLine:           withBoolFallback((playData["one_line"].(bool)), defaultOneLine, fallback.OneLine),
+          Verbose:           withStringFallback(playData["verbose"].(string), defaultVerbose, fallback.Verbose),
+          ForceHandlers:     withStringFallback(playData["force_handlers"].(string), defaultForceHandlers, fallback.ForceHandlers),
+          OneLine:           withStringFallback(playData["one_line"].(string), defaultOneLine, fallback.OneLine),
 
-          Become:            withBoolFallback((playData["become"].(bool)), defaultBecome, fallback.Become),
-          BecomeMethod:      withStringFallback((playData["become_method"].(string)), defaultBecomeMethod, fallback.BecomeMethod),
-          BecomeUser:        withStringFallback((playData["become_user"].(string)), defaultBecomeUser, fallback.BecomeUser),
+          Become:            withStringFallback(playData["become"].(string), defaultBecome, fallback.Become),
+          BecomeMethod:      withStringFallback(playData["become_method"].(string), defaultBecomeMethod, fallback.BecomeMethod),
+          BecomeUser:        withStringFallback(playData["become_user"].(string), defaultBecomeUser, fallback.BecomeUser),
 
-          VaultPasswordFile: withStringFallback((playData["vault_password_file"].(string)), defaultVaultPasswordFile, fallback.VaultPasswordFile),
+          VaultPasswordFile: withStringFallback(playData["vault_password_file"].(string), defaultVaultPasswordFile, fallback.VaultPasswordFile),
         },
       },
     }
@@ -809,12 +871,7 @@ func withStringFallback(intended string, defaultValue string, fallback string) s
   }
   return intended
 }
-func withBoolFallback(intended bool, defaultValue bool, fallback bool) bool {
-  if intended == defaultValue {
-    return fallback
-  }
-  return intended
-}
+
 func withIntFallback(intended int, defaultValue int, fallback int) int {
   if intended == defaultValue {
     return fallback
