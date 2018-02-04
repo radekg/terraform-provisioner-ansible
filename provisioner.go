@@ -4,14 +4,16 @@ import (
   "bufio"
   "bytes"
   "context"
+  "crypto/md5"
   "errors"
-  //"encoding/json"
+  "encoding/hex"
+  "encoding/json"
   "fmt"
   "io"
   "log"
   "os"
   "path/filepath"
-  //"strings"
+  "strings"
   "text/template"
   "time"
 
@@ -22,6 +24,8 @@ import (
 
   "github.com/mitchellh/go-homedir"
   "github.com/mitchellh/go-linereader"
+
+  "github.com/satori/go.uuid"
 )
 
 const (
@@ -102,8 +106,6 @@ const inventoryTemplate = `{{$top := . -}}
 var yesNoStates = map[string]bool{"yes": true, "no": true}
 var becomeMethods = map[string]bool{"sudo": true, "su": true, "pbrun": true, "pfexec": true, "doas": true, "dzdo": true, "ksu": true, "runas": true}
 
-var inventoryFilePath string = filepath.Join(bootstrapDirectory, ".inventory-ansible-bootstrap/hosts")
-
 type ansibleInstaller struct {
   AnsibleVersion string
 }
@@ -143,9 +145,105 @@ type ansibleCallArgs struct {
   VaultPasswordFile string
 }
 
+// -- play:
+
 type play struct {
   Callable ansibleCallable
 }
+
+func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string, error) {
+
+  command := ""
+  // entity to call:
+  if p.Callable.CallableType == AnsibleCallable_Playbook {
+    command = fmt.Sprintf("ansible-playbook %s", p.Callable.Callable)
+  } else if p.Callable.CallableType == AnsibleCallable_Module {
+    command = fmt.Sprintf("ansible all --module-name='%s'", p.Callable.Callable)
+  }
+  // inventory file:
+  command = fmt.Sprintf("%s --inventory-file='%s'", command, inventoryFile)
+
+  if len(vaultPasswordFile) > 0 {
+    command = fmt.Sprintf("%s --vault-password-file='%s'", command, vaultPasswordFile)
+  }
+
+  // extra vars:
+  if len(p.Callable.CallArgs.ExtraVars) > 0 {
+    extraVars, err := json.Marshal(p.Callable.CallArgs.ExtraVars)
+    if err != nil {
+      return "", err
+    }
+    command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
+  }
+  // module args:
+  if len(p.Callable.CallArgs.ModuleArgs) > 0 {
+    args := make([]string, 0)
+    for mak, mav := range p.Callable.CallArgs.ModuleArgs {
+      args = append(args, fmt.Sprintf("%s=%+v", mak, mav))
+    }
+    command = fmt.Sprintf("%s --module-args=\"%s\"", command, strings.Join(args, " "))
+  }
+  // skip tags:
+  if len(p.Callable.CallArgs.SkipTags) > 0 {
+    command = fmt.Sprintf("%s --skip-tags='%s'", command, strings.Join(p.Callable.CallArgs.SkipTags, ","))
+  }
+  // tags:
+  if len(p.Callable.CallArgs.Tags) > 0 {
+    command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(p.Callable.CallArgs.Tags, ","))
+  }
+  // start at task:
+  if len(p.Callable.CallArgs.StartAtTask) > 0 {
+    command = fmt.Sprintf("%s --start-at-task='%s'", command, p.Callable.CallArgs.StartAtTask)
+  }
+  // limit
+  if len(p.Callable.CallArgs.Limit) > 0 {
+    command = fmt.Sprintf("%s --limit='%s'", command, p.Callable.CallArgs.Limit)
+  }
+  // forks:
+  if p.Callable.CallArgs.Forks > 0 {
+    command = fmt.Sprintf("%s --forks=%d", command, p.Callable.CallArgs.Forks)
+  }
+  // verbose:
+  if p.Callable.CallArgs.Verbose == "yes" {
+    command = fmt.Sprintf("%s --verbose", command)
+  }
+  // force handlers:
+  if p.Callable.CallArgs.ForceHandlers == "yes" {
+    command = fmt.Sprintf("%s --force-handlers", command)
+  }
+  // one line:
+  if p.Callable.CallArgs.OneLine == "yes" {
+    command = fmt.Sprintf("%s --one-line", command)
+  }
+  if p.Callable.CallArgs.Become == "yes" {
+    command = fmt.Sprintf("%s --become", command)
+    if p.Callable.CallArgs.BecomeMethod != "" {
+      command = fmt.Sprintf("%s --become-method='%s'", command, p.Callable.CallArgs.BecomeMethod)
+    } else {
+      command = fmt.Sprintf("%s --become-method='%s'", command, defaultBecomeMethod_Set)
+    }
+    if p.Callable.CallArgs.BecomeUser != "" {
+      command = fmt.Sprintf("%s --become-user='%s'", command, p.Callable.CallArgs.BecomeUser)
+    } else {
+      command = fmt.Sprintf("%s --become-user='%s'", command, defaultBecomeUser_Set)
+    }
+  }
+  return command, nil
+}
+
+// -- runnable play:
+
+type runnablePlay struct {
+  Play              play
+  VaultPasswordFile string
+  InventoryFile     string
+}
+
+func (r *runnablePlay) ToCommand() (string, error) {
+  return r.Play.ToCommand(r.InventoryFile, r.VaultPasswordFile)
+}
+
+// -- provisioner:
 
 type provisioner struct {
   Plays             []play
@@ -399,16 +497,34 @@ func applyFn(ctx context.Context) error {
   defer comm.Disconnect()
 
   if !p.skipInstall {
-    if err := p.installAnsible(o, comm); err != nil {
+    if err := p.remote_installAnsible(o, comm); err != nil {
       return err
     }
   }
 
-  // TODO: restore
-  //if err := p.deployAnsibleModule(o, comm); err != nil {
-  //  o.Output(fmt.Sprintf("%+v", err))
-  //  return err
-  //}
+  runnablePlays := make([]runnablePlay, 0)
+
+  if runnables, err := p.remote_deployAnsibleData(o, comm); err != nil {
+    o.Output(fmt.Sprintf("%+v", err))
+    return err
+  } else {
+    runnablePlays = runnables
+  }
+
+  for _, runnable := range runnablePlays {
+    command, err := runnable.ToCommand()
+    if err != nil {
+      return err
+    }
+    o.Output(fmt.Sprintf("running command: %s", command))
+    if err := p.runCommandSudo(o, comm, command); err != nil {
+      return err
+    }
+  }
+
+  if !p.skipCleanup {
+    p.remote_cleanupAfterBootstrap(o, comm)
+  }
 
   return nil
 
@@ -465,64 +581,96 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
   return ws, es
 }
 
-/*
-func (p *provisioner) deployAnsibleModule(o terraform.UIOutput, comm communicator.Communicator) error {
+func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm communicator.Communicator) ([]runnablePlay, error) {
   
-  playbookPath, err := p.resolvePath("", o) // TODO: fixme
-  //playbookPath, err := p.resolvePath(p.Playbook, o)
-  if err != nil {
-    return err
-  }
+  response := make([]runnablePlay, 0)
+  
+  for _, playDef := range p.Plays {
+    if playDef.Callable.CallableType == AnsibleCallable_Playbook {
 
-  // playbook file is at the top level of the module
-  // parse the playbook path's directory and upload the entire directory
-  playbookDir := filepath.Dir(playbookPath)
+      playbookPath, err := p.resolvePath(playDef.Callable.Callable, o)
+      if err != nil {
+        return response, err
+      }
 
-  remotePlaybookPath := filepath.Join(bootstrapDirectory, filepath.Base(playbookPath))
+      // playbook file is at the top level of the module
+      // parse the playbook path's directory and upload the entire directory
+      playbookDir := filepath.Dir(playbookPath)
+      playbookDirHash := getMD5Hash(playbookDir)
 
-  // upload ansible source and playbook to the host
-  if err := comm.UploadDir(bootstrapDirectory, playbookDir); err != nil {
-    return err
-  }
+      remotePlaybookDir := filepath.Join(bootstrapDirectory, playbookDirHash)
+      remotePlaybookPath := filepath.Join(remotePlaybookDir, filepath.Base(playbookPath))
 
-  vaultPasswordFilePath := p.VaultPasswordFile
-  uploadedVaultPasswordFilePath := ""
-  if len(vaultPasswordFilePath) > 0 {
-    vaultPasswordFilePath, err = p.resolvePath(vaultPasswordFilePath, o)
-    if err != nil {
-      return err
+      if err := p.runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
+        return response, err
+      }
+
+      errCmdCheck := p.runCommandNoSudo(o, comm, fmt.Sprintf("/bin/bash -c 'if [ -d \"%s\" ]; then exit 50; fi'", remotePlaybookDir))
+      if err != nil {
+        errCmdCheckDetail := strings.Split(fmt.Sprintf("%v", errCmdCheck), ": ")
+        if errCmdCheckDetail[len(errCmdCheckDetail)-1] == "50" {
+          o.Output(fmt.Sprintf("The playbook '%s' directory '%s' has been already uploaded.", playDef.Callable.Callable, playbookDir))
+        } else {
+          return response, err
+        }
+      } else {
+        o.Output(fmt.Sprintf("Uploading the parent directory '%s' of playbook '%s' to '%s'...", playbookDir, playDef.Callable.Callable, remotePlaybookDir))
+        // upload ansible source and playbook to the host
+        if err := comm.UploadDir(remotePlaybookDir, playbookDir); err != nil {
+          return response, err
+        }
+      }
+
+      playDef.Callable.Callable = remotePlaybookPath
+
+      // always upload vault password file:
+      uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, remotePlaybookDir, playDef.Callable.CallArgs)
+      if err != nil {
+        return response, err
+      }
+
+      // always create temp inventory:
+      inventoryFile, err := p.remote_writeTemporaryInventory(o, comm, remotePlaybookDir, playDef.Callable.CallArgs)
+      if err != nil {
+        return response, err
+      }
+
+      response = append(response, runnablePlay{
+        Play: playDef,
+        VaultPasswordFile: uploadedVaultPasswordFilePath,
+        InventoryFile: inventoryFile,
+      })
+
+    } else if playDef.Callable.CallableType == AnsibleCallable_Module {
+
+      if err := p.runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
+        return response, err
+      }
+
+      // always upload vault password file:
+      uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, bootstrapDirectory, playDef.Callable.CallArgs)
+      if err != nil {
+        return response, err
+      }
+
+      // always create temp inventory:
+      inventoryFile, err := p.remote_writeTemporaryInventory(o, comm, bootstrapDirectory, playDef.Callable.CallArgs)
+      if err != nil {
+        return response, err
+      }
+
+      response = append(response, runnablePlay{
+        Play: playDef,
+        VaultPasswordFile: uploadedVaultPasswordFilePath,
+        InventoryFile: inventoryFile,
+      })
     }
-    uploadedVaultPasswordFilePath, err = p.uploadVaultPasswordFile(o, comm, vaultPasswordFilePath)
-    if err != nil {
-      return err
-    }
   }
 
-  // build a command to run ansible on the host machine
-  command, err := p.commandBuilder(remotePlaybookPath, uploadedVaultPasswordFilePath)
-  if err != nil {
-    return err
-  }
-
-  // create temp inventory:
-  if err = p.uploadInventory(o, comm); err != nil {
-    return err
-  }
-
-  o.Output(fmt.Sprintf("running command: %s", command))
-  if err := p.runCommandSudo(o, comm, command); err != nil {
-    return err
-  }
-
-  if !p.skipCleanup {
-    p.cleanupAfterBootstrap(o, comm)
-  }
-
-  return nil
+  return response, nil
 }
-*/
 
-func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
+func (p *provisioner) remote_installAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
 
   installer := &ansibleInstaller{
     AnsibleVersion: "ansible",
@@ -554,17 +702,23 @@ func (p *provisioner) installAnsible(o terraform.UIOutput, comm communicator.Com
   return nil
 }
 
-func (p *provisioner) uploadVaultPasswordFile(o terraform.UIOutput, comm communicator.Communicator, passwordFilePath string) (string, error) {
+func (p *provisioner) remote_uploadVaultPasswordFile(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgs) (string, error) {
 
-  passwordFileName := filepath.Base(passwordFilePath)
-  targetPath := filepath.Join(bootstrapDirectory, ".vault-ansible-bootstrap", passwordFileName)
+  if callArgs.VaultPasswordFile == "" {
+    return "", nil
+  }
 
-  // create the directory for vault password file:
-  p.runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)))
+  source, err := p.resolvePath(callArgs.VaultPasswordFile, o)
+  if err != nil {
+    return "", err
+  }
+
+  u1 := uuid.Must(uuid.NewV4())
+  targetPath := filepath.Join(destination, fmt.Sprintf(".vault-password-file-%s", u1))
 
   o.Output(fmt.Sprintf("Uploading ansible vault password file to '%s'...", targetPath))
 
-  file, err := os.Open(passwordFilePath)
+  file, err := os.Open(source)
   if err != nil {
     return "", err
   }
@@ -580,75 +734,31 @@ func (p *provisioner) uploadVaultPasswordFile(o terraform.UIOutput, comm communi
   return targetPath, nil
 }
 
-func (p *provisioner) uploadInventory(o terraform.UIOutput, comm communicator.Communicator) error {
-  o.Output("Generating ansible inventory...")
+func (p *provisioner) remote_writeTemporaryInventory(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgs) (string, error) {
+  o.Output("Generating temporary ansible inventory...")
   t := template.Must(template.New("hosts").Parse(inventoryTemplate))
   var buf bytes.Buffer
-  err := t.Execute(&buf, p)
+  err := t.Execute(&buf, callArgs)
   if err != nil {
-    return fmt.Errorf("Error executing 'hosts' template: %s", err)
+    return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
   }
-  targetPath := inventoryFilePath
 
-  // create directory for the inventory file:
-  p.runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", filepath.Dir(targetPath)))
+  u1 := uuid.Must(uuid.NewV4())
+  targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
 
-  o.Output(fmt.Sprintf("Uploading ansible inventory to %s...", targetPath))
+  o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
   if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
-    return err
+    return "", err
   }
-  o.Output("Ansible inventory uploaded.")
-  return nil
+  o.Output("Ansible inventory written.")
+  return targetPath, nil
 }
 
-func (p *provisioner) cleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
+func (p *provisioner) remote_cleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
   o.Output("Cleaning up after bootstrap...")
   p.runCommandNoSudo(o, comm, fmt.Sprintf("rm -r %s", bootstrapDirectory))
   o.Output("Cleanup complete.")
 }
-
-/*
-func (p *provisioner) commandBuilder(playbookFile string, uploadedVaultPasswordFilePath string) (string, error) {
-
-  command := fmt.Sprintf("ansible-playbook %s", playbookFile)
-  command = fmt.Sprintf("%s --inventory-file=%s", command, inventoryFilePath)
-  if len(p.ExtraVars) > 0 {
-    extraVars, err := json.Marshal(p.ExtraVars)
-    if err != nil {
-      return "", err
-    }
-    command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
-  }
-  if len(p.SkipTags) > 0 {
-    command = fmt.Sprintf("%s --skip-tags=%s", command, strings.Join(p.SkipTags, ","))
-  }
-  if len(p.Tags) > 0 {
-    command = fmt.Sprintf("%s --tags=%s", command, strings.Join(p.Tags, ","))
-  }
-  if len(uploadedVaultPasswordFilePath) > 0 {
-    command = fmt.Sprintf("%s --vault-password-file=%s", command, uploadedVaultPasswordFilePath)
-  }
-  if len(p.StartAtTask) > 0 {
-    command = fmt.Sprintf("%s --start-at-task=%s", command, p.StartAtTask)
-  }
-  if len(p.Limit) > 0 {
-    command = fmt.Sprintf("%s --limit=%s", command, p.Limit)
-  }
-  if p.Forks > 0 {
-    command = fmt.Sprintf("%s --forks=%d", command, p.Forks)
-  }
-  if p.Verbose {
-    command = fmt.Sprintf("%s --verbose", command)
-  }
-  if p.ForceHandlers {
-    command = fmt.Sprintf("%s --force-handlers", command)
-  }
-  if p.Become {
-    command = fmt.Sprintf("%s --become --become-method='%s' --become-user='%s'", command, p.BecomeMethod, p.BecomeUser)
-  }
-  return command, nil
-}
-*/
 
 func (p *provisioner) resolvePath(path string, o terraform.UIOutput) (string, error) {
   expandedPath, _ := homedir.Expand(path)
@@ -890,4 +1000,11 @@ func withStringInterfaceMapFallback(intended map[string]interface{}, fallback ma
     return fallback
   }
   return intended
+}
+
+
+func getMD5Hash(text string) string {
+    hasher := md5.New()
+    hasher.Write([]byte(text))
+    return hex.EncodeToString(hasher.Sum(nil))
 }
