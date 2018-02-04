@@ -22,3 +22,11 @@ build-linux: plugins-dir
 build-darwin: plugins-dir
 	CGO_ENABLED=0 GOOS=darwin installsuffix=cgo go build -o ./${BINARY_NAME}-darwin
 	cp ./${BINARY_NAME}-darwin ${PLUGINS_DIR}/${BINARY_NAME}
+
+.PHONY: test
+test:
+	go test
+
+.PHONY: test-verbose
+test-verbose:
+	go test -v
