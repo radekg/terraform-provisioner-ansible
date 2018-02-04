@@ -25,6 +25,16 @@ import (
 
 const (
   bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
+  defaultStartAtTask string = ""
+  defaultLimit string = ""
+  defaultForks int = 5
+  defaultVerbose bool = false
+  defaultForceHandlers bool = false
+  defaultOneLine bool = false
+  defaultBecome bool = false
+  defaultBecomeMethod string = "sudo"
+  defaultBecomeUser string = "root"
+  defaultVaultPasswordFile string = ""
 )
 
 const installerProgramTemplate = `#!/usr/bin/env bash
@@ -90,14 +100,16 @@ type ansibleInstaller struct {
 
 type AnsibleCallbaleType int
 const (
-  AnsibleCallable_Playbook AnsibleCallbaleType = iota
+  AnsibleCallable_Undefined AnsibleCallbaleType = iota
+  AnsibleCallable_Conflicting
+  AnsibleCallable_Playbook
   AnsibleCallable_Module
 )
 
 type ansibleCallable struct {
   Callable string
   CallableType AnsibleCallbaleType
-  CallArgs *ansibleCallArgs
+  CallArgs ansibleCallArgs
 }
 
 type ansibleCallArgs struct {
@@ -122,12 +134,12 @@ type ansibleCallArgs struct {
 }
 
 type play struct {
-  Callable *ansibleCallable
+  Callable ansibleCallable
 }
 
 type provisioner struct {
-  Plays             []*play
-  CallArgs          *ansibleCallArgs
+  Plays             []play
+  CallArgs          ansibleCallArgs
   useSudo           bool
   skipInstall       bool
   skipCleanup       bool
@@ -178,12 +190,12 @@ func Provisioner() terraform.ResourceProvisioner {
             "start_at_task": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default: "",
+              Default: defaultStartAtTask,
             },
             "limit": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default: "",
+              Default: defaultLimit,
             },
             "extra_vars": &schema.Schema{
               Type:     schema.TypeMap,
@@ -198,43 +210,43 @@ func Provisioner() terraform.ResourceProvisioner {
             "forks": &schema.Schema{
               Type:     schema.TypeInt,
               Optional: true,
-              Default: 0, // only added to the command when greater than 0
+              Default: defaultForks,
             },
             "verbose": &schema.Schema{
               Type:     schema.TypeBool,
               Optional: true,
-              Default:  false,
+              Default:  defaultVerbose,
             },
             "force_handlers": &schema.Schema{
               Type:     schema.TypeBool,
               Optional: true,
-              Default:  false,
+              Default:  defaultForceHandlers,
             },
             "one_line": &schema.Schema{
               Type:     schema.TypeBool,
               Optional: true,
-              Default:  false,
+              Default:  defaultOneLine,
             },
 
             "become": &schema.Schema{
               Type:     schema.TypeBool,
               Optional: true,
-              Default:  false,
+              Default:  defaultBecome,
             },
             "become_method": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default:  "sudo",
+              Default:  defaultBecomeMethod,
             },
             "become_user": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default:  "user",
+              Default:  defaultBecomeUser,
             },
             "vault_password_file": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default:  "",
+              Default:  defaultVaultPasswordFile,
             },
 
           },
@@ -264,12 +276,12 @@ func Provisioner() terraform.ResourceProvisioner {
       "start_at_task": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
-        Default: "",
+        Default: defaultStartAtTask,
       },
       "limit": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
-        Default: "",
+        Default: defaultLimit,
       },
       "extra_vars": &schema.Schema{
         Type:     schema.TypeMap,
@@ -284,44 +296,44 @@ func Provisioner() terraform.ResourceProvisioner {
       "forks": &schema.Schema{
         Type:     schema.TypeInt,
         Optional: true,
-        Default: 0, // only added to the command when greater than 0
+        Default: defaultForks,
       },
       "verbose": &schema.Schema{
         Type:     schema.TypeBool,
         Optional: true,
-        Default:  false,
+        Default:  defaultVerbose,
       },
       "force_handlers": &schema.Schema{
         Type:     schema.TypeBool,
         Optional: true,
-        Default:  false,
+        Default:  defaultForceHandlers,
       },
       "one_line": &schema.Schema{
         Type:     schema.TypeBool,
         Optional: true,
-        Default:  false,
+        Default:  defaultOneLine,
       },
 
       "become": &schema.Schema{
         Type:     schema.TypeBool,
         Optional: true,
-        Default:  false,
+        Default:  defaultBecome,
       },
       "become_method": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
-        Default:  "sudo",
+        Default:  defaultBecomeMethod,
       },
       "become_user": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
-        Default:  "user",
+        Default:  defaultBecomeUser,
       },
 
       "vault_password_file": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
-        Default:  "",
+        Default:  defaultVaultPasswordFile,
       },
 
       "use_sudo": &schema.Schema{
@@ -664,8 +676,8 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
     skipInstall:    d.Get("skip_install").(bool),
     skipCleanup:    d.Get("skip_cleanup").(bool),
     installVersion: d.Get("install_version").(string),
-    Plays:          decodePlays(d.Get("plays")),
-    CallArgs:       &ansibleCallArgs{
+    Plays:          make([]play, 0),
+    CallArgs:       ansibleCallArgs{
       Hosts:             getStringList(d.Get("hosts")),
       Groups:            getStringList(d.Get("groups")),
       Tags:              getStringList(d.Get("tags")),
@@ -686,22 +698,81 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
       VaultPasswordFile: d.Get("vault_password_file").(string),
     },
   }
-  //p.Hosts = append(p.Hosts, "localhost") // TODO: restore
+  p.CallArgs = ensureLocalhostInCallArgsHosts(p.CallArgs)
+  p.Plays = decodePlays(d.Get("plays").([]interface{}), p.CallArgs)
   return p, nil
 }
 
-func decodePlays(v interface{}) []*play {
-  var result []*play
-  switch v := v.(type) {
-  case []interface{}:
-    for _, vv := range v {
-      panic(fmt.Sprintf(" =======================> %+v ", vv))
+func decodePlays(v []interface{}, fallback ansibleCallArgs) []play {
+  plays := make([]play, 0, len(v))
+  for _, rawPlayData := range v {
+
+    callable := ""
+    callableType := AnsibleCallable_Undefined
+    playData := rawPlayData.(map[string]interface{})
+    playbook := (playData["playbook"].(string))
+    module   := (playData["module"].(string))
+
+    if len(playbook) > 0 && len(module) > 0 {
+      callableType = AnsibleCallable_Conflicting
+    } else {
+      if len(playbook) > 0 {
+        callable = playbook
+        callableType = AnsibleCallable_Playbook
+      } else if len(module) > 0 {
+        callable = module
+        callableType = AnsibleCallable_Module
+      } else {
+        callableType = AnsibleCallable_Undefined
+      }
     }
-    return result
-  default:
-    panic(fmt.Sprintf("Unsupported type: %T", v))
+
+    playToAppend := play{
+      Callable: ansibleCallable{
+        Callable: callable,
+        CallableType: callableType,
+        CallArgs: ansibleCallArgs{
+          Hosts:             withStringListFallback(getStringList(playData["hosts"]), fallback.Hosts),
+          Groups:            withStringListFallback(getStringList(playData["groups"]), fallback.Groups),
+          Tags:              withStringListFallback(getStringList(playData["tags"]), fallback.Tags),
+          SkipTags:          withStringListFallback(getStringList(playData["skip_tags"]), fallback.SkipTags),
+          StartAtTask:       withStringFallback((playData["start_at_task"].(string)), defaultStartAtTask, fallback.StartAtTask),
+          Limit:             withStringFallback((playData["limit"].(string)), defaultLimit, fallback.Limit),
+          Forks:             withIntFallback((playData["forks"].(int)), defaultForks, fallback.Forks),
+          ModuleArgs:        withStringInterfaceMapFallback(getStringMap(playData["module_args"]), fallback.ModuleArgs),
+          ExtraVars:         withStringInterfaceMapFallback(getStringMap(playData["extra_vars"]), fallback.ExtraVars),
+          Verbose:           withBoolFallback((playData["verbose"].(bool)), defaultVerbose, fallback.Verbose),
+          ForceHandlers:     withBoolFallback((playData["force_handlers"].(bool)), defaultForceHandlers, fallback.ForceHandlers),
+          OneLine:           withBoolFallback((playData["one_line"].(bool)), defaultOneLine, fallback.OneLine),
+
+          Become:            withBoolFallback((playData["become"].(bool)), defaultBecome, fallback.Become),
+          BecomeMethod:      withStringFallback((playData["become_method"].(string)), defaultBecomeMethod, fallback.BecomeMethod),
+          BecomeUser:        withStringFallback((playData["become_user"].(string)), defaultBecomeUser, fallback.BecomeUser),
+
+          VaultPasswordFile: withStringFallback((playData["vault_password_file"].(string)), defaultVaultPasswordFile, fallback.VaultPasswordFile),
+        },
+      },
+    }
+    playToAppend.Callable.CallArgs = ensureLocalhostInCallArgsHosts(playToAppend.Callable.CallArgs)
+
+    plays = append(plays, playToAppend)
   }
-  return make([]*play, 0)
+  return plays
+}
+
+func ensureLocalhostInCallArgsHosts(callArgs ansibleCallArgs) ansibleCallArgs {
+  lc := "localhost"
+  found := false
+  for _, v := range callArgs.Hosts {
+    if v == lc {
+      found = true
+      break
+    }
+  }
+  if !found {
+    callArgs.Hosts = append(callArgs.Hosts, lc)
+  }
+  return callArgs
 }
 
 func getStringList(v interface{}) []string {
@@ -730,4 +801,36 @@ func getStringMap(v interface{}) map[string]interface{} {
   default:
     panic(fmt.Sprintf("Unsupported type: %T", v))
   }
+}
+
+func withStringFallback(intended string, defaultValue string, fallback string) string {
+  if intended == defaultValue {
+    return fallback
+  }
+  return intended
+}
+func withBoolFallback(intended bool, defaultValue bool, fallback bool) bool {
+  if intended == defaultValue {
+    return fallback
+  }
+  return intended
+}
+func withIntFallback(intended int, defaultValue int, fallback int) int {
+  if intended == defaultValue {
+    return fallback
+  }
+  return intended
+}
+
+func withStringListFallback(intended []string, fallback []string) []string {
+  if len(intended) == 0 {
+    return fallback
+  }
+  return intended
+}
+func withStringInterfaceMapFallback(intended map[string]interface{}, fallback map[string]interface{}) map[string]interface{} {
+  if len(intended) == 0 {
+    return fallback
+  }
+  return intended
 }
