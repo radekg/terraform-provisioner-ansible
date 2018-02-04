@@ -1,5 +1,7 @@
 # Ansible provisioner for terraform
 
+[![Build Status](https://travis-ci.org/radekg/terraform-provisioner-ansible.svg?branch=master)](https://travis-ci.org/radekg/terraform-provisioner-ansible)
+
 Run ansible on the provisioned host to bootstrap that host.
 
 ## Install
