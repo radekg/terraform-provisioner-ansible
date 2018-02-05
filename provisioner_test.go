@@ -2,6 +2,8 @@ package main
 
 import (
   "encoding/json"
+  "io/ioutil"
+  "os"
   "strings"
   "testing"
 
@@ -9,6 +11,29 @@ import (
   "github.com/hashicorp/terraform/helper/schema"
   "github.com/hashicorp/terraform/terraform"
 )
+
+var vaultPasswordFile string
+var alternativeVaultPasswordFile string
+var playbookFile string
+
+func TestMain(m *testing.M) {
+  
+  tempVaultPasswordFile, _ := ioutil.TempFile("", "vault-password-file")
+  tempAlternativeVaultPasswordFile, _ := ioutil.TempFile("", "vault-password-file")
+  tempPlaybookFile, _ := ioutil.TempFile("", "playbook-file")
+
+  vaultPasswordFile = tempVaultPasswordFile.Name()
+  alternativeVaultPasswordFile = tempAlternativeVaultPasswordFile.Name()
+  playbookFile = tempPlaybookFile.Name()
+
+  result := m.Run()
+  
+  os.Remove(vaultPasswordFile)
+  os.Remove(alternativeVaultPasswordFile)
+  os.Remove(playbookFile)
+
+  os.Exit(result)
+}
 
 func TestResourceProvisioner_impl(t *testing.T) {
   var _ terraform.ResourceProvisioner = Provisioner()
@@ -24,7 +49,7 @@ func TestResourceProvisioner_Validate_good_config(t *testing.T) {
   c := testConfig(t, map[string]interface{}{
     "plays": []map[string]interface{}{
       map[string]interface{}{
-        "playbook":      "ansible/test.yaml",
+        "playbook":       playbookFile,
         "force_handlers": "no",
         "skip_tags":      []string{"tag2"},
         "start_at_task":  "test task",
@@ -53,7 +78,7 @@ func TestResourceProvisioner_Validate_good_config(t *testing.T) {
     "extra_vars":         map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"},
     "forks":              10,
     "limit":              "a=b",
-    "vault_password_file": "~/.vault_password_file",
+    "vault_password_file": vaultPasswordFile,
     "verbose":            "no",
   })
 
@@ -90,7 +115,7 @@ func TestResourceProvisioner_Validate_bad_config(t *testing.T) {
   c := testConfig(t, map[string]interface{}{
     "plays": []map[string]interface{}{
       map[string]interface{}{
-        "playbook": "ansible/test.yaml",
+        "playbook": playbookFile,
         "module":   "some_module",
       },
       map[string]interface{}{
@@ -117,7 +142,7 @@ func TestResourceProvisioner_Validate_bad_playbook_config(t *testing.T) {
   c := testConfig(t, map[string]interface{}{
     "plays": []map[string]interface{}{
       map[string]interface{}{
-        "playbook":     "ansible/test.yaml",
+        "playbook":     playbookFile,
         "args":         map[string]interface{}{"arg1": "string value"},
         "background":   10,
         "host_pattern": "all",
@@ -160,6 +185,28 @@ func TestResourceProvisioner_Validate_bad_module_config(t *testing.T) {
   }
 }
 
+func TestResourceProvisioner_Validate_file_existence_checks(t *testing.T) {
+  // Errors:
+  // - all 3 files do not exist
+  c := testConfig(t, map[string]interface{}{
+    "plays": []map[string]interface{}{
+      map[string]interface{}{
+        "playbook": "/tmp/non-existing-playbook.yaml",
+      },
+    },
+    "inventory_file":      "/tmp/non-existing-inventory-file",
+    "vault_password_file": "/tmp/non-existing-vault-password-file",
+  })
+
+  warn, errs := Provisioner().Validate(c)
+  if len(warn) > 0 {
+    t.Fatalf("Warnings: %v", warn)
+  }
+  if len(errs) != 3 {
+    t.Fatalf("Should have three errors but have: %v", errs)
+  }
+}
+
 func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 
   expected_hosts :=             []string{"localhost1", "localhost2", "localhost"}
@@ -170,20 +217,20 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
   expected_extraVars :=         map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"}
   expected_forks :=             10
   expected_limit :=             "a=b"
-  expected_vaultPasswordFile := "~/test/.vault_password_file"
+  expected_vaultPasswordFile := vaultPasswordFile
   expected_verbose :=           "yes"
 
   c := map[string]interface{}{
     "plays": []map[string]interface{}{
       map[string]interface{}{
-        "playbook":       "ansible/test.yaml",
+        "playbook":       playbookFile,
         "force_handlers": "yes",
         "skip_tags":      []string{"tag2"},
         "start_at_task":  "some_test_task",
         "tags":           []string{"tag1"},
       },
       map[string]interface{}{
-        "playbook":            "ansible/test.yaml",
+        "playbook":            playbookFile,
         "force_handlers":      "yes",
         "skip_tags":           []string{"tag2"},
         "start_at_task":       "some_test_task",
@@ -197,7 +244,7 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
         "extra_vars":          map[string]interface{}{"VAR3": "value 1", "VAR4": "value 2"},
         "forks":               6,
         "limit":               "b=c",
-        "vault_password_file": "~/another/.vault_password_file",
+        "vault_password_file": alternativeVaultPasswordFile,
         "verbose":             "no",
       },
     },

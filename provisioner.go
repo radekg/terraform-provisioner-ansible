@@ -567,10 +567,11 @@ func applyFn(ctx context.Context) error {
 }
 
 func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
+  
   becomeMethod, ok := c.Get("become_method")
   if ok {
     if !becomeMethods[becomeMethod.(string)] {
-      es = append(es, errors.New(becomeMethod.(string)+" is not a valid become_method."))
+      es = append(es, errors.New(becomeMethod.(string)+" is not a valid become_method"))
     }
   }
 
@@ -579,7 +580,16 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
     v, ok := c.Get(field)
     if ok && v.(string) != "" {
       if !yesNoStates[v.(string)] {
-        es = append(es, errors.New(v.(string)+" is not a valid " + field + "."))
+        es = append(es, errors.New(v.(string)+" is not a valid " + field))
+      }
+    }
+  }
+
+  for _, ftt := range []string{"inventory_file", "vault_password_file"} {
+    value, ok := c.Get(ftt)
+    if ok && len(value.(string)) > 0 {
+      if _, err := resolvePath(value.(string)); err != nil {
+        es = append(es, errors.New("file " + value.(string) + " does not exist"))
       }
     }
   }
@@ -626,7 +636,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
       becomeMethodPlay, ok := p["become_method"]
       if ok {
         if !becomeMethods[becomeMethodPlay.(string)] {
-          es = append(es, errors.New(becomeMethodPlay.(string)+" is not a valid become_method."))
+          es = append(es, errors.New(becomeMethodPlay.(string)+" is not a valid become_method"))
         }
       }
 
@@ -634,13 +644,23 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
         v, ok := p[fieldPlay]
         if ok && v.(string) != "" {
           if !yesNoStates[v.(string)] {
-            es = append(es, errors.New(v.(string)+" is not a valid " + fieldPlay + "."))
+            es = append(es, errors.New(v.(string)+" is not a valid " + fieldPlay))
           }
         }
       }
+
+      for _, ftt := range []string{"inventory_file", "playbook", "vault_password_file"} {
+        value, ok := p[ftt]
+        if ok && len(value.(string)) > 0 {
+          if _, err := resolvePath(value.(string)); err != nil {
+            es = append(es, errors.New("file " + value.(string) + " does not exist"))
+          }
+        }
+      }
+
     }
   } else {
-    ws = append(ws, "Nothing to play.")
+    ws = append(ws, "nothing to play")
   }
 
   return ws, es
@@ -653,7 +673,7 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
   for _, playDef := range p.Plays {
     if playDef.CallableType == AnsibleCallable_Playbook {
 
-      playbookPath, err := p.resolvePath(playDef.Callable, o)
+      playbookPath, err := resolvePath(playDef.Callable)
       if err != nil {
         return response, err
       }
@@ -773,7 +793,7 @@ func (p *provisioner) remote_uploadVaultPasswordFile(o terraform.UIOutput, comm 
     return "", nil
   }
 
-  source, err := p.resolvePath(callArgs.VaultPasswordFile, o)
+  source, err := resolvePath(callArgs.VaultPasswordFile)
   if err != nil {
     return "", err
   }
@@ -803,7 +823,7 @@ func (p *provisioner) remote_writeInventory(o terraform.UIOutput, comm communica
   if len(callArgs.Shared.InventoryFile) > 0 {
     
     o.Output(fmt.Sprintf("Using provided inventory file '%s'...", callArgs.Shared.InventoryFile))
-    source, err := p.resolvePath(callArgs.Shared.InventoryFile, o)
+    source, err := resolvePath(callArgs.Shared.InventoryFile)
     if err != nil {
       return "", err
     }
@@ -853,14 +873,6 @@ func (p *provisioner) remote_cleanupAfterBootstrap(o terraform.UIOutput, comm co
   o.Output("Cleaning up after bootstrap...")
   p.runCommandNoSudo(o, comm, fmt.Sprintf("rm -r %s", bootstrapDirectory))
   o.Output("Cleanup complete.")
-}
-
-func (p *provisioner) resolvePath(path string, o terraform.UIOutput) (string, error) {
-  expandedPath, _ := homedir.Expand(path)
-  if _, err := os.Stat(expandedPath); err == nil {
-    return expandedPath, nil
-  }
-  return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
 }
 
 func (p *provisioner) runCommandSudo(o terraform.UIOutput, comm communicator.Communicator, command string) error {
@@ -917,6 +929,14 @@ func (p *provisioner) copyOutput(o terraform.UIOutput, r io.Reader, doneCh chan<
   for line := range lr.Ch {
     o.Output(line)
   }
+}
+
+func resolvePath(path string) (string, error) {
+  expandedPath, _ := homedir.Expand(path)
+  if _, err := os.Stat(expandedPath); err == nil {
+    return expandedPath, nil
+  }
+  return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
 }
 
 // retryFunc is used to retry a function for a given duration
