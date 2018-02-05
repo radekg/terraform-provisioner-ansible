@@ -46,6 +46,10 @@ const (
   defaultBecomeUser string = ""
   defaultBecomeUser_Set string = "root"
   defaultVaultPasswordFile string = ""
+
+  defaultBackground int = 0
+  defaultHostPattern string = "all"
+  defaultPoll int = 15
 )
 
 const installerProgramTemplate = `#!/usr/bin/env bash
@@ -118,116 +122,144 @@ const (
   AnsibleCallable_Module
 )
 
-type ansibleCallable struct {
-  Callable string
-  CallableType AnsibleCallbaleType
-  CallArgs ansibleCallArgs
+type ansibleInventoryMeta struct {
+  Hosts  []string
+  Groups []string
 }
 
-type ansibleCallArgs struct {
-  Hosts             []string
-  Groups            []string
-  Tags              []string
-  SkipTags          []string
-  StartAtTask       string
-  Limit             string
-  Forks             int
-  ModuleArgs        map[string]interface{}
-  ExtraVars         map[string]interface{}
-  Verbose           string
-  ForceHandlers     string
-  OneLine           string
-
+type ansibleCallArgsShared struct {
   Become            string
   BecomeMethod      string
   BecomeUser        string
-
+  ExtraVars         map[string]interface{}
+  Forks             int
+  Limit             string
   VaultPasswordFile string
+  Verbose           string
+}
+
+type ansibleCallArgs struct {
+  // module only:
+  Args          map[string]interface{}
+  Background    int
+  HostPattern   string
+  OneLine       string
+  Poll          int
+  // Playbook only:
+  ForceHandlers string
+  SkipTags      []string
+  StartAtTask   string
+  Tags          []string
+  // shared:
+  Shared        ansibleCallArgsShared
 }
 
 // -- play:
 
 type play struct {
-  Callable ansibleCallable
+  InventoryMeta ansibleInventoryMeta
+  Callable      string
+  CallableType  AnsibleCallbaleType
+  CallArgs      ansibleCallArgs
 }
 
 func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string, error) {
 
   command := ""
   // entity to call:
-  if p.Callable.CallableType == AnsibleCallable_Playbook {
-    command = fmt.Sprintf("ansible-playbook %s", p.Callable.Callable)
-  } else if p.Callable.CallableType == AnsibleCallable_Module {
-    command = fmt.Sprintf("ansible all --module-name='%s'", p.Callable.Callable)
+  if p.CallableType == AnsibleCallable_Playbook {
+
+    command = fmt.Sprintf("ansible-playbook %s", p.Callable)
+
+    // force handlers:
+    if p.CallArgs.ForceHandlers == "yes" {
+      command = fmt.Sprintf("%s --force-handlers", command)
+    }
+    // skip tags:
+    if len(p.CallArgs.SkipTags) > 0 {
+      command = fmt.Sprintf("%s --skip-tags='%s'", command, strings.Join(p.CallArgs.SkipTags, ","))
+    }
+    // start at task:
+    if len(p.CallArgs.StartAtTask) > 0 {
+      command = fmt.Sprintf("%s --start-at-task='%s'", command, p.CallArgs.StartAtTask)
+    }
+    // tags:
+    if len(p.CallArgs.Tags) > 0 {
+      command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(p.CallArgs.Tags, ","))
+    }
+
+  } else if p.CallableType == AnsibleCallable_Module {
+
+    hostPattern := p.CallArgs.HostPattern
+    if hostPattern == "" {
+      hostPattern = defaultHostPattern
+    }
+    command = fmt.Sprintf("ansible %s --module-name='%s'", hostPattern, p.Callable)
+    
+    if p.CallArgs.Background > 0 {
+      command = fmt.Sprintf("%s --background=%s", command, p.CallArgs.Background)
+      if p.CallArgs.Poll > 0 {
+        command = fmt.Sprintf("%s --poll=%s", command, p.CallArgs.Poll)
+      }
+    }
+    // module args:
+    if len(p.CallArgs.Args) > 0 {
+      args := make([]string, 0)
+      for mak, mav := range p.CallArgs.Args {
+        args = append(args, fmt.Sprintf("%s=%+v", mak, mav))
+      }
+      command = fmt.Sprintf("%s --args=\"%s\"", command, strings.Join(args, " "))
+    }
+    // one line:
+    if p.CallArgs.OneLine == "yes" {
+      command = fmt.Sprintf("%s --one-line", command)
+    }
+
   }
   // inventory file:
   command = fmt.Sprintf("%s --inventory-file='%s'", command, inventoryFile)
 
-  if len(vaultPasswordFile) > 0 {
-    command = fmt.Sprintf("%s --vault-password-file='%s'", command, vaultPasswordFile)
-  }
+  // shared arguments:
 
+  // become:
+  if p.CallArgs.Shared.Become == "yes" {
+    command = fmt.Sprintf("%s --become", command)
+    if p.CallArgs.Shared.BecomeMethod != "" {
+      command = fmt.Sprintf("%s --become-method='%s'", command, p.CallArgs.Shared.BecomeMethod)
+    } else {
+      command = fmt.Sprintf("%s --become-method='%s'", command, defaultBecomeMethod_Set)
+    }
+    if p.CallArgs.Shared.BecomeUser != "" {
+      command = fmt.Sprintf("%s --become-user='%s'", command, p.CallArgs.Shared.BecomeUser)
+    } else {
+      command = fmt.Sprintf("%s --become-user='%s'", command, defaultBecomeUser_Set)
+    }
+  }
   // extra vars:
-  if len(p.Callable.CallArgs.ExtraVars) > 0 {
-    extraVars, err := json.Marshal(p.Callable.CallArgs.ExtraVars)
+  if len(p.CallArgs.Shared.ExtraVars) > 0 {
+    extraVars, err := json.Marshal(p.CallArgs.Shared.ExtraVars)
     if err != nil {
       return "", err
     }
     command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
   }
-  // module args:
-  if len(p.Callable.CallArgs.ModuleArgs) > 0 {
-    args := make([]string, 0)
-    for mak, mav := range p.Callable.CallArgs.ModuleArgs {
-      args = append(args, fmt.Sprintf("%s=%+v", mak, mav))
-    }
-    command = fmt.Sprintf("%s --module-args=\"%s\"", command, strings.Join(args, " "))
-  }
-  // skip tags:
-  if len(p.Callable.CallArgs.SkipTags) > 0 {
-    command = fmt.Sprintf("%s --skip-tags='%s'", command, strings.Join(p.Callable.CallArgs.SkipTags, ","))
-  }
-  // tags:
-  if len(p.Callable.CallArgs.Tags) > 0 {
-    command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(p.Callable.CallArgs.Tags, ","))
-  }
-  // start at task:
-  if len(p.Callable.CallArgs.StartAtTask) > 0 {
-    command = fmt.Sprintf("%s --start-at-task='%s'", command, p.Callable.CallArgs.StartAtTask)
+  // forks:
+  if p.CallArgs.Shared.Forks > 0 {
+    command = fmt.Sprintf("%s --forks=%d", command, p.CallArgs.Shared.Forks)
   }
   // limit
-  if len(p.Callable.CallArgs.Limit) > 0 {
-    command = fmt.Sprintf("%s --limit='%s'", command, p.Callable.CallArgs.Limit)
+  if len(p.CallArgs.Shared.Limit) > 0 {
+    command = fmt.Sprintf("%s --limit='%s'", command, p.CallArgs.Shared.Limit)
   }
-  // forks:
-  if p.Callable.CallArgs.Forks > 0 {
-    command = fmt.Sprintf("%s --forks=%d", command, p.Callable.CallArgs.Forks)
+  // vault password file:
+  if len(vaultPasswordFile) > 0 {
+    command = fmt.Sprintf("%s --vault-password-file='%s'", command, vaultPasswordFile)
   }
   // verbose:
-  if p.Callable.CallArgs.Verbose == "yes" {
+  if p.CallArgs.Shared.Verbose == "yes" {
     command = fmt.Sprintf("%s --verbose", command)
   }
-  // force handlers:
-  if p.Callable.CallArgs.ForceHandlers == "yes" {
-    command = fmt.Sprintf("%s --force-handlers", command)
-  }
-  // one line:
-  if p.Callable.CallArgs.OneLine == "yes" {
-    command = fmt.Sprintf("%s --one-line", command)
-  }
-  if p.Callable.CallArgs.Become == "yes" {
-    command = fmt.Sprintf("%s --become", command)
-    if p.Callable.CallArgs.BecomeMethod != "" {
-      command = fmt.Sprintf("%s --become-method='%s'", command, p.Callable.CallArgs.BecomeMethod)
-    } else {
-      command = fmt.Sprintf("%s --become-method='%s'", command, defaultBecomeMethod_Set)
-    }
-    if p.Callable.CallArgs.BecomeUser != "" {
-      command = fmt.Sprintf("%s --become-user='%s'", command, p.Callable.CallArgs.BecomeUser)
-    } else {
-      command = fmt.Sprintf("%s --become-user='%s'", command, defaultBecomeUser_Set)
-    }
-  }
+
   return command, nil
 }
 
@@ -246,12 +278,13 @@ func (r *runnablePlay) ToCommand() (string, error) {
 // -- provisioner:
 
 type provisioner struct {
-  Plays             []play
-  CallArgs          ansibleCallArgs
-  useSudo           bool
-  skipInstall       bool
-  skipCleanup       bool
-  installVersion    string
+  Plays          []play
+  InventoryMeta  ansibleInventoryMeta
+  Shared         ansibleCallArgsShared
+  useSudo        bool
+  skipInstall    bool
+  skipCleanup    bool
+  installVersion string
 }
 
 func Provisioner() terraform.ResourceProvisioner {
@@ -264,7 +297,7 @@ func Provisioner() terraform.ResourceProvisioner {
         Computed: true,
         Elem: &schema.Resource{
           Schema: map[string]*schema.Schema{
-
+            // entity to run:
             "playbook": &schema.Schema{
               ConflictsWith: []string{"plays.module"},
               Type:     schema.TypeString,
@@ -275,6 +308,7 @@ func Provisioner() terraform.ResourceProvisioner {
               Type:     schema.TypeString,
               Optional: true,
             },
+            // meta for temporary inventory:
             "hosts": &schema.Schema{
               Type:     schema.TypeList,
               Elem:     &schema.Schema{ Type: schema.TypeString },
@@ -285,10 +319,37 @@ func Provisioner() terraform.ResourceProvisioner {
               Elem:     &schema.Schema{ Type: schema.TypeString },
               Optional: true,
             },
-            "tags": &schema.Schema{
-              Type:     schema.TypeList,
-              Elem:     &schema.Schema{ Type: schema.TypeString },
+            // module only:
+            "args": &schema.Schema{
+              Type:     schema.TypeMap,
               Optional: true,
+              Computed: true,
+            },
+            "background": &schema.Schema{
+              Type:     schema.TypeInt,
+              Optional: true,
+              Default: defaultBackground,
+            },
+            "host_pattern": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default: defaultHostPattern,
+            },
+            "one_line": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default:  defaultOneLine,
+            },
+            "poll": &schema.Schema{
+              Type:     schema.TypeInt,
+              Optional: true,
+              Default:  defaultPoll,
+            },
+            // playbook only:
+            "force_handlers": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default:  defaultForceHandlers,
             },
             "skip_tags": &schema.Schema{
               Type:     schema.TypeList,
@@ -300,42 +361,12 @@ func Provisioner() terraform.ResourceProvisioner {
               Optional: true,
               Default: defaultStartAtTask,
             },
-            "limit": &schema.Schema{
-              Type:     schema.TypeString,
+            "tags": &schema.Schema{
+              Type:     schema.TypeList,
+              Elem:     &schema.Schema{ Type: schema.TypeString },
               Optional: true,
-              Default: defaultLimit,
             },
-            "extra_vars": &schema.Schema{
-              Type:     schema.TypeMap,
-              Optional: true,
-              Computed: true,
-            },
-            "module_args": &schema.Schema{
-              Type:     schema.TypeMap,
-              Optional: true,
-              Computed: true,
-            },
-            "forks": &schema.Schema{
-              Type:     schema.TypeInt,
-              Optional: true,
-              Default: defaultForks,
-            },
-            "verbose": &schema.Schema{
-              Type:     schema.TypeString,
-              Optional: true,
-              Default:  defaultVerbose,
-            },
-            "force_handlers": &schema.Schema{
-              Type:     schema.TypeString,
-              Optional: true,
-              Default:  defaultForceHandlers,
-            },
-            "one_line": &schema.Schema{
-              Type:     schema.TypeString,
-              Optional: true,
-              Default:  defaultOneLine,
-            },
-
+            // shared:
             "become": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
@@ -351,16 +382,37 @@ func Provisioner() terraform.ResourceProvisioner {
               Optional: true,
               Default:  defaultBecomeUser,
             },
+            "extra_vars": &schema.Schema{
+              Type:     schema.TypeMap,
+              Optional: true,
+              Computed: true,
+            },
+            "forks": &schema.Schema{
+              Type:     schema.TypeInt,
+              Optional: true,
+              Default: defaultForks,
+            },
+            "limit": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default: defaultLimit,
+            },
             "vault_password_file": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
               Default:  defaultVaultPasswordFile,
+            },
+            "verbose": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default:  defaultVerbose,
             },
 
           },
         },
       },
 
+      // inventory meta:
       "hosts": &schema.Schema{
         Type:     schema.TypeList,
         Elem:     &schema.Schema{ Type: schema.TypeString },
@@ -371,57 +423,8 @@ func Provisioner() terraform.ResourceProvisioner {
         Elem:     &schema.Schema{ Type: schema.TypeString },
         Optional: true,
       },
-      "tags": &schema.Schema{
-        Type:     schema.TypeList,
-        Elem:     &schema.Schema{ Type: schema.TypeString },
-        Optional: true,
-      },
-      "skip_tags": &schema.Schema{
-        Type:     schema.TypeList,
-        Elem:     &schema.Schema{ Type: schema.TypeString },
-        Optional: true,
-      },
-      "start_at_task": &schema.Schema{
-        Type:     schema.TypeString,
-        Optional: true,
-        Default: defaultStartAtTask,
-      },
-      "limit": &schema.Schema{
-        Type:     schema.TypeString,
-        Optional: true,
-        Default: defaultLimit,
-      },
-      "extra_vars": &schema.Schema{
-        Type:     schema.TypeMap,
-        Optional: true,
-        Computed: true,
-      },
-      "module_args": &schema.Schema{
-        Type:     schema.TypeMap,
-        Optional: true,
-        Computed: true,
-      },
-      "forks": &schema.Schema{
-        Type:     schema.TypeInt,
-        Optional: true,
-        Default: defaultForks,
-      },
-      "verbose": &schema.Schema{
-        Type:     schema.TypeString,
-        Optional: true,
-        Default:  defaultVerbose,
-      },
-      "force_handlers": &schema.Schema{
-        Type:     schema.TypeString,
-        Optional: true,
-        Default:  defaultForceHandlers,
-      },
-      "one_line": &schema.Schema{
-        Type:     schema.TypeString,
-        Optional: true,
-        Default:  defaultOneLine,
-      },
 
+      // shared:
       "become": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
@@ -437,11 +440,30 @@ func Provisioner() terraform.ResourceProvisioner {
         Optional: true,
         Default:  defaultBecomeUser,
       },
-
+      "extra_vars": &schema.Schema{
+        Type:     schema.TypeMap,
+        Optional: true,
+        Computed: true,
+      },
+      "forks": &schema.Schema{
+        Type:     schema.TypeInt,
+        Optional: true,
+        Default: defaultForks,
+      },
+      "limit": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default: defaultLimit,
+      },
       "vault_password_file": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
         Default:  defaultVaultPasswordFile,
+      },
+      "verbose": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default:  defaultVerbose,
       },
 
       "use_sudo": &schema.Schema{
@@ -552,10 +574,39 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
   plays, ok := c.Get("plays")
   if ok {
     for _, p := range plays.([]map[string]interface{}) {
+
       playbook, okp := p["playbook"]
       module, okm := p["module"]
+
       if okp && okm && len(playbook.(string)) > 0 && len(module.(string)) > 0 {
-        es = append(es, errors.New("playbook and module can't be used together."))
+        es = append(es, errors.New("playbook and module can't be used together"))
+      } else {
+
+        isPlaybook := okp && len(playbook.(string)) > 0
+        isModule := okm && len(module.(string)) > 0
+
+        if !okp && !okm {
+          es = append(es, errors.New("playbook or module must be set"))
+        }
+
+        if isPlaybook {
+          disallowedFields := []string{"args", "background", "host_pattern", "one_line", "poll"}
+          for _, df := range disallowedFields {
+            if _, ok = p[df]; ok {
+              es = append(es, errors.New(fmt.Sprintf("%s must not be used with playbook", df)))
+            }
+          }
+        }
+
+        if isModule {
+          disallowedFields := []string{"force_handlers", "skip_tags", "start_at_task", "tags"}
+          for _, df := range disallowedFields {
+            if _, ok = p[df]; ok {
+              es = append(es, errors.New(fmt.Sprintf("%s must not be used with module", df)))
+            }
+          }
+        }
+
       }
 
       becomeMethodPlay, ok := p["become_method"]
@@ -586,9 +637,9 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
   response := make([]runnablePlay, 0)
   
   for _, playDef := range p.Plays {
-    if playDef.Callable.CallableType == AnsibleCallable_Playbook {
+    if playDef.CallableType == AnsibleCallable_Playbook {
 
-      playbookPath, err := p.resolvePath(playDef.Callable.Callable, o)
+      playbookPath, err := p.resolvePath(playDef.Callable, o)
       if err != nil {
         return response, err
       }
@@ -609,28 +660,28 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
       if err != nil {
         errCmdCheckDetail := strings.Split(fmt.Sprintf("%v", errCmdCheck), ": ")
         if errCmdCheckDetail[len(errCmdCheckDetail)-1] == "50" {
-          o.Output(fmt.Sprintf("The playbook '%s' directory '%s' has been already uploaded.", playDef.Callable.Callable, playbookDir))
+          o.Output(fmt.Sprintf("The playbook '%s' directory '%s' has been already uploaded.", playDef.Callable, playbookDir))
         } else {
           return response, err
         }
       } else {
-        o.Output(fmt.Sprintf("Uploading the parent directory '%s' of playbook '%s' to '%s'...", playbookDir, playDef.Callable.Callable, remotePlaybookDir))
+        o.Output(fmt.Sprintf("Uploading the parent directory '%s' of playbook '%s' to '%s'...", playbookDir, playDef.Callable, remotePlaybookDir))
         // upload ansible source and playbook to the host
         if err := comm.UploadDir(remotePlaybookDir, playbookDir); err != nil {
           return response, err
         }
       }
 
-      playDef.Callable.Callable = remotePlaybookPath
+      playDef.Callable = remotePlaybookPath
 
       // always upload vault password file:
-      uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, remotePlaybookDir, playDef.Callable.CallArgs)
+      uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, remotePlaybookDir, playDef.CallArgs.Shared)
       if err != nil {
         return response, err
       }
 
       // always create temp inventory:
-      inventoryFile, err := p.remote_writeTemporaryInventory(o, comm, remotePlaybookDir, playDef.Callable.CallArgs)
+      inventoryFile, err := p.remote_writeTemporaryInventory(o, comm, remotePlaybookDir, playDef.CallArgs)
       if err != nil {
         return response, err
       }
@@ -641,20 +692,20 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
         InventoryFile: inventoryFile,
       })
 
-    } else if playDef.Callable.CallableType == AnsibleCallable_Module {
+    } else if playDef.CallableType == AnsibleCallable_Module {
 
       if err := p.runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
         return response, err
       }
 
       // always upload vault password file:
-      uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, bootstrapDirectory, playDef.Callable.CallArgs)
+      uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, bootstrapDirectory, playDef.CallArgs.Shared)
       if err != nil {
         return response, err
       }
 
       // always create temp inventory:
-      inventoryFile, err := p.remote_writeTemporaryInventory(o, comm, bootstrapDirectory, playDef.Callable.CallArgs)
+      inventoryFile, err := p.remote_writeTemporaryInventory(o, comm, bootstrapDirectory, playDef.CallArgs)
       if err != nil {
         return response, err
       }
@@ -702,7 +753,7 @@ func (p *provisioner) remote_installAnsible(o terraform.UIOutput, comm communica
   return nil
 }
 
-func (p *provisioner) remote_uploadVaultPasswordFile(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgs) (string, error) {
+func (p *provisioner) remote_uploadVaultPasswordFile(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgsShared) (string, error) {
 
   if callArgs.VaultPasswordFile == "" {
     return "", nil
@@ -849,33 +900,27 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
     skipCleanup:    d.Get("skip_cleanup").(bool),
     installVersion: d.Get("install_version").(string),
     Plays:          make([]play, 0),
-    CallArgs:       ansibleCallArgs{
+    InventoryMeta:  ansibleInventoryMeta{
       Hosts:             getStringList(d.Get("hosts")),
       Groups:            getStringList(d.Get("groups")),
-      Tags:              getStringList(d.Get("tags")),
-      SkipTags:          getStringList(d.Get("skip_tags")),
-      StartAtTask:       d.Get("start_at_task").(string),
-      Limit:             d.Get("limit").(string),
-      Forks:             d.Get("forks").(int),
-      ExtraVars:         getStringMap(d.Get("extra_vars")),
-      ModuleArgs:        getStringMap(d.Get("module_args")),
-      Verbose:           d.Get("verbose").(string),
-      ForceHandlers:     d.Get("force_handlers").(string),
-      OneLine:           d.Get("one_line").(string),
-
+    },
+    Shared:         ansibleCallArgsShared{
       Become:            d.Get("become").(string),
       BecomeMethod:      d.Get("become_method").(string),
       BecomeUser:        d.Get("become_user").(string),
-
+      ExtraVars:         getStringMap(d.Get("extra_vars")),
+      Forks:             d.Get("forks").(int),
+      Limit:             d.Get("limit").(string),
       VaultPasswordFile: d.Get("vault_password_file").(string),
+      Verbose:           d.Get("verbose").(string),
     },
   }
-  p.CallArgs = ensureLocalhostInCallArgsHosts(p.CallArgs)
-  p.Plays = decodePlays(d.Get("plays").([]interface{}), p.CallArgs)
+  p.InventoryMeta = ensureLocalhostInCallArgsHosts(p.InventoryMeta)
+  p.Plays = decodePlays(d.Get("plays").([]interface{}), p.InventoryMeta, p.Shared)
   return p, nil
 }
 
-func decodePlays(v []interface{}, fallback ansibleCallArgs) []play {
+func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fallbackArgs ansibleCallArgsShared) []play {
   plays := make([]play, 0, len(v))
   for _, rawPlayData := range v {
 
@@ -900,51 +945,56 @@ func decodePlays(v []interface{}, fallback ansibleCallArgs) []play {
     }
 
     playToAppend := play{
-      Callable: ansibleCallable{
-        Callable: callable,
-        CallableType: callableType,
-        CallArgs: ansibleCallArgs{
-          Hosts:             withStringListFallback(getStringList(playData["hosts"]), fallback.Hosts),
-          Groups:            withStringListFallback(getStringList(playData["groups"]), fallback.Groups),
-          Tags:              withStringListFallback(getStringList(playData["tags"]), fallback.Tags),
-          SkipTags:          withStringListFallback(getStringList(playData["skip_tags"]), fallback.SkipTags),
-          StartAtTask:       withStringFallback(playData["start_at_task"].(string), defaultStartAtTask, fallback.StartAtTask),
-          Limit:             withStringFallback(playData["limit"].(string), defaultLimit, fallback.Limit),
-          Forks:             withIntFallback(playData["forks"].(int), defaultForks, fallback.Forks),
-          ModuleArgs:        withStringInterfaceMapFallback(getStringMap(playData["module_args"]), fallback.ModuleArgs),
-          ExtraVars:         withStringInterfaceMapFallback(getStringMap(playData["extra_vars"]), fallback.ExtraVars),
-          Verbose:           withStringFallback(playData["verbose"].(string), defaultVerbose, fallback.Verbose),
-          ForceHandlers:     withStringFallback(playData["force_handlers"].(string), defaultForceHandlers, fallback.ForceHandlers),
-          OneLine:           withStringFallback(playData["one_line"].(string), defaultOneLine, fallback.OneLine),
-
-          Become:            withStringFallback(playData["become"].(string), defaultBecome, fallback.Become),
-          BecomeMethod:      withStringFallback(playData["become_method"].(string), defaultBecomeMethod, fallback.BecomeMethod),
-          BecomeUser:        withStringFallback(playData["become_user"].(string), defaultBecomeUser, fallback.BecomeUser),
-
-          VaultPasswordFile: withStringFallback(playData["vault_password_file"].(string), defaultVaultPasswordFile, fallback.VaultPasswordFile),
+      Callable:      callable,
+      CallableType:  callableType,
+      InventoryMeta: ansibleInventoryMeta{
+        Hosts:  withStringListFallback(getStringList(playData["hosts"]), fallbackInventoryMeta.Hosts),
+        Groups: withStringListFallback(getStringList(playData["groups"]), fallbackInventoryMeta.Groups),
+      },
+      CallArgs:      ansibleCallArgs{
+        Shared: ansibleCallArgsShared{
+          Become:            withStringFallback(playData["become"].(string), defaultBecome, fallbackArgs.Become),
+          BecomeMethod:      withStringFallback(playData["become_method"].(string), defaultBecomeMethod, fallbackArgs.BecomeMethod),
+          BecomeUser:        withStringFallback(playData["become_user"].(string), defaultBecomeUser, fallbackArgs.BecomeUser),
+          ExtraVars:         withStringInterfaceMapFallback(getStringMap(playData["extra_vars"]), fallbackArgs.ExtraVars),
+          Forks:             withIntFallback(playData["forks"].(int), defaultForks, fallbackArgs.Forks),
+          Limit:             withStringFallback(playData["limit"].(string), defaultLimit, fallbackArgs.Limit),
+          VaultPasswordFile: withStringFallback(playData["vault_password_file"].(string), defaultVaultPasswordFile, fallbackArgs.VaultPasswordFile),
+          Verbose:           withStringFallback(playData["verbose"].(string), defaultVerbose, fallbackArgs.Verbose),
         },
+        // module only:
+        Args:        getStringMap(playData["args"]),
+        Background:  playData["background"].(int),
+        HostPattern: playData["host_pattern"].(string),
+        OneLine:     playData["one_line"].(string),
+        Poll:        playData["poll"].(int),
+        // playbook only:
+        ForceHandlers: playData["force_handlers"].(string),
+        SkipTags:      getStringList(playData["skip_tags"]),
+        StartAtTask:   playData["start_at_task"].(string),
+        Tags:          getStringList(playData["tags"]),
       },
     }
-    playToAppend.Callable.CallArgs = ensureLocalhostInCallArgsHosts(playToAppend.Callable.CallArgs)
+    playToAppend.InventoryMeta = ensureLocalhostInCallArgsHosts(playToAppend.InventoryMeta)
 
     plays = append(plays, playToAppend)
   }
   return plays
 }
 
-func ensureLocalhostInCallArgsHosts(callArgs ansibleCallArgs) ansibleCallArgs {
+func ensureLocalhostInCallArgsHosts(inventoryMeta ansibleInventoryMeta) ansibleInventoryMeta {
   lc := "localhost"
   found := false
-  for _, v := range callArgs.Hosts {
+  for _, v := range inventoryMeta.Hosts {
     if v == lc {
       found = true
       break
     }
   }
   if !found {
-    callArgs.Hosts = append(callArgs.Hosts, lc)
+    inventoryMeta.Hosts = append(inventoryMeta.Hosts, lc)
   }
-  return callArgs
+  return inventoryMeta
 }
 
 func getStringList(v interface{}) []string {
