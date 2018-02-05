@@ -100,6 +100,7 @@ These arguments can be set on the `provisioner` level or individual `plays`. Whe
 - `become_method`: `ansible-playbook --become-method`, string, default `sudo`, only takes effect when `become = true`
 - `extra_vars`: `ansible-playbook --extra-vars`, map, default `empty map` (not applied); will be serialized to a json string
 - `forks`: `ansible-playbook --forks`, integer, default `5`
+- `inventory_file`: full path to an inventory file, `ansible-playbook --inventory-file`, string, default `empty string` (not applied); when using in remote mode, if `inventory_file` argument is not specified, a temporary inventory using `hosts` and `groups` will be generated; when specified, `hosts` and `groups` are not in use
 - `limit`: `ansible-playbook --limit`, string, default `empty string` (not applied)
 - `vault_password_file`: `ansible-playbook --vault-password-file`, full path to the vault password file; file file will be uploaded to the server, string, default `empty string` (not applied)
 - `verbose`: `ansible-playbook --verbose`, string `yes/no`, default `empty string` (not applied)

@@ -30,25 +30,28 @@ import (
 
 const (
   bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
-  defaultStartAtTask string = ""
-  defaultLimit string = ""
-  defaultForks int = 5
-  defaultVerbose string = ""
-  defaultVerbose_Set string = "no"
-  defaultForceHandlers string = ""
-  defaultForceHandlers_Set string = "no"
-  defaultOneLine string = ""
-  defaultOneLine_Set string = "no"
+  // shared:
   defaultBecome string = ""
   defaultBecome_Set string = "no"
   defaultBecomeMethod string = ""
   defaultBecomeMethod_Set string = "sudo"
   defaultBecomeUser string = ""
   defaultBecomeUser_Set string = "root"
+  defaultForks int = 5
+  defaultLimit string = ""
   defaultVaultPasswordFile string = ""
-
+  defaultVerbose string = ""
+  defaultVerbose_Set string = "no"
+  defaultInventoryFile string = ""
+  // playbook only:
+  defaultForceHandlers string = ""
+  defaultForceHandlers_Set string = "no"
+  defaultStartAtTask string = ""
+  // module only:
   defaultBackground int = 0
   defaultHostPattern string = "all"
+  defaultOneLine string = ""
+  defaultOneLine_Set string = "no"
   defaultPoll int = 15
 )
 
@@ -133,6 +136,7 @@ type ansibleCallArgsShared struct {
   BecomeUser        string
   ExtraVars         map[string]interface{}
   Forks             int
+  InventoryFile     string
   Limit             string
   VaultPasswordFile string
   Verbose           string
@@ -392,6 +396,11 @@ func Provisioner() terraform.ResourceProvisioner {
               Optional: true,
               Default: defaultForks,
             },
+            "inventory_file": &schema.Schema{
+              Type:     schema.TypeString,
+              Optional: true,
+              Default: defaultInventoryFile,
+            },
             "limit": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
@@ -449,6 +458,11 @@ func Provisioner() terraform.ResourceProvisioner {
         Type:     schema.TypeInt,
         Optional: true,
         Default: defaultForks,
+      },
+      "inventory_file": &schema.Schema{
+        Type:     schema.TypeString,
+        Optional: true,
+        Default: defaultInventoryFile,
       },
       "limit": &schema.Schema{
         Type:     schema.TypeString,
@@ -681,7 +695,7 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
       }
 
       // always create temp inventory:
-      inventoryFile, err := p.remote_writeTemporaryInventory(o, comm, remotePlaybookDir, playDef.CallArgs)
+      inventoryFile, err := p.remote_writeInventory(o, comm, remotePlaybookDir, playDef.CallArgs)
       if err != nil {
         return response, err
       }
@@ -705,7 +719,7 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
       }
 
       // always create temp inventory:
-      inventoryFile, err := p.remote_writeTemporaryInventory(o, comm, bootstrapDirectory, playDef.CallArgs)
+      inventoryFile, err := p.remote_writeInventory(o, comm, bootstrapDirectory, playDef.CallArgs)
       if err != nil {
         return response, err
       }
@@ -775,7 +789,6 @@ func (p *provisioner) remote_uploadVaultPasswordFile(o terraform.UIOutput, comm 
   }
   defer file.Close()
 
-
   if err := comm.Upload(targetPath, bufio.NewReader(file)); err != nil {
     return "", err
   }
@@ -785,24 +798,55 @@ func (p *provisioner) remote_uploadVaultPasswordFile(o terraform.UIOutput, comm 
   return targetPath, nil
 }
 
-func (p *provisioner) remote_writeTemporaryInventory(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgs) (string, error) {
-  o.Output("Generating temporary ansible inventory...")
-  t := template.Must(template.New("hosts").Parse(inventoryTemplate))
-  var buf bytes.Buffer
-  err := t.Execute(&buf, callArgs)
-  if err != nil {
-    return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
-  }
+func (p *provisioner) remote_writeInventory(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgs) (string, error) {
+  
+  if len(callArgs.Shared.InventoryFile) > 0 {
+    
+    o.Output(fmt.Sprintf("Using provided inventory file '%s'...", callArgs.Shared.InventoryFile))
+    source, err := p.resolvePath(callArgs.Shared.InventoryFile, o)
+    if err != nil {
+      return "", err
+    }
+    u1 := uuid.Must(uuid.NewV4())
+    targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
+    o.Output(fmt.Sprintf("Uploading provided inventory file '%s' to '%s'...", callArgs.Shared.InventoryFile, targetPath))
 
-  u1 := uuid.Must(uuid.NewV4())
-  targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
+    file, err := os.Open(source)
+    if err != nil {
+      return "", err
+    }
+    defer file.Close()
 
-  o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
-  if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
-    return "", err
+    if err := comm.Upload(targetPath, bufio.NewReader(file)); err != nil {
+      return "", err
+    }
+
+    o.Output("Ansible inventory uploaded.")
+
+    return targetPath, nil
+
+  } else {
+
+    o.Output("Generating temporary ansible inventory...")
+    t := template.Must(template.New("hosts").Parse(inventoryTemplate))
+    var buf bytes.Buffer
+    err := t.Execute(&buf, callArgs)
+    if err != nil {
+      return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+    }
+
+    u1 := uuid.Must(uuid.NewV4())
+    targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
+
+    o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
+    if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+      return "", err
+    }
+
+    o.Output("Ansible inventory written.")
+    return targetPath, nil
+
   }
-  o.Output("Ansible inventory written.")
-  return targetPath, nil
 }
 
 func (p *provisioner) remote_cleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
@@ -910,6 +954,7 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
       BecomeUser:        d.Get("become_user").(string),
       ExtraVars:         getStringMap(d.Get("extra_vars")),
       Forks:             d.Get("forks").(int),
+      InventoryFile:     d.Get("inventory_file").(string),
       Limit:             d.Get("limit").(string),
       VaultPasswordFile: d.Get("vault_password_file").(string),
       Verbose:           d.Get("verbose").(string),
@@ -958,6 +1003,7 @@ func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fa
           BecomeUser:        withStringFallback(playData["become_user"].(string), defaultBecomeUser, fallbackArgs.BecomeUser),
           ExtraVars:         withStringInterfaceMapFallback(getStringMap(playData["extra_vars"]), fallbackArgs.ExtraVars),
           Forks:             withIntFallback(playData["forks"].(int), defaultForks, fallbackArgs.Forks),
+          InventoryFile:     withStringFallback(playData["inventory_file"].(string), defaultInventoryFile, fallbackArgs.InventoryFile),
           Limit:             withStringFallback(playData["limit"].(string), defaultLimit, fallbackArgs.Limit),
           VaultPasswordFile: withStringFallback(playData["vault_password_file"].(string), defaultVaultPasswordFile, fallbackArgs.VaultPasswordFile),
           Verbose:           withStringFallback(playData["verbose"].(string), defaultVerbose, fallbackArgs.Verbose),
