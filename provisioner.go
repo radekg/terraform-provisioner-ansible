@@ -38,11 +38,11 @@ const (
   defaultBecomeUser string = ""
   defaultBecomeUser_Set string = "root"
   defaultForks int = 5
+  defaultInventoryFile string = ""
   defaultLimit string = ""
   defaultVaultPasswordFile string = ""
   defaultVerbose string = ""
   defaultVerbose_Set string = "no"
-  defaultInventoryFile string = ""
   // playbook only:
   defaultForceHandlers string = ""
   defaultForceHandlers_Set string = "no"
@@ -332,12 +332,12 @@ func Provisioner() terraform.ResourceProvisioner {
             "background": &schema.Schema{
               Type:     schema.TypeInt,
               Optional: true,
-              Default: defaultBackground,
+              Default:  defaultBackground,
             },
             "host_pattern": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default: defaultHostPattern,
+              Default:  defaultHostPattern,
             },
             "one_line": &schema.Schema{
               Type:     schema.TypeString,
@@ -363,7 +363,7 @@ func Provisioner() terraform.ResourceProvisioner {
             "start_at_task": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default: defaultStartAtTask,
+              Default:  defaultStartAtTask,
             },
             "tags": &schema.Schema{
               Type:     schema.TypeList,
@@ -394,17 +394,17 @@ func Provisioner() terraform.ResourceProvisioner {
             "forks": &schema.Schema{
               Type:     schema.TypeInt,
               Optional: true,
-              Default: defaultForks,
+              Default:  defaultForks,
             },
             "inventory_file": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default: defaultInventoryFile,
+              Default:  defaultInventoryFile,
             },
             "limit": &schema.Schema{
               Type:     schema.TypeString,
               Optional: true,
-              Default: defaultLimit,
+              Default:  defaultLimit,
             },
             "vault_password_file": &schema.Schema{
               Type:     schema.TypeString,
@@ -457,17 +457,17 @@ func Provisioner() terraform.ResourceProvisioner {
       "forks": &schema.Schema{
         Type:     schema.TypeInt,
         Optional: true,
-        Default: defaultForks,
+        Default:  defaultForks,
       },
       "inventory_file": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
-        Default: defaultInventoryFile,
+        Default:  defaultInventoryFile,
       },
       "limit": &schema.Schema{
         Type:     schema.TypeString,
         Optional: true,
-        Default: defaultLimit,
+        Default:  defaultLimit,
       },
       "vault_password_file": &schema.Schema{
         Type:     schema.TypeString,
