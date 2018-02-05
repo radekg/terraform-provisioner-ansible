@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/radekg/terraform-provisioner-ansible.svg?branch=master)](https://travis-ci.org/radekg/terraform-provisioner-ansible)
 
-Run ansible on the provisioned host to bootstrap that host.
+Ansible with Terraform - remote and local.
+
+**Linux host and target only.**
 
 ## Install
 
@@ -18,47 +20,6 @@ Run ansible on the provisioned host to bootstrap that host.
     make build-darwin
 
 The binary will be deployed to your `~/.terraform.d/plugins` directory so it is ready to use immediately.
-
-## Usage
-
-    resource "aws_instance" "ansible_test" {
-      ...
-      connection {
-        user = "centos"
-        private_key = "${file("${path.module}/keys/centos.pem")}"
-      }
-
-      provisioner "ansible" {
-        
-        plays {
-          playbook = "/full/path/to/an/ansible/playbook.yaml"
-          hosts = ["override.example.com"]
-          groups = ["override","groups"]
-          extra_vars {
-            override = "vars"
-          }
-        }
-        
-        plays {
-          module = "some-module"
-          hosts = ["override.example.com"]
-          groups = ["override","groups"]
-          extra_vars {
-            override = "vars"
-          }
-          args {
-            arg1 = "arg value"
-          }
-        }
-
-        hosts = ["${self.public_hostname}"]
-        groups = ["leaders"]
-        extra_vars {
-          var1 = "some value"
-          var2 = 5
-        }
-      }
-    }
 
 ## Arguments
 
@@ -113,3 +74,96 @@ These affect provisioner only. Not related to `plays`.
 - `skip_install`: if set to `true`, ansible installation on the server will be skipped, assume ansible is already installed, boolean, default `false`
 - `skip_cleanup`: if set to `true`, ansible bootstrap data will be left on the server after bootstrap, boolean, default `false`
 - `install_version`: ansible version to install when `skip_install = false`, string, default `empty string` (latest available version)
+- `local`: if `true`, ansible will run on the host where terraform command is executed; if `false`, ansible will be installed on the bootstrapped host
+
+## Usage
+
+### Running on a bootstrapped host
+
+If `provisioner.local` is not set or `false` (the default), the provisioner will attempt a so-called `remote provisioning`. The provisioner will install ansible on the bootstrapped host, create a temporary inventory (if `inventory_file` not given), upload playbooks to the remote host and execute ansible on the remote host.
+
+    resource "aws_instance" "ansible_test" {
+      ...
+      connection {
+        user = "centos"
+        private_key = "${file("${path.module}/keys/centos.pem")}"
+      }
+      provisioner "ansible" {
+        
+        plays {
+          playbook = "/full/path/to/an/ansible/playbook.yaml"
+          hosts = ["override.example.com"]
+          groups = ["override","groups"]
+          extra_vars {
+            override = "vars"
+          }
+        }
+        
+        plays {
+          module = "some-module"
+          hosts = ["override.example.com"]
+          groups = ["override","groups"]
+          extra_vars {
+            override = "vars"
+          }
+          args {
+            arg1 = "arg value"
+          }
+        }
+        hosts = ["${self.public_hostname}"]
+        groups = ["leaders"]
+        extra_vars {
+          var1 = "some value"
+          var2 = 5
+        }
+      }
+    }
+
+### Running in local mode
+
+If `provisioner.local = true`, ansible will be executed on the same host where terraform was executed. However, currently only `connection` type `ssh` is supported and the assumption is that the `connection` uses a `private_key`. If you are not using private keys, provisioning will fail.
+
+When using `provisioner.local = true`, do not set any of these: `use_sudo`, `skip_install`, `skip_cleanup` or `install_version`.
+
+`hosts` are not taken into account.
+
+    resource "aws_instance" "ansible_test" {
+      ...
+      connection {
+        user = "centos"
+        private_key = "${file("${path.module}/keys/centos.pem")}"
+      }
+      
+      provisioner "ansible" {
+        
+        plays {
+          playbook = "/full/path/to/an/ansible/playbook.yaml"
+          hosts = ["override.example.com"]
+          groups = ["override","groups"]
+          extra_vars {
+            override = "vars"
+          }
+        }
+        
+        become = "yes"
+        local = true
+        
+      }
+    }
+
+**This is a preview feature and it may change with time.**
+
+#### Local mode details
+
+The local mode requires the provisioner connection to use private keys. After the bootstrap, the plugin will inspect the connection info, check that the username and private key are set and that provisioning succeeded, indeed, by checking the host (which should be an ip address of the newly created instance). When these are true, the provisioner will execute `ssh-keyscan` against the newly created instance and proceed only when `ssh-keyscan` succeedes.
+
+In the process of doing so, a temporary inventory will be created for the newly created host, the pem file will be written to a temp file and a temporary `known_hosts` file will be created. Temporary `known_hosts` and temporary pem are per provisioner run, inventory is created for each `plays`. Files should be cleaned up after the provisioner finishes or fails. Inventory will be removed only if not supplied with `inventory_file`.
+
+## Booleans vs yes/no
+
+**Important**:
+
+- `use_sudo`, `skip_install`, `skip_cleanup` and `local` are boolean - they take `true` or `false`
+- `force_handlers`, `one_line`, `become` and `verbose` take `yes` or `no`, as a string
+
+This will be tidied up in the near future such that all these take `yes/no`. The `yes/no` exists because of the fallback mechanism for `become` and `verbose`, other arguments use `yes/no` for consistency. With boolean values, there is no easy way to specify `undefined` state.
