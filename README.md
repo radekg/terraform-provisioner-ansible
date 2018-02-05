@@ -46,7 +46,7 @@ The binary will be deployed to your `~/.terraform.d/plugins` directory so it is 
           extra_vars {
             override = "vars"
           }
-          module_args {
+          args {
             arg1 = "arg value"
           }
         }
@@ -62,32 +62,51 @@ The binary will be deployed to your `~/.terraform.d/plugins` directory so it is 
 
 ## Arguments
 
-### Plays
+### Inventory meta
 
-- `plays.playbook`: full path to the playbook yaml file; the complete directory containing the yaml file will be uploaded, string, no default
-- `plays.module`: module to run, string, no default
-- `plays.*`: any call argument, documented below, if not set but defined on the provisioner level, the value will fall back to the provisioner value
-
-### Call arguments
+These are used only with remote provisioner and only when an explicit `inventory_file` isn't specified. Used to generate a runtime temporary inventory.
 
 - `hosts`: list of hosts to append to the inventory, each host will be decorated with `ansible_connection=local`, `localhost` is added automatically
 - `groups`: list of groups to append to the inventory, each group will contain all hosts specified in `hosts`
-- `tags`: `ansible-playbook --tags`, list of strings, default `empty list` (not applied)
-- `skip_tags`: `ansible-playbook --skip-tags`, list of strings, default `empty list` (not applied)
-- `start_at_task`: `ansible-playbook --start-at-task`, string, default `empty string` (not applied)
-- `limit`: `ansible-playbook --limit`, string, default `empty string` (not applied)
-- `forks`: `ansible-playbook --forks`, integer, default `5`
-- `verbose`: `ansible-playbook --verbose`, string `yes/no`, default `empty string` (not applied)
-- `one_line`: `ansible-playbook --one-line`, string `yes/no`, default `empty string` (not applied)
-- `force_handlers`: `ansible-playbook --force-handlers`, string `yes/no`, default `empty string` (not applied)
-- `extra_vars`: `ansible-playbook --extra-vars`, map, default `empty map` (not applied); will be serialized to a json string
-- `module_args`: `ansible-playbook --args`, map, default `empty map` (not applied)
+
+### Plays
+
+#### Selecting what to run:
+
+- `plays.playbook`: full path to the playbook yaml file; the complete directory containing the yaml file will be uploaded, string, no default
+- `plays.module`: module to run, string, no default
+
+#### Playbook arguments
+
+- `plays.force_handlers`: `ansible-playbook --force-handlers`, string `yes/no`, default `empty string` (not applied)
+- `plays.skip_tags`: `ansible-playbook --skip-tags`, list of strings, default `empty list` (not applied)
+- `plays.start_at_task`: `ansible-playbook --start-at-task`, string, default `empty string` (not applied)
+- `plays.tags`: `ansible-playbook --tags`, list of strings, default `empty list` (not applied)
+
+#### Module arguments
+
+- `plays.args`: `ansible --args`, map, default `empty map` (not applied)
+- `plays.background`: `ansible --background`, int, default `0` (not applied)
+- `plays.host_pattern`: `ansible <host-pattern>`, string, default `all`
+- `plays.one_line`: `ansible --one-line`, string `yes/no`, default `empty string` (not applied)
+- `plays.poll`: `ansible --poll`, int, default `15` (applied only when `background > 0`)
+
+#### Shared arguments
+
+These arguments can be set on the `provisioner` level or individual `plays`. When an argument is specified on the `provisioner` level and on `plays`, the `plays` value takes precedence.
+
 - `become`: `ansible-playbook --become`, string `yes/no`, default `empty string` (not applied)
 - `become_user`: `ansible-playbook --become-user`, string, default `root`, only takes effect when `become = true`
 - `become_method`: `ansible-playbook --become-method`, string, default `sudo`, only takes effect when `become = true`
+- `extra_vars`: `ansible-playbook --extra-vars`, map, default `empty map` (not applied); will be serialized to a json string
+- `forks`: `ansible-playbook --forks`, integer, default `5`
+- `limit`: `ansible-playbook --limit`, string, default `empty string` (not applied)
 - `vault_password_file`: `ansible-playbook --vault-password-file`, full path to the vault password file; file file will be uploaded to the server, string, default `empty string` (not applied)
+- `verbose`: `ansible-playbook --verbose`, string `yes/no`, default `empty string` (not applied)
 
 ### Provioner arguments
+
+These affect provisioner only. Not related to `plays`.
 
 - `use_sudo`: should `sudo` be used for bootstrap commands, boolean, default `true`; when `true`, `become` does not make much sense
 - `skip_install`: if set to `true`, ansible installation on the server will be skipped, assume ansible is already installed, boolean, default `false`
