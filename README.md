@@ -96,8 +96,8 @@ These are used only with remote provisioner and only when an explicit `inventory
 These arguments can be set on the `provisioner` level or individual `plays`. When an argument is specified on the `provisioner` level and on `plays`, the `plays` value takes precedence.
 
 - `become`: `ansible-playbook --become`, string `yes/no`, default `empty string` (not applied)
-- `become_user`: `ansible-playbook --become-user`, string, default `root`, only takes effect when `become = true`
-- `become_method`: `ansible-playbook --become-method`, string, default `sudo`, only takes effect when `become = true`
+- `become_user`: `ansible-playbook --become-user`, string, default `root`, only takes effect when `become = yes`
+- `become_method`: `ansible-playbook --become-method`, string, default `sudo`, only takes effect when `become = yes`
 - `extra_vars`: `ansible-playbook --extra-vars`, map, default `empty map` (not applied); will be serialized to a json string
 - `forks`: `ansible-playbook --forks`, integer, default `5`
 - `inventory_file`: full path to an inventory file, `ansible-playbook --inventory-file`, string, default `empty string` (not applied); when using in remote mode, if `inventory_file` argument is not specified, a temporary inventory using `hosts` and `groups` will be generated; when specified, `hosts` and `groups` are not in use
