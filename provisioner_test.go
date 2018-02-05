@@ -1,11 +1,13 @@
 package main
 
 import (
+  "bytes"
   "encoding/json"
   "io/ioutil"
   "os"
   "strings"
   "testing"
+  "text/template"
 
   "github.com/hashicorp/terraform/config"
   "github.com/hashicorp/terraform/helper/schema"
@@ -207,6 +209,29 @@ func TestResourceProvisioner_Validate_file_existence_checks(t *testing.T) {
   }
 }
 
+func TestResourceProvisioner_Validate_local_conflicting_settings(t *testing.T) {
+  c := testConfig(t, map[string]interface{}{
+    "plays": []map[string]interface{}{
+      map[string]interface{}{
+        "playbook":       playbookFile,
+      },
+    },
+    "use_sudo":        false,
+    "skip_install":    true,
+    "skip_cleanup":    true,
+    "install_version": "2.3.0.0",
+    "local":           true,
+  })
+
+  warn, errs := Provisioner().Validate(c)
+  if len(warn) > 0 {
+    t.Fatalf("Warnings: %v", warn)
+  }
+  if len(errs) != 4 {
+    t.Fatalf("Should have four errors but have: %v", errs)
+  }
+}
+
 func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 
   expected_hosts :=             []string{"localhost1", "localhost2", "localhost"}
@@ -339,6 +364,34 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
   }
   if secondPlayArgs.Verbose == expected_verbose {
     t.Fatalf("Second play: expected 'verbose' other than %v.", expected_verbose)
+  }
+}
+
+func TestResourceProvisioner_Verify_template_local_generates(t *testing.T) {    
+  inplaceMeta := ansibleInventoryMeta{
+    Hosts: []string{ "host1", "host2" },
+    Groups: []string{ "group1", "group2" },
+  }
+
+  tpl := template.Must(template.New("hosts").Parse(inventoryTemplate_Local))
+  var buf bytes.Buffer
+  err := tpl.Execute(&buf, inplaceMeta)
+  if err != nil {
+    t.Fatalf("Expected template to generate correctly but received: %v", err)
+  }
+}
+
+func TestResourceProvisioner_Verify_template_remote_generates(t *testing.T) {    
+  inplaceMeta := ansibleInventoryMeta{
+    Hosts: []string{ "host1", "host2" },
+    Groups: []string{ "group1", "group2" },
+  }
+
+  tpl := template.Must(template.New("hosts").Parse(inventoryTemplate_Remote))
+  var buf bytes.Buffer
+  err := tpl.Execute(&buf, inplaceMeta)
+  if err != nil {
+    t.Fatalf("Expected template to generate correctly but received: %v", err)
   }
 }
 
