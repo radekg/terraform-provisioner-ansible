@@ -26,7 +26,7 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
     command = fmt.Sprintf("ansible-playbook %s", p.Callable)
 
     // force handlers:
-    if p.CallArgs.ForceHandlers == "yes" {
+    if p.CallArgs.ForceHandlers == yes {
       command = fmt.Sprintf("%s --force-handlers", command)
     }
     // skip tags:
@@ -65,7 +65,7 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
       command = fmt.Sprintf("%s --args=\"%s\"", command, strings.Join(args, " "))
     }
     // one line:
-    if p.CallArgs.OneLine == "yes" {
+    if p.CallArgs.OneLine == yes {
       command = fmt.Sprintf("%s --one-line", command)
     }
 
@@ -76,7 +76,7 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
   // shared arguments:
 
   // become:
-  if p.CallArgs.Shared.Become == "yes" {
+  if p.CallArgs.Shared.Become == yes {
     command = fmt.Sprintf("%s --become", command)
     if p.CallArgs.Shared.BecomeMethod != "" {
       command = fmt.Sprintf("%s --become-method='%s'", command, p.CallArgs.Shared.BecomeMethod)
@@ -110,7 +110,7 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
     command = fmt.Sprintf("%s --vault-password-file='%s'", command, vaultPasswordFile)
   }
   // verbose:
-  if p.CallArgs.Shared.Verbose == "yes" {
+  if p.CallArgs.Shared.Verbose == yes {
     command = fmt.Sprintf("%s --verbose", command)
   }
 

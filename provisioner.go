@@ -30,10 +30,12 @@ import (
 )
 
 const (
+  yes string = "yes"
+  no string = "no"
   bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
   // shared:
   defaultBecome string = ""
-  defaultBecome_Set string = "no"
+  defaultBecome_Set string = no
   defaultBecomeMethod string = ""
   defaultBecomeMethod_Set string = "sudo"
   defaultBecomeUser string = ""
@@ -51,9 +53,14 @@ const (
   defaultHostPattern string = "all"
   defaultOneLine string = ""
   defaultPoll int = 15
+
+  defaultUseSudo string = yes
+  defaultSkipInstall string = no
+  defaultSkipCleanup string = no
+  defaultLocal string = no
 )
 
-var yesNoStates = map[string]bool{"yes": true, "no": true}
+var yesNoStates = map[string]bool{yes: true, no: true}
 var becomeMethods = map[string]bool{"sudo": true, "su": true, "pbrun": true, "pfexec": true, "doas": true, "dzdo": true, "ksu": true, "runas": true}
 
 type ansibleInstaller struct {
@@ -107,11 +114,11 @@ type provisioner struct {
   Plays          []play
   InventoryMeta  ansibleInventoryMeta
   Shared         ansibleCallArgsShared
-  useSudo        bool
-  skipInstall    bool
-  skipCleanup    bool
+  useSudo        string
+  skipInstall    string
+  skipCleanup    string
   installVersion string
-  local          bool
+  local          string
 }
 
 func Provisioner() terraform.ResourceProvisioner {
@@ -126,12 +133,10 @@ func Provisioner() terraform.ResourceProvisioner {
           Schema: map[string]*schema.Schema{
             // entity to run:
             "playbook": &schema.Schema{
-              ConflictsWith: []string{"plays.module"},
               Type:     schema.TypeString,
               Optional: true,
             },
             "module": &schema.Schema{
-              ConflictsWith: []string{"plays.playbook"},
               Type:     schema.TypeString,
               Optional: true,
             },
@@ -304,19 +309,19 @@ func Provisioner() terraform.ResourceProvisioner {
       },
 
       "use_sudo": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
-        Default:  true,
+        Default:  defaultUseSudo,
       },
       "skip_install": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
-        Default:  false,
+        Default:  defaultSkipInstall,
       },
       "skip_cleanup": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
-        Default:  false,
+        Default:  defaultSkipCleanup,
       },
       "install_version": &schema.Schema{
         Type:     schema.TypeString,
@@ -324,9 +329,9 @@ func Provisioner() terraform.ResourceProvisioner {
         Default:  "", // latest
       },
       "local": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
-        Default:  false,
+        Default:  defaultLocal,
       },
     },
     ApplyFunc:    applyFn,
@@ -352,7 +357,7 @@ func applyFn(ctx context.Context) error {
     return err
   }
   
-  if !p.local {
+  if p.local == no {
 
     // Wait and retry until we establish the connection
     err = retryFunc(comm.Timeout(), func() error {
@@ -365,15 +370,12 @@ func applyFn(ctx context.Context) error {
 
     defer comm.Disconnect()
 
-    if !p.skipInstall {
+    if p.skipInstall == no {
       if err := p.remote_installAnsible(o, comm); err != nil {
         return err
       }
     }
 
-  }
-
-  if !p.local {
     if runnables, err := p.remote_deployAnsibleData(o, comm); err != nil {
       o.Output(fmt.Sprintf("%+v", err))
       return err
@@ -391,6 +393,7 @@ func applyFn(ctx context.Context) error {
       }
 
     }
+
   } else {
 
     connType := s.Ephemeral.ConnInfo["type"]
@@ -450,7 +453,7 @@ func applyFn(ctx context.Context) error {
     }
   }
 
-  if !p.local && !p.skipCleanup {
+  if p.local == no && p.skipCleanup == no {
     p.remote_cleanupAfterBootstrap(o, comm)
   }
 
@@ -459,7 +462,13 @@ func applyFn(ctx context.Context) error {
 }
 
 func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
-  
+
+  defer func() {
+    if r := recover(); r != nil {
+      es = append(es, errors.New(fmt.Sprintf("error while validating the provisioner, reason: %+v", r)))
+    }
+  }()
+
   becomeMethod, ok := c.Get("become_method")
   if ok {
     if !becomeMethods[becomeMethod.(string)] {
@@ -467,12 +476,13 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
     }
   }
 
-  fields := []string{"verbose", "force_handlers", "one_line", "become"}
+  fields := []string{"verbose", "force_handlers", "one_line", "become", "use_sudo", "skip_install", "skip_cleanup", "local"}
+
   for _, field := range fields {
     v, ok := c.Get(field)
     if ok && v.(string) != "" {
       if !yesNoStates[v.(string)] {
-        es = append(es, errors.New(v.(string)+" is not a valid " + field))
+        es = append(es, errors.New(v.(string)+" is not a valid " + field + " value, must be yes/no"))
       }
     }
   }
@@ -536,7 +546,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
         v, ok := p[fieldPlay]
         if ok && v.(string) != "" {
           if !yesNoStates[v.(string)] {
-            es = append(es, errors.New(v.(string)+" is not a valid " + fieldPlay))
+            es = append(es, errors.New(v.(string)+" is not a valid " + fieldPlay + " value, must be yes/no"))
           }
         }
       }
@@ -557,7 +567,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
   local, ok := c.Get("local")
   if ok {
-    if local.(bool) {
+    if local.(string) == yes {
       for _, cf := range []string{"use_sudo", "install_version", "skip_cleanup", "skip_install"} {
         if _, ok := c.Get(cf); ok {
           es = append(es, errors.New(cf + " must not be used when local = true"))
@@ -791,8 +801,8 @@ func (p *provisioner) remote_runCommandNoSudo(o terraform.UIOutput, comm communi
 // runCommand is used to run already prepared commands
 func (p *provisioner) remote_runCommand(o terraform.UIOutput, comm communicator.Communicator, command string, shouldSudo bool) error {
   // Unless prevented, prefix the command with sudo
-  if shouldSudo && p.useSudo {
-    command = "sudo " + command
+  if shouldSudo && p.useSudo == yes {
+    command = fmt.Sprintf("sudo %s", command)
   }
 
   outR, outW := io.Pipe()
@@ -1012,11 +1022,11 @@ func retryFunc(timeout time.Duration, f func() error) error {
 
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
   p := &provisioner{
-    useSudo:        d.Get("use_sudo").(bool),
-    skipInstall:    d.Get("skip_install").(bool),
-    skipCleanup:    d.Get("skip_cleanup").(bool),
+    useSudo:        d.Get("use_sudo").(string),
+    skipInstall:    d.Get("skip_install").(string),
+    skipCleanup:    d.Get("skip_cleanup").(string),
     installVersion: d.Get("install_version").(string),
-    local:          d.Get("local").(bool),
+    local:          d.Get("local").(string),
     Plays:          make([]play, 0),
     InventoryMeta:  ansibleInventoryMeta{
       Hosts:             getStringList(d.Get("hosts")),

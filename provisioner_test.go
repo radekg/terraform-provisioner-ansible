@@ -66,9 +66,9 @@ func TestResourceProvisioner_Validate_good_config(t *testing.T) {
         "poll":         15,
       },
     },
-    "use_sudo":           false,
-    "skip_install":       true,
-    "skip_cleanup":       true,
+    "use_sudo":           "no",
+    "skip_install":       "yes",
+    "skip_cleanup":       "yes",
     "install_version":    "2.3.0.0",
 
     "hosts":              []string{"localhost1", "localhost2"},
@@ -97,7 +97,7 @@ func TestResourceProvisioner_Validate_good_config(t *testing.T) {
 func TestResourceProvisioner_Validate_config_without_plays(t *testing.T) {
   // no plays gives a warning:
   c := testConfig(t, map[string]interface{}{
-    "use_sudo": false,
+    "use_sudo": "no",
   })
 
   warn, errs := Provisioner().Validate(c)
@@ -106,6 +106,26 @@ func TestResourceProvisioner_Validate_config_without_plays(t *testing.T) {
   }
   if len(errs) > 0 {
     t.Fatalf("Errors: %v", errs)
+  }
+}
+
+func TestResourceProvisioner_Validate_config_invalid_datatype(t *testing.T) {
+  // use_sudo takes boolean instead of a valid yes/no:
+  c := testConfig(t, map[string]interface{}{
+    "plays": []map[string]interface{}{
+      map[string]interface{}{
+        "playbook": playbookFile,
+      },
+    },
+    "use_sudo": true,
+  })
+
+  warn, errs := Provisioner().Validate(c)
+  if len(warn) > 0 {
+    t.Fatalf("Warnings: %v", warn)
+  }
+  if len(errs) != 1 {
+    t.Fatalf("Expected one error but received: %v", errs)
   }
 }
 
@@ -216,11 +236,11 @@ func TestResourceProvisioner_Validate_local_conflicting_settings(t *testing.T) {
         "playbook":       playbookFile,
       },
     },
-    "use_sudo":        false,
-    "skip_install":    true,
-    "skip_cleanup":    true,
+    "use_sudo":        "no",
+    "skip_install":    "yes",
+    "skip_cleanup":    "yes",
     "install_version": "2.3.0.0",
-    "local":           true,
+    "local":           "yes",
   })
 
   warn, errs := Provisioner().Validate(c)
