@@ -7,7 +7,6 @@ import (
   "crypto/md5"
   "errors"
   "encoding/hex"
-  "encoding/json"
   "fmt"
   "io"
   "io/ioutil"
@@ -31,10 +30,12 @@ import (
 )
 
 const (
+  yes string = "yes"
+  no string = "no"
   bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
   // shared:
   defaultBecome string = ""
-  defaultBecome_Set string = "no"
+  defaultBecome_Set string = no
   defaultBecomeMethod string = ""
   defaultBecomeMethod_Set string = "sudo"
   defaultBecomeUser string = ""
@@ -44,88 +45,22 @@ const (
   defaultLimit string = ""
   defaultVaultPasswordFile string = ""
   defaultVerbose string = ""
-  defaultVerbose_Set string = "no"
   // playbook only:
   defaultForceHandlers string = ""
-  defaultForceHandlers_Set string = "no"
   defaultStartAtTask string = ""
   // module only:
   defaultBackground int = 0
   defaultHostPattern string = "all"
   defaultOneLine string = ""
-  defaultOneLine_Set string = "no"
   defaultPoll int = 15
+
+  defaultUseSudo string = yes
+  defaultSkipInstall string = no
+  defaultSkipCleanup string = no
+  defaultLocal string = no
 )
 
-const installerProgramTemplate = `#!/usr/bin/env bash
-if [ -z "$(which ansible-playbook)" ]; then
-  
-  # only check the cloud boot finished if the directory exists
-  if [ -d /var/lib/cloud/instance ]; then
-    until [[ -f /var/lib/cloud/instance/boot-finished ]]; do
-      sleep 1
-    done
-  fi
-
-  # install dependencies
-  if [[ -f /etc/redhat-release ]]; then
-    yum update -y \
-    && yum groupinstall -y "Development Tools" \
-    && yum install -y python-devel
-  else
-    apt-get update \
-    && apt-get install -y build-essential python-dev
-  fi
-
-  # install pip, if necessary
-  if [ -z "$(which pip)" ]; then
-    curl https://bootstrap.pypa.io/get-pip.py | sudo python
-  fi
-
-  # install ansible
-  pip install {{ .AnsibleVersion}}
-
-else
-
-  expected_version="{{ .AnsibleVersion}}"
-  installed_version=$(ansible-playbook --version | head -n1 | awk '{print $2}')
-  installed_version="ansible==$installed_version"
-  if [[ "$expected_version" = *"=="* ]]; then
-    if [ "$expected_version" != "$installed_version" ]; then
-      pip install $expected_version
-    fi
-  fi
-  
-fi
-`
-
-const inventoryTemplate_Remote = `{{$top := . -}}
-{{range .Hosts -}}
-{{.}} ansible_connection=local
-{{end}}
-
-{{range .Groups -}}
-[{{.}}]
-{{range $top.Hosts -}}
-{{.}} ansible_connection=local
-{{end}}
-
-{{end}}`
-
-const inventoryTemplate_Local = `{{$top := . -}}
-{{range .Hosts -}}
-{{.}}
-{{end}}
-
-{{range .Groups -}}
-[{{.}}]
-{{range $top.Hosts -}}
-{{.}}
-{{end}}
-
-{{end}}`
-
-var yesNoStates = map[string]bool{"yes": true, "no": true}
+var yesNoStates = map[string]bool{yes: true, no: true}
 var becomeMethods = map[string]bool{"sudo": true, "su": true, "pbrun": true, "pfexec": true, "doas": true, "dzdo": true, "ksu": true, "runas": true}
 
 type ansibleInstaller struct {
@@ -173,160 +108,17 @@ type ansibleCallArgs struct {
   Shared        ansibleCallArgsShared
 }
 
-// -- play:
-
-type play struct {
-  InventoryMeta ansibleInventoryMeta
-  Callable      string
-  CallableType  AnsibleCallbaleType
-  CallArgs      ansibleCallArgs
-}
-
-func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string, error) {
-
-  command := ""
-  // entity to call:
-  if p.CallableType == AnsibleCallable_Playbook {
-
-    command = fmt.Sprintf("ansible-playbook %s", p.Callable)
-
-    // force handlers:
-    if p.CallArgs.ForceHandlers == "yes" {
-      command = fmt.Sprintf("%s --force-handlers", command)
-    }
-    // skip tags:
-    if len(p.CallArgs.SkipTags) > 0 {
-      command = fmt.Sprintf("%s --skip-tags='%s'", command, strings.Join(p.CallArgs.SkipTags, ","))
-    }
-    // start at task:
-    if len(p.CallArgs.StartAtTask) > 0 {
-      command = fmt.Sprintf("%s --start-at-task='%s'", command, p.CallArgs.StartAtTask)
-    }
-    // tags:
-    if len(p.CallArgs.Tags) > 0 {
-      command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(p.CallArgs.Tags, ","))
-    }
-
-  } else if p.CallableType == AnsibleCallable_Module {
-
-    hostPattern := p.CallArgs.HostPattern
-    if hostPattern == "" {
-      hostPattern = defaultHostPattern
-    }
-    command = fmt.Sprintf("ansible %s --module-name='%s'", hostPattern, p.Callable)
-    
-    if p.CallArgs.Background > 0 {
-      command = fmt.Sprintf("%s --background=%s", command, p.CallArgs.Background)
-      if p.CallArgs.Poll > 0 {
-        command = fmt.Sprintf("%s --poll=%s", command, p.CallArgs.Poll)
-      }
-    }
-    // module args:
-    if len(p.CallArgs.Args) > 0 {
-      args := make([]string, 0)
-      for mak, mav := range p.CallArgs.Args {
-        args = append(args, fmt.Sprintf("%s=%+v", mak, mav))
-      }
-      command = fmt.Sprintf("%s --args=\"%s\"", command, strings.Join(args, " "))
-    }
-    // one line:
-    if p.CallArgs.OneLine == "yes" {
-      command = fmt.Sprintf("%s --one-line", command)
-    }
-
-  }
-  // inventory file:
-  command = fmt.Sprintf("%s --inventory-file='%s'", command, inventoryFile)
-
-  // shared arguments:
-
-  // become:
-  if p.CallArgs.Shared.Become == "yes" {
-    command = fmt.Sprintf("%s --become", command)
-    if p.CallArgs.Shared.BecomeMethod != "" {
-      command = fmt.Sprintf("%s --become-method='%s'", command, p.CallArgs.Shared.BecomeMethod)
-    } else {
-      command = fmt.Sprintf("%s --become-method='%s'", command, defaultBecomeMethod_Set)
-    }
-    if p.CallArgs.Shared.BecomeUser != "" {
-      command = fmt.Sprintf("%s --become-user='%s'", command, p.CallArgs.Shared.BecomeUser)
-    } else {
-      command = fmt.Sprintf("%s --become-user='%s'", command, defaultBecomeUser_Set)
-    }
-  }
-  // extra vars:
-  if len(p.CallArgs.Shared.ExtraVars) > 0 {
-    extraVars, err := json.Marshal(p.CallArgs.Shared.ExtraVars)
-    if err != nil {
-      return "", err
-    }
-    command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
-  }
-  // forks:
-  if p.CallArgs.Shared.Forks > 0 {
-    command = fmt.Sprintf("%s --forks=%d", command, p.CallArgs.Shared.Forks)
-  }
-  // limit
-  if len(p.CallArgs.Shared.Limit) > 0 {
-    command = fmt.Sprintf("%s --limit='%s'", command, p.CallArgs.Shared.Limit)
-  }
-  // vault password file:
-  if len(vaultPasswordFile) > 0 {
-    command = fmt.Sprintf("%s --vault-password-file='%s'", command, vaultPasswordFile)
-  }
-  // verbose:
-  if p.CallArgs.Shared.Verbose == "yes" {
-    command = fmt.Sprintf("%s --verbose", command)
-  }
-
-  return command, nil
-}
-
-// -- runnable play:
-
-type runnablePlay struct {
-  Play                   play
-  VaultPasswordFile      string
-  InventoryFile          string
-  InventoryFileTemporary bool
-}
-
-func (r *runnablePlay) ToCommand() (string, error) {
-  return r.Play.ToCommand(r.InventoryFile, r.VaultPasswordFile)
-}
-
-func (r *runnablePlay) ToLocalCommand(o terraform.UIOutput, rpla runnablePlayLocalAnsibleArgs) (string, error) {
-  baseCommand, err := r.ToCommand()
-  if err != nil {
-    return "", err
-  }
-  return fmt.Sprintf("%s %s", baseCommand, rpla.ToCommandArguments()), nil
-}
-
-type runnablePlayLocalAnsibleArgs struct {
-  Username       string
-  PemFile        string
-  KnownHostsFile string
-}
-
-func (rpla *runnablePlayLocalAnsibleArgs) ToCommandArguments() string {
-  args := fmt.Sprintf("--private-key='%s'", rpla.PemFile)
-  args = fmt.Sprintf("%s --user='%s'", args, rpla.Username)
-  args = fmt.Sprintf("%s --ssh-extra-args='-o UserKnownHostsFile=%s'", args, rpla.KnownHostsFile)
-  return args
-}
-
 // -- provisioner:
 
 type provisioner struct {
   Plays          []play
   InventoryMeta  ansibleInventoryMeta
   Shared         ansibleCallArgsShared
-  useSudo        bool
-  skipInstall    bool
-  skipCleanup    bool
+  useSudo        string
+  skipInstall    string
+  skipCleanup    string
   installVersion string
-  local          bool
+  local          string
 }
 
 func Provisioner() terraform.ResourceProvisioner {
@@ -341,12 +133,10 @@ func Provisioner() terraform.ResourceProvisioner {
           Schema: map[string]*schema.Schema{
             // entity to run:
             "playbook": &schema.Schema{
-              ConflictsWith: []string{"plays.module"},
               Type:     schema.TypeString,
               Optional: true,
             },
             "module": &schema.Schema{
-              ConflictsWith: []string{"plays.playbook"},
               Type:     schema.TypeString,
               Optional: true,
             },
@@ -519,19 +309,19 @@ func Provisioner() terraform.ResourceProvisioner {
       },
 
       "use_sudo": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
-        Default:  true,
+        Default:  defaultUseSudo,
       },
       "skip_install": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
-        Default:  false,
+        Default:  defaultSkipInstall,
       },
       "skip_cleanup": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
-        Default:  false,
+        Default:  defaultSkipCleanup,
       },
       "install_version": &schema.Schema{
         Type:     schema.TypeString,
@@ -539,9 +329,9 @@ func Provisioner() terraform.ResourceProvisioner {
         Default:  "", // latest
       },
       "local": &schema.Schema{
-        Type:     schema.TypeBool,
+        Type:     schema.TypeString,
         Optional: true,
-        Default:  false,
+        Default:  defaultLocal,
       },
     },
     ApplyFunc:    applyFn,
@@ -567,7 +357,7 @@ func applyFn(ctx context.Context) error {
     return err
   }
   
-  if !p.local {
+  if p.local == no {
 
     // Wait and retry until we establish the connection
     err = retryFunc(comm.Timeout(), func() error {
@@ -580,15 +370,12 @@ func applyFn(ctx context.Context) error {
 
     defer comm.Disconnect()
 
-    if !p.skipInstall {
+    if p.skipInstall == no {
       if err := p.remote_installAnsible(o, comm); err != nil {
         return err
       }
     }
 
-  }
-
-  if !p.local {
     if runnables, err := p.remote_deployAnsibleData(o, comm); err != nil {
       o.Output(fmt.Sprintf("%+v", err))
       return err
@@ -606,6 +393,7 @@ func applyFn(ctx context.Context) error {
       }
 
     }
+
   } else {
 
     connType := s.Ephemeral.ConnInfo["type"]
@@ -665,7 +453,7 @@ func applyFn(ctx context.Context) error {
     }
   }
 
-  if !p.local && !p.skipCleanup {
+  if p.local == no && p.skipCleanup == no {
     p.remote_cleanupAfterBootstrap(o, comm)
   }
 
@@ -674,7 +462,13 @@ func applyFn(ctx context.Context) error {
 }
 
 func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
-  
+
+  defer func() {
+    if r := recover(); r != nil {
+      es = append(es, errors.New(fmt.Sprintf("error while validating the provisioner, reason: %+v", r)))
+    }
+  }()
+
   becomeMethod, ok := c.Get("become_method")
   if ok {
     if !becomeMethods[becomeMethod.(string)] {
@@ -682,12 +476,13 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
     }
   }
 
-  fields := []string{"verbose", "force_handlers", "one_line", "become"}
+  fields := []string{"verbose", "force_handlers", "one_line", "become", "use_sudo", "skip_install", "skip_cleanup", "local"}
+
   for _, field := range fields {
     v, ok := c.Get(field)
     if ok && v.(string) != "" {
       if !yesNoStates[v.(string)] {
-        es = append(es, errors.New(v.(string)+" is not a valid " + field))
+        es = append(es, errors.New(v.(string)+" is not a valid " + field + " value, must be yes/no"))
       }
     }
   }
@@ -751,7 +546,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
         v, ok := p[fieldPlay]
         if ok && v.(string) != "" {
           if !yesNoStates[v.(string)] {
-            es = append(es, errors.New(v.(string)+" is not a valid " + fieldPlay))
+            es = append(es, errors.New(v.(string)+" is not a valid " + fieldPlay + " value, must be yes/no"))
           }
         }
       }
@@ -772,7 +567,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
   local, ok := c.Get("local")
   if ok {
-    if local.(bool) {
+    if local.(string) == yes {
       for _, cf := range []string{"use_sudo", "install_version", "skip_cleanup", "skip_install"} {
         if _, ok := c.Get(cf); ok {
           es = append(es, errors.New(cf + " must not be used when local = true"))
@@ -1006,8 +801,8 @@ func (p *provisioner) remote_runCommandNoSudo(o terraform.UIOutput, comm communi
 // runCommand is used to run already prepared commands
 func (p *provisioner) remote_runCommand(o terraform.UIOutput, comm communicator.Communicator, command string, shouldSudo bool) error {
   // Unless prevented, prefix the command with sudo
-  if shouldSudo && p.useSudo {
-    command = "sudo " + command
+  if shouldSudo && p.useSudo == yes {
+    command = fmt.Sprintf("sudo %s", command)
   }
 
   outR, outW := io.Pipe()
@@ -1227,11 +1022,11 @@ func retryFunc(timeout time.Duration, f func() error) error {
 
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
   p := &provisioner{
-    useSudo:        d.Get("use_sudo").(bool),
-    skipInstall:    d.Get("skip_install").(bool),
-    skipCleanup:    d.Get("skip_cleanup").(bool),
+    useSudo:        d.Get("use_sudo").(string),
+    skipInstall:    d.Get("skip_install").(string),
+    skipCleanup:    d.Get("skip_cleanup").(string),
     installVersion: d.Get("install_version").(string),
-    local:          d.Get("local").(bool),
+    local:          d.Get("local").(string),
     Plays:          make([]play, 0),
     InventoryMeta:  ansibleInventoryMeta{
       Hosts:             getStringList(d.Get("hosts")),

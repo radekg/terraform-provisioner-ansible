@@ -70,11 +70,11 @@ These arguments can be set on the `provisioner` level or individual `plays`. Whe
 
 These affect provisioner only. Not related to `plays`.
 
-- `use_sudo`: should `sudo` be used for bootstrap commands, boolean, default `true`; when `true`, `become` does not make much sense
-- `skip_install`: if set to `true`, ansible installation on the server will be skipped, assume ansible is already installed, boolean, default `false`
-- `skip_cleanup`: if set to `true`, ansible bootstrap data will be left on the server after bootstrap, boolean, default `false`
+- `use_sudo`: should `sudo` be used for bootstrap commands, string `yes/no`, default `yes`, `become` does not make much sense
+- `skip_install`: if set to `true`, ansible installation on the server will be skipped, assume ansible is already installed, string `yes/no`, default `no`
+- `skip_cleanup`: if set to `true`, ansible bootstrap data will be left on the server after bootstrap, string `yes/no`, default `no`
 - `install_version`: ansible version to install when `skip_install = false`, string, default `empty string` (latest available version)
-- `local`: if `true`, ansible will run on the host where terraform command is executed; if `false`, ansible will be installed on the bootstrapped host
+- `local`: string `yes/no`, default `no`; if `yes`, ansible will run on the host where terraform command is executed; if `no`, ansible will be installed on the bootstrapped host
 
 ## Usage
 
@@ -146,7 +146,7 @@ When using `provisioner.local = true`, do not set any of these: `use_sudo`, `ski
         }
         
         become = "yes"
-        local = true
+        local = "yes"
         
       }
     }
@@ -159,11 +159,6 @@ The local mode requires the provisioner connection to use private keys. After th
 
 In the process of doing so, a temporary inventory will be created for the newly created host, the pem file will be written to a temp file and a temporary `known_hosts` file will be created. Temporary `known_hosts` and temporary pem are per provisioner run, inventory is created for each `plays`. Files should be cleaned up after the provisioner finishes or fails. Inventory will be removed only if not supplied with `inventory_file`.
 
-## Booleans vs yes/no
+## yes/no? Why not boolean?
 
-**Important**:
-
-- `use_sudo`, `skip_install`, `skip_cleanup` and `local` are boolean - they take `true` or `false`
-- `force_handlers`, `one_line`, `become` and `verbose` take `yes` or `no`, as a string
-
-This will be tidied up in the near future such that all these take `yes/no`. The `yes/no` exists because of the fallback mechanism for `become` and `verbose`, other arguments use `yes/no` for consistency. With boolean values, there is no easy way to specify `undefined` state.
+The `yes/no` exists because of the fallback mechanism for `become` and `verbose`, other arguments use `yes/no` for consistency. With boolean values, there is no easy way to specify `undefined` state.
