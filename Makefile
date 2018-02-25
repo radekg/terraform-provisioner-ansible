@@ -13,6 +13,9 @@ install-glide:
 install: install-glide
 	glide install
 
+.PHONY: update-dependencies
+update-dependencies: glide up
+
 .PHONY: build-linux
 build-linux: plugins-dir
 	CGO_ENABLED=0 GOOS=linux installsuffix=cgo go build -o ./${BINARY_NAME}-linux
