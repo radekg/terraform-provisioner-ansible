@@ -45,6 +45,8 @@ const (
 	defaultLimit             string = ""
 	defaultVaultPasswordFile string = ""
 	defaultVerbose           string = ""
+
+	defaultPlayEnabled string = yes
 	// playbook only:
 	defaultForceHandlers string = ""
 	defaultStartAtTask   string = ""
@@ -132,6 +134,11 @@ func Provisioner() terraform.ResourceProvisioner {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"enabled": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  defaultPlayEnabled,
+						},
 						// entity to run:
 						"playbook": &schema.Schema{
 							Type:     schema.TypeString,
@@ -483,9 +490,13 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 		}
 	}
 
-	fields := []string{"verbose", "force_handlers", "one_line", "become", "use_sudo", "skip_install", "skip_cleanup", "local"}
+	yesNoFields := []string{"verbose", "force_handlers", "one_line", "become", "use_sudo", "skip_install", "skip_cleanup", "local"}
+	yesNoFieldsPlay := []string{"enabled"}
+	for _, f := range yesNoFields {
+		yesNoFieldsPlay = append(yesNoFieldsPlay, f)
+	}
 
-	for _, field := range fields {
+	for _, field := range yesNoFields {
 		v, ok := c.Get(field)
 		if ok && v.(string) != "" {
 			if !yesNoStates[v.(string)] {
@@ -504,9 +515,12 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 	}
 
 	// Validate plays configs
+	validPlaysCount := 0
 	plays, ok := c.Get("plays")
 	if ok {
 		for _, p := range plays.([]map[string]interface{}) {
+
+			currentErrorCount := len(es)
 
 			playbook, okp := p["playbook"]
 			module, okm := p["module"]
@@ -549,7 +563,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 				}
 			}
 
-			for _, fieldPlay := range fields {
+			for _, fieldPlay := range yesNoFieldsPlay {
 				v, ok := p[fieldPlay]
 				if ok && v.(string) != "" {
 					if !yesNoStates[v.(string)] {
@@ -567,7 +581,16 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 				}
 			}
 
+			if currentErrorCount == len(es) {
+				validPlaysCount++
+			}
+
 		}
+
+		if validPlaysCount == 0 {
+			ws = append(ws, "nothing to play")
+		}
+
 	} else {
 		ws = append(ws, "nothing to play")
 	}
@@ -591,86 +614,88 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 	response := make([]runnablePlay, 0)
 
 	for _, playDef := range p.Plays {
-		if playDef.CallableType == AnsibleCallable_Playbook {
+		if playDef.Enabled == yes {
+			if playDef.CallableType == AnsibleCallable_Playbook {
 
-			playbookPath, err := resolvePath(playDef.Callable)
-			if err != nil {
-				return response, err
-			}
+				playbookPath, err := resolvePath(playDef.Callable)
+				if err != nil {
+					return response, err
+				}
 
-			// playbook file is at the top level of the module
-			// parse the playbook path's directory and upload the entire directory
-			playbookDir := filepath.Dir(playbookPath)
-			playbookDirHash := getMD5Hash(playbookDir)
+				// playbook file is at the top level of the module
+				// parse the playbook path's directory and upload the entire directory
+				playbookDir := filepath.Dir(playbookPath)
+				playbookDirHash := getMD5Hash(playbookDir)
 
-			remotePlaybookDir := filepath.Join(bootstrapDirectory, playbookDirHash)
-			remotePlaybookPath := filepath.Join(remotePlaybookDir, filepath.Base(playbookPath))
+				remotePlaybookDir := filepath.Join(bootstrapDirectory, playbookDirHash)
+				remotePlaybookPath := filepath.Join(remotePlaybookDir, filepath.Base(playbookPath))
 
-			if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
-				return response, err
-			}
+				if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
+					return response, err
+				}
 
-			errCmdCheck := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("/bin/bash -c 'if [ -d \"%s\" ]; then exit 50; fi'", remotePlaybookDir))
-			if err != nil {
-				errCmdCheckDetail := strings.Split(fmt.Sprintf("%v", errCmdCheck), ": ")
-				if errCmdCheckDetail[len(errCmdCheckDetail)-1] == "50" {
-					o.Output(fmt.Sprintf("The playbook '%s' directory '%s' has been already uploaded.", playDef.Callable, playbookDir))
+				errCmdCheck := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("/bin/bash -c 'if [ -d \"%s\" ]; then exit 50; fi'", remotePlaybookDir))
+				if err != nil {
+					errCmdCheckDetail := strings.Split(fmt.Sprintf("%v", errCmdCheck), ": ")
+					if errCmdCheckDetail[len(errCmdCheckDetail)-1] == "50" {
+						o.Output(fmt.Sprintf("The playbook '%s' directory '%s' has been already uploaded.", playDef.Callable, playbookDir))
+					} else {
+						return response, err
+					}
 				} else {
+					o.Output(fmt.Sprintf("Uploading the parent directory '%s' of playbook '%s' to '%s'...", playbookDir, playDef.Callable, remotePlaybookDir))
+					// upload ansible source and playbook to the host
+					if err := comm.UploadDir(remotePlaybookDir, playbookDir); err != nil {
+						return response, err
+					}
+				}
+
+				playDef.Callable = remotePlaybookPath
+
+				// always upload vault password file:
+				uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, remotePlaybookDir, playDef.CallArgs.Shared)
+				if err != nil {
 					return response, err
 				}
-			} else {
-				o.Output(fmt.Sprintf("Uploading the parent directory '%s' of playbook '%s' to '%s'...", playbookDir, playDef.Callable, remotePlaybookDir))
-				// upload ansible source and playbook to the host
-				if err := comm.UploadDir(remotePlaybookDir, playbookDir); err != nil {
+
+				// always create temp inventory:
+				inventoryFile, err := p.remote_writeInventory(o, comm, remotePlaybookDir, playDef.CallArgs, playDef.InventoryMeta)
+				if err != nil {
 					return response, err
 				}
+
+				response = append(response, runnablePlay{
+					Play:                   playDef,
+					VaultPasswordFile:      uploadedVaultPasswordFilePath,
+					InventoryFile:          inventoryFile,
+					InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
+				})
+
+			} else if playDef.CallableType == AnsibleCallable_Module {
+
+				if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
+					return response, err
+				}
+
+				// always upload vault password file:
+				uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, bootstrapDirectory, playDef.CallArgs.Shared)
+				if err != nil {
+					return response, err
+				}
+
+				// always create temp inventory:
+				inventoryFile, err := p.remote_writeInventory(o, comm, bootstrapDirectory, playDef.CallArgs, playDef.InventoryMeta)
+				if err != nil {
+					return response, err
+				}
+
+				response = append(response, runnablePlay{
+					Play:                   playDef,
+					VaultPasswordFile:      uploadedVaultPasswordFilePath,
+					InventoryFile:          inventoryFile,
+					InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
+				})
 			}
-
-			playDef.Callable = remotePlaybookPath
-
-			// always upload vault password file:
-			uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, remotePlaybookDir, playDef.CallArgs.Shared)
-			if err != nil {
-				return response, err
-			}
-
-			// always create temp inventory:
-			inventoryFile, err := p.remote_writeInventory(o, comm, remotePlaybookDir, playDef.CallArgs, playDef.InventoryMeta)
-			if err != nil {
-				return response, err
-			}
-
-			response = append(response, runnablePlay{
-				Play:                   playDef,
-				VaultPasswordFile:      uploadedVaultPasswordFilePath,
-				InventoryFile:          inventoryFile,
-				InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
-			})
-
-		} else if playDef.CallableType == AnsibleCallable_Module {
-
-			if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
-				return response, err
-			}
-
-			// always upload vault password file:
-			uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, bootstrapDirectory, playDef.CallArgs.Shared)
-			if err != nil {
-				return response, err
-			}
-
-			// always create temp inventory:
-			inventoryFile, err := p.remote_writeInventory(o, comm, bootstrapDirectory, playDef.CallArgs, playDef.InventoryMeta)
-			if err != nil {
-				return response, err
-			}
-
-			response = append(response, runnablePlay{
-				Play:                   playDef,
-				VaultPasswordFile:      uploadedVaultPasswordFilePath,
-				InventoryFile:          inventoryFile,
-				InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
-			})
 		}
 	}
 
@@ -897,28 +922,30 @@ func (p *provisioner) local_gatherRunnables(o terraform.UIOutput, connInfo *conn
 
 	response := make([]runnablePlay, 0)
 	for _, playDef := range p.Plays {
-		if playDef.CallableType == AnsibleCallable_Playbook {
-			inventoryFile, err := p.local_writeInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
-			if err != nil {
-				return response, err
+		if playDef.Enabled == yes {
+			if playDef.CallableType == AnsibleCallable_Playbook {
+				inventoryFile, err := p.local_writeInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
+				if err != nil {
+					return response, err
+				}
+				response = append(response, runnablePlay{
+					Play:                   playDef,
+					VaultPasswordFile:      playDef.CallArgs.Shared.VaultPasswordFile,
+					InventoryFile:          inventoryFile,
+					InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
+				})
+			} else if playDef.CallableType == AnsibleCallable_Module {
+				inventoryFile, err := p.local_writeInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
+				if err != nil {
+					return response, err
+				}
+				response = append(response, runnablePlay{
+					Play:                   playDef,
+					VaultPasswordFile:      playDef.CallArgs.Shared.VaultPasswordFile,
+					InventoryFile:          inventoryFile,
+					InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
+				})
 			}
-			response = append(response, runnablePlay{
-				Play:                   playDef,
-				VaultPasswordFile:      playDef.CallArgs.Shared.VaultPasswordFile,
-				InventoryFile:          inventoryFile,
-				InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
-			})
-		} else if playDef.CallableType == AnsibleCallable_Module {
-			inventoryFile, err := p.local_writeInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
-			if err != nil {
-				return response, err
-			}
-			response = append(response, runnablePlay{
-				Play:                   playDef,
-				VaultPasswordFile:      playDef.CallArgs.Shared.VaultPasswordFile,
-				InventoryFile:          inventoryFile,
-				InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
-			})
 		}
 	}
 	return response, nil
@@ -1083,6 +1110,7 @@ func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fa
 		playToAppend := play{
 			Callable:     callable,
 			CallableType: callableType,
+			Enabled:      playData["enabled"].(string),
 			InventoryMeta: ansibleInventoryMeta{
 				Hosts:  withStringListFallback(getStringList(playData["hosts"]), fallbackInventoryMeta.Hosts),
 				Groups: withStringListFallback(getStringList(playData["groups"]), fallbackInventoryMeta.Groups),

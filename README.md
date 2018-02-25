@@ -52,6 +52,12 @@ These are used only with remote provisioner and only when an explicit `inventory
 - `plays.one_line`: `ansible --one-line`, string `yes/no`, default `empty string` (not applied)
 - `plays.poll`: `ansible --poll`, int, default `15` (applied only when `background > 0`)
 
+#### Disabling a play
+
+It is possible that one may be testing a playbook or a module while the state of the changes in Ansible may not be known, thus - potentially - breaking the provisioning process. One might still need the provisioning process to succeed so the Ansible changes can be tested manually against the machine. In such case, instead of commenting the play out in Terraform file, use:
+
+- `plays.enabled`: string `yes/no`, default `yes`; set to `no` to skip execution
+
 #### Shared arguments
 
 These arguments can be set on the `provisioner` level or individual `plays`. When an argument is specified on the `provisioner` level and on `plays`, the `plays` value takes precedence.

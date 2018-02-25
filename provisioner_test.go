@@ -134,6 +134,8 @@ func TestResourceProvisioner_Validate_bad_config(t *testing.T) {
 	// - plays contains both playbook and module
 	// - become_method is not one of the supported methods
 	// - one_line invalid value
+	// Warnings:
+	// - nothing to play
 	c := testConfig(t, map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
@@ -150,8 +152,8 @@ func TestResourceProvisioner_Validate_bad_config(t *testing.T) {
 	})
 
 	warn, errs := Provisioner().Validate(c)
-	if len(warn) > 0 {
-		t.Fatalf("Warnings: %v", warn)
+	if len(warn) != 1 {
+		t.Fatalf("Should have one warning but have: %v", warn)
 	}
 	if len(errs) != 3 {
 		t.Fatalf("Should have three errors but have: %v", errs)
@@ -161,9 +163,13 @@ func TestResourceProvisioner_Validate_bad_config(t *testing.T) {
 func TestResourceProvisioner_Validate_bad_playbook_config(t *testing.T) {
 	// Errors:
 	// - all 5 fields which can't be used with playbook
+	// - enabled not yes/no
+	// Warnings:
+	// - nothing to play
 	c := testConfig(t, map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
+				"enabled":      "invalid value",
 				"playbook":     playbookFile,
 				"args":         map[string]interface{}{"arg1": "string value"},
 				"background":   10,
@@ -175,17 +181,19 @@ func TestResourceProvisioner_Validate_bad_playbook_config(t *testing.T) {
 	})
 
 	warn, errs := Provisioner().Validate(c)
-	if len(warn) > 0 {
-		t.Fatalf("Warnings: %v", warn)
+	if len(warn) != 1 {
+		t.Fatalf("Should have one warning but have: %v", warn)
 	}
-	if len(errs) != 5 {
-		t.Fatalf("Should have five errors but have: %v", errs)
+	if len(errs) != 6 {
+		t.Fatalf("Should have six errors but have: %v", errs)
 	}
 }
 
 func TestResourceProvisioner_Validate_bad_module_config(t *testing.T) {
 	// Errors:
 	// - all 4 fields which can't be used with module
+	// Warnings:
+	// - nothing to play
 	c := testConfig(t, map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
@@ -199,8 +207,8 @@ func TestResourceProvisioner_Validate_bad_module_config(t *testing.T) {
 	})
 
 	warn, errs := Provisioner().Validate(c)
-	if len(warn) > 0 {
-		t.Fatalf("Warnings: %v", warn)
+	if len(warn) != 1 {
+		t.Fatalf("Should have one warning but have: %v", warn)
 	}
 	if len(errs) != 4 {
 		t.Fatalf("Should have four errors but have: %v", errs)
@@ -210,6 +218,8 @@ func TestResourceProvisioner_Validate_bad_module_config(t *testing.T) {
 func TestResourceProvisioner_Validate_file_existence_checks(t *testing.T) {
 	// Errors:
 	// - all 3 files do not exist
+	// Warnings:
+	// - nothing to play
 	c := testConfig(t, map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
@@ -221,8 +231,8 @@ func TestResourceProvisioner_Validate_file_existence_checks(t *testing.T) {
 	})
 
 	warn, errs := Provisioner().Validate(c)
-	if len(warn) > 0 {
-		t.Fatalf("Warnings: %v", warn)
+	if len(warn) != 1 {
+		t.Fatalf("Should have one warning but have: %v", warn)
 	}
 	if len(errs) != 3 {
 		t.Fatalf("Should have three errors but have: %v", errs)
@@ -268,6 +278,7 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 	c := map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
+				"enabled":        "yes",
 				"playbook":       playbookFile,
 				"force_handlers": "yes",
 				"skip_tags":      []string{"tag2"},
@@ -275,6 +286,7 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 				"tags":           []string{"tag1"},
 			},
 			map[string]interface{}{
+				"enabled":        "no",
 				"playbook":       playbookFile,
 				"force_handlers": "yes",
 				"skip_tags":      []string{"tag2"},
@@ -320,6 +332,13 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 
 	firstPlayInventory := p.Plays[0].InventoryMeta
 	firstPlayArgs := p.Plays[0].CallArgs.Shared
+
+	if p.Plays[0].Enabled != "yes" {
+		t.Fatalf("First play: enabled should be yes")
+	}
+	if p.Plays[1].Enabled != "no" {
+		t.Fatalf("Second play: enabled should be no")
+	}
 
 	if strings.Join(firstPlayInventory.Hosts, "") != strings.Join(expected_hosts, "") {
 		t.Fatalf("First play: expected 'hosts' %v but received %v.", expected_hosts, firstPlayInventory.Hosts)
