@@ -45,6 +45,8 @@ const (
 	defaultLimit             string = ""
 	defaultVaultPasswordFile string = ""
 	defaultVerbose           string = ""
+
+	defaultPlayEnabled string = yes
 	// playbook only:
 	defaultForceHandlers string = ""
 	defaultStartAtTask   string = ""
@@ -132,6 +134,11 @@ func Provisioner() terraform.ResourceProvisioner {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"enabled": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  defaultPlayEnabled,
+						},
 						// entity to run:
 						"playbook": &schema.Schema{
 							Type:     schema.TypeString,
@@ -483,9 +490,13 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 		}
 	}
 
-	fields := []string{"verbose", "force_handlers", "one_line", "become", "use_sudo", "skip_install", "skip_cleanup", "local"}
+	yesNoFields := []string{"verbose", "force_handlers", "one_line", "become", "use_sudo", "skip_install", "skip_cleanup", "local"}
+	yesNoFieldsPlay := []string{"enabled"}
+	for _, f := range yesNoFields {
+		yesNoFieldsPlay = append(yesNoFieldsPlay, f)
+	}
 
-	for _, field := range fields {
+	for _, field := range yesNoFields {
 		v, ok := c.Get(field)
 		if ok && v.(string) != "" {
 			if !yesNoStates[v.(string)] {
@@ -504,9 +515,12 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 	}
 
 	// Validate plays configs
+	validPlaysCount := 0
 	plays, ok := c.Get("plays")
 	if ok {
 		for _, p := range plays.([]map[string]interface{}) {
+
+			currentErrorCount := len(es)
 
 			playbook, okp := p["playbook"]
 			module, okm := p["module"]
@@ -549,7 +563,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 				}
 			}
 
-			for _, fieldPlay := range fields {
+			for _, fieldPlay := range yesNoFieldsPlay {
 				v, ok := p[fieldPlay]
 				if ok && v.(string) != "" {
 					if !yesNoStates[v.(string)] {
@@ -567,7 +581,16 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 				}
 			}
 
+			if currentErrorCount == len(es) {
+				validPlaysCount++
+			}
+
 		}
+
+		if validPlaysCount == 0 {
+			ws = append(ws, "nothing to play")
+		}
+
 	} else {
 		ws = append(ws, "nothing to play")
 	}
@@ -591,6 +614,9 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 	response := make([]runnablePlay, 0)
 
 	for _, playDef := range p.Plays {
+		if playDef.Enabled == no {
+			continue
+		}
 		if playDef.CallableType == AnsibleCallable_Playbook {
 
 			playbookPath, err := resolvePath(playDef.Callable)
@@ -897,6 +923,9 @@ func (p *provisioner) local_gatherRunnables(o terraform.UIOutput, connInfo *conn
 
 	response := make([]runnablePlay, 0)
 	for _, playDef := range p.Plays {
+		if playDef.Enabled == no {
+			continue
+		}
 		if playDef.CallableType == AnsibleCallable_Playbook {
 			inventoryFile, err := p.local_writeInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
 			if err != nil {
@@ -1083,6 +1112,7 @@ func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fa
 		playToAppend := play{
 			Callable:     callable,
 			CallableType: callableType,
+			Enabled:      playData["enabled"].(string),
 			InventoryMeta: ansibleInventoryMeta{
 				Hosts:  withStringListFallback(getStringList(playData["hosts"]), fallbackInventoryMeta.Hosts),
 				Groups: withStringListFallback(getStringList(playData["groups"]), fallbackInventoryMeta.Groups),

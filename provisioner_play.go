@@ -11,6 +11,7 @@ import (
 // -- play:
 
 type play struct {
+	Enabled       string
 	InventoryMeta ansibleInventoryMeta
 	Callable      string
 	CallableType  AnsibleCallbaleType
