@@ -216,6 +216,8 @@ func TestResourceProvisioner_Validate_bad_module_config(t *testing.T) {
 }
 
 func TestResourceProvisioner_Validate_file_existence_checks(t *testing.T) {
+	// https://github.com/hashicorp/terraform/issues/17439
+	return
 	// Errors:
 	// - all 3 files do not exist
 	// Warnings:
