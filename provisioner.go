@@ -572,14 +572,15 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 				}
 			}
 
-			for _, ftt := range []string{"inventory_file", "playbook", "vault_password_file"} {
-				value, ok := p[ftt]
-				if ok && len(value.(string)) > 0 {
-					if _, err := resolvePath(value.(string)); err != nil {
-						es = append(es, errors.New("file "+value.(string)+" does not exist"))
-					}
-				}
-			}
+			// https://github.com/hashicorp/terraform/issues/17439
+			//for _, ftt := range []string{"inventory_file", "playbook", "vault_password_file"} {
+			//	value, ok := p[ftt]
+			//	if ok && len(value.(string)) > 0 {
+			//		if _, err := resolvePath(value.(string)); err != nil {
+			//			es = append(es, errors.New(fmt.Sprintf("file "+value.(string)+" does not exist ----------> %+v", c)))
+			//		}
+			//	}
+			//}
 
 			if currentErrorCount == len(es) {
 				validPlaysCount++
