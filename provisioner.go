@@ -579,7 +579,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 						ws = append(ws, "I could not reliably determine the existence of '"+ftt+"', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.")
 					} else {
 						if _, err := resolvePath(value.(string)); err != nil {
-							es = append(es, errors.New(fmt.Sprintf("file "+value.(string)+" does not exist ----------> %+v", c)))
+							es = append(es, errors.New("file "+value.(string)+" does not exist"))
 						}
 					}
 				}
