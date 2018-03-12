@@ -823,7 +823,7 @@ func (p *provisioner) remote_writeInventory(o terraform.UIOutput, comm communica
 
 func (p *provisioner) remote_cleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
 	o.Output("Cleaning up after bootstrap...")
-	p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("rm -r %s", bootstrapDirectory))
+	p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("rm -rf %s", bootstrapDirectory))
 	o.Output("Cleanup complete.")
 }
 
