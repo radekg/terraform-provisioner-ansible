@@ -141,6 +141,7 @@ func (r *runnablePlay) ToLocalCommand(o terraform.UIOutput, rpla runnablePlayLoc
 
 type runnablePlayLocalAnsibleArgs struct {
 	Username       string
+	Port           int
 	PemFile        string
 	KnownHostsFile string
 }
@@ -150,6 +151,6 @@ func (rpla *runnablePlayLocalAnsibleArgs) ToCommandArguments() string {
 	if rpla.PemFile != "" {
 		args = fmt.Sprintf("%s --private-key='%s'", args, rpla.PemFile)
 	}
-	args = fmt.Sprintf("%s --ssh-extra-args='-o UserKnownHostsFile=%s'", args, rpla.KnownHostsFile)
+	args = fmt.Sprintf("%s --ssh-extra-args='-p %d -o UserKnownHostsFile=%s'", args, rpla.Port, rpla.KnownHostsFile)
 	return args
 }

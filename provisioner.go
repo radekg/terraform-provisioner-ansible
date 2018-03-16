@@ -451,6 +451,7 @@ func applyFn(ctx context.Context) error {
 
 				command, err := runnable.ToLocalCommand(o, runnablePlayLocalAnsibleArgs{
 					Username:       connInfo.User,
+					Port:           connInfo.Port,
 					PemFile:        pemFile,
 					KnownHostsFile: knownHostsFile,
 				})
@@ -886,7 +887,7 @@ func (p *provisioner) local_ensureKnownHosts(o terraform.UIOutput, connInfo *con
 	targetPath := filepath.Join(os.TempDir(), u1.String())
 
 	for {
-		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan %s 2>/dev/null | head -n1 > %s", connInfo.Host, targetPath)
+		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan -p %d %s 2>/dev/null | head -n1 > %s", connInfo.Port, connInfo.Host, targetPath)
 		if err := p.local_runCommand(o, sshKeyScanCommand); err != nil {
 			return "", err
 		}
