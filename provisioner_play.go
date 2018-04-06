@@ -24,7 +24,7 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
 	// entity to call:
 	if p.CallableType == AnsibleCallable_Playbook {
 
-		command = fmt.Sprintf("ansible-playbook %s", p.Callable)
+		command = fmt.Sprintf("ANSIBLE_FORCE_COLOR=true ansible-playbook %s", p.Callable)
 
 		// force handlers:
 		if p.CallArgs.ForceHandlers == yes {
