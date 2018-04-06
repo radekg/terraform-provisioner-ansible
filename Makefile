@@ -14,7 +14,8 @@ install: install-glide
 	glide install
 
 .PHONY: update-dependencies
-update-dependencies: glide up
+update-dependencies:
+	glide up
 
 .PHONY: build-linux
 build-linux: plugins-dir

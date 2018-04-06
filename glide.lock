@@ -1,14 +1,8 @@
-hash: 6bad0f33f23d957df20f8d9ad7981f566fd628f068bc39d94798d269e3c930a3
-updated: 2018-02-25T17:46:47.024313874+01:00
+hash: a3be3ee5573ae647081bcc2cdc892cece22be1e934997db9ab637488e2321efc
+updated: 2018-04-06T10:41:35.858834736+02:00
 imports:
 - name: github.com/agext/levenshtein
   version: 5f10fee965225ac1eecdc234c09daf5cd9e7f7b6
-- name: github.com/antchfx/xpath
-  version: 3468085e490184bdba681e006b2b3c1baa54b564
-- name: github.com/antchfx/xquery
-  version: d4ffaa903cebf0338c2ad8c5f10e2fd75213d0f3
-  subpackages:
-  - xml
 - name: github.com/apparentlymart/go-cidr
   version: 2bd8b58cf4275aeb086ade613de226773e29e853
   subpackages:
@@ -134,7 +128,7 @@ imports:
   - parser
   - scanner
 - name: github.com/hashicorp/terraform
-  version: 3802b14260603f90c7a1faf55994dcc8933e2069
+  version: dbce85d85ff0beebc660b3d1805b4ef15361af00
   subpackages:
   - builtin/provisioners/local-exec
   - communicator
@@ -151,6 +145,7 @@ imports:
   - helper/hashcode
   - helper/hilmapstructure
   - helper/schema
+  - httpclient
   - moduledeps
   - plugin
   - plugin/discovery
@@ -254,8 +249,9 @@ imports:
   - poly1305
   - ssh
   - ssh/agent
+  - ssh/knownhosts
 - name: golang.org/x/net
-  version: a337091b0525af65de94df2eb7e98bd9962dcbe2
+  version: 5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec
   subpackages:
   - context
   - html
