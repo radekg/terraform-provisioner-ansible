@@ -861,10 +861,15 @@ func (p *provisioner) remote_runCommand(o terraform.UIOutput, comm communicator.
 		return fmt.Errorf("Error executing command %q: %v", cmd.Command, err)
 	}
 
-	cmd.Wait()
-	if cmd.ExitStatus != 0 {
-		err = fmt.Errorf(
-			"Command %q exited with non-zero exit status: %d", cmd.Command, cmd.ExitStatus)
+	err = cmd.Wait()
+	if err != nil {
+		if exitErr, ok := err.(*remote.ExitError); ok {
+			err = fmt.Errorf(
+				"Command '%q' exited with non-zero exit status: %d, reason %+v", cmd.Command, exitErr.ExitStatus, exitErr.Err)
+		} else {
+			err = fmt.Errorf(
+				"Command '%q' failed, reason: %+v", cmd.Command, err)
+		}
 	}
 
 	// Wait for output to clean up
