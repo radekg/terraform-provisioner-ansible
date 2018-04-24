@@ -449,17 +449,53 @@ func applyFn(ctx context.Context) error {
 					defer os.Remove(runnable.InventoryFile)
 				}
 
+				bastionHost := ""
+				bastionUsername := connInfo.User
+				bastionPemFile := pemFile
+				bastionPort := connInfo.Port
+
+				if connInfo.BastionHost != "" {
+					bastionHost = connInfo.BastionHost
+					if connInfo.BastionUser != "" {
+						bastionUsername = connInfo.BastionUser
+					}
+					if connInfo.BastionPrivateKey != "" {
+						bastionPemFile = connInfo.BastionPrivateKey
+					}
+					if connInfo.BastionPort > 0 {
+						bastionPort = connInfo.BastionPort
+					}
+				}
+
 				command, err := runnable.ToLocalCommand(o, runnablePlayLocalAnsibleArgs{
-					Username:       connInfo.User,
-					Port:           connInfo.Port,
-					PemFile:        pemFile,
-					KnownHostsFile: knownHostsFile,
+					Username:        connInfo.User,
+					Port:            connInfo.Port,
+					PemFile:         pemFile,
+					KnownHostsFile:  knownHostsFile,
+					BastionHost:     bastionHost,
+					BastionPemFile:  bastionPemFile,
+					BastionPort:     bastionPort,
+					BastionUsername: bastionUsername,
 				})
+
 				if err != nil {
 					return err
 				}
 
+				if connInfo.BastionHost != "" {
+					o.Output(fmt.Sprintf("executing ssh-keyscan on bastion: %s@%s", bastionUsername, fmt.Sprintf("%s:%d", bastionHost, bastionPort)))
+					bastionSshKeyScan := NewBastionKeyScan(
+						bastionHost,
+						bastionPort,
+						bastionUsername,
+						bastionPemFile)
+					if err := bastionSshKeyScan.Scan(o, connInfo.Host, connInfo.Port); err != nil {
+						return err
+					}
+				}
+
 				o.Output(fmt.Sprintf("running local command: %s", command))
+
 				if err := p.local_runCommand(o, command); err != nil {
 					return err
 				}

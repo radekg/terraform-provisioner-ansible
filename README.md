@@ -157,13 +157,26 @@ When using `provisioner.local = true`, do not set any of these: `use_sudo`, `ski
       }
     }
 
-**This is a preview feature and it may change with time.**
-
 #### Local mode SSH: details
 
 The local mode requires the provisioner connection to use, at least, the username. After the bootstrap, the plugin will inspect the connection info, check that the username and private key are set and that provisioning succeeded, indeed, by checking the host (which should be an ip address of the newly created instance). If the connection info does not provide the SSH private key, `ssh agent` mode is assumed. When the state validates correctly, the provisioner will execute `ssh-keyscan` against the newly created instance and proceed only when `ssh-keyscan` succeedes. You will see plenty of `ssh-keyscan` errors in the output before provisioning starts.
 
 In the process of doing so, a temporary inventory will be created for the newly created host, the pem file will be written to a temp file and a temporary `known_hosts` file will be created. Temporary `known_hosts` and temporary pem are per provisioner run, inventory is created for each `plays`. Files should be cleaned up after the provisioner finishes or fails. Inventory will be removed only if not supplied with `inventory_file`.
+
+##### Local mode bastion host: SSH connect timeout and connection attempts
+
+The local mode specifies a number of `ssh extra options` to be passed to Ansible. Most of them are implied from the run context, however, `ConnectTimeout` and `ConnectionAttempts` aren't available via `ansible` / `ansible-playbook`. These can be set using environment variables. Details:
+
+- `ConnectTimeout`: default `10` seconds, change by setting `TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT` environment variable
+- `ConnectionAttempts`: default `10`, change by setting `TF_PROVISIONER_ANSIBLE_SSH_CONNECTION_ATTEMPTS` environment variable
+
+## Bastion host
+
+Bastion host fulfil the following criteria:
+
+- Linux / BSD based system
+- `mkdir`, `touch`, `ssh-keyscan`, `echo`, `cat` and `rm` commands must be available to the SSH user
+- `$HOME` enviornment variable must be set for the SSH user
 
 ## yes/no? Why not boolean?
 
