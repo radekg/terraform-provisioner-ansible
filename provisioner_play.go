@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform/terraform"
@@ -52,9 +54,9 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
 		command = fmt.Sprintf("ansible %s --module-name='%s'", hostPattern, p.Callable)
 
 		if p.CallArgs.Background > 0 {
-			command = fmt.Sprintf("%s --background=%s", command, p.CallArgs.Background)
+			command = fmt.Sprintf("%s --background=%d", command, p.CallArgs.Background)
 			if p.CallArgs.Poll > 0 {
-				command = fmt.Sprintf("%s --poll=%s", command, p.CallArgs.Poll)
+				command = fmt.Sprintf("%s --poll=%d", command, p.CallArgs.Poll)
 			}
 		}
 		// module args:
@@ -140,10 +142,14 @@ func (r *runnablePlay) ToLocalCommand(o terraform.UIOutput, rpla runnablePlayLoc
 }
 
 type runnablePlayLocalAnsibleArgs struct {
-	Username       string
-	Port           int
-	PemFile        string
-	KnownHostsFile string
+	Username        string
+	Port            int
+	PemFile         string
+	KnownHostsFile  string
+	BastionUsername string
+	BastionHost     string
+	BastionPort     int
+	BastionPemFile  string
 }
 
 func (rpla *runnablePlayLocalAnsibleArgs) ToCommandArguments() string {
@@ -151,6 +157,35 @@ func (rpla *runnablePlayLocalAnsibleArgs) ToCommandArguments() string {
 	if rpla.PemFile != "" {
 		args = fmt.Sprintf("%s --private-key='%s'", args, rpla.PemFile)
 	}
-	args = fmt.Sprintf("%s --ssh-extra-args='-p %d -o UserKnownHostsFile=%s'", args, rpla.Port, rpla.KnownHostsFile)
+
+	sshConnectTimeout := 10
+	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT")); err == nil {
+		sshConnectTimeout = val
+	}
+	sshConnectionAttempts := 10
+	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECTION_ATTEMPTS")); err == nil {
+		sshConnectionAttempts = val
+	}
+
+	sshExtraAgrsOptions := make([]string, 0)
+	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-p %d", rpla.Port))
+	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o UserKnownHostsFile=%s", rpla.KnownHostsFile))
+	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectTimeout=%d", sshConnectTimeout))
+	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectionAttempts=%d", sshConnectionAttempts))
+	if rpla.BastionHost != "" {
+		sshExtraAgrsOptions = append(
+			sshExtraAgrsOptions,
+			fmt.Sprintf(
+				"-o ProxyCommand=\"ssh -p %d -W %%h:%%p %s@%s\"",
+				rpla.BastionPort,
+				rpla.BastionUsername,
+				rpla.BastionHost))
+		if rpla.BastionPemFile == "" && os.Getenv("SSH_AUTH_SOCK") != "" {
+			sshExtraAgrsOptions = append(sshExtraAgrsOptions, "-o ForwardAgent=yes")
+		}
+	}
+
+	args = fmt.Sprintf("%s --ssh-extra-args='%s'", args, strings.Join(sshExtraAgrsOptions, " "))
+
 	return args
 }
