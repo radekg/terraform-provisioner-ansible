@@ -84,6 +84,9 @@ func (b *BastionKeyScan) sshConfig() *ssh.ClientConfig {
 }
 
 func (b *BastionKeyScan) makeError(pattern string, e error) error {
+	if e == nil {
+		return fmt.Errorf("Bastion ssh-keyscan: %s", pattern)
+	}
 	return fmt.Errorf("Bastion ssh-keyscan: %s", fmt.Sprintf(pattern, e))
 }
 
@@ -173,14 +176,26 @@ func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int) error
 	u1 := uuid.Must(uuid.NewV4())
 	targetPath := filepath.Join(bastionHostKnowHostsDir, u1.String())
 
+	timeoutMs := SSHKeyScanTimeoutSeconds() * 1000
+	timeSpentMs := 0
+	intervalMs := 500
+
 	for {
 		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan -p %d %s 2>/dev/null | head -n1 > \"%s\"", port, host, targetPath)
 		keyScanError := b.execute(sshKeyScanCommand, connection, o)
 		if err := b.execute(fmt.Sprintf("stat \"%s\"", targetPath), connection, o); err == nil {
 			break
 		} else {
-			b.output(o, fmt.Sprintf("ssh-keyscan hasn't succeeded yet; retrying\nreason: \n%s\n%s...", keyScanError, err))
-			time.Sleep(500 * time.Millisecond)
+			b.output(o, fmt.Sprintf("ssh-keyscan hasn't succeeded yet (last error: %s); retrying...", keyScanError))
+			time.Sleep(time.Duration(intervalMs) * time.Millisecond)
+			timeSpentMs = timeSpentMs + intervalMs
+			if timeSpentMs > timeoutMs {
+				b.execute(fmt.Sprintf("rm -rf \"%s\"", targetPath), connection, o) // cleanup, just in case
+				return b.makeError(
+					fmt.Sprintf(
+						"failed receive target ssh key for %s:%d within time specified period of %d seconds.",
+						host, port, timeoutMs/1000), nil)
+			}
 		}
 	}
 
