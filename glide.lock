@@ -1,5 +1,5 @@
-hash: a3be3ee5573ae647081bcc2cdc892cece22be1e934997db9ab637488e2321efc
-updated: 2018-04-06T10:41:35.858834736+02:00
+hash: 55c18becdfc27a622169478cb6909933d4f9448d0e059a632104eb7c5f2edc5b
+updated: 2018-04-27T16:05:36.053598714+02:00
 imports:
 - name: github.com/agext/levenshtein
   version: 5f10fee965225ac1eecdc234c09daf5cd9e7f7b6
@@ -128,7 +128,7 @@ imports:
   - parser
   - scanner
 - name: github.com/hashicorp/terraform
-  version: dbce85d85ff0beebc660b3d1805b4ef15361af00
+  version: 41e50bd32a8825a84535e353c3674af8ce799161
   subpackages:
   - builtin/provisioners/local-exec
   - communicator
