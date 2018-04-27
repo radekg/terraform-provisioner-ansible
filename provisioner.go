@@ -673,7 +673,7 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 			remotePlaybookDir := filepath.Join(bootstrapDirectory, playbookDirHash)
 			remotePlaybookPath := filepath.Join(remotePlaybookDir, filepath.Base(playbookPath))
 
-			if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
+			if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
 				return response, err
 			}
 
@@ -716,7 +716,7 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 
 		} else if playDef.CallableType == AnsibleCallable_Module {
 
-			if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p %s", bootstrapDirectory)); err != nil {
+			if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
 				return response, err
 			}
 
@@ -768,7 +768,7 @@ func (p *provisioner) remote_installAnsible(o terraform.UIOutput, comm communica
 		return err
 	}
 
-	if err := p.remote_runCommandSudo(o, comm, fmt.Sprintf("/bin/bash -c '%s && rm %s'", targetPath, targetPath)); err != nil {
+	if err := p.remote_runCommandSudo(o, comm, fmt.Sprintf("/bin/bash -c '\"%s\" && rm \"%s\"'", targetPath, targetPath)); err != nil {
 		return err
 	}
 
@@ -860,7 +860,7 @@ func (p *provisioner) remote_writeInventory(o terraform.UIOutput, comm communica
 
 func (p *provisioner) remote_cleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
 	o.Output("Cleaning up after bootstrap...")
-	p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("rm -rf %s", bootstrapDirectory))
+	p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("rm -rf \"%s\"", bootstrapDirectory))
 	o.Output("Cleanup complete.")
 }
 
@@ -931,7 +931,7 @@ func (p *provisioner) local_ensureKnownHosts(o terraform.UIOutput, connInfo *con
 	timeoutSeconds := int64(SSHKeyScanTimeoutSeconds())
 
 	for {
-		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan -p %d %s 2>/dev/null | head -n1 > %s", connInfo.Port, connInfo.Host, targetPath)
+		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan -p %d %s 2>/dev/null | head -n1 > \"%s\"", connInfo.Port, connInfo.Host, targetPath)
 		if err := p.local_runCommand(o, sshKeyScanCommand); err != nil {
 			return "", err
 		}
