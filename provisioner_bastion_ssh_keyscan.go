@@ -7,7 +7,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -209,12 +208,4 @@ func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int) error
 		connection, o)
 
 	return nil
-}
-
-func SSHKeyScanTimeoutSeconds() int {
-	sshKeyscanTimeoutSeconds := 60
-	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_SSH_KEYSCAN_TIMEOUT_SECONDS")); err == nil {
-		sshKeyscanTimeoutSeconds = val
-	}
-	return sshKeyscanTimeoutSeconds
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform/terraform"
@@ -158,20 +157,11 @@ func (rpla *runnablePlayLocalAnsibleArgs) ToCommandArguments() string {
 		args = fmt.Sprintf("%s --private-key='%s'", args, rpla.PemFile)
 	}
 
-	sshConnectTimeout := 10
-	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT_SECONDS")); err == nil {
-		sshConnectTimeout = val
-	}
-	sshConnectionAttempts := 10
-	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECTION_ATTEMPTS")); err == nil {
-		sshConnectionAttempts = val
-	}
-
 	sshExtraAgrsOptions := make([]string, 0)
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-p %d", rpla.Port))
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o UserKnownHostsFile=%s", rpla.KnownHostsFile))
-	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectTimeout=%d", sshConnectTimeout))
-	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectionAttempts=%d", sshConnectionAttempts))
+	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectTimeout=%d", AnsibleSSHConnecTimeoutSeconds()))
+	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectionAttempts=%d", AnsibleSSHConnecionAttempts()))
 	if rpla.BastionHost != "" {
 		sshExtraAgrsOptions = append(
 			sshExtraAgrsOptions,
