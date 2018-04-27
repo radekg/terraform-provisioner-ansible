@@ -927,6 +927,9 @@ func (p *provisioner) local_ensureKnownHosts(o terraform.UIOutput, connInfo *con
 	u1 := uuid.Must(uuid.NewV4())
 	targetPath := filepath.Join(os.TempDir(), u1.String())
 
+	startedAt := time.Now().Unix()
+	timeoutSeconds := int64(SSHKeyScanTimeoutSeconds())
+
 	for {
 		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan -p %d %s 2>/dev/null | head -n1 > %s", connInfo.Port, connInfo.Host, targetPath)
 		if err := p.local_runCommand(o, sshKeyScanCommand); err != nil {
@@ -940,6 +943,9 @@ func (p *provisioner) local_ensureKnownHosts(o terraform.UIOutput, connInfo *con
 			break
 		} else {
 			o.Output("ssh-keyscan hasn't succeeded yet; retrying...")
+			if time.Now().Unix()-startedAt > timeoutSeconds {
+				return "", fmt.Errorf("ssh-keyscan %s:%d has not completed within the timeout of %d seconds", connInfo.Host, connInfo.Port, timeoutSeconds)
+			}
 		}
 	}
 
