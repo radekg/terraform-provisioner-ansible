@@ -159,7 +159,7 @@ func (rpla *runnablePlayLocalAnsibleArgs) ToCommandArguments() string {
 	}
 
 	sshConnectTimeout := 10
-	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT")); err == nil {
+	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT_SECONDS")); err == nil {
 		sshConnectTimeout = val
 	}
 	sshConnectionAttempts := 10

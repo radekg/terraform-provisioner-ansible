@@ -163,6 +163,10 @@ The local mode requires the provisioner connection to use, at least, the usernam
 
 In the process of doing so, a temporary inventory will be created for the newly created host, the pem file will be written to a temp file and a temporary `known_hosts` file will be created. Temporary `known_hosts` and temporary pem are per provisioner run, inventory is created for each `plays`. Files should be cleaned up after the provisioner finishes or fails. Inventory will be removed only if not supplied with `inventory_file`.
 
+##### `ssh-keyscan` timeout
+
+`ssh-keyscan` can take some time until the host key is resolved. The provisioner will continue trying obtaining the key for the period `60 seconds` by default. The value can be changed using `TF_PROVISIONER_SSH_KEYSCAN_TIMEOUT_SECONDS` environment variable.
+
 ##### Local mode bastion host
 
 Bastion host must fulfill the following criteria:
@@ -175,7 +179,7 @@ Bastion host must fulfill the following criteria:
 
 The local mode specifies a number of `ssh extra options` to be passed to Ansible. Most of them are implied from the run context, however, `ConnectTimeout` and `ConnectionAttempts` aren't available via `ansible` / `ansible-playbook`. These can be set using environment variables. Details:
 
-- `ConnectTimeout`: default `10` seconds, change by setting `TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT` environment variable
+- `ConnectTimeout`: default `10` seconds, change by setting `TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT_SECONDS` environment variable
 - `ConnectionAttempts`: default `10`, change by setting `TF_PROVISIONER_ANSIBLE_SSH_CONNECTION_ATTEMPTS` environment variable
 
 ## yes/no? Why not boolean?
