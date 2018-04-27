@@ -161,20 +161,18 @@ func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int) error
 	}
 	defer connection.Close()
 
-	bastionHostKnowHostsDir := filepath.Dir(BastionHostKnownHostsFile)
-
 	b.output(o, fmt.Sprintf("ensuring the existence of a known hosts file at %s...", BastionHostKnownHostsFile))
 	if err := b.execute(
 		fmt.Sprintf(
 			"mkdir -p \"%s\" && touch \"%s\"",
-			strings.Replace(bastionHostKnowHostsDir, "~/", "$HOME/", -1),
-			strings.Replace(BastionHostKnownHostsFile, "~/", "$HOME/", -1)),
+			b.quotedSshKnownFileDir(),
+			b.quotedSshKnownFilePath()),
 		connection, o); err != nil {
 		return err
 	}
 
 	u1 := uuid.Must(uuid.NewV4())
-	targetPath := filepath.Join(bastionHostKnowHostsDir, u1.String())
+	targetPath := filepath.Join(b.quotedSshKnownFileDir(), u1.String())
 
 	timeoutMs := SSHKeyScanTimeoutSeconds() * 1000
 	timeSpentMs := 0
@@ -203,9 +201,16 @@ func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int) error
 		fmt.Sprintf(
 			"echo $(cat \"%s\") >> \"%s\" && rm -rf \"%s\"",
 			targetPath,
-			strings.Replace(BastionHostKnownHostsFile, "~/", "$HOME/", -1),
+			b.quotedSshKnownFilePath(),
 			targetPath),
 		connection, o)
 
 	return nil
+}
+
+func (b *BastionKeyScan) quotedSshKnownFileDir() string {
+	return strings.Replace(filepath.Dir(BastionHostKnownHostsFile), "~/", "$HOME/", 1)
+}
+func (b *BastionKeyScan) quotedSshKnownFilePath() string {
+	return strings.Replace(BastionHostKnownHostsFile, "~/", "$HOME/", 1)
 }
