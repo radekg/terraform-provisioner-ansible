@@ -429,8 +429,8 @@ func applyFn(ctx context.Context) error {
 		} else {
 
 			pemFile := ""
-			if connInfo.PrivateKey == "" {
-				pemFile, err := p.local_writePem(o, connInfo)
+			if connInfo.PrivateKey != "" {
+				pemFile, err = p.local_writePem(o, connInfo)
 				if err != nil {
 					return err
 				}
