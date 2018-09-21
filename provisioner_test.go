@@ -264,16 +264,16 @@ func TestResourceProvisioner_Validate_local_conflicting_settings(t *testing.T) {
 
 func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 
-	expected_hosts := []string{"localhost1", "localhost2", "localhost"}
-	expected_groups := []string{"group1", "group2"}
-	expected_become := "yes"
-	expected_becomeMethod := "su"
-	expected_becomeUser := "unit_test_user"
-	expected_extraVars := map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"}
-	expected_forks := 10
-	expected_limit := "a=b"
-	expected_vaultPasswordFile := vaultPasswordFile
-	expected_verbose := "yes"
+	expectedHosts := []string{"localhost1", "localhost2", "localhost"}
+	expectedGroups := []string{"group1", "group2"}
+	expectedBecome := "yes"
+	expectedBecomeMethod := "su"
+	expectedBecomeUser := "unit_test_user"
+	expectedExtraVars := map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"}
+	expectedForks := 10
+	expectedLimit := "a=b"
+	expectedVaultPasswordFile := vaultPasswordFile
+	expectedVerbose := "yes"
 
 	c := map[string]interface{}{
 		"plays": []map[string]interface{}{
@@ -306,17 +306,17 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 			},
 		},
 
-		"hosts":  expected_hosts,
-		"groups": expected_groups,
+		"hosts":  expectedHosts,
+		"groups": expectedGroups,
 
-		"become":              expected_become,
-		"become_method":       expected_becomeMethod,
-		"become_user":         expected_becomeUser,
-		"extra_vars":          expected_extraVars,
-		"forks":               expected_forks,
-		"limit":               expected_limit,
-		"vault_password_file": expected_vaultPasswordFile,
-		"verbose":             expected_verbose,
+		"become":              expectedBecome,
+		"become_method":       expectedBecomeMethod,
+		"become_user":         expectedBecomeUser,
+		"extra_vars":          expectedExtraVars,
+		"forks":               expectedForks,
+		"limit":               expectedLimit,
+		"vault_password_file": expectedVaultPasswordFile,
+		"verbose":             expectedVerbose,
 	}
 
 	p, err := decodeConfig(
@@ -340,69 +340,69 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 		t.Fatalf("Second play: enabled should be no")
 	}
 
-	if strings.Join(firstPlayInventory.Hosts, "") != strings.Join(expected_hosts, "") {
-		t.Fatalf("First play: expected 'hosts' %v but received %v.", expected_hosts, firstPlayInventory.Hosts)
+	if strings.Join(firstPlayInventory.Hosts, "") != strings.Join(expectedHosts, "") {
+		t.Fatalf("First play: expected 'hosts' %v but received %v.", expectedHosts, firstPlayInventory.Hosts)
 	}
-	if strings.Join(firstPlayInventory.Groups, "") != strings.Join(expected_groups, "") {
-		t.Fatalf("First play: expected 'groups' %v but received %v.", expected_groups, firstPlayInventory.Groups)
+	if strings.Join(firstPlayInventory.Groups, "") != strings.Join(expectedGroups, "") {
+		t.Fatalf("First play: expected 'groups' %v but received %v.", expectedGroups, firstPlayInventory.Groups)
 	}
-	if firstPlayArgs.Become != expected_become {
-		t.Fatalf("First play: expected 'become' %v but received %v.", expected_become, firstPlayArgs.Become)
+	if firstPlayArgs.Become != expectedBecome {
+		t.Fatalf("First play: expected 'become' %v but received %v.", expectedBecome, firstPlayArgs.Become)
 	}
-	if firstPlayArgs.BecomeMethod != expected_becomeMethod {
-		t.Fatalf("First play: expected 'become_method' %v but received %v.", expected_becomeMethod, firstPlayArgs.BecomeMethod)
+	if firstPlayArgs.BecomeMethod != expectedBecomeMethod {
+		t.Fatalf("First play: expected 'become_method' %v but received %v.", expectedBecomeMethod, firstPlayArgs.BecomeMethod)
 	}
-	if firstPlayArgs.BecomeUser != expected_becomeUser {
-		t.Fatalf("First play: expected 'become_user' %v but received %v.", expected_becomeUser, firstPlayArgs.BecomeUser)
+	if firstPlayArgs.BecomeUser != expectedBecomeUser {
+		t.Fatalf("First play: expected 'become_user' %v but received %v.", expectedBecomeUser, firstPlayArgs.BecomeUser)
 	}
-	if mapToJson(firstPlayArgs.ExtraVars) != mapToJson(expected_extraVars) {
-		t.Fatalf("First play: expected 'extra_vars' %v but received %v.", expected_extraVars, firstPlayArgs.ExtraVars)
+	if mapToJSON(firstPlayArgs.ExtraVars) != mapToJSON(expectedExtraVars) {
+		t.Fatalf("First play: expected 'extra_vars' %v but received %v.", expectedExtraVars, firstPlayArgs.ExtraVars)
 	}
-	if firstPlayArgs.Forks != expected_forks {
-		t.Fatalf("First play: expected 'forks' %v but received %v.", expected_forks, firstPlayArgs.Forks)
+	if firstPlayArgs.Forks != expectedForks {
+		t.Fatalf("First play: expected 'forks' %v but received %v.", expectedForks, firstPlayArgs.Forks)
 	}
-	if firstPlayArgs.Limit != expected_limit {
-		t.Fatalf("First play: expected 'limit' %v but received %v.", expected_limit, firstPlayArgs.Limit)
+	if firstPlayArgs.Limit != expectedLimit {
+		t.Fatalf("First play: expected 'limit' %v but received %v.", expectedLimit, firstPlayArgs.Limit)
 	}
-	if firstPlayArgs.VaultPasswordFile != expected_vaultPasswordFile {
-		t.Fatalf("First play: expected 'vault_password_file' %v but received %v.", expected_vaultPasswordFile, firstPlayArgs.VaultPasswordFile)
+	if firstPlayArgs.VaultPasswordFile != expectedVaultPasswordFile {
+		t.Fatalf("First play: expected 'vault_password_file' %v but received %v.", expectedVaultPasswordFile, firstPlayArgs.VaultPasswordFile)
 	}
-	if firstPlayArgs.Verbose != expected_verbose {
-		t.Fatalf("First play: expected 'verbose' %v but received %v.", expected_verbose, firstPlayArgs.Verbose)
+	if firstPlayArgs.Verbose != expectedVerbose {
+		t.Fatalf("First play: expected 'verbose' %v but received %v.", expectedVerbose, firstPlayArgs.Verbose)
 	}
 
 	secondPlayInventory := p.Plays[1].InventoryMeta
 	secondPlayArgs := p.Plays[1].CallArgs.Shared
 
-	if strings.Join(secondPlayInventory.Hosts, "") == strings.Join(expected_hosts, "") {
-		t.Fatalf("Second play: expected 'hosts' other than %v.", expected_hosts)
+	if strings.Join(secondPlayInventory.Hosts, "") == strings.Join(expectedHosts, "") {
+		t.Fatalf("Second play: expected 'hosts' other than %v.", expectedHosts)
 	}
-	if strings.Join(secondPlayInventory.Groups, "") == strings.Join(expected_groups, "") {
-		t.Fatalf("Second play: expected 'groups' other than %v.", expected_groups)
+	if strings.Join(secondPlayInventory.Groups, "") == strings.Join(expectedGroups, "") {
+		t.Fatalf("Second play: expected 'groups' other than %v.", expectedGroups)
 	}
-	if secondPlayArgs.Become == expected_become {
-		t.Fatalf("Second play: expected 'become' other than %v.", expected_become)
+	if secondPlayArgs.Become == expectedBecome {
+		t.Fatalf("Second play: expected 'become' other than %v.", expectedBecome)
 	}
-	if secondPlayArgs.BecomeMethod == expected_becomeMethod {
-		t.Fatalf("Second play: expected 'become_method' other than %v.", expected_becomeMethod)
+	if secondPlayArgs.BecomeMethod == expectedBecomeMethod {
+		t.Fatalf("Second play: expected 'become_method' other than %v.", expectedBecomeMethod)
 	}
-	if secondPlayArgs.BecomeUser == expected_becomeUser {
-		t.Fatalf("Second play: expected 'become_user' other than %v.", expected_becomeUser)
+	if secondPlayArgs.BecomeUser == expectedBecomeUser {
+		t.Fatalf("Second play: expected 'become_user' other than %v.", expectedBecomeUser)
 	}
-	if mapToJson(secondPlayArgs.ExtraVars) == mapToJson(expected_extraVars) {
-		t.Fatalf("Second play: expected 'extra_vars' other than %v.", expected_extraVars)
+	if mapToJSON(secondPlayArgs.ExtraVars) == mapToJSON(expectedExtraVars) {
+		t.Fatalf("Second play: expected 'extra_vars' other than %v.", expectedExtraVars)
 	}
-	if secondPlayArgs.Forks == expected_forks {
-		t.Fatalf("Second play: expected 'forks' other than %v.", expected_forks)
+	if secondPlayArgs.Forks == expectedForks {
+		t.Fatalf("Second play: expected 'forks' other than %v.", expectedForks)
 	}
-	if secondPlayArgs.Limit == expected_limit {
-		t.Fatalf("Second play: expected 'limit' other than %v.", expected_limit)
+	if secondPlayArgs.Limit == expectedLimit {
+		t.Fatalf("Second play: expected 'limit' other than %v.", expectedLimit)
 	}
-	if secondPlayArgs.VaultPasswordFile == expected_vaultPasswordFile {
-		t.Fatalf("Second play: expected 'vault_password_file' other than %v.", expected_vaultPasswordFile)
+	if secondPlayArgs.VaultPasswordFile == expectedVaultPasswordFile {
+		t.Fatalf("Second play: expected 'vault_password_file' other than %v.", expectedVaultPasswordFile)
 	}
-	if secondPlayArgs.Verbose == expected_verbose {
-		t.Fatalf("Second play: expected 'verbose' other than %v.", expected_verbose)
+	if secondPlayArgs.Verbose == expectedVerbose {
+		t.Fatalf("Second play: expected 'verbose' other than %v.", expectedVerbose)
 	}
 }
 
@@ -412,7 +412,7 @@ func TestResourceProvisioner_Verify_template_local_generates(t *testing.T) {
 		Groups: []string{"group1", "group2"},
 	}
 
-	tpl := template.Must(template.New("hosts").Parse(inventoryTemplate_Local))
+	tpl := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
 	var buf bytes.Buffer
 	err := tpl.Execute(&buf, inplaceMeta)
 	if err != nil {
@@ -426,7 +426,7 @@ func TestResourceProvisioner_Verify_template_remote_generates(t *testing.T) {
 		Groups: []string{"group1", "group2"},
 	}
 
-	tpl := template.Must(template.New("hosts").Parse(inventoryTemplate_Remote))
+	tpl := template.Must(template.New("hosts").Parse(inventoryTemplateRemote))
 	var buf bytes.Buffer
 	err := tpl.Execute(&buf, inplaceMeta)
 	if err != nil {
@@ -434,7 +434,7 @@ func TestResourceProvisioner_Verify_template_remote_generates(t *testing.T) {
 	}
 }
 
-func mapToJson(m map[string]interface{}) string {
+func mapToJSON(m map[string]interface{}) string {
 	str, err := json.Marshal(m)
 	if err != nil {
 		return ""

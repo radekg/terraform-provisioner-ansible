@@ -5,12 +5,17 @@ PLUGINS_DIR=~/.terraform.d/plugins
 plugins-dir:
 	mkdir -p ${PLUGINS_DIR}
 
-.PHONY: install-glide
-install-glide:
-	@which glide > /dev/null || go get github.com/Masterminds/glide
+.PHONY: tools
+tools:
+	@which golint > /dev/null || go get -u golang.org/x/lint/golint
+	@which glide > /dev/null || go get -u github.com/Masterminds/glide
+
+.PHONY: lint
+lint:
+	golint
 
 .PHONY: install
-install: install-glide
+install: tools
 	glide install
 
 .PHONY: update-dependencies

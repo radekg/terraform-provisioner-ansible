@@ -42,7 +42,7 @@ else
 fi
 `
 
-const inventoryTemplate_Remote = `{{$top := . -}}
+const inventoryTemplateRemote = `{{$top := . -}}
 {{range .Hosts -}}
 {{.}} ansible_connection=local
 {{end}}
@@ -55,7 +55,7 @@ const inventoryTemplate_Remote = `{{$top := . -}}
 
 {{end}}`
 
-const inventoryTemplate_Local = `{{$top := . -}}
+const inventoryTemplateLocal = `{{$top := . -}}
 {{range .Hosts -}}
 {{.}}
 {{end}}

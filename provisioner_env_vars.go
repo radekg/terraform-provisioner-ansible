@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func AnsibleSSHConnecTimeoutSeconds() int {
+func ansibleSSHConnecTimeoutSeconds() int {
 	sshConnectTimeout := 10
 	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT_SECONDS")); err == nil {
 		sshConnectTimeout = val
@@ -13,7 +13,7 @@ func AnsibleSSHConnecTimeoutSeconds() int {
 	return sshConnectTimeout
 }
 
-func AnsibleSSHConnecionAttempts() int {
+func ansibleSSHConnecionAttempts() int {
 	sshConnectionAttempts := 10
 	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECTION_ATTEMPTS")); err == nil {
 		sshConnectionAttempts = val
@@ -21,7 +21,7 @@ func AnsibleSSHConnecionAttempts() int {
 	return sshConnectionAttempts
 }
 
-func SSHKeyScanTimeoutSeconds() int {
+func sshKeyScanTimeoutSeconds() int {
 	sshKeyscanTimeoutSeconds := 60
 	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_SSH_KEYSCAN_TIMEOUT_SECONDS")); err == nil {
 		sshKeyscanTimeoutSeconds = val

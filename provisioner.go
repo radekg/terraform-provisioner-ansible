@@ -35,11 +35,11 @@ const (
 	bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
 	// shared:
 	defaultBecome            string = ""
-	defaultBecome_Set        string = no
+	defaultBecomeSet         string = no
 	defaultBecomeMethod      string = ""
-	defaultBecomeMethod_Set  string = "sudo"
+	defaultBecomeMethodSet   string = "sudo"
 	defaultBecomeUser        string = ""
-	defaultBecomeUser_Set    string = "root"
+	defaultBecomeUserSet     string = "root"
 	defaultForks             int    = 5
 	defaultInventoryFile     string = ""
 	defaultLimit             string = ""
@@ -69,13 +69,13 @@ type ansibleInstaller struct {
 	AnsibleVersion string
 }
 
-type AnsibleCallbaleType int
+type ansibleCallbaleType int
 
 const (
-	AnsibleCallable_Undefined AnsibleCallbaleType = iota
-	AnsibleCallable_Conflicting
-	AnsibleCallable_Playbook
-	AnsibleCallable_Module
+	ansibleCallableUndefined ansibleCallbaleType = iota
+	ansibleCallableConflicting
+	ansibleCallablePlaybook
+	ansibleCallableModule
 )
 
 type ansibleInventoryMeta struct {
@@ -124,6 +124,7 @@ type provisioner struct {
 	local          string
 }
 
+// Provisioner describes this provisioner configuration.
 func Provisioner() terraform.ResourceProvisioner {
 	return &schema.Provisioner{
 		Schema: map[string]*schema.Schema{
@@ -378,27 +379,27 @@ func applyFn(ctx context.Context) error {
 		defer comm.Disconnect()
 
 		if p.skipInstall == no {
-			if err := p.remote_installAnsible(o, comm); err != nil {
+			if err := p.remoteInstallAnsible(o, comm); err != nil {
 				return err
 			}
 		}
 
-		if runnables, err := p.remote_deployAnsibleData(o, comm); err != nil {
+		runnables, err := p.remoteDeployAnsibleData(o, comm)
+
+		if err != nil {
 			o.Output(fmt.Sprintf("%+v", err))
 			return err
-		} else {
+		}
 
-			for _, runnable := range runnables {
-				command, err := runnable.ToCommand()
-				if err != nil {
-					return err
-				}
-				o.Output(fmt.Sprintf("running command: %s", command))
-				if err := p.remote_runCommandSudo(o, comm, command); err != nil {
-					return err
-				}
+		for _, runnable := range runnables {
+			command, err := runnable.ToCommand()
+			if err != nil {
+				return err
 			}
-
+			o.Output(fmt.Sprintf("running command: %s", command))
+			if err := p.remoteRunCommandSudo(o, comm, command); err != nil {
+				return err
+			}
 		}
 
 	} else {
@@ -407,7 +408,7 @@ func applyFn(ctx context.Context) error {
 		switch connType {
 		case "ssh", "": // The default connection type is ssh, so if connType is empty use ssh
 		default:
-			return errors.New("Currently, only SSH connection is supported.")
+			return fmt.Errorf("Currently, only SSH connection is supported")
 		}
 
 		connInfo, err := parseConnectionInfo(s)
@@ -416,96 +417,97 @@ func applyFn(ctx context.Context) error {
 		}
 
 		if connInfo.User == "" || connInfo.Host == "" {
-			return errors.New("Local mode requires a connection with username and host.")
+			return fmt.Errorf("Local mode requires a connection with username and host")
 		}
 
 		if connInfo.PrivateKey == "" {
 			o.Output(fmt.Sprintf("no private key for %s@%s found, assuming ssh agent...", connInfo.User, connInfo.Host))
 		}
 
-		if runnables, err := p.local_gatherRunnables(o, connInfo); err != nil {
+		runnables, err := p.localGatherRunnables(o, connInfo)
+
+		if err != nil {
 			o.Output(fmt.Sprintf("%+v", err))
 			return err
-		} else {
+		}
 
-			pemFile := ""
-			if connInfo.PrivateKey != "" {
-				pemFile, err = p.local_writePem(o, connInfo)
-				if err != nil {
-					return err
-				}
-				defer os.Remove(pemFile)
-			}
-
-			knownHostsFile, err := p.local_ensureKnownHosts(o, connInfo)
+		pemFile := ""
+		if connInfo.PrivateKey != "" {
+			pemFile, err = p.localWritePem(o, connInfo)
 			if err != nil {
 				return err
 			}
-			defer os.Remove(knownHostsFile)
+			defer os.Remove(pemFile)
+		}
 
-			for _, runnable := range runnables {
+		knownHostsFile, err := p.localEnsureKnownHosts(o, connInfo)
+		if err != nil {
+			return err
+		}
+		defer os.Remove(knownHostsFile)
 
-				if runnable.InventoryFileTemporary {
-					defer os.Remove(runnable.InventoryFile)
+		for _, runnable := range runnables {
+
+			if runnable.InventoryFileTemporary {
+				defer os.Remove(runnable.InventoryFile)
+			}
+
+			bastionHost := ""
+			bastionUsername := connInfo.User
+			bastionPemFile := pemFile
+			bastionPort := connInfo.Port
+
+			if connInfo.BastionHost != "" {
+				bastionHost = connInfo.BastionHost
+				if connInfo.BastionUser != "" {
+					bastionUsername = connInfo.BastionUser
 				}
-
-				bastionHost := ""
-				bastionUsername := connInfo.User
-				bastionPemFile := pemFile
-				bastionPort := connInfo.Port
-
-				if connInfo.BastionHost != "" {
-					bastionHost = connInfo.BastionHost
-					if connInfo.BastionUser != "" {
-						bastionUsername = connInfo.BastionUser
-					}
-					if connInfo.BastionPrivateKey != "" {
-						bastionPemFile = connInfo.BastionPrivateKey
-					}
-					if connInfo.BastionPort > 0 {
-						bastionPort = connInfo.BastionPort
-					}
+				if connInfo.BastionPrivateKey != "" {
+					bastionPemFile = connInfo.BastionPrivateKey
 				}
-
-				command, err := runnable.ToLocalCommand(o, runnablePlayLocalAnsibleArgs{
-					Username:        connInfo.User,
-					Port:            connInfo.Port,
-					PemFile:         pemFile,
-					KnownHostsFile:  knownHostsFile,
-					BastionHost:     bastionHost,
-					BastionPemFile:  bastionPemFile,
-					BastionPort:     bastionPort,
-					BastionUsername: bastionUsername,
-				})
-
-				if err != nil {
-					return err
+				if connInfo.BastionPort > 0 {
+					bastionPort = connInfo.BastionPort
 				}
+			}
 
-				if connInfo.BastionHost != "" {
-					o.Output(fmt.Sprintf("executing ssh-keyscan on bastion: %s@%s", bastionUsername, fmt.Sprintf("%s:%d", bastionHost, bastionPort)))
-					bastionSshKeyScan := NewBastionKeyScan(
-						bastionHost,
-						bastionPort,
-						bastionUsername,
-						bastionPemFile)
-					if err := bastionSshKeyScan.Scan(o, connInfo.Host, connInfo.Port); err != nil {
-						return err
-					}
-				}
+			command, err := runnable.ToLocalCommand(o, runnablePlayLocalAnsibleArgs{
+				Username:        connInfo.User,
+				Port:            connInfo.Port,
+				PemFile:         pemFile,
+				KnownHostsFile:  knownHostsFile,
+				BastionHost:     bastionHost,
+				BastionPemFile:  bastionPemFile,
+				BastionPort:     bastionPort,
+				BastionUsername: bastionUsername,
+			})
 
-				o.Output(fmt.Sprintf("running local command: %s", command))
+			if err != nil {
+				return err
+			}
 
-				if err := p.local_runCommand(o, command); err != nil {
+			if connInfo.BastionHost != "" {
+				o.Output(fmt.Sprintf("executing ssh-keyscan on bastion: %s@%s", bastionUsername, fmt.Sprintf("%s:%d", bastionHost, bastionPort)))
+				bastionSSHKeyScan := NewBastionKeyScan(
+					bastionHost,
+					bastionPort,
+					bastionUsername,
+					bastionPemFile)
+				if err := bastionSSHKeyScan.Scan(o, connInfo.Host, connInfo.Port); err != nil {
 					return err
 				}
 			}
 
+			o.Output(fmt.Sprintf("running local command: %s", command))
+
+			if err := p.localRunCommand(o, command); err != nil {
+				return err
+			}
 		}
+
 	}
 
 	if p.local == no && p.skipCleanup == no {
-		p.remote_cleanupAfterBootstrap(o, comm)
+		p.remoteCleanupAfterBootstrap(o, comm)
 	}
 
 	return nil
@@ -516,7 +518,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			es = append(es, errors.New(fmt.Sprintf("error while validating the provisioner, reason: %+v", r)))
+			es = append(es, fmt.Errorf("error while validating the provisioner, reason: %+v", r))
 		}
 	}()
 
@@ -577,7 +579,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 					disallowedFields := []string{"args", "background", "host_pattern", "one_line", "poll"}
 					for _, df := range disallowedFields {
 						if _, ok = p[df]; ok {
-							es = append(es, errors.New(fmt.Sprintf("%s must not be used with playbook", df)))
+							es = append(es, fmt.Errorf("%s must not be used with playbook", df))
 						}
 					}
 				}
@@ -586,7 +588,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 					disallowedFields := []string{"force_handlers", "skip_tags", "start_at_task", "tags"}
 					for _, df := range disallowedFields {
 						if _, ok = p[df]; ok {
-							es = append(es, errors.New(fmt.Sprintf("%s must not be used with module", df)))
+							es = append(es, fmt.Errorf("%s must not be used with module", df))
 						}
 					}
 				}
@@ -650,7 +652,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 	return ws, es
 }
 
-func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm communicator.Communicator) ([]runnablePlay, error) {
+func (p *provisioner) remoteDeployAnsibleData(o terraform.UIOutput, comm communicator.Communicator) ([]runnablePlay, error) {
 
 	response := make([]runnablePlay, 0)
 
@@ -658,7 +660,7 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 		if playDef.Enabled == no {
 			continue
 		}
-		if playDef.CallableType == AnsibleCallable_Playbook {
+		if playDef.CallableType == ansibleCallablePlaybook {
 
 			playbookPath, err := resolvePath(playDef.Callable)
 			if err != nil {
@@ -673,11 +675,11 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 			remotePlaybookDir := filepath.Join(bootstrapDirectory, playbookDirHash)
 			remotePlaybookPath := filepath.Join(remotePlaybookDir, filepath.Base(playbookPath))
 
-			if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
+			if err := p.remoteRunCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
 				return response, err
 			}
 
-			errCmdCheck := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("/bin/bash -c 'if [ -d \"%s\" ]; then exit 50; fi'", remotePlaybookDir))
+			errCmdCheck := p.remoteRunCommandNoSudo(o, comm, fmt.Sprintf("/bin/bash -c 'if [ -d \"%s\" ]; then exit 50; fi'", remotePlaybookDir))
 			if err != nil {
 				errCmdCheckDetail := strings.Split(fmt.Sprintf("%v", errCmdCheck), ": ")
 				if errCmdCheckDetail[len(errCmdCheckDetail)-1] == "50" {
@@ -696,13 +698,13 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 			playDef.Callable = remotePlaybookPath
 
 			// always upload vault password file:
-			uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, remotePlaybookDir, playDef.CallArgs.Shared)
+			uploadedVaultPasswordFilePath, err := p.remoteUploadVaultPasswordFile(o, comm, remotePlaybookDir, playDef.CallArgs.Shared)
 			if err != nil {
 				return response, err
 			}
 
 			// always create temp inventory:
-			inventoryFile, err := p.remote_writeInventory(o, comm, remotePlaybookDir, playDef.CallArgs, playDef.InventoryMeta)
+			inventoryFile, err := p.remoteWriteInventory(o, comm, remotePlaybookDir, playDef.CallArgs, playDef.InventoryMeta)
 			if err != nil {
 				return response, err
 			}
@@ -714,20 +716,20 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 				InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
 			})
 
-		} else if playDef.CallableType == AnsibleCallable_Module {
+		} else if playDef.CallableType == ansibleCallableModule {
 
-			if err := p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
+			if err := p.remoteRunCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
 				return response, err
 			}
 
 			// always upload vault password file:
-			uploadedVaultPasswordFilePath, err := p.remote_uploadVaultPasswordFile(o, comm, bootstrapDirectory, playDef.CallArgs.Shared)
+			uploadedVaultPasswordFilePath, err := p.remoteUploadVaultPasswordFile(o, comm, bootstrapDirectory, playDef.CallArgs.Shared)
 			if err != nil {
 				return response, err
 			}
 
 			// always create temp inventory:
-			inventoryFile, err := p.remote_writeInventory(o, comm, bootstrapDirectory, playDef.CallArgs, playDef.InventoryMeta)
+			inventoryFile, err := p.remoteWriteInventory(o, comm, bootstrapDirectory, playDef.CallArgs, playDef.InventoryMeta)
 			if err != nil {
 				return response, err
 			}
@@ -744,7 +746,7 @@ func (p *provisioner) remote_deployAnsibleData(o terraform.UIOutput, comm commun
 	return response, nil
 }
 
-func (p *provisioner) remote_installAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
+func (p *provisioner) remoteInstallAnsible(o terraform.UIOutput, comm communicator.Communicator) error {
 
 	installer := &ansibleInstaller{
 		AnsibleVersion: "ansible",
@@ -768,7 +770,7 @@ func (p *provisioner) remote_installAnsible(o terraform.UIOutput, comm communica
 		return err
 	}
 
-	if err := p.remote_runCommandSudo(o, comm, fmt.Sprintf("/bin/bash -c '\"%s\" && rm \"%s\"'", targetPath, targetPath)); err != nil {
+	if err := p.remoteRunCommandSudo(o, comm, fmt.Sprintf("/bin/bash -c '\"%s\" && rm \"%s\"'", targetPath, targetPath)); err != nil {
 		return err
 	}
 
@@ -776,7 +778,7 @@ func (p *provisioner) remote_installAnsible(o terraform.UIOutput, comm communica
 	return nil
 }
 
-func (p *provisioner) remote_uploadVaultPasswordFile(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgsShared) (string, error) {
+func (p *provisioner) remoteUploadVaultPasswordFile(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgsShared) (string, error) {
 
 	if callArgs.VaultPasswordFile == "" {
 		return "", nil
@@ -807,7 +809,7 @@ func (p *provisioner) remote_uploadVaultPasswordFile(o terraform.UIOutput, comm 
 	return targetPath, nil
 }
 
-func (p *provisioner) remote_writeInventory(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgs, inventoryMeta ansibleInventoryMeta) (string, error) {
+func (p *provisioner) remoteWriteInventory(o terraform.UIOutput, comm communicator.Communicator, destination string, callArgs ansibleCallArgs, inventoryMeta ansibleInventoryMeta) (string, error) {
 
 	if len(callArgs.Shared.InventoryFile) > 0 {
 
@@ -834,46 +836,43 @@ func (p *provisioner) remote_writeInventory(o terraform.UIOutput, comm communica
 
 		return targetPath, nil
 
-	} else {
-
-		o.Output("Generating temporary ansible inventory...")
-		t := template.Must(template.New("hosts").Parse(inventoryTemplate_Remote))
-		var buf bytes.Buffer
-		err := t.Execute(&buf, inventoryMeta)
-		if err != nil {
-			return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
-		}
-
-		u1 := uuid.Must(uuid.NewV4())
-		targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
-
-		o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
-		if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
-			return "", err
-		}
-
-		o.Output("Ansible inventory written.")
-		return targetPath, nil
-
 	}
+
+	o.Output("Generating temporary ansible inventory...")
+	t := template.Must(template.New("hosts").Parse(inventoryTemplateRemote))
+	var buf bytes.Buffer
+	err := t.Execute(&buf, inventoryMeta)
+	if err != nil {
+		return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+	}
+
+	u1 := uuid.Must(uuid.NewV4())
+	targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
+
+	o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
+	if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+		return "", err
+	}
+
+	o.Output("Ansible inventory written.")
+	return targetPath, nil
 }
 
-func (p *provisioner) remote_cleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
+func (p *provisioner) remoteCleanupAfterBootstrap(o terraform.UIOutput, comm communicator.Communicator) {
 	o.Output("Cleaning up after bootstrap...")
-	p.remote_runCommandNoSudo(o, comm, fmt.Sprintf("rm -rf \"%s\"", bootstrapDirectory))
+	p.remoteRunCommandNoSudo(o, comm, fmt.Sprintf("rm -rf \"%s\"", bootstrapDirectory))
 	o.Output("Cleanup complete.")
 }
 
-func (p *provisioner) remote_runCommandSudo(o terraform.UIOutput, comm communicator.Communicator, command string) error {
-	return p.remote_runCommand(o, comm, command, true)
+func (p *provisioner) remoteRunCommandSudo(o terraform.UIOutput, comm communicator.Communicator, command string) error {
+	return p.remoteRunCommand(o, comm, command, true)
 }
 
-func (p *provisioner) remote_runCommandNoSudo(o terraform.UIOutput, comm communicator.Communicator, command string) error {
-	return p.remote_runCommand(o, comm, command, false)
+func (p *provisioner) remoteRunCommandNoSudo(o terraform.UIOutput, comm communicator.Communicator, command string) error {
+	return p.remoteRunCommand(o, comm, command, false)
 }
 
-// runCommand is used to run already prepared commands
-func (p *provisioner) remote_runCommand(o terraform.UIOutput, comm communicator.Communicator, command string, shouldSudo bool) error {
+func (p *provisioner) remoteRunCommand(o terraform.UIOutput, comm communicator.Communicator, command string, shouldSudo bool) error {
 	// Unless prevented, prefix the command with sudo
 	if shouldSudo && p.useSudo == yes {
 		command = fmt.Sprintf("sudo %s", command)
@@ -919,20 +918,20 @@ func (p *provisioner) remote_runCommand(o terraform.UIOutput, comm communicator.
 
 // -- LOCAL:
 
-func (p *provisioner) local_ensureKnownHosts(o terraform.UIOutput, connInfo *connectionInfo) (string, error) {
+func (p *provisioner) localEnsureKnownHosts(o terraform.UIOutput, connInfo *connectionInfo) (string, error) {
 
 	if connInfo.Host == "" {
-		return "", errors.New("Host could not be established from the connection info.")
+		return "", fmt.Errorf("Host could not be established from the connection info")
 	}
 	u1 := uuid.Must(uuid.NewV4())
 	targetPath := filepath.Join(os.TempDir(), u1.String())
 
 	startedAt := time.Now().Unix()
-	timeoutSeconds := int64(SSHKeyScanTimeoutSeconds())
+	timeoutSeconds := int64(sshKeyScanTimeoutSeconds())
 
 	for {
 		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan -p %d %s 2>/dev/null | head -n1 > \"%s\"", connInfo.Port, connInfo.Host, targetPath)
-		if err := p.local_runCommand(o, sshKeyScanCommand); err != nil {
+		if err := p.localRunCommand(o, sshKeyScanCommand); err != nil {
 			return "", err
 		}
 		fi, err := os.Stat(targetPath)
@@ -952,7 +951,7 @@ func (p *provisioner) local_ensureKnownHosts(o terraform.UIOutput, connInfo *con
 	return targetPath, nil
 }
 
-func (p *provisioner) local_writePem(o terraform.UIOutput, connInfo *connectionInfo) (string, error) {
+func (p *provisioner) localWritePem(o terraform.UIOutput, connInfo *connectionInfo) (string, error) {
 	if connInfo.PrivateKey != "" {
 		file, err := ioutil.TempFile(os.TempDir(), "temporary-private-key.pem")
 		defer file.Close()
@@ -963,23 +962,23 @@ func (p *provisioner) local_writePem(o terraform.UIOutput, connInfo *connectionI
 		o.Output(fmt.Sprintf("Writing temprary PEM to '%s'...", file.Name()))
 		if err := ioutil.WriteFile(file.Name(), []byte(connInfo.PrivateKey), 0400); err != nil {
 			return "", err
-		} else {
-			o.Output("Ansible inventory written.")
-			return file.Name(), nil
 		}
+
+		o.Output("Ansible inventory written.")
+		return file.Name(), nil
 	}
 	return "", nil
 }
 
-func (p *provisioner) local_gatherRunnables(o terraform.UIOutput, connInfo *connectionInfo) ([]runnablePlay, error) {
+func (p *provisioner) localGatherRunnables(o terraform.UIOutput, connInfo *connectionInfo) ([]runnablePlay, error) {
 
 	response := make([]runnablePlay, 0)
 	for _, playDef := range p.Plays {
 		if playDef.Enabled == no {
 			continue
 		}
-		if playDef.CallableType == AnsibleCallable_Playbook {
-			inventoryFile, err := p.local_writeInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
+		if playDef.CallableType == ansibleCallablePlaybook {
+			inventoryFile, err := p.localWriteInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
 			if err != nil {
 				return response, err
 			}
@@ -989,8 +988,8 @@ func (p *provisioner) local_gatherRunnables(o terraform.UIOutput, connInfo *conn
 				InventoryFile:          inventoryFile,
 				InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
 			})
-		} else if playDef.CallableType == AnsibleCallable_Module {
-			inventoryFile, err := p.local_writeInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
+		} else if playDef.CallableType == ansibleCallableModule {
+			inventoryFile, err := p.localWriteInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
 			if err != nil {
 				return response, err
 			}
@@ -1006,10 +1005,10 @@ func (p *provisioner) local_gatherRunnables(o terraform.UIOutput, connInfo *conn
 
 }
 
-func (p *provisioner) local_writeInventory(o terraform.UIOutput, connInfo *connectionInfo, callArgs ansibleCallArgs, inventoryMeta ansibleInventoryMeta) (string, error) {
+func (p *provisioner) localWriteInventory(o terraform.UIOutput, connInfo *connectionInfo, callArgs ansibleCallArgs, inventoryMeta ansibleInventoryMeta) (string, error) {
 	if len(callArgs.Shared.InventoryFile) == 0 {
 		if connInfo.Host == "" {
-			return "", errors.New("Host could not be established from the connection info.")
+			return "", fmt.Errorf("Host could not be established from the connection info")
 		}
 
 		inplaceMeta := ansibleInventoryMeta{
@@ -1018,7 +1017,7 @@ func (p *provisioner) local_writeInventory(o terraform.UIOutput, connInfo *conne
 		}
 
 		o.Output("Generating temporary ansible inventory...")
-		t := template.Must(template.New("hosts").Parse(inventoryTemplate_Local))
+		t := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
 		var buf bytes.Buffer
 		err := t.Execute(&buf, inplaceMeta)
 		if err != nil {
@@ -1034,16 +1033,17 @@ func (p *provisioner) local_writeInventory(o terraform.UIOutput, connInfo *conne
 		o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", file.Name()))
 		if err := ioutil.WriteFile(file.Name(), buf.Bytes(), 0644); err != nil {
 			return "", err
-		} else {
-			o.Output("Ansible inventory written.")
-			return file.Name(), nil
 		}
-	} else {
-		return callArgs.Shared.InventoryFile, nil
+
+		o.Output("Ansible inventory written.")
+		return file.Name(), nil
+
 	}
+
+	return callArgs.Shared.InventoryFile, nil
 }
 
-func (p *provisioner) local_runCommand(o terraform.UIOutput, command string) error {
+func (p *provisioner) localRunCommand(o terraform.UIOutput, command string) error {
 	localExecProvisioner := localExec.Provisioner()
 
 	instanceState := &terraform.InstanceState{
@@ -1142,22 +1142,22 @@ func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fa
 	for _, rawPlayData := range v {
 
 		callable := ""
-		callableType := AnsibleCallable_Undefined
+		callableType := ansibleCallableUndefined
 		playData := rawPlayData.(map[string]interface{})
 		playbook := (playData["playbook"].(string))
 		module := (playData["module"].(string))
 
 		if len(playbook) > 0 && len(module) > 0 {
-			callableType = AnsibleCallable_Conflicting
+			callableType = ansibleCallableConflicting
 		} else {
 			if len(playbook) > 0 {
 				callable = playbook
-				callableType = AnsibleCallable_Playbook
+				callableType = ansibleCallablePlaybook
 			} else if len(module) > 0 {
 				callable = module
-				callableType = AnsibleCallable_Module
+				callableType = ansibleCallableModule
 			} else {
-				callableType = AnsibleCallable_Undefined
+				callableType = ansibleCallableUndefined
 			}
 		}
 

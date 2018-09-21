@@ -15,7 +15,7 @@ type play struct {
 	Enabled       string
 	InventoryMeta ansibleInventoryMeta
 	Callable      string
-	CallableType  AnsibleCallbaleType
+	CallableType  ansibleCallbaleType
 	CallArgs      ansibleCallArgs
 }
 
@@ -23,7 +23,7 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
 
 	command := ""
 	// entity to call:
-	if p.CallableType == AnsibleCallable_Playbook {
+	if p.CallableType == ansibleCallablePlaybook {
 
 		command = fmt.Sprintf("ANSIBLE_FORCE_COLOR=true ansible-playbook %s", p.Callable)
 
@@ -44,7 +44,7 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
 			command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(p.CallArgs.Tags, ","))
 		}
 
-	} else if p.CallableType == AnsibleCallable_Module {
+	} else if p.CallableType == ansibleCallableModule {
 
 		hostPattern := p.CallArgs.HostPattern
 		if hostPattern == "" {
@@ -83,12 +83,12 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
 		if p.CallArgs.Shared.BecomeMethod != "" {
 			command = fmt.Sprintf("%s --become-method='%s'", command, p.CallArgs.Shared.BecomeMethod)
 		} else {
-			command = fmt.Sprintf("%s --become-method='%s'", command, defaultBecomeMethod_Set)
+			command = fmt.Sprintf("%s --become-method='%s'", command, defaultBecomeMethodSet)
 		}
 		if p.CallArgs.Shared.BecomeUser != "" {
 			command = fmt.Sprintf("%s --become-user='%s'", command, p.CallArgs.Shared.BecomeUser)
 		} else {
-			command = fmt.Sprintf("%s --become-user='%s'", command, defaultBecomeUser_Set)
+			command = fmt.Sprintf("%s --become-user='%s'", command, defaultBecomeUserSet)
 		}
 	}
 	// extra vars:
@@ -160,8 +160,8 @@ func (rpla *runnablePlayLocalAnsibleArgs) ToCommandArguments() string {
 	sshExtraAgrsOptions := make([]string, 0)
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-p %d", rpla.Port))
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o UserKnownHostsFile=%s", rpla.KnownHostsFile))
-	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectTimeout=%d", AnsibleSSHConnecTimeoutSeconds()))
-	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectionAttempts=%d", AnsibleSSHConnecionAttempts()))
+	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectTimeout=%d", ansibleSSHConnecTimeoutSeconds()))
+	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectionAttempts=%d", ansibleSSHConnecionAttempts()))
 	if rpla.BastionHost != "" {
 		sshExtraAgrsOptions = append(
 			sshExtraAgrsOptions,
