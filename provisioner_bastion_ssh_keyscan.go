@@ -18,29 +18,31 @@ import (
 )
 
 const (
-	BastionHostKnownHostsFile = "~/.ssh/known_hosts"
+	bastionHostKnownHostsFile = "~/.ssh/known_hosts"
 )
 
 type cleanup func()
 
+// BastionKeyScan holds the ssh-keyscan metadata.
 type BastionKeyScan struct {
-	Host           string
-	Port           int
-	Username       string
-	PrivateKeyFile string
+	host           string
+	port           int
+	username       string
+	privateKeyFile string
 }
 
+// NewBastionKeyScan create an ssh-keyscan operation wrapper.
 func NewBastionKeyScan(host string, port int, username string, privateKeyFile string) *BastionKeyScan {
 	return &BastionKeyScan{
-		Host:           host,
-		Port:           port,
-		Username:       username,
-		PrivateKeyFile: privateKeyFile,
+		host:           host,
+		port:           port,
+		username:       username,
+		privateKeyFile: privateKeyFile,
 	}
 }
 
 func (b *BastionKeyScan) publicKeyFile() ssh.AuthMethod {
-	buffer, err := ioutil.ReadFile(b.PrivateKeyFile)
+	buffer, err := ioutil.ReadFile(b.privateKeyFile)
 	if err != nil {
 		return nil
 	}
@@ -68,14 +70,14 @@ func (b *BastionKeyScan) sshModes() ssh.TerminalModes {
 
 func (b *BastionKeyScan) sshConfig() *ssh.ClientConfig {
 	authMethods := make([]ssh.AuthMethod, 0)
-	if b.PrivateKeyFile == "" {
+	if b.privateKeyFile == "" {
 		authMethods = append(authMethods, b.sshAgent())
 	} else {
 		authMethods = append(authMethods, b.publicKeyFile())
 	}
 
 	return &ssh.ClientConfig{
-		User: b.Username,
+		User: b.username,
 		Auth: authMethods,
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			return nil
@@ -153,28 +155,29 @@ func (b *BastionKeyScan) execute(command string, connection *ssh.Client, o terra
 	return commandResult
 }
 
+// Scan executes an ssh-keyscan operation.
 func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int) error {
-	b.output(o, fmt.Sprintf("connecting using SSH to %s@%s:%d...", b.Username, b.Host, b.Port))
-	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", b.Host, b.Port), b.sshConfig())
+	b.output(o, fmt.Sprintf("connecting using SSH to %s@%s:%d...", b.username, b.host, b.port))
+	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", b.host, b.port), b.sshConfig())
 	if err != nil {
 		return b.makeError("failed to dial: %s.", err)
 	}
 	defer connection.Close()
 
-	b.output(o, fmt.Sprintf("ensuring the existence of a known hosts file at %s...", BastionHostKnownHostsFile))
+	b.output(o, fmt.Sprintf("ensuring the existence of a known hosts file at %s...", bastionHostKnownHostsFile))
 	if err := b.execute(
 		fmt.Sprintf(
 			"mkdir -p \"%s\" && touch \"%s\"",
-			b.quotedSshKnownFileDir(),
-			b.quotedSshKnownFilePath()),
+			b.quotedSSHKnownFileDir(),
+			b.quotedSSHKnownFilePath()),
 		connection, o); err != nil {
 		return err
 	}
 
 	u1 := uuid.Must(uuid.NewV4())
-	targetPath := filepath.Join(b.quotedSshKnownFileDir(), u1.String())
+	targetPath := filepath.Join(b.quotedSSHKnownFileDir(), u1.String())
 
-	timeoutMs := SSHKeyScanTimeoutSeconds() * 1000
+	timeoutMs := sshKeyScanTimeoutSeconds() * 1000
 	timeSpentMs := 0
 	intervalMs := 500
 
@@ -201,16 +204,16 @@ func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int) error
 		fmt.Sprintf(
 			"echo $(cat \"%s\") >> \"%s\" && rm -rf \"%s\"",
 			targetPath,
-			b.quotedSshKnownFilePath(),
+			b.quotedSSHKnownFilePath(),
 			targetPath),
 		connection, o)
 
 	return nil
 }
 
-func (b *BastionKeyScan) quotedSshKnownFileDir() string {
-	return strings.Replace(filepath.Dir(BastionHostKnownHostsFile), "~/", "$HOME/", 1)
+func (b *BastionKeyScan) quotedSSHKnownFileDir() string {
+	return strings.Replace(filepath.Dir(bastionHostKnownHostsFile), "~/", "$HOME/", 1)
 }
-func (b *BastionKeyScan) quotedSshKnownFilePath() string {
-	return strings.Replace(BastionHostKnownHostsFile, "~/", "$HOME/", 1)
+func (b *BastionKeyScan) quotedSSHKnownFilePath() string {
+	return strings.Replace(bastionHostKnownHostsFile, "~/", "$HOME/", 1)
 }
