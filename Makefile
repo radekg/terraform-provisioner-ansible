@@ -36,6 +36,13 @@ build-darwin: check-golang-version plugins-dir
 	CGO_ENABLED=0 GOOS=darwin installsuffix=cgo go build -o ./${BINARY_NAME}-darwin
 	cp ./${BINARY_NAME}-darwin ${PLUGINS_DIR}/${BINARY_NAME}
 
+# this rule must not be used directly
+# this rule is invoked by the bin/build-release-binaries.sh script inside of a docker container where the build happens
+.PHONY: build-release
+build-release:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 installsuffix=cgo go build -o ${GOPATH}/bin/${BINARY_NAME}-linux-amd64_${RELEASE_VERSION}
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 installsuffix=cgo go build -o ${GOPATH}/bin/${BINARY_NAME}-darwin-amd64_${RELEASE_VERSION}
+
 .PHONY: test
 test:
 	go test

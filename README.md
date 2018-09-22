@@ -185,3 +185,16 @@ The local mode specifies a number of `ssh extra options` to be passed to Ansible
 ## yes/no? Why not boolean?
 
 The `yes/no` exists because of the fallback mechanism for `become` and `verbose`, other arguments use `yes/no` for consistency. With boolean values, there is no easy way to specify `undefined` state.
+
+## Creating releases
+
+To cut a release, run: 
+
+    ./bin/release.sh
+
+After the release is cut, build the binaries for the release:
+
+    git checkout v${RELEASE_VERSION}
+    ./bin/build-release-binaries.sh
+
+After the binaries are built, upload the to GitHub release.
