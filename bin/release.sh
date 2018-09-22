@@ -101,6 +101,7 @@ if [ "${user_confirmation}" == "y" ]; then
   git tag --force "v${version_to_release}"
   git push origin "v${version_to_release}"
   echo "${version_after_release}" > "${version_file}"
+  git add .version
   git commit -m "Released ${version_to_release}, update version to ${version_after_release}"
   git push origin "${git_release_branch}"
   log "${green}Done \\o/${default}."
