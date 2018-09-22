@@ -57,7 +57,7 @@ download_url="https://github.com/radekg/terraform-provisioner-ansible/releases/d
 
 # GitHub stores files under a different URL, thus it redirects, we are looking for 302:
 echo "Checking existence of ${download_url}..."
-status=`curl --silent -I HEAD "${download_url}" | grep 'Status:' | awk '{ print $2 }'`
+status=`curl -sSI HEAD "${download_url}" | grep 'Status:' | awk '{ print $2 }'`
 
 if [ "$status" != "302" ]; then
   echo "Error: no release available for ${ostype}, version ${version}\n\tat ${download_url}" >&2
@@ -67,7 +67,7 @@ fi
 echo "Fetching terraform-provisioner-ansible ${version} from ${download_url}..."
 
 mkdir -p "${plugins_dir}"
-curl -L --silent "${download_url}" --output "${plugins_dir}/terraform-provisioner-ansible_v${version}"
+curl -sSL "${download_url}" --output "${plugins_dir}/terraform-provisioner-ansible_v${version}"
 chmod +x "${plugins_dir}/terraform-provisioner-ansible_v${version}"
 
 ls -la "${plugins_dir}"/terraform-provisioner-ansible*
