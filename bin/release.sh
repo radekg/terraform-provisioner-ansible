@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 base="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-set -eu
+set -euo pipefail
 
 git_release_branch=master
 version_file="${base}/../.version"
