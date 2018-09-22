@@ -1,13 +1,10 @@
 language: go
 
 go:
-  - 1.9
+  - 1.11
 
 notifications:
   email: false
-
-install:
-  - make install
 
 script:
   - make lint

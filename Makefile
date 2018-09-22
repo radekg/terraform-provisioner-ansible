@@ -5,21 +5,14 @@ PLUGINS_DIR=~/.terraform.d/plugins
 plugins-dir:
 	mkdir -p ${PLUGINS_DIR}
 
-.PHONY: tools
-tools:
-	@which golint > /dev/null || go get -u golang.org/x/lint/golint
-	@which glide > /dev/null || go get -u github.com/Masterminds/glide
-
 .PHONY: lint
 lint:
+	@which golint > /dev/null || go get -u golang.org/x/lint/golint
 	golint
-
-.PHONY: install
-install: tools
-	glide install
 
 .PHONY: update-dependencies
 update-dependencies:
+	@which glide > /dev/null || go get -u github.com/Masterminds/glide
 	glide up
 
 .PHONY: check-golang-version
@@ -35,6 +28,13 @@ build-linux: check-golang-version plugins-dir
 build-darwin: check-golang-version plugins-dir
 	CGO_ENABLED=0 GOOS=darwin installsuffix=cgo go build -o ./${BINARY_NAME}-darwin
 	cp ./${BINARY_NAME}-darwin ${PLUGINS_DIR}/${BINARY_NAME}
+
+# this rule must not be used directly
+# this rule is invoked by the bin/build-release-binaries.sh script inside of a docker container where the build happens
+.PHONY: build-release
+build-release:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 installsuffix=cgo go build -o ${GOPATH}/bin/${BINARY_NAME}-linux-amd64_${RELEASE_VERSION}
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 installsuffix=cgo go build -o ${GOPATH}/bin/${BINARY_NAME}-darwin-amd64_${RELEASE_VERSION}
 
 .PHONY: test
 test:
