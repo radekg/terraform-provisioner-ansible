@@ -98,12 +98,20 @@ log "Write changes to remote repository and create the release (y/n)? [y]: "
 user_confirmation=`get_continue_with_release`
 if [ "${user_confirmation}" == "y" ]; then
   log "creating release ${version_to_release}..."
+
+  echo "${version_to_release}" > "${version_file}"
+  git add .version
+  git commit -m "Release ${version_to_release}"
+  git push origin "${git_release_branch}"
+
   git tag --force "v${version_to_release}"
   git push origin "v${version_to_release}"
+
   echo "${version_after_release}" > "${version_file}"
   git add .version
-  git commit -m "Released ${version_to_release}, update version to ${version_after_release}"
+  git commit -m "Update version to ${version_after_release}"
   git push origin "${git_release_branch}"
+
   log "${green}Done \\o/${default}."
 else
   log "okay, ${red}release aborted${default}"
