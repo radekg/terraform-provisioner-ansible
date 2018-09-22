@@ -1,4 +1,4 @@
-# Ansible provisioner for terraform
+# Ansible provisioner for Terraform
 
 [![Build Status](https://travis-ci.org/radekg/terraform-provisioner-ansible.svg?branch=master)](https://travis-ci.org/radekg/terraform-provisioner-ansible)
 
@@ -7,6 +7,16 @@ Ansible with Terraform - `remote` and `local` modes.
 ## Installation
 
 [Prebuilt releases are available on GitHub](https://github.com/radekg/terraform-provisioner-ansible/releases). Download a release for the version you require and place it in `~/.terraform.d/plugins` directory, as [documented here](https://www.terraform.io/docs/plugins/basics.html).
+
+**Caution: you will need to rename the file to match the pattern recognized by Terraform: `terraform-provisioner-ansible_v<version>`.**
+
+Alternatively, you can download and deploy an existing release using the following script:
+
+    curl -sL https://raw.githubusercontent.com/radekg/terraform-provisioner-ansible/master/bin/deploy-release.sh \
+      --output /tmp/deploy-release.sh
+    chmod +x /tmp/deploy-release.sh
+    /tmp/deploy-release.sh -v <version number>
+    rm -rf /tmp/deploy-release.sh
 
 ## Arguments
 
