@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
-base="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -euo pipefail
+base="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. "${base}/env.sh"
 
 version_file="${base}/../.version"
 
@@ -11,8 +12,8 @@ docker_output_dir=/output
 docker_gopath="/golang"
 project=`echo $(dirname "$base") | sed -e 's!'$GOPATH'!!'`
 
+rm -rf "${local_output_dir}"
 mkdir -p "${local_output_dir}"
-rm -rf "${local_output_dir}/*"
 
 path="/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${docker_gopath}/bin"
 
@@ -23,5 +24,5 @@ docker run \
   -v "${GOPATH}${project}":"${docker_gopath}${project}" \
   -v "${local_output_dir}":"${docker_output_dir}" \
   -w "${docker_gopath}${project}" \
-  golang:1.11 \
+  golang:${REQUIRED_GO_MAJOR}.${REQUIRED_GO_MINOR} \
   /bin/bash -c "export PATH=${path} && make build-release && mv ${docker_gopath}/bin/terraform-provisioner-ansible* ${docker_output_dir}/"
