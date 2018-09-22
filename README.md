@@ -2,24 +2,11 @@
 
 [![Build Status](https://travis-ci.org/radekg/terraform-provisioner-ansible.svg?branch=master)](https://travis-ci.org/radekg/terraform-provisioner-ansible)
 
-Ansible with Terraform - remote and local.
+Ansible with Terraform - `remote` and `local` modes.
 
-**Linux host and target only.**
+## Installation
 
-## Install
-
-    mkdir -p $GOPATH/src/github.com/radekg
-    cd $GOPATH/src/github.com/radekg
-    git clone https://github.com/radekg/terraform-provisioner-ansible.git
-    cd terraform-provisioner-ansible
-    make install
-
-    # to build for linux
-    make build-linux
-    # to build for darwin
-    make build-darwin
-
-The binary will be deployed to your `~/.terraform.d/plugins` directory so it is ready to use immediately.
+[Prebuilt releases are available on GitHub](https://github.com/radekg/terraform-provisioner-ansible/releases). Download a release for your version and place it in `~/.terraform.d/plugins` directory.
 
 ## Arguments
 
@@ -77,16 +64,16 @@ These arguments can be set on the `provisioner` level or individual `plays`. Whe
 These affect provisioner only. Not related to `plays`.
 
 - `use_sudo`: should `sudo` be used for bootstrap commands, string `yes/no`, default `yes`, `become` does not make much sense
-- `skip_install`: if set to `true`, ansible installation on the server will be skipped, assume ansible is already installed, string `yes/no`, default `no`
-- `skip_cleanup`: if set to `true`, ansible bootstrap data will be left on the server after bootstrap, string `yes/no`, default `no`
-- `install_version`: ansible version to install when `skip_install = false`, string, default `empty string` (latest available version)
-- `local`: string `yes/no`, default `no`; if `yes`, ansible will run on the host where terraform command is executed; if `no`, ansible will be installed on the bootstrapped host
+- `skip_install`: if set to `true`, Ansible installation on the server will be skipped, assume Ansible is already installed, string `yes/no`, default `no`
+- `skip_cleanup`: if set to `true`, Ansible bootstrap data will be left on the server after bootstrap, string `yes/no`, default `no`
+- `install_version`: Ansible version to install when `skip_install = false`, string, default `empty string` (latest available version)
+- `local`: string `yes/no`, default `no`; if `yes`, Ansible will run on the host where Terraform command is executed; if `no`, Ansible will be installed on the bootstrapped host
 
 ## Usage
 
-### Running on a bootstrapped host
+### Remote: running on a bootstrapped target
 
-If `provisioner.local` is not set or `false` (the default), the provisioner will attempt a so-called `remote provisioning`. The provisioner will install ansible on the bootstrapped host, create a temporary inventory (if `inventory_file` not given), upload playbooks to the remote host and execute ansible on the remote host.
+If `provisioner.local` is not set or `no` (the default), the provisioner will attempt a so-called `remote provisioning`. The provisioner will install Ansible on the bootstrapped machine, create a temporary inventory (if `inventory_file` not given), upload playbooks to the remote host and execute Ansible on the remote host.
 
     resource "aws_instance" "ansible_test" {
       ...
@@ -125,11 +112,13 @@ If `provisioner.local` is not set or `false` (the default), the provisioner will
       }
     }
 
-### Running in local mode
+**Remote provisioning works with a Linux target only.**
 
-If `provisioner.local = true`, ansible will be executed on the same host where terraform was executed. However, currently only `connection` type `ssh` is supported and the assumption is that the `connection` uses a `private_key`. If you are not using private keys, provisioning will fail.
+### Local: provisioning using local Ansible
 
-When using `provisioner.local = true`, do not set any of these: `use_sudo`, `skip_install`, `skip_cleanup` or `install_version`.
+If `provisioner.local = yes`, Ansible will be executed on the same host where Terraform is executed. However, currently only `connection` type `ssh` is supported and the assumption is that the `connection` uses a `private_key`. If you are not using private keys, provisioning will fail. SSH Agent is supported.
+
+When using `provisioner.local = yes`, do not set any of these: `use_sudo`, `skip_install`, `skip_cleanup` or `install_version`.
 
 `hosts` are not taken into account.
 
