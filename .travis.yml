@@ -6,9 +6,6 @@ go:
 notifications:
   email: false
 
-install:
-  - make install
-
 script:
   - make lint
   - make test-verbose
