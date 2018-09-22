@@ -6,7 +6,7 @@ Ansible with Terraform - `remote` and `local` modes.
 
 ## Installation
 
-[Prebuilt releases are available on GitHub](https://github.com/radekg/terraform-provisioner-ansible/releases). Download a release for your version and place it in `~/.terraform.d/plugins` directory.
+[Prebuilt releases are available on GitHub](https://github.com/radekg/terraform-provisioner-ansible/releases). Download a release for the version you require and place it in `~/.terraform.d/plugins` directory, as [documented here](https://www.terraform.io/docs/plugins/basics.html).
 
 ## Arguments
 
