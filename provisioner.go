@@ -4,12 +4,11 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"os"
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform/communicator"
@@ -21,12 +20,8 @@ import (
 )
 
 const (
-	yes                string = "yes"
-	no                 string = "no"
 	bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
 	// shared:
-	defaultBecome            string = ""
-	defaultBecomeSet         string = no
 	defaultBecomeMethod      string = ""
 	defaultBecomeMethodSet   string = "sudo"
 	defaultBecomeUser        string = ""
@@ -37,7 +32,6 @@ const (
 	defaultVaultPasswordFile string = ""
 	defaultVerbose           string = ""
 
-	defaultPlayEnabled string = yes
 	// playbook only:
 	defaultForceHandlers string = ""
 	defaultStartAtTask   string = ""
@@ -46,14 +40,8 @@ const (
 	defaultHostPattern string = "all"
 	defaultOneLine     string = ""
 	defaultPoll        int    = 15
-
-	defaultUseSudo     string = yes
-	defaultSkipInstall string = no
-	defaultSkipCleanup string = no
-	defaultLocal       string = no
 )
 
-var yesNoStates = map[string]bool{yes: true, no: true}
 var becomeMethods = map[string]bool{"sudo": true, "su": true, "pbrun": true, "pfexec": true, "doas": true, "dzdo": true, "ksu": true, "runas": true}
 
 type ansibleInstaller struct {
@@ -62,20 +50,13 @@ type ansibleInstaller struct {
 
 type ansibleCallbaleType int
 
-const (
-	ansibleCallableUndefined ansibleCallbaleType = iota
-	ansibleCallableConflicting
-	ansibleCallablePlaybook
-	ansibleCallableModule
-)
-
 type ansibleInventoryMeta struct {
 	Hosts  []string
 	Groups []string
 }
 
 type ansibleCallArgsShared struct {
-	Become            string
+	Become            bool
 	BecomeMethod      string
 	BecomeUser        string
 	ExtraVars         map[string]interface{}
@@ -83,23 +64,39 @@ type ansibleCallArgsShared struct {
 	InventoryFile     string
 	Limit             string
 	VaultPasswordFile string
-	Verbose           string
+	Verbose           bool
 }
 
 type ansibleCallArgs struct {
-	// module only:
-	Args        map[string]interface{}
-	Background  int
-	HostPattern string
-	OneLine     string
-	Poll        int
-	// Playbook only:
-	ForceHandlers string
+	Shared ansibleCallArgsShared
+}
+
+type ansiblePlaybook struct {
+	ForceHandlers bool
 	SkipTags      []string
 	StartAtTask   string
 	Tags          []string
-	// shared:
-	Shared ansibleCallArgsShared
+	FilePath      string
+	IncludeRoles  []string
+}
+
+type ansibleModule struct {
+	Name        string
+	Args        map[string]interface{}
+	Background  int
+	HostPattern string
+	OneLine     bool
+	Poll        int
+}
+
+// -- validation functions
+
+func becomeMethodValidateFunc(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	if !becomeMethods[v] {
+		errs = append(errs, fmt.Errorf("%s is not a valid become_method", v))
+	}
+	return
 }
 
 // -- provisioner:
@@ -108,11 +105,11 @@ type provisioner struct {
 	Plays          []play
 	InventoryMeta  ansibleInventoryMeta
 	Shared         ansibleCallArgsShared
-	useSudo        string
-	skipInstall    string
-	skipCleanup    string
+	useSudo        bool
+	skipInstall    bool
+	skipCleanup    bool
 	installVersion string
-	local          string
+	local          bool
 }
 
 // Provisioner describes this provisioner configuration.
@@ -126,21 +123,96 @@ func Provisioner() terraform.ResourceProvisioner {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+
 						"enabled": &schema.Schema{
-							Type:     schema.TypeString,
+							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  defaultPlayEnabled,
+							Default:  true,
 						},
+
 						// entity to run:
 						"playbook": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:          schema.TypeSet,
+							Optional:      true,
+							ConflictsWith: []string{"plays.module"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Ansible parameters:
+									"force_handlers": &schema.Schema{
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+									"skip_tags": &schema.Schema{
+										Type:     schema.TypeList,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+										Optional: true,
+									},
+									"start_at_task": &schema.Schema{
+										Type:     schema.TypeString,
+										Optional: true,
+										Default:  defaultStartAtTask,
+									},
+									"tags": &schema.Schema{
+										Type:     schema.TypeList,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+										Optional: true,
+									},
+									// operational:
+									"file_path": &schema.Schema{
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"include_roles": &schema.Schema{
+										Type:     schema.TypeList,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+										Optional: true,
+									},
+								},
+							},
 						},
+
 						"module": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:          schema.TypeSet,
+							Optional:      true,
+							ConflictsWith: []string{"plays.playbook"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Ansible parameters:
+									"args": &schema.Schema{
+										Type:     schema.TypeMap,
+										Optional: true,
+										Computed: true,
+									},
+									"background": &schema.Schema{
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  defaultBackground,
+									},
+									"host_pattern": &schema.Schema{
+										Type:     schema.TypeString,
+										Optional: true,
+										Default:  defaultHostPattern,
+									},
+									"one_line": &schema.Schema{
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+									"poll": &schema.Schema{
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  defaultPoll,
+									},
+									// operational:
+									"name": &schema.Schema{
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
 						},
-						// meta for temporary inventory:
+
 						"hosts": &schema.Schema{
 							Type:     schema.TypeList,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -151,63 +223,16 @@ func Provisioner() terraform.ResourceProvisioner {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Optional: true,
 						},
-						// module only:
-						"args": &schema.Schema{
-							Type:     schema.TypeMap,
-							Optional: true,
-							Computed: true,
-						},
-						"background": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  defaultBackground,
-						},
-						"host_pattern": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultHostPattern,
-						},
-						"one_line": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultOneLine,
-						},
-						"poll": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  defaultPoll,
-						},
-						// playbook only:
-						"force_handlers": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultForceHandlers,
-						},
-						"skip_tags": &schema.Schema{
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
-						},
-						"start_at_task": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultStartAtTask,
-						},
-						"tags": &schema.Schema{
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
-						},
-						// shared:
 						"become": &schema.Schema{
-							Type:     schema.TypeString,
+							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  defaultBecome,
+							Default:  false,
 						},
 						"become_method": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultBecomeMethod,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      defaultBecomeMethod,
+							ValidateFunc: becomeMethodValidateFunc,
 						},
 						"become_user": &schema.Schema{
 							Type:     schema.TypeString,
@@ -248,94 +273,228 @@ func Provisioner() terraform.ResourceProvisioner {
 				},
 			},
 
-			// inventory meta:
-			"hosts": &schema.Schema{
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+			"defaults": &schema.Schema{
+				Type:     schema.TypeSet,
 				Optional: true,
-			},
-			"groups": &schema.Schema{
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hosts": &schema.Schema{
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Optional: true,
+						},
+						"groups": &schema.Schema{
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Optional: true,
+						},
+						"become": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  false,
+						},
+						"become_method": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      defaultBecomeMethod,
+							ValidateFunc: becomeMethodValidateFunc,
+						},
+						"become_user": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  defaultBecomeUser,
+						},
+						"extra_vars": &schema.Schema{
+							Type:     schema.TypeMap,
+							Optional: true,
+							Computed: true,
+						},
+						"forks": &schema.Schema{
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  defaultForks,
+						},
+						"inventory_file": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  defaultInventoryFile,
+						},
+						"limit": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  defaultLimit,
+						},
+						"vault_password_file": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  defaultVaultPasswordFile,
+						},
+						"verbose": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  defaultVerbose,
+						},
+					},
+				},
 			},
 
-			// shared:
-			"become": &schema.Schema{
-				Type:     schema.TypeString,
+			"remote": &schema.Schema{
+				Type:     schema.TypeSet,
 				Optional: true,
-				Default:  defaultBecome,
-			},
-			"become_method": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultBecomeMethod,
-			},
-			"become_user": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultBecomeUser,
-			},
-			"extra_vars": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-			},
-			"forks": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  defaultForks,
-			},
-			"inventory_file": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultInventoryFile,
-			},
-			"limit": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultLimit,
-			},
-			"vault_password_file": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultVaultPasswordFile,
-			},
-			"verbose": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultVerbose,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"use_sudo": &schema.Schema{
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+						"skip_install": &schema.Schema{
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"skip_cleanup": &schema.Schema{
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"install_version": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "", // latest
+						},
+					},
+				},
 			},
 
-			"use_sudo": &schema.Schema{
-				Type:     schema.TypeString,
+			"ansible_ssh_settings": &schema.Schema{
+				Type:     schema.TypeSet,
 				Optional: true,
-				Default:  defaultUseSudo,
-			},
-			"skip_install": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultSkipInstall,
-			},
-			"skip_cleanup": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultSkipCleanup,
-			},
-			"install_version": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "", // latest
-			},
-			"local": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultLocal,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connect_timeout_seconds": &schema.Schema{
+							Type:     schema.TypeInt,
+							Optional: true,
+							DefaultFunc: func() (interface{}, error) {
+								if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT_SECONDS")); err == nil {
+									return val, nil
+								}
+								return 10, nil
+							},
+						},
+						"connection_attempts": &schema.Schema{
+							Type:     schema.TypeInt,
+							Optional: true,
+							DefaultFunc: func() (interface{}, error) {
+								if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECTION_ATTEMPTS")); err == nil {
+									return val, nil
+								}
+								return 10, nil
+							},
+						},
+						"ssh_keyscan_timeout": &schema.Schema{
+							Type:     schema.TypeInt,
+							Optional: true,
+							DefaultFunc: func() (interface{}, error) {
+								if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_SSH_KEYSCAN_TIMEOUT_SECONDS")); err == nil {
+									return val, nil
+								}
+								return 60, nil
+							},
+						},
+					},
+				},
 			},
 		},
-		ApplyFunc:    applyFn,
 		ValidateFunc: validateFn,
+		ApplyFunc:    applyFn,
 	}
+}
+
+func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			es = append(es, fmt.Errorf("error while validating the provisioner, reason: %+v", r))
+		}
+	}()
+
+	_, isRemoteProvisioning := c.Get("remote")
+
+	validPlaysCount := 0
+
+	if plays, hasPlays := c.Get("plays"); hasPlays {
+		for _, vPlay := range plays.([]map[string]interface{}) {
+
+			currentErrorCount := len(es)
+
+			vPlaybook, playHasPlaybook := vPlay["playbook"]
+			_, playHasModule := vPlay["module"]
+
+			if playHasPlaybook && playHasModule {
+				es = append(es, fmt.Errorf("playbook and module can't be used together"))
+			} else if !playHasPlaybook && !playHasModule {
+				es = append(es, fmt.Errorf("playbook or module must be set"))
+			} else {
+
+				// a local provisioning play playbook include_roles shall be ignored
+				if playHasPlaybook {
+					if !isRemoteProvisioning {
+						vPlaybookTyped := vPlaybook.([]map[string]interface{})
+						playbookRoles, hasIncludeRoles := vPlaybookTyped[0]["include_roles"]
+						if hasIncludeRoles && len(playbookRoles.([]string)) > 0 {
+							playbookFilePath, _ := vPlaybookTyped[0]["file_path"]
+							ws = append(ws, fmt.Sprintf("include_roles omited for playbook '%s' when local provisioning is used", playbookFilePath))
+						}
+					}
+				}
+
+				// TODO: restore validation of the items below (from play)
+				/*
+					for _, ftt := range []string{"inventory_file", "playbook", "vault_password_file"} {
+						value, ok := p[ftt]
+						if ok && len(value.(string)) > 0 {
+							if strings.Index(value.(string), "${path.module}") > -1 {
+								ws = append(ws, "I could not reliably determine the existence of '"+ftt+"', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.")
+							} else {
+								if _, err := resolvePath(value.(string)); err != nil {
+									es = append(es, errors.New("file "+value.(string)+" does not exist"))
+								}
+							}
+						}
+					}
+				*/
+
+			}
+
+			if currentErrorCount == len(es) {
+				validPlaysCount++
+			}
+		}
+
+		if validPlaysCount == 0 {
+			ws = append(ws, "nothing to play")
+		}
+
+	} else {
+		ws = append(ws, "nothing to play")
+	}
+
+	if _, hasDefaults := c.Get("defaults"); hasDefaults {
+		// TODO: restore validation of the items below
+		/*
+			for _, ftt := range []string{"inventory_file", "vault_password_file"} {
+				value, ok := c.Get(ftt)
+				if ok && len(value.(string)) > 0 {
+					if _, err := resolvePath(value.(string)); err != nil {
+						es = append(es, errors.New("file "+value.(string)+" does not exist"))
+					}
+				}
+			}
+		*/
+	}
+
+	return ws, es
 }
 
 func applyFn(ctx context.Context) error {
@@ -356,7 +515,7 @@ func applyFn(ctx context.Context) error {
 		return err
 	}
 
-	if p.local == no {
+	if p.local {
 
 		// Wait and retry until we establish the connection
 		err = retryFunc(comm.Timeout(), func() error {
@@ -369,7 +528,7 @@ func applyFn(ctx context.Context) error {
 
 		defer comm.Disconnect()
 
-		if p.skipInstall == no {
+		if p.skipInstall {
 			if err := p.remoteInstallAnsible(o, comm); err != nil {
 				return err
 			}
@@ -497,150 +656,12 @@ func applyFn(ctx context.Context) error {
 
 	}
 
-	if p.local == no && p.skipCleanup == no {
+	if p.local && p.skipCleanup {
 		p.remoteCleanupAfterBootstrap(o, comm)
 	}
 
 	return nil
 
-}
-
-func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
-
-	defer func() {
-		if r := recover(); r != nil {
-			es = append(es, fmt.Errorf("error while validating the provisioner, reason: %+v", r))
-		}
-	}()
-
-	becomeMethod, ok := c.Get("become_method")
-	if ok {
-		if !becomeMethods[becomeMethod.(string)] {
-			es = append(es, errors.New(becomeMethod.(string)+" is not a valid become_method"))
-		}
-	}
-
-	yesNoFields := []string{"verbose", "force_handlers", "one_line", "become", "use_sudo", "skip_install", "skip_cleanup", "local"}
-	yesNoFieldsPlay := []string{"enabled"}
-	for _, f := range yesNoFields {
-		yesNoFieldsPlay = append(yesNoFieldsPlay, f)
-	}
-
-	for _, field := range yesNoFields {
-		v, ok := c.Get(field)
-		if ok && v.(string) != "" {
-			if !yesNoStates[v.(string)] {
-				es = append(es, errors.New(v.(string)+" is not a valid "+field+" value, must be yes/no"))
-			}
-		}
-	}
-
-	for _, ftt := range []string{"inventory_file", "vault_password_file"} {
-		value, ok := c.Get(ftt)
-		if ok && len(value.(string)) > 0 {
-			if _, err := resolvePath(value.(string)); err != nil {
-				es = append(es, errors.New("file "+value.(string)+" does not exist"))
-			}
-		}
-	}
-
-	// Validate plays configs
-	validPlaysCount := 0
-	plays, ok := c.Get("plays")
-	if ok {
-		for _, p := range plays.([]map[string]interface{}) {
-
-			currentErrorCount := len(es)
-
-			playbook, okp := p["playbook"]
-			module, okm := p["module"]
-
-			if okp && okm && len(playbook.(string)) > 0 && len(module.(string)) > 0 {
-				es = append(es, errors.New("playbook and module can't be used together"))
-			} else {
-
-				isPlaybook := okp && len(playbook.(string)) > 0
-				isModule := okm && len(module.(string)) > 0
-
-				if !okp && !okm {
-					es = append(es, errors.New("playbook or module must be set"))
-				}
-
-				if isPlaybook {
-					disallowedFields := []string{"args", "background", "host_pattern", "one_line", "poll"}
-					for _, df := range disallowedFields {
-						if _, ok = p[df]; ok {
-							es = append(es, fmt.Errorf("%s must not be used with playbook", df))
-						}
-					}
-				}
-
-				if isModule {
-					disallowedFields := []string{"force_handlers", "skip_tags", "start_at_task", "tags"}
-					for _, df := range disallowedFields {
-						if _, ok = p[df]; ok {
-							es = append(es, fmt.Errorf("%s must not be used with module", df))
-						}
-					}
-				}
-
-			}
-
-			becomeMethodPlay, ok := p["become_method"]
-			if ok {
-				if !becomeMethods[becomeMethodPlay.(string)] {
-					es = append(es, errors.New(becomeMethodPlay.(string)+" is not a valid become_method"))
-				}
-			}
-
-			for _, fieldPlay := range yesNoFieldsPlay {
-				v, ok := p[fieldPlay]
-				if ok && v.(string) != "" {
-					if !yesNoStates[v.(string)] {
-						es = append(es, errors.New(v.(string)+" is not a valid "+fieldPlay+" value, must be yes/no"))
-					}
-				}
-			}
-
-			for _, ftt := range []string{"inventory_file", "playbook", "vault_password_file"} {
-				value, ok := p[ftt]
-				if ok && len(value.(string)) > 0 {
-					if strings.Index(value.(string), "${path.module}") > -1 {
-						ws = append(ws, "I could not reliably determine the existence of '"+ftt+"', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.")
-					} else {
-						if _, err := resolvePath(value.(string)); err != nil {
-							es = append(es, errors.New("file "+value.(string)+" does not exist"))
-						}
-					}
-				}
-			}
-
-			if currentErrorCount == len(es) {
-				validPlaysCount++
-			}
-
-		}
-
-		if validPlaysCount == 0 {
-			ws = append(ws, "nothing to play")
-		}
-
-	} else {
-		ws = append(ws, "nothing to play")
-	}
-
-	local, ok := c.Get("local")
-	if ok {
-		if local.(string) == yes {
-			for _, cf := range []string{"use_sudo", "install_version", "skip_cleanup", "skip_install"} {
-				if _, ok := c.Get(cf); ok {
-					es = append(es, errors.New(cf+" must not be used when local = true"))
-				}
-			}
-		}
-	}
-
-	return ws, es
 }
 
 // -- UTILITY:
@@ -681,18 +702,18 @@ func retryFunc(timeout time.Duration, f func() error) error {
 
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
 	p := &provisioner{
-		useSudo:        d.Get("use_sudo").(string),
-		skipInstall:    d.Get("skip_install").(string),
-		skipCleanup:    d.Get("skip_cleanup").(string),
+		useSudo:        d.Get("use_sudo").(bool),
+		skipInstall:    d.Get("skip_install").(bool),
+		skipCleanup:    d.Get("skip_cleanup").(bool),
 		installVersion: d.Get("install_version").(string),
-		local:          d.Get("local").(string),
+		local:          d.Get("local").(bool),
 		Plays:          make([]play, 0),
 		InventoryMeta: ansibleInventoryMeta{
 			Hosts:  getStringList(d.Get("hosts")),
 			Groups: getStringList(d.Get("groups")),
 		},
 		Shared: ansibleCallArgsShared{
-			Become:            d.Get("become").(string),
+			Become:            d.Get("become").(bool),
 			BecomeMethod:      d.Get("become_method").(string),
 			BecomeUser:        d.Get("become_user").(string),
 			ExtraVars:         getStringMap(d.Get("extra_vars")),
@@ -700,7 +721,7 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
 			InventoryFile:     d.Get("inventory_file").(string),
 			Limit:             d.Get("limit").(string),
 			VaultPasswordFile: d.Get("vault_password_file").(string),
-			Verbose:           d.Get("verbose").(string),
+			Verbose:           d.Get("verbose").(bool),
 		},
 	}
 	p.InventoryMeta = ensureLocalhostInCallArgsHosts(p.InventoryMeta)
@@ -710,6 +731,7 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
 
 func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fallbackArgs ansibleCallArgsShared) []play {
 	plays := make([]play, 0, len(v))
+	/* TODO: FIX me
 	for _, rawPlayData := range v {
 
 		callable := ""
@@ -736,6 +758,7 @@ func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fa
 			Callable:     callable,
 			CallableType: callableType,
 			Enabled:      playData["enabled"].(string),
+			WithRoles:    getStringList(playData["with_roles"]),
 			InventoryMeta: ansibleInventoryMeta{
 				Hosts:  withStringListFallback(getStringList(playData["hosts"]), fallbackInventoryMeta.Hosts),
 				Groups: withStringListFallback(getStringList(playData["groups"]), fallbackInventoryMeta.Groups),
@@ -766,9 +789,9 @@ func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fa
 			},
 		}
 		playToAppend.InventoryMeta = ensureLocalhostInCallArgsHosts(playToAppend.InventoryMeta)
-
 		plays = append(plays, playToAppend)
 	}
+	*/
 	return plays
 }
 

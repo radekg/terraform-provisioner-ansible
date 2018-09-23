@@ -70,10 +70,12 @@ func (p *provisioner) localGatherRunnables(o terraform.UIOutput, connInfo *conne
 
 	response := make([]runnablePlay, 0)
 	for _, playDef := range p.Plays {
-		if playDef.Enabled == no {
+		if !playDef.Enabled {
 			continue
 		}
-		if playDef.CallableType == ansibleCallablePlaybook {
+
+		switch playDef.Callable.(type) {
+		case ansiblePlaybook:
 			inventoryFile, err := p.localWriteInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
 			if err != nil {
 				return response, err
@@ -84,7 +86,7 @@ func (p *provisioner) localGatherRunnables(o terraform.UIOutput, connInfo *conne
 				InventoryFile:          inventoryFile,
 				InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
 			})
-		} else if playDef.CallableType == ansibleCallableModule {
+		case ansibleModule:
 			inventoryFile, err := p.localWriteInventory(o, connInfo, playDef.CallArgs, playDef.InventoryMeta)
 			if err != nil {
 				return response, err

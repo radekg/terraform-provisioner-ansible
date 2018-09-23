@@ -12,73 +12,71 @@ import (
 // -- play:
 
 type play struct {
-	Enabled       string
+	Enabled       bool
 	InventoryMeta ansibleInventoryMeta
-	Callable      string
-	CallableType  ansibleCallbaleType
+	Callable      interface{}
 	CallArgs      ansibleCallArgs
+	WithRoles     []string
 }
 
 func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string, error) {
 
 	command := ""
 	// entity to call:
-	if p.CallableType == ansibleCallablePlaybook {
-
-		command = fmt.Sprintf("ANSIBLE_FORCE_COLOR=true ansible-playbook %s", p.Callable)
+	switch playCallable := p.Callable.(type) {
+	case ansiblePlaybook:
+		command = fmt.Sprintf("ANSIBLE_FORCE_COLOR=true ansible-playbook %s", playCallable.FilePath)
 
 		// force handlers:
-		if p.CallArgs.ForceHandlers == yes {
+		if playCallable.ForceHandlers {
 			command = fmt.Sprintf("%s --force-handlers", command)
 		}
 		// skip tags:
-		if len(p.CallArgs.SkipTags) > 0 {
-			command = fmt.Sprintf("%s --skip-tags='%s'", command, strings.Join(p.CallArgs.SkipTags, ","))
+		if len(playCallable.SkipTags) > 0 {
+			command = fmt.Sprintf("%s --skip-tags='%s'", command, strings.Join(playCallable.SkipTags, ","))
 		}
 		// start at task:
-		if len(p.CallArgs.StartAtTask) > 0 {
-			command = fmt.Sprintf("%s --start-at-task='%s'", command, p.CallArgs.StartAtTask)
+		if len(playCallable.StartAtTask) > 0 {
+			command = fmt.Sprintf("%s --start-at-task='%s'", command, playCallable.StartAtTask)
 		}
 		// tags:
-		if len(p.CallArgs.Tags) > 0 {
-			command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(p.CallArgs.Tags, ","))
+		if len(playCallable.Tags) > 0 {
+			command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(playCallable.Tags, ","))
 		}
-
-	} else if p.CallableType == ansibleCallableModule {
-
-		hostPattern := p.CallArgs.HostPattern
+	case ansibleModule:
+		hostPattern := playCallable.HostPattern
 		if hostPattern == "" {
 			hostPattern = defaultHostPattern
 		}
 		command = fmt.Sprintf("ansible %s --module-name='%s'", hostPattern, p.Callable)
 
-		if p.CallArgs.Background > 0 {
-			command = fmt.Sprintf("%s --background=%d", command, p.CallArgs.Background)
-			if p.CallArgs.Poll > 0 {
-				command = fmt.Sprintf("%s --poll=%d", command, p.CallArgs.Poll)
+		if playCallable.Background > 0 {
+			command = fmt.Sprintf("%s --background=%d", command, playCallable.Background)
+			if playCallable.Poll > 0 {
+				command = fmt.Sprintf("%s --poll=%d", command, playCallable.Poll)
 			}
 		}
 		// module args:
-		if len(p.CallArgs.Args) > 0 {
+		if len(playCallable.Args) > 0 {
 			args := make([]string, 0)
-			for mak, mav := range p.CallArgs.Args {
+			for mak, mav := range playCallable.Args {
 				args = append(args, fmt.Sprintf("%s=%+v", mak, mav))
 			}
 			command = fmt.Sprintf("%s --args=\"%s\"", command, strings.Join(args, " "))
 		}
 		// one line:
-		if p.CallArgs.OneLine == yes {
+		if playCallable.OneLine {
 			command = fmt.Sprintf("%s --one-line", command)
 		}
-
 	}
+
 	// inventory file:
 	command = fmt.Sprintf("%s --inventory-file='%s'", command, inventoryFile)
 
 	// shared arguments:
 
 	// become:
-	if p.CallArgs.Shared.Become == yes {
+	if p.CallArgs.Shared.Become {
 		command = fmt.Sprintf("%s --become", command)
 		if p.CallArgs.Shared.BecomeMethod != "" {
 			command = fmt.Sprintf("%s --become-method='%s'", command, p.CallArgs.Shared.BecomeMethod)
@@ -112,7 +110,7 @@ func (p *play) ToCommand(inventoryFile string, vaultPasswordFile string) (string
 		command = fmt.Sprintf("%s --vault-password-file='%s'", command, vaultPasswordFile)
 	}
 	// verbose:
-	if p.CallArgs.Shared.Verbose == yes {
+	if p.CallArgs.Shared.Verbose {
 		command = fmt.Sprintf("%s --verbose", command)
 	}
 

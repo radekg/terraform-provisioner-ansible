@@ -5,6 +5,8 @@ import (
 	"strconv"
 )
 
+// TODO: these functions should be eliminated
+
 func ansibleSSHConnecTimeoutSeconds() int {
 	sshConnectTimeout := 10
 	if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT_SECONDS")); err == nil {

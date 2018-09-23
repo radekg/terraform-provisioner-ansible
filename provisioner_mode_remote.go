@@ -21,12 +21,13 @@ func (p *provisioner) remoteDeployAnsibleData(o terraform.UIOutput, comm communi
 	response := make([]runnablePlay, 0)
 
 	for _, playDef := range p.Plays {
-		if playDef.Enabled == no {
+		if !playDef.Enabled {
 			continue
 		}
-		if playDef.CallableType == ansibleCallablePlaybook {
 
-			playbookPath, err := resolvePath(playDef.Callable)
+		switch playCallable := playDef.Callable.(type) {
+		case ansiblePlaybook:
+			playbookPath, err := resolvePath(playCallable.FilePath)
 			if err != nil {
 				return response, err
 			}
@@ -79,9 +80,7 @@ func (p *provisioner) remoteDeployAnsibleData(o terraform.UIOutput, comm communi
 				InventoryFile:          inventoryFile,
 				InventoryFileTemporary: len(playDef.CallArgs.Shared.InventoryFile) == 0,
 			})
-
-		} else if playDef.CallableType == ansibleCallableModule {
-
+		case ansibleModule:
 			if err := p.remoteRunCommandNoSudo(o, comm, fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
 				return response, err
 			}
@@ -238,7 +237,7 @@ func (p *provisioner) remoteRunCommandNoSudo(o terraform.UIOutput, comm communic
 
 func (p *provisioner) remoteRunCommand(o terraform.UIOutput, comm communicator.Communicator, command string, shouldSudo bool) error {
 	// Unless prevented, prefix the command with sudo
-	if shouldSudo && p.useSudo == yes {
+	if shouldSudo && p.useSudo {
 		command = fmt.Sprintf("sudo %s", command)
 	}
 

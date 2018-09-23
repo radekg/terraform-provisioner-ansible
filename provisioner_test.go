@@ -1,13 +1,9 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"os"
-	"strings"
 	"testing"
-	"text/template"
 
 	"github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -47,41 +43,66 @@ func TestProvisioner(t *testing.T) {
 	}
 }
 
-func TestResourceProvisioner_Validate_good_config(t *testing.T) {
+func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 	c := testConfig(t, map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
-				"playbook":       playbookFile,
-				"force_handlers": "no",
-				"skip_tags":      []string{"tag2"},
-				"start_at_task":  "test task",
-				"tags":           []string{"tag1", "tag2"},
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{
+						"file_path":      playbookFile,
+						"include_roles":  []string{"/path/to/a/role/directory"},
+						"force_handlers": false,
+						"skip_tags":      []string{"tag2"},
+						"start_at_task":  "test task",
+						"tags":           []string{"tag1", "tag2"},
+					},
+				},
 			},
 			map[string]interface{}{
-				"module":       "some_module",
-				"args":         map[string]interface{}{"ARG1": "value 1", "ARG2": "value 2"},
-				"background":   10,
-				"host_pattern": "all-tests",
-				"one_line":     "no",
-				"poll":         15,
+				"module": []map[string]interface{}{
+					map[string]interface{}{
+						"name":         "some_module",
+						"args":         map[string]interface{}{"ARG1": "value 1", "ARG2": "value 2"},
+						"background":   10,
+						"host_pattern": "all-tests",
+						"one_line":     false,
+						"poll":         15,
+					},
+				},
 			},
 		},
-		"use_sudo":        "no",
-		"skip_install":    "yes",
-		"skip_cleanup":    "yes",
-		"install_version": "2.3.0.0",
 
-		"hosts":  []string{"localhost1", "localhost2"},
-		"groups": []string{"group1", "group2"},
+		"remote": []map[string]interface{}{
+			map[string]interface{}{
+				"use_sudo":        false,
+				"skip_install":    true,
+				"skip_cleanup":    true,
+				"install_version": "2.3.0.0",
+			},
+		},
 
-		"become":              "no",
-		"become_method":       "sudo",
-		"become_user":         "test",
-		"extra_vars":          map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"},
-		"forks":               10,
-		"limit":               "a=b",
-		"vault_password_file": vaultPasswordFile,
-		"verbose":             "no",
+		"defaults": []map[string]interface{}{
+			map[string]interface{}{
+				"hosts":               []string{"localhost1", "localhost2"},
+				"groups":              []string{"group1", "group2"},
+				"become":              false,
+				"become_method":       "sudo",
+				"become_user":         "test",
+				"extra_vars":          map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"},
+				"forks":               10,
+				"limit":               "a=b",
+				"vault_password_file": vaultPasswordFile,
+				"verbose":             false,
+			},
+		},
+
+		"ansible_ssh_settings": []map[string]interface{}{
+			map[string]interface{}{
+				"connect_timeout_seconds": 5,
+				"connection_attempts":     5,
+				"ssh_keyscan_timeout":     30,
+			},
+		},
 	})
 
 	warn, errs := Provisioner().Validate(c)
@@ -91,24 +112,131 @@ func TestResourceProvisioner_Validate_good_config(t *testing.T) {
 	if len(errs) > 0 {
 		t.Fatalf("Errors: %v", errs)
 	}
-
 }
 
-func TestResourceProvisioner_Validate_config_without_plays(t *testing.T) {
-	// no plays gives a warning:
+func TestGoodLocalConfigWithPlaybookWarnings(t *testing.T) {
 	c := testConfig(t, map[string]interface{}{
-		"use_sudo": "no",
+		"plays": []map[string]interface{}{
+			map[string]interface{}{
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{
+						"file_path":     playbookFile,
+						"include_roles": []string{"/path/to/a/role/directory"},
+					},
+				},
+			},
+		},
 	})
-
 	warn, errs := Provisioner().Validate(c)
 	if len(warn) != 1 {
-		t.Fatalf("Should have one warning.")
+		t.Fatalf("Expected one warning.")
 	}
 	if len(errs) > 0 {
 		t.Fatalf("Errors: %v", errs)
 	}
 }
 
+func TestGoodLocalConfigWithoutPlaybookWarnings(t *testing.T) {
+	c := testConfig(t, map[string]interface{}{
+		"plays": []map[string]interface{}{
+			map[string]interface{}{
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{
+						"file_path": playbookFile,
+					},
+				},
+			},
+		},
+	})
+	warn, errs := Provisioner().Validate(c)
+	if len(warn) > 0 {
+		t.Fatalf("Warnings: %v", errs)
+	}
+	if len(errs) > 0 {
+		t.Fatalf("Errors: %v", errs)
+	}
+}
+
+func TestRequirePlaybookFilePath(t *testing.T) {
+	c := testConfig(t, map[string]interface{}{
+		"plays": []map[string]interface{}{
+			map[string]interface{}{
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{},
+				},
+			},
+		},
+	})
+	warn, errs := Provisioner().Validate(c)
+	if len(warn) > 0 {
+		t.Fatalf("Warnings: %v", errs)
+	}
+	if len(errs) != 1 {
+		t.Fatalf("Expected 1 error.")
+	}
+}
+
+func TestRequireModuleName(t *testing.T) {
+	c := testConfig(t, map[string]interface{}{
+		"plays": []map[string]interface{}{
+			map[string]interface{}{
+				"module": []map[string]interface{}{
+					map[string]interface{}{},
+				},
+			},
+		},
+	})
+	warn, errs := Provisioner().Validate(c)
+	if len(warn) > 0 {
+		t.Fatalf("Warnings: %v", errs)
+	}
+	if len(errs) != 1 {
+		t.Fatalf("Expected 1 error.")
+	}
+}
+
+func TestConfigWithoutPlaysFails(t *testing.T) {
+	// no plays gives a warning:
+	c := testConfig(t, map[string]interface{}{})
+
+	warn, errs := Provisioner().Validate(c)
+	if len(warn) != 1 {
+		t.Fatalf("Should have 1 warning.")
+	}
+	if len(errs) > 0 {
+		t.Fatalf("Errors: %v", errs)
+	}
+}
+
+func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
+	// no plays gives a warning:
+	c := testConfig(t, map[string]interface{}{
+		"plays": []map[string]interface{}{
+			map[string]interface{}{
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{
+						"file_path": playbookFile,
+					},
+				},
+				"module": []map[string]interface{}{
+					map[string]interface{}{
+						"name": "module-name",
+					},
+				},
+			},
+		},
+	})
+
+	warn, errs := Provisioner().Validate(c)
+	if len(warn) != 1 {
+		t.Fatalf("Should have 1 warning.")
+	}
+	if len(errs) != 1 {
+		t.Fatalf("Should have 1 error.")
+	}
+}
+
+/*
 func TestResourceProvisioner_Validate_config_invalid_datatype(t *testing.T) {
 	// use_sudo takes boolean instead of a valid yes/no:
 	c := testConfig(t, map[string]interface{}{
@@ -441,7 +569,7 @@ func mapToJSON(m map[string]interface{}) string {
 	}
 	return string(str)
 }
-
+*/
 func testConfig(t *testing.T, c map[string]interface{}) *terraform.ResourceConfig {
 	r, err := config.NewRawConfig(c)
 	if err != nil {
