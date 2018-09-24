@@ -8,7 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/communicator"
@@ -91,10 +91,22 @@ type ansibleModule struct {
 
 // -- validation functions
 
-func becomeMethodValidateFunc(val interface{}, key string) (warns []string, errs []error) {
+func vfBecomeMethod(val interface{}, key string) (warns []string, errs []error) {
 	v := val.(string)
 	if !becomeMethods[v] {
 		errs = append(errs, fmt.Errorf("%s is not a valid become_method", v))
+	}
+	return
+}
+
+func vfPath(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	if strings.Index(v, "${path.module}") > -1 {
+		warns = append(warns, fmt.Sprintf("I could not reliably determine the existence of '%s', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.", v))
+	} else {
+		if _, err := resolvePath(v); err != nil {
+			errs = append(errs, fmt.Errorf("file '%s' does not exist", v))
+		}
 	}
 	return
 }
@@ -160,8 +172,9 @@ func Provisioner() terraform.ResourceProvisioner {
 									},
 									// operational:
 									"file_path": &schema.Schema{
-										Type:     schema.TypeString,
-										Required: true,
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: vfPath,
 									},
 									"include_roles": &schema.Schema{
 										Type:     schema.TypeList,
@@ -215,8 +228,21 @@ func Provisioner() terraform.ResourceProvisioner {
 
 						"hosts": &schema.Schema{
 							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
 							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"host": &schema.Schema{
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"ansible_properties": &schema.Schema{
+										Type:     schema.TypeMap,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
 						},
 						"groups": &schema.Schema{
 							Type:     schema.TypeList,
@@ -232,7 +258,7 @@ func Provisioner() terraform.ResourceProvisioner {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      defaultBecomeMethod,
-							ValidateFunc: becomeMethodValidateFunc,
+							ValidateFunc: vfBecomeMethod,
 						},
 						"become_user": &schema.Schema{
 							Type:     schema.TypeString,
@@ -250,9 +276,10 @@ func Provisioner() terraform.ResourceProvisioner {
 							Default:  defaultForks,
 						},
 						"inventory_file": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultInventoryFile,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      defaultInventoryFile,
+							ValidateFunc: vfPath,
 						},
 						"limit": &schema.Schema{
 							Type:     schema.TypeString,
@@ -260,9 +287,10 @@ func Provisioner() terraform.ResourceProvisioner {
 							Default:  defaultLimit,
 						},
 						"vault_password_file": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultVaultPasswordFile,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      defaultVaultPasswordFile,
+							ValidateFunc: vfPath,
 						},
 						"verbose": &schema.Schema{
 							Type:     schema.TypeString,
@@ -280,8 +308,21 @@ func Provisioner() terraform.ResourceProvisioner {
 					Schema: map[string]*schema.Schema{
 						"hosts": &schema.Schema{
 							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
 							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"host": &schema.Schema{
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"ansible_properties": &schema.Schema{
+										Type:     schema.TypeMap,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
 						},
 						"groups": &schema.Schema{
 							Type:     schema.TypeList,
@@ -297,7 +338,7 @@ func Provisioner() terraform.ResourceProvisioner {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      defaultBecomeMethod,
-							ValidateFunc: becomeMethodValidateFunc,
+							ValidateFunc: vfBecomeMethod,
 						},
 						"become_user": &schema.Schema{
 							Type:     schema.TypeString,
@@ -315,9 +356,10 @@ func Provisioner() terraform.ResourceProvisioner {
 							Default:  defaultForks,
 						},
 						"inventory_file": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultInventoryFile,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      defaultInventoryFile,
+							ValidateFunc: vfPath,
 						},
 						"limit": &schema.Schema{
 							Type:     schema.TypeString,
@@ -325,9 +367,10 @@ func Provisioner() terraform.ResourceProvisioner {
 							Default:  defaultLimit,
 						},
 						"vault_password_file": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  defaultVaultPasswordFile,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      defaultVaultPasswordFile,
+							ValidateFunc: vfPath,
 						},
 						"verbose": &schema.Schema{
 							Type:     schema.TypeString,
@@ -338,73 +381,8 @@ func Provisioner() terraform.ResourceProvisioner {
 				},
 			},
 
-			"remote": &schema.Schema{
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"use_sudo": &schema.Schema{
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
-						},
-						"skip_install": &schema.Schema{
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-						},
-						"skip_cleanup": &schema.Schema{
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-						},
-						"install_version": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "", // latest
-						},
-					},
-				},
-			},
-
-			"ansible_ssh_settings": &schema.Schema{
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"connect_timeout_seconds": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							DefaultFunc: func() (interface{}, error) {
-								if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT_SECONDS")); err == nil {
-									return val, nil
-								}
-								return 10, nil
-							},
-						},
-						"connection_attempts": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							DefaultFunc: func() (interface{}, error) {
-								if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_ANSIBLE_SSH_CONNECTION_ATTEMPTS")); err == nil {
-									return val, nil
-								}
-								return 10, nil
-							},
-						},
-						"ssh_keyscan_timeout": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							DefaultFunc: func() (interface{}, error) {
-								if val, err := strconv.Atoi(os.Getenv("TF_PROVISIONER_SSH_KEYSCAN_TIMEOUT_SECONDS")); err == nil {
-									return val, nil
-								}
-								return 60, nil
-							},
-						},
-					},
-				},
-			},
+			"remote":               newRemoteSchema(),
+			"ansible_ssh_settings": newAnsibleSSHSettingsSchema(),
 		},
 		ValidateFunc: validateFn,
 		ApplyFunc:    applyFn,
@@ -449,22 +427,6 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 					}
 				}
 
-				// TODO: restore validation of the items below (from play)
-				/*
-					for _, ftt := range []string{"inventory_file", "playbook", "vault_password_file"} {
-						value, ok := p[ftt]
-						if ok && len(value.(string)) > 0 {
-							if strings.Index(value.(string), "${path.module}") > -1 {
-								ws = append(ws, "I could not reliably determine the existence of '"+ftt+"', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.")
-							} else {
-								if _, err := resolvePath(value.(string)); err != nil {
-									es = append(es, errors.New("file "+value.(string)+" does not exist"))
-								}
-							}
-						}
-					}
-				*/
-
 			}
 
 			if currentErrorCount == len(es) {
@@ -478,20 +440,6 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
 	} else {
 		ws = append(ws, "nothing to play")
-	}
-
-	if _, hasDefaults := c.Get("defaults"); hasDefaults {
-		// TODO: restore validation of the items below
-		/*
-			for _, ftt := range []string{"inventory_file", "vault_password_file"} {
-				value, ok := c.Get(ftt)
-				if ok && len(value.(string)) > 0 {
-					if _, err := resolvePath(value.(string)); err != nil {
-						es = append(es, errors.New("file "+value.(string)+" does not exist"))
-					}
-				}
-			}
-		*/
 	}
 
 	return ws, es
@@ -701,32 +649,39 @@ func retryFunc(timeout time.Duration, f func() error) error {
 }
 
 func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
-	p := &provisioner{
-		useSudo:        d.Get("use_sudo").(bool),
-		skipInstall:    d.Get("skip_install").(bool),
-		skipCleanup:    d.Get("skip_cleanup").(bool),
-		installVersion: d.Get("install_version").(string),
-		local:          d.Get("local").(bool),
-		Plays:          make([]play, 0),
-		InventoryMeta: ansibleInventoryMeta{
-			Hosts:  getStringList(d.Get("hosts")),
-			Groups: getStringList(d.Get("groups")),
-		},
-		Shared: ansibleCallArgsShared{
-			Become:            d.Get("become").(bool),
-			BecomeMethod:      d.Get("become_method").(string),
-			BecomeUser:        d.Get("become_user").(string),
-			ExtraVars:         getStringMap(d.Get("extra_vars")),
-			Forks:             d.Get("forks").(int),
-			InventoryFile:     d.Get("inventory_file").(string),
-			Limit:             d.Get("limit").(string),
-			VaultPasswordFile: d.Get("vault_password_file").(string),
-			Verbose:           d.Get("verbose").(bool),
-		},
-	}
-	p.InventoryMeta = ensureLocalhostInCallArgsHosts(p.InventoryMeta)
-	p.Plays = decodePlays(d.Get("plays").([]interface{}), p.InventoryMeta, p.Shared)
-	return p, nil
+	vRemoteSettings := newRemoteSettingsFromInterface(d.GetOk("remote"))
+	fmt.Printf(" ==============> Remote\n\t\t%+v\n", vRemoteSettings)
+	vAnsibleSSHSettings := newAnsibleSSHSettingsFromInterface(d.GetOk("ansible_ssh_settings"))
+	fmt.Printf(" ==============> Ansible SSH settings\n\t\t%+v\n", vAnsibleSSHSettings)
+	/*
+		p := &provisioner{
+			useSudo:        d.Get("use_sudo").(bool),
+			skipInstall:    d.Get("skip_install").(bool),
+			skipCleanup:    d.Get("skip_cleanup").(bool),
+			installVersion: d.Get("install_version").(string),
+			local:          d.Get("local").(bool),
+			Plays:          make([]play, 0),
+			InventoryMeta: ansibleInventoryMeta{
+				Hosts:  getStringList(d.Get("hosts")),
+				Groups: getStringList(d.Get("groups")),
+			},
+			Shared: ansibleCallArgsShared{
+				Become:            d.Get("become").(bool),
+				BecomeMethod:      d.Get("become_method").(string),
+				BecomeUser:        d.Get("become_user").(string),
+				ExtraVars:         getStringMap(d.Get("extra_vars")),
+				Forks:             d.Get("forks").(int),
+				InventoryFile:     d.Get("inventory_file").(string),
+				Limit:             d.Get("limit").(string),
+				VaultPasswordFile: d.Get("vault_password_file").(string),
+				Verbose:           d.Get("verbose").(bool),
+			},
+		}
+		p.InventoryMeta = ensureLocalhostInCallArgsHosts(p.InventoryMeta)
+		p.Plays = decodePlays(d.Get("plays").([]interface{}), p.InventoryMeta, p.Shared)
+		return p, nil
+	*/
+	return nil, nil
 }
 
 func decodePlays(v []interface{}, fallbackInventoryMeta ansibleInventoryMeta, fallbackArgs ansibleCallArgsShared) []play {

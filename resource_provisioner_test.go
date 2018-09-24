@@ -83,7 +83,11 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 
 		"defaults": []map[string]interface{}{
 			map[string]interface{}{
-				"hosts":               []string{"localhost1", "localhost2"},
+				"hosts": []map[string]interface{}{
+					map[string]interface{}{
+						"host": "localhost",
+					},
+				},
 				"groups":              []string{"group1", "group2"},
 				"become":              false,
 				"become_method":       "sudo",
@@ -236,16 +240,18 @@ func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
 	}
 }
 
-/*
-func TestResourceProvisioner_Validate_config_invalid_datatype(t *testing.T) {
-	// use_sudo takes boolean instead of a valid yes/no:
+func TestConfigWithInvalidValueTypeFailes(t *testing.T) {
+	// file_path is set to a boolean instead of a string
 	c := testConfig(t, map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
-				"playbook": playbookFile,
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{
+						"file_path": true,
+					},
+				},
 			},
 		},
-		"use_sudo": true,
 	})
 
 	warn, errs := Provisioner().Validate(c)
@@ -256,6 +262,65 @@ func TestResourceProvisioner_Validate_config_invalid_datatype(t *testing.T) {
 		t.Fatalf("Expected one error but received: %v", errs)
 	}
 }
+
+func TestConfigProvisionerParserDecoder(t *testing.T) {
+	c := map[string]interface{}{
+		"plays": []map[string]interface{}{
+			map[string]interface{}{
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{
+						"file_path": playbookFile,
+					},
+				},
+			},
+		},
+
+		"remote": []map[string]interface{}{
+			map[string]interface{}{
+				"use_sudo":        false,
+				"skip_install":    true,
+				"skip_cleanup":    true,
+				"install_version": "2.3.0.0",
+			},
+		},
+
+		"defaults": []map[string]interface{}{
+			map[string]interface{}{
+				"hosts": []map[string]interface{}{
+					map[string]interface{}{
+						"host": "localhost",
+					},
+				},
+				"groups":              []string{"group1", "group2"},
+				"become":              false,
+				"become_method":       "sudo",
+				"become_user":         "test",
+				"extra_vars":          map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"},
+				"forks":               10,
+				"limit":               "a=b",
+				"vault_password_file": vaultPasswordFile,
+				"verbose":             false,
+			},
+		},
+
+		"ansible_ssh_settings": []map[string]interface{}{
+			map[string]interface{}{
+				"connect_timeout_seconds": 5,
+				"connection_attempts":     5,
+				"ssh_keyscan_timeout":     30,
+			},
+		},
+	}
+
+	/*p, _ := */
+	decodeConfig(
+		schema.TestResourceDataRaw(t, Provisioner().(*schema.Provisioner).Schema, c),
+	)
+
+	//t.Fatalf(" =================> %+v", p)
+}
+
+/*
 
 func TestResourceProvisioner_Validate_bad_config(t *testing.T) {
 	// Errors:
@@ -364,29 +429,6 @@ func TestResourceProvisioner_Validate_file_existence_checks(t *testing.T) {
 	}
 	if len(errs) != 3 {
 		t.Fatalf("Should have three errors but have: %v", errs)
-	}
-}
-
-func TestResourceProvisioner_Validate_local_conflicting_settings(t *testing.T) {
-	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
-			map[string]interface{}{
-				"playbook": playbookFile,
-			},
-		},
-		"use_sudo":        "no",
-		"skip_install":    "yes",
-		"skip_cleanup":    "yes",
-		"install_version": "2.3.0.0",
-		"local":           "yes",
-	})
-
-	warn, errs := Provisioner().Validate(c)
-	if len(warn) > 0 {
-		t.Fatalf("Warnings: %v", warn)
-	}
-	if len(errs) != 4 {
-		t.Fatalf("Should have four errors but have: %v", errs)
 	}
 }
 
