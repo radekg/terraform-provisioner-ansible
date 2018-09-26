@@ -61,7 +61,7 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 			map[string]interface{}{
 				"module": []map[string]interface{}{
 					map[string]interface{}{
-						"name":         "some_module",
+						"module":       "some_module",
 						"args":         map[string]interface{}{"ARG1": "value 1", "ARG2": "value 2"},
 						"background":   10,
 						"host_pattern": "all-tests",
@@ -224,7 +224,7 @@ func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
 				},
 				"module": []map[string]interface{}{
 					map[string]interface{}{
-						"name": "module-name",
+						"module": "module-name",
 					},
 				},
 			},
@@ -272,6 +272,19 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 						"file_path": playbookFile,
 					},
 				},
+				"hosts": []map[string]interface{}{
+					map[string]interface{}{
+						"fqdn":               "host.to.play",
+						"ansible_connection": "local",
+					},
+				},
+			},
+			map[string]interface{}{
+				"module": []map[string]interface{}{
+					map[string]interface{}{
+						"module": "some-module",
+					},
+				},
 			},
 		},
 
@@ -288,18 +301,17 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 			map[string]interface{}{
 				"hosts": []map[string]interface{}{
 					map[string]interface{}{
-						"host": "localhost",
+						"fqdn":               "localhost",
+						"ansible_connection": "local",
 					},
 				},
 				"groups":              []string{"group1", "group2"},
-				"become":              false,
 				"become_method":       "sudo",
 				"become_user":         "test",
 				"extra_vars":          map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"},
 				"forks":               10,
 				"limit":               "a=b",
 				"vault_password_file": vaultPasswordFile,
-				"verbose":             false,
 			},
 		},
 
@@ -310,6 +322,14 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 				"ssh_keyscan_timeout":     30,
 			},
 		},
+	}
+
+	warn, errs := Provisioner().Validate(testConfig(t, c))
+	if len(warn) > 0 {
+		t.Fatalf("Warnings: %+v", warn)
+	}
+	if len(errs) > 0 {
+		t.Fatalf("Errors: %+v", errs)
 	}
 
 	/*p, _ := */

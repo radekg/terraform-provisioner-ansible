@@ -1,4 +1,4 @@
-package main
+package mode
 
 import (
 	"fmt"
@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/radekg/terraform-provisioner-ansible/types"
 
 	"github.com/hashicorp/terraform/terraform"
 	linereader "github.com/mitchellh/go-linereader"
@@ -156,7 +158,7 @@ func (b *BastionKeyScan) execute(command string, connection *ssh.Client, o terra
 }
 
 // Scan executes an ssh-keyscan operation.
-func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int) error {
+func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int, ansibleSSHSettings *types.AnsibleSSHSettings) error {
 	b.output(o, fmt.Sprintf("connecting using SSH to %s@%s:%d...", b.username, b.host, b.port))
 	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", b.host, b.port), b.sshConfig())
 	if err != nil {
@@ -177,7 +179,7 @@ func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int) error
 	u1 := uuid.Must(uuid.NewV4())
 	targetPath := filepath.Join(b.quotedSSHKnownFileDir(), u1.String())
 
-	timeoutMs := sshKeyScanTimeoutSeconds() * 1000
+	timeoutMs := ansibleSSHSettings.SSHKeyscanSeconds() * 1000
 	timeSpentMs := 0
 	intervalMs := 500
 

@@ -1,4 +1,4 @@
-package main
+package types
 
 import (
 	"os"
@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-type ansibleSSHSettings struct {
+// AnsibleSSHSettings represents Ansible process SSH settings.
+type AnsibleSSHSettings struct {
 	connectTimeoutSeconds int
 	connectAttempts       int
 	sshKeyscanSeconds     int
@@ -28,7 +29,8 @@ const (
 	ansibleSSHEnvSSHKeyscanSeconds     = "TF_PROVISIONER_SSH_KEYSCAN_TIMEOUT_SECONDS"
 )
 
-func newAnsibleSSHSettingsSchema() *schema.Schema {
+// NewAnsibleSSHSettingsSchema returns a new AnsibleSSHSettings schema.
+func NewAnsibleSSHSettingsSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,
 		Optional: true,
@@ -69,23 +71,33 @@ func newAnsibleSSHSettingsSchema() *schema.Schema {
 	}
 }
 
-func newAnsibleSSHSettingsFromInterface(i interface{}, ok bool) *ansibleSSHSettings {
-	v := &ansibleSSHSettings{
+// NewAnsibleSSHSettingsFromInterface reads AnsibleSSHSettings configuration from Terraform schema.
+func NewAnsibleSSHSettingsFromInterface(i interface{}, ok bool) *AnsibleSSHSettings {
+	v := &AnsibleSSHSettings{
 		connectTimeoutSeconds: ansibleSSHDefaultConnectTimeoutSeconds,
 		connectAttempts:       ansibleSSHDefaultConnectAttempts,
 		sshKeyscanSeconds:     ansibleSSHDefaultSSHKeyscanSeconds,
 	}
 	if ok {
-		vals := mapFromSetList(i.(*schema.Set).List())
-		if val, ok := vals[ansibleSSHAttributeConnectTimeoutSeconds]; ok {
-			v.connectTimeoutSeconds = val.(int)
-		}
-		if val, ok := vals[ansibleSSHAttributeConnectAttempts]; ok {
-			v.connectAttempts = val.(int)
-		}
-		if val, ok := vals[ansibleSSHAttributeSSHKeyscanSeconds]; ok {
-			v.sshKeyscanSeconds = val.(int)
-		}
+		vals := mapFromTypeSetList(i.(*schema.Set).List())
+		v.connectTimeoutSeconds = vals[ansibleSSHAttributeConnectTimeoutSeconds].(int)
+		v.connectAttempts = vals[ansibleSSHAttributeConnectAttempts].(int)
+		v.sshKeyscanSeconds = vals[ansibleSSHAttributeSSHKeyscanSeconds].(int)
 	}
 	return v
+}
+
+// ConnectTimeoutSeconds reutrn Ansible process SSH connection timeout.
+func (v *AnsibleSSHSettings) ConnectTimeoutSeconds() int {
+	return v.connectTimeoutSeconds
+}
+
+// ConnectAttempts reutrn Ansible process SSH connection attempt count.
+func (v *AnsibleSSHSettings) ConnectAttempts() int {
+	return v.connectAttempts
+}
+
+// SSHKeyscanSeconds reutrn Ansible process SSH keyscan timeout.
+func (v *AnsibleSSHSettings) SSHKeyscanSeconds() int {
+	return v.sshKeyscanSeconds
 }
