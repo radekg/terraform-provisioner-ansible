@@ -10,7 +10,7 @@ const (
 	ansiblePlaybookAttributeStartAtTask   = "start_at_task"
 	ansiblePlaybookAttributeTags          = "tags"
 	ansiblePlaybookAttributeFilePath      = "file_path"
-	ansiblePlaybookAttributeIncludeRoles  = "include_roles"
+	ansiblePlaybookAttributeRolesPath     = "roles_path"
 )
 
 // Playbook represents playbook settings.
@@ -20,7 +20,7 @@ type Playbook struct {
 	startAtTask   string
 	tags          []string
 	filePath      string
-	includeRoles  []string
+	rolesPath     []string
 
 	// when running a remote provisioner, the path will changed to the remote path:
 	runnableFilePath string
@@ -59,7 +59,7 @@ func NewPlaybookSchema() *schema.Schema {
 					Required:     true,
 					ValidateFunc: vfPath,
 				},
-				ansiblePlaybookAttributeIncludeRoles: &schema.Schema{
+				ansiblePlaybookAttributeRolesPath: &schema.Schema{
 					Type:     schema.TypeList,
 					Elem:     &schema.Schema{Type: schema.TypeString},
 					Optional: true,
@@ -78,7 +78,7 @@ func NewPlaybookFromInterface(i interface{}) *Playbook {
 		skipTags:      listOfInterfaceToListOfString(vals[ansiblePlaybookAttributeSkipTags].([]interface{})),
 		startAtTask:   vals[ansiblePlaybookAttributeStartAtTask].(string),
 		tags:          listOfInterfaceToListOfString(vals[ansiblePlaybookAttributeTags].([]interface{})),
-		includeRoles:  listOfInterfaceToListOfString(vals[ansiblePlaybookAttributeIncludeRoles].([]interface{})),
+		rolesPath:     listOfInterfaceToListOfString(vals[ansiblePlaybookAttributeRolesPath].([]interface{})),
 	}
 }
 
@@ -110,11 +110,10 @@ func (v *Playbook) Tags() []string {
 	return v.tags
 }
 
-// IncludeRoles returns a list of paths to additional roles to be uploaded
-// with the playbook and included in the run. Use this argument when roles
-// reside outside of the playbook directory.
-func (v *Playbook) IncludeRoles() []string {
-	return v.includeRoles
+// RolesPath appends role directories to ANSIBLE_ROLES_PATH environment variable,
+// as documented in https://docs.ansible.com/ansible/2.5/reference_appendices/config.html#envvar-ANSIBLE_ROLES_PATH
+func (v *Playbook) RolesPath() []string {
+	return v.rolesPath
 }
 
 // SetRunnableFilePath is used by the remote provisioner to reference the correct

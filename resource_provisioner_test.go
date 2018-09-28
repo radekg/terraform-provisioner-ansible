@@ -44,13 +44,15 @@ func TestProvisioner(t *testing.T) {
 }
 
 func TestGoodAndCompleteRemoteConfig(t *testing.T) {
+	// warnings:
+	// = plays.0.playbook.roles_path
 	c := testConfig(t, map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
 				"playbook": []map[string]interface{}{
 					map[string]interface{}{
 						"file_path":      playbookFile,
-						"include_roles":  []string{"/path/to/a/role/directory"},
+						"roles_path":     []string{"${path.module}/path/to/a/role/directory"},
 						"force_handlers": false,
 						"skip_tags":      []string{"tag2"},
 						"start_at_task":  "test task",
@@ -107,28 +109,6 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 		},
 	})
 
-	warn, errs := Provisioner().Validate(c)
-	if len(warn) > 0 {
-		t.Fatalf("Warnings: %v", warn)
-	}
-	if len(errs) > 0 {
-		t.Fatalf("Errors: %v", errs)
-	}
-}
-
-func TestGoodLocalConfigWithPlaybookWarnings(t *testing.T) {
-	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
-			map[string]interface{}{
-				"playbook": []map[string]interface{}{
-					map[string]interface{}{
-						"file_path":     playbookFile,
-						"include_roles": []string{"/path/to/a/role/directory"},
-					},
-				},
-			},
-		},
-	})
 	warn, errs := Provisioner().Validate(c)
 	if len(warn) != 1 {
 		t.Fatalf("Expected one warning.")

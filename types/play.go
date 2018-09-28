@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -29,11 +30,19 @@ type Play struct {
 	remoteVaultPasswordFile string
 }
 
+var (
+	defaultRolesPath = []string{"~/.ansible/roles", "/usr/share/ansible/roles", "/etc/ansible/roles"}
+)
+
 const (
 	// default values:
 	playDefaultBecome       = true
 	playDefaultBecomeMethod = "sudo"
 	playDefaultForks        = 5
+	// environment variable names:
+	ansibleEnvVarForceColor       = "ANSIBLE_FORCE_COLOR"
+	ansibleEnvVarRolesPath        = "ANSIBLE_ROLES_PATH"
+	ansibleEnvVarDefaultRolesPath = "DEFAULT_ROLES_PATH"
 	// attribute names:
 	playAttributeEnabled           = "enabled"
 	playAttributePlaybook          = "playbook"
@@ -297,6 +306,16 @@ func (v *Play) SetRemoteVaultPasswordPath(path string) {
 	v.remoteVaultPasswordFile = path
 }
 
+func (v *Play) defaultRolePaths() []string {
+	if val, ok := os.LookupEnv(ansibleEnvVarRolesPath); ok {
+		return strings.Split(val, ":")
+	}
+	if val, ok := os.LookupEnv(ansibleEnvVarDefaultRolesPath); ok {
+		return strings.Split(val, ":")
+	}
+	return defaultRolesPath
+}
+
 // ToCommand serializes the play to an executable Ansible command.
 func (v *Play) ToCommand() (string, error) {
 
@@ -304,7 +323,16 @@ func (v *Play) ToCommand() (string, error) {
 	// entity to call:
 	switch entity := v.Entity().(type) {
 	case Playbook:
-		command = fmt.Sprintf("ANSIBLE_FORCE_COLOR=true ansible-playbook %s", entity.FilePath())
+		command = fmt.Sprintf("%s=true", ansibleEnvVarForceColor)
+
+		// handling role directories:
+		rolePaths := v.defaultRolePaths()
+		for _, rp := range entity.RolesPath() {
+			rolePaths = append(rolePaths, filepath.Clean(rp))
+		}
+
+		command = fmt.Sprintf("%s %s=%s", command, ansibleEnvVarRolesPath, strings.Join(rolePaths, ":"))
+		command = fmt.Sprintf("%s ansible-playbook %s", command, entity.FilePath())
 
 		// force handlers:
 		if entity.ForceHandlers() {
@@ -322,6 +350,7 @@ func (v *Play) ToCommand() (string, error) {
 		if len(entity.Tags()) > 0 {
 			command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(entity.Tags(), ","))
 		}
+
 	case Module:
 		hostPattern := entity.HostPattern()
 		if hostPattern == "" {

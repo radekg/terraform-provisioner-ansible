@@ -41,6 +41,19 @@ func vfPath(val interface{}, key string) (warns []string, errs []error) {
 	return
 }
 
+// VfPathDirectory validates existence of a path and that the path is a directory.
+func VfPathDirectory(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	if strings.Index(v, "${path.module}") > -1 {
+		warns = append(warns, fmt.Sprintf("I could not reliably determine the existence of '%s', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.", v))
+	} else {
+		if _, err := ResolveDirectory(v); err != nil {
+			errs = append(errs, fmt.Errorf("directory '%s' does not exist or path not directory", v))
+		}
+	}
+	return
+}
+
 func mapFromTypeMap(v interface{}) map[string]interface{} {
 	switch v := v.(type) {
 	case nil:
@@ -84,6 +97,18 @@ func listOfInterfaceToListOfString(v interface{}) []string {
 func ResolvePath(path string) (string, error) {
 	expandedPath, _ := homedir.Expand(path)
 	if _, err := os.Stat(expandedPath); err == nil {
+		return expandedPath, nil
+	}
+	return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
+}
+
+// ResolveDirectory checks if a path exists and is a directory.
+func ResolveDirectory(path string) (string, error) {
+	expandedPath, _ := homedir.Expand(path)
+	if stat, err := os.Stat(expandedPath); err == nil {
+		if !stat.IsDir() {
+			return "", fmt.Errorf("Path [%s] must be a directory", path)
+		}
 		return expandedPath, nil
 	}
 	return "", fmt.Errorf("Ansible module not found at path: [%s]", path)

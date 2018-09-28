@@ -42,8 +42,6 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 		}
 	}()
 
-	_, isRemoteProvisioning := c.Get("remote")
-
 	validPlaysCount := 0
 
 	if plays, hasPlays := c.Get("plays"); hasPlays {
@@ -60,14 +58,18 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 				es = append(es, fmt.Errorf("playbook or module must be set"))
 			} else {
 
-				// a local provisioning play playbook include_roles shall be ignored
 				if playHasPlaybook {
-					if !isRemoteProvisioning {
-						vPlaybookTyped := vPlaybook.([]map[string]interface{})
-						playbookRoles, hasIncludeRoles := vPlaybookTyped[0]["include_roles"]
-						if hasIncludeRoles && len(playbookRoles.([]string)) > 0 {
-							playbookFilePath, _ := vPlaybookTyped[0]["file_path"]
-							ws = append(ws, fmt.Sprintf("include_roles omited for playbook '%s' when local provisioning is used", playbookFilePath))
+					vPlaybookTyped := vPlaybook.([]map[string]interface{})
+					rolesPath, hasRolesPath := vPlaybookTyped[0]["roles_path"]
+					if hasRolesPath {
+						for _, singlePath := range rolesPath.([]interface{}) {
+							vws, ves := types.VfPathDirectory(singlePath, "roles_path")
+							for _, w := range vws {
+								ws = append(ws, w)
+							}
+							for _, e := range ves {
+								es = append(es, e)
+							}
 						}
 					}
 				}
@@ -109,17 +111,14 @@ func applyFn(ctx context.Context) error {
 			return err
 		}
 		return remoteMode.Run(p.plays)
-	} else {
-
-		localMode, err := mode.NewLocalMode(o, s)
-		if err != nil {
-			o.Output(fmt.Sprintf("%+v", err))
-			return err
-		}
-		return localMode.Run(p.plays, p.ansibleSSHSettings)
 	}
 
-	return nil
+	localMode, err := mode.NewLocalMode(o, s)
+	if err != nil {
+		o.Output(fmt.Sprintf("%+v", err))
+		return err
+	}
+	return localMode.Run(p.plays, p.ansibleSSHSettings)
 
 }
 
