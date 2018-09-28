@@ -64,6 +64,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 					if hasRolesPath {
 						for _, singlePath := range rolesPath.([]interface{}) {
 							vws, ves := types.VfPathDirectory(singlePath, "roles_path")
+
 							for _, w := range vws {
 								ws = append(ws, w)
 							}

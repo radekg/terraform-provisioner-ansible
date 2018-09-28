@@ -52,7 +52,7 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 				"playbook": []map[string]interface{}{
 					map[string]interface{}{
 						"file_path":      playbookFile,
-						"roles_path":     []string{"${path.module}/path/to/a/role/directory"},
+						"roles_path":     []interface{}{"${path.module}/path/to/a/role/directory"},
 						"force_handlers": false,
 						"skip_tags":      []string{"tag2"},
 						"start_at_task":  "test task",
