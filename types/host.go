@@ -65,17 +65,17 @@ func (v *Host) FQDN() string {
 	return v.fqdn
 }
 
-// AnsibleConnection returns host ansible_connection.
+// AnsibleConnection returns host's ansible_connection.
 func (v *Host) AnsibleConnection() string {
 	return v.ansibleConnection
 }
 
-// AnsiblePort returns host ansible_port.
+// AnsiblePort returns host's ansible_port.
 func (v *Host) AnsiblePort() int {
 	return v.ansiblePort
 }
 
-// AnsibleUser returns host ansible_user.
+// AnsibleUser returns host's ansible_user.
 func (v *Host) AnsibleUser() string {
 	return v.ansibleUser
 }

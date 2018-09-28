@@ -14,11 +14,13 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// LocalMode represents local provisioner mode.
 type LocalMode struct {
 	o        terraform.UIOutput
 	connInfo *connectionInfo
 }
 
+// NewLocalMode returns configured local mode provisioner.
 func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode, error) {
 
 	connType := s.Ephemeral.ConnInfo["type"]
@@ -45,6 +47,7 @@ func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode,
 	}, nil
 }
 
+// Run executes local provisioning process.
 func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSSHSettings) error {
 
 	pemFile := ""

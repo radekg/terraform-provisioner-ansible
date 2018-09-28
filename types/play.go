@@ -81,7 +81,7 @@ func NewPlaySchema() *schema.Schema {
 					Type:         schema.TypeString,
 					Optional:     true,
 					Default:      playDefaultBecomeMethod,
-					ValidateFunc: VfBecomeMethod,
+					ValidateFunc: vfBecomeMethod,
 				},
 				playAttributeBecomeUser: &schema.Schema{
 					Type:     schema.TypeString,
@@ -100,7 +100,7 @@ func NewPlaySchema() *schema.Schema {
 				playAttributeInventoryFile: &schema.Schema{
 					Type:         schema.TypeString,
 					Optional:     true,
-					ValidateFunc: VfPath,
+					ValidateFunc: vfPath,
 				},
 				playAttributeLimit: &schema.Schema{
 					Type:     schema.TypeString,
@@ -109,7 +109,7 @@ func NewPlaySchema() *schema.Schema {
 				playAttributeVaultPasswordFile: &schema.Schema{
 					Type:         schema.TypeString,
 					Optional:     true,
-					ValidateFunc: VfPath,
+					ValidateFunc: vfPath,
 				},
 				playAttributeVerbose: &schema.Schema{
 					Type:     schema.TypeBool,
@@ -120,6 +120,7 @@ func NewPlaySchema() *schema.Schema {
 	}
 }
 
+// NewPlayFromInterface reads Play configuration from Terraform schema.
 func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 	vals := mapFromTypeSetList(i.(*schema.Set).List())
 	v := &Play{
@@ -156,14 +157,18 @@ func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 	return v
 }
 
+// Enabled controls the execution of a play.
+// Play will be skipped if this value is false.
 func (v *Play) Enabled() bool {
 	return v.enabled
 }
 
+// Entity to run. A Playbook or Module.
 func (v *Play) Entity() interface{} {
 	return v.entity
 }
 
+// Hosts to include in the auto-generated inventory file.
 func (v *Play) Hosts() []Host {
 	if len(v.hosts) > 0 {
 		return v.hosts
@@ -174,6 +179,7 @@ func (v *Play) Hosts() []Host {
 	return make([]Host, 0)
 }
 
+// Groups to include in the auto-generated inventory file.
 func (v *Play) Groups() []string {
 	if len(v.groups) > 0 {
 		return v.groups
@@ -184,10 +190,12 @@ func (v *Play) Groups() []string {
 	return make([]string, 0)
 }
 
+// Become represents Ansible --become flag.
 func (v *Play) Become() bool {
 	return v.become
 }
 
+// BecomeMethod represents Ansible --become-method flag.
 func (v *Play) BecomeMethod() string {
 	if v.becomeMethod != "" {
 		return v.becomeMethod
@@ -198,6 +206,7 @@ func (v *Play) BecomeMethod() string {
 	return playDefaultBecomeMethod
 }
 
+// BecomeUser represents Ansible --become-user flag.
 func (v *Play) BecomeUser() string {
 	if v.becomeUser != "" {
 		return v.becomeUser
@@ -208,6 +217,7 @@ func (v *Play) BecomeUser() string {
 	return "" // will be obtained from connection info
 }
 
+// ExtraVars represents Ansible --extra-vars flag.
 func (v *Play) ExtraVars() map[string]interface{} {
 	if len(v.extraVars) > 0 {
 		return v.extraVars
@@ -218,6 +228,7 @@ func (v *Play) ExtraVars() map[string]interface{} {
 	return make(map[string]interface{})
 }
 
+// Forks represents Ansible --forks flag.
 func (v *Play) Forks() int {
 	if v.forks > 0 {
 		return v.forks
@@ -228,6 +239,7 @@ func (v *Play) Forks() int {
 	return playDefaultForks
 }
 
+// InventoryFile represents Ansible --inventory-file flag.
 func (v *Play) InventoryFile() string {
 	if v.overrideInventoryFile != "" {
 		return v.overrideInventoryFile
@@ -241,6 +253,7 @@ func (v *Play) InventoryFile() string {
 	return ""
 }
 
+// Limit represents Ansible --limit flag.
 func (v *Play) Limit() string {
 	if v.limit != "" {
 		return v.limit
@@ -251,6 +264,7 @@ func (v *Play) Limit() string {
 	return ""
 }
 
+// VaultPasswordFile represents Ansible --vault-password-file flag.
 func (v *Play) VaultPasswordFile() string {
 	if v.remoteVaultPasswordFile != "" {
 		return v.remoteVaultPasswordFile
@@ -264,6 +278,7 @@ func (v *Play) VaultPasswordFile() string {
 	return ""
 }
 
+// Verbose represents Ansible --verbose flag.
 func (v *Play) Verbose() bool {
 	return v.verbose
 }
@@ -282,11 +297,12 @@ func (v *Play) SetRemoteVaultPasswordPath(path string) {
 	v.remoteVaultPasswordFile = path
 }
 
-func (p *Play) ToCommand() (string, error) {
+// ToCommand serializes the play to an executable Ansible command.
+func (v *Play) ToCommand() (string, error) {
 
 	command := ""
 	// entity to call:
-	switch entity := p.Entity().(type) {
+	switch entity := v.Entity().(type) {
 	case Playbook:
 		command = fmt.Sprintf("ANSIBLE_FORCE_COLOR=true ansible-playbook %s", entity.FilePath())
 
@@ -334,48 +350,49 @@ func (p *Play) ToCommand() (string, error) {
 	}
 
 	// inventory file:
-	command = fmt.Sprintf("%s --inventory-file='%s'", command, p.InventoryFile())
+	command = fmt.Sprintf("%s --inventory-file='%s'", command, v.InventoryFile())
 
 	// shared arguments:
 
 	// become:
-	if p.Become() {
+	if v.Become() {
 		command = fmt.Sprintf("%s --become", command)
-		command = fmt.Sprintf("%s --become-method='%s'", command, p.BecomeMethod())
-		if p.BecomeUser() != "" {
-			command = fmt.Sprintf("%s --become-user='%s'", command, p.BecomeUser())
+		command = fmt.Sprintf("%s --become-method='%s'", command, v.BecomeMethod())
+		if v.BecomeUser() != "" {
+			command = fmt.Sprintf("%s --become-user='%s'", command, v.BecomeUser())
 		} else {
 			command = fmt.Sprintf("%s --become-user='%s'", command, "") // $$ TODO: fix empty string from connection info
 		}
 	}
 	// extra vars:
-	if len(p.ExtraVars()) > 0 {
-		extraVars, err := json.Marshal(p.ExtraVars())
+	if len(v.ExtraVars()) > 0 {
+		extraVars, err := json.Marshal(v.ExtraVars())
 		if err != nil {
 			return "", err
 		}
 		command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
 	}
 	// forks:
-	if p.Forks() > 0 {
-		command = fmt.Sprintf("%s --forks=%d", command, p.Forks())
+	if v.Forks() > 0 {
+		command = fmt.Sprintf("%s --forks=%d", command, v.Forks())
 	}
 	// limit
-	if p.Limit() != "" {
-		command = fmt.Sprintf("%s --limit='%s'", command, p.Limit())
+	if v.Limit() != "" {
+		command = fmt.Sprintf("%s --limit='%s'", command, v.Limit())
 	}
 	// vault password file:
-	if p.VaultPasswordFile() != "" {
-		command = fmt.Sprintf("%s --vault-password-file='%s'", command, p.VaultPasswordFile())
+	if v.VaultPasswordFile() != "" {
+		command = fmt.Sprintf("%s --vault-password-file='%s'", command, v.VaultPasswordFile())
 	}
 	// verbose:
-	if p.Verbose() {
+	if v.Verbose() {
 		command = fmt.Sprintf("%s --verbose", command)
 	}
 
 	return command, nil
 }
 
+// ToLocalCommand serializes the play to an executable local provisioning Ansible command.
 func (v *Play) ToLocalCommand(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSettings *AnsibleSSHSettings) (string, error) {
 	baseCommand, err := v.ToCommand()
 	if err != nil {

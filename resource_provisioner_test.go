@@ -85,18 +85,16 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 			map[string]interface{}{
 				"hosts": []map[string]interface{}{
 					map[string]interface{}{
-						"host": "localhost",
+						"fqdn": "localhost",
 					},
 				},
 				"groups":              []string{"group1", "group2"},
-				"become":              false,
 				"become_method":       "sudo",
 				"become_user":         "test",
 				"extra_vars":          map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"},
 				"forks":               10,
 				"limit":               "a=b",
 				"vault_password_file": vaultPasswordFile,
-				"verbose":             false,
 			},
 		},
 

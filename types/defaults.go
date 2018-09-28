@@ -56,7 +56,7 @@ func NewDefaultsSchema() *schema.Schema {
 				defaultsAttributeBecomeMethod: &schema.Schema{
 					Type:         schema.TypeString,
 					Optional:     true,
-					ValidateFunc: VfBecomeMethod,
+					ValidateFunc: vfBecomeMethod,
 				},
 				defaultsAttributeBecomeUser: &schema.Schema{
 					Type:     schema.TypeString,
@@ -74,7 +74,7 @@ func NewDefaultsSchema() *schema.Schema {
 				defaultsAttributeInventoryFile: &schema.Schema{
 					Type:         schema.TypeString,
 					Optional:     true,
-					ValidateFunc: VfPath,
+					ValidateFunc: vfPath,
 				},
 				defaultsAttributeLimit: &schema.Schema{
 					Type:     schema.TypeString,
@@ -83,7 +83,7 @@ func NewDefaultsSchema() *schema.Schema {
 				defaultsAttributeVaultPasswordFile: &schema.Schema{
 					Type:         schema.TypeString,
 					Optional:     true,
-					ValidateFunc: VfPath,
+					ValidateFunc: vfPath,
 				},
 			},
 		},

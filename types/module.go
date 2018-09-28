@@ -25,7 +25,7 @@ type Module struct {
 	module      string
 }
 
-// NewPlaybookSchema return a new Ansible module schema.
+// NewModuleSchema return a new Ansible module schema.
 func NewModuleSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:          schema.TypeSet,
@@ -82,26 +82,32 @@ func NewModuleFromInterface(i interface{}) *Module {
 	}
 }
 
+// Module returns a module name to run.
 func (v *Module) Module() string {
 	return v.module
 }
 
+// Args represent Ansible --args flag.
 func (v *Module) Args() map[string]interface{} {
 	return v.args
 }
 
+// Background represents Ansible --background flag.
 func (v *Module) Background() int {
 	return v.background
 }
 
+// HostPattern represents Ansible host pattern argument.
 func (v *Module) HostPattern() string {
 	return v.hostPattern
 }
 
+// OneLine represents Ansible --one-line flag.
 func (v *Module) OneLine() bool {
 	return v.oneLine
 }
 
+// Poll represents Ansible --poll flag.
 func (v *Module) Poll() int {
 	return v.poll
 }

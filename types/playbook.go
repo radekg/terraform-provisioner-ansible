@@ -57,7 +57,7 @@ func NewPlaybookSchema() *schema.Schema {
 				ansiblePlaybookAttributeFilePath: &schema.Schema{
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: VfPath,
+					ValidateFunc: vfPath,
 				},
 				ansiblePlaybookAttributeIncludeRoles: &schema.Schema{
 					Type:     schema.TypeList,
@@ -82,6 +82,7 @@ func NewPlaybookFromInterface(i interface{}) *Playbook {
 	}
 }
 
+// FilePath represents a path to the Ansible playbook to be executed.
 func (v *Playbook) FilePath() string {
 	if v.runnableFilePath == "" {
 		return v.filePath
@@ -89,26 +90,35 @@ func (v *Playbook) FilePath() string {
 	return v.filePath
 }
 
+// ForceHandlers represents Ansible Playbook --force-handlers flag.
 func (v *Playbook) ForceHandlers() bool {
 	return v.forceHandlers
 }
 
+// SkipTags represents Ansible Playbook --skip-tags flag.
 func (v *Playbook) SkipTags() []string {
 	return v.skipTags
 }
 
+// StartAtTask represents Ansible Playbook --start-at-task flag.
 func (v *Playbook) StartAtTask() string {
 	return v.startAtTask
 }
 
+// Tags represents Ansible Playbook --tags flag.
 func (v *Playbook) Tags() []string {
 	return v.tags
 }
 
+// IncludeRoles returns a list of paths to additional roles to be uploaded
+// with the playbook and included in the run. Use this argument when roles
+// reside outside of the playbook directory.
 func (v *Playbook) IncludeRoles() []string {
 	return v.includeRoles
 }
 
+// SetRunnableFilePath is used by the remote provisioner to reference the correct
+// playbook location after the upload to the provisioned machine.
 func (v *Playbook) SetRunnableFilePath(path string) {
 	v.runnableFilePath = path
 }

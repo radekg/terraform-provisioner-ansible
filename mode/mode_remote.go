@@ -65,6 +65,7 @@ else
 fi
 `
 
+// RemoteMode represents remote provisioner mode.
 type RemoteMode struct {
 	o              terraform.UIOutput
 	comm           communicator.Communicator
@@ -79,6 +80,7 @@ const (
 	bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
 )
 
+// NewRemoteMode returns configured remote mode provisioner.
 func NewRemoteMode(o terraform.UIOutput, s *terraform.InstanceState, remoteSettings *types.RemoteSettings) (*RemoteMode, error) {
 	// Get a new communicator
 	comm, err := communicator.New(s)
@@ -92,6 +94,7 @@ func NewRemoteMode(o terraform.UIOutput, s *terraform.InstanceState, remoteSetti
 	}, nil
 }
 
+// Run executes remote provisioning process.
 func (v *RemoteMode) Run(plays []*types.Play) error {
 	// Wait and retry until we establish the connection
 	err := v.retryFunc(v.comm.Timeout(), func() error {
