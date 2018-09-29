@@ -319,7 +319,7 @@ func (v *Play) defaultRolePaths() []string {
 }
 
 // ToCommand serializes the play to an executable Ansible command.
-func (v *Play) ToCommand() (string, error) {
+func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 
 	command := ""
 	// entity to call:
@@ -392,7 +392,7 @@ func (v *Play) ToCommand() (string, error) {
 		if v.BecomeUser() != "" {
 			command = fmt.Sprintf("%s --become-user='%s'", command, v.BecomeUser())
 		} else {
-			command = fmt.Sprintf("%s --become-user='%s'", command, "") // $$ TODO: fix empty string from connection info
+			command = fmt.Sprintf("%s --become-user='%s'", command, ansibleArgs.Username)
 		}
 	}
 	// extra vars:
@@ -425,7 +425,7 @@ func (v *Play) ToCommand() (string, error) {
 
 // ToLocalCommand serializes the play to an executable local provisioning Ansible command.
 func (v *Play) ToLocalCommand(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSettings *AnsibleSSHSettings) (string, error) {
-	baseCommand, err := v.ToCommand()
+	baseCommand, err := v.ToCommand(ansibleArgs)
 	if err != nil {
 		return "", err
 	}

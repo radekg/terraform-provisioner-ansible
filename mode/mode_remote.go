@@ -119,7 +119,7 @@ func (v *RemoteMode) Run(plays []*types.Play) error {
 	}
 
 	for _, play := range plays {
-		command, err := play.ToCommand()
+		command, err := play.ToCommand(types.LocalModeAnsibleArgs{})
 		if err != nil {
 			return err
 		}

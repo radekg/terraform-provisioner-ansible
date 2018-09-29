@@ -27,24 +27,18 @@ type cleanup func()
 
 // BastionKeyScan holds the ssh-keyscan metadata.
 type BastionKeyScan struct {
-	host           string
-	port           int
-	username       string
-	privateKeyFile string
+	bastion *BastionHost
 }
 
 // NewBastionKeyScan create an ssh-keyscan operation wrapper.
-func NewBastionKeyScan(host string, port int, username string, privateKeyFile string) *BastionKeyScan {
+func NewBastionKeyScan(bastion *BastionHost) *BastionKeyScan {
 	return &BastionKeyScan{
-		host:           host,
-		port:           port,
-		username:       username,
-		privateKeyFile: privateKeyFile,
+		bastion: bastion,
 	}
 }
 
 func (b *BastionKeyScan) publicKeyFile() ssh.AuthMethod {
-	buffer, err := ioutil.ReadFile(b.privateKeyFile)
+	buffer, err := ioutil.ReadFile(b.bastion.PemFile())
 	if err != nil {
 		return nil
 	}
@@ -72,14 +66,14 @@ func (b *BastionKeyScan) sshModes() ssh.TerminalModes {
 
 func (b *BastionKeyScan) sshConfig() *ssh.ClientConfig {
 	authMethods := make([]ssh.AuthMethod, 0)
-	if b.privateKeyFile == "" {
+	if b.bastion.PemFile() == "" {
 		authMethods = append(authMethods, b.sshAgent())
 	} else {
 		authMethods = append(authMethods, b.publicKeyFile())
 	}
 
 	return &ssh.ClientConfig{
-		User: b.username,
+		User: b.bastion.User(),
 		Auth: authMethods,
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			return nil
@@ -159,8 +153,8 @@ func (b *BastionKeyScan) execute(command string, connection *ssh.Client, o terra
 
 // Scan executes an ssh-keyscan operation.
 func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int, ansibleSSHSettings *types.AnsibleSSHSettings) error {
-	b.output(o, fmt.Sprintf("connecting using SSH to %s@%s:%d...", b.username, b.host, b.port))
-	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", b.host, b.port), b.sshConfig())
+	b.output(o, fmt.Sprintf("connecting using SSH to %s@%s:%d...", b.bastion.User(), b.bastion.Host(), b.bastion.Port()))
+	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", b.bastion.Host(), b.bastion.Port()), b.sshConfig())
 	if err != nil {
 		return b.makeError("failed to dial: %s.", err)
 	}
