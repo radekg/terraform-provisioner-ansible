@@ -90,29 +90,13 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		defer os.Remove(pemFile)
 	}
 
+	bastion := NewBastionHostFromConnectionInfo(v.connInfo, pemFile)
+
 	knownHostsFile, err := v.ensureKnownHosts(ansibleSSHSettings)
 	if err != nil {
 		return err
 	}
 	defer os.Remove(knownHostsFile)
-
-	bastionHost := ""
-	bastionUsername := v.connInfo.User
-	bastionPemFile := pemFile
-	bastionPort := v.connInfo.Port
-
-	if v.connInfo.BastionHost != "" {
-		bastionHost = v.connInfo.BastionHost
-		if v.connInfo.BastionUser != "" {
-			bastionUsername = v.connInfo.BastionUser
-		}
-		if v.connInfo.BastionPrivateKey != "" {
-			bastionPemFile = v.connInfo.BastionPrivateKey
-		}
-		if v.connInfo.BastionPort > 0 {
-			bastionPort = v.connInfo.BastionPort
-		}
-	}
 
 	for _, play := range plays {
 
@@ -129,31 +113,29 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 
 		if inventoryFile != play.InventoryFile() {
 			play.SetOverrideInventoryFile(inventoryFile)
-			//defer os.Remove(play.InventoryFile())
+			defer os.Remove(play.InventoryFile())
 		}
 
+		// we can't pass bastion instance into this function
+		// we would end up with a circular import
 		command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
 			Username:        v.connInfo.User,
 			Port:            v.connInfo.Port,
 			PemFile:         pemFile,
 			KnownHostsFile:  knownHostsFile,
-			BastionHost:     bastionHost,
-			BastionPemFile:  bastionPemFile,
-			BastionPort:     bastionPort,
-			BastionUsername: bastionUsername,
+			BastionHost:     bastion.Host(),
+			BastionPemFile:  bastion.PemFile(),
+			BastionPort:     bastion.Port(),
+			BastionUsername: bastion.User(),
 		}, ansibleSSHSettings)
 
 		if err != nil {
 			return err
 		}
 
-		if v.connInfo.BastionHost != "" {
-			v.o.Output(fmt.Sprintf("executing ssh-keyscan on bastion: %s@%s", bastionUsername, fmt.Sprintf("%s:%d", bastionHost, bastionPort)))
-			bastionSSHKeyScan := NewBastionKeyScan(
-				bastionHost,
-				bastionPort,
-				bastionUsername,
-				bastionPemFile)
+		if bastion.Host() != "" {
+			v.o.Output(fmt.Sprintf("executing ssh-keyscan on bastion: %s@%s", bastion.User(), fmt.Sprintf("%s:%d", bastion.Host(), bastion.Port())))
+			bastionSSHKeyScan := NewBastionKeyScan(bastion)
 			if err := bastionSSHKeyScan.Scan(v.o, v.connInfo.Host, v.connInfo.Port, ansibleSSHSettings); err != nil {
 				return err
 			}
