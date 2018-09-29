@@ -87,6 +87,7 @@ const inventoryTemplateRemote = `{{$top := . -}}
 type RemoteMode struct {
 	o              terraform.UIOutput
 	comm           communicator.Communicator
+	connInfo       *connectionInfo
 	remoteSettings *types.RemoteSettings
 }
 
@@ -105,9 +106,22 @@ func NewRemoteMode(o terraform.UIOutput, s *terraform.InstanceState, remoteSetti
 	if err != nil {
 		return nil, err
 	}
+
+	connType := s.Ephemeral.ConnInfo["type"]
+	switch connType {
+	case "ssh", "": // The default connection type is ssh, so if connType is empty use ssh
+	default:
+		return nil, fmt.Errorf("Currently, only SSH connection is supported")
+	}
+	connInfo, err := parseConnectionInfo(s)
+	if err != nil {
+		return nil, err
+	}
+
 	return &RemoteMode{
 		o:              o,
 		comm:           comm,
+		connInfo:       connInfo,
 		remoteSettings: remoteSettings,
 	}, nil
 }
@@ -137,7 +151,7 @@ func (v *RemoteMode) Run(plays []*types.Play) error {
 	}
 
 	for _, play := range plays {
-		command, err := play.ToCommand(types.LocalModeAnsibleArgs{})
+		command, err := play.ToCommand(types.LocalModeAnsibleArgs{Username: v.connInfo.User})
 		if err != nil {
 			return err
 		}
