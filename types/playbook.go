@@ -87,7 +87,7 @@ func (v *Playbook) FilePath() string {
 	if v.runnableFilePath == "" {
 		return v.filePath
 	}
-	return v.filePath
+	return v.runnableFilePath
 }
 
 // ForceHandlers represents Ansible Playbook --force-handlers flag.

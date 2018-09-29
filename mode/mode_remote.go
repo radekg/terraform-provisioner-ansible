@@ -65,6 +65,24 @@ else
 fi
 `
 
+type inventoryTemplateRemoteData struct {
+	Hosts  []string
+	Groups []string
+}
+
+const inventoryTemplateRemote = `{{$top := . -}}
+{{range .Hosts -}}
+{{.}} ansible_connection=local
+{{end}}
+
+{{range .Groups -}}
+[{{.}}]
+{{range $top.Hosts -}}
+{{.}} ansible_connection=local
+{{end}}
+
+{{end}}`
+
 // RemoteMode represents remote provisioner mode.
 type RemoteMode struct {
 	o              terraform.UIOutput
@@ -336,28 +354,29 @@ func (v *RemoteMode) writeInventory(destination string, play *types.Play) (strin
 
 	}
 
-	/*
-		$$ TODO: resotre this without a template:
-		o.Output("Generating temporary ansible inventory...")
-		t := template.Must(template.New("hosts").Parse(inventoryTemplateRemote))
-		var buf bytes.Buffer
-		err := t.Execute(&buf, inventoryMeta)
-		if err != nil {
-			return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
-		}
+	templateData := inventoryTemplateRemoteData{
+		Hosts:  ensureLocalhostInHosts(play.Hosts()),
+		Groups: play.Groups(),
+	}
 
-		u1 := uuid.Must(uuid.NewV4())
-		targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
+	v.o.Output("Generating temporary ansible inventory...")
+	t := template.Must(template.New("hosts").Parse(inventoryTemplateRemote))
+	var buf bytes.Buffer
+	err := t.Execute(&buf, templateData)
+	if err != nil {
+		return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+	}
 
-		o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
-		if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
-			return "", err
-		}
+	u1 := uuid.Must(uuid.NewV4())
+	targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
 
-		o.Output("Ansible inventory written.")
-		return targetPath, nil
-	*/
-	return "", nil
+	v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
+	if err := v.comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+		return "", err
+	}
+
+	v.o.Output("Ansible inventory written.")
+	return targetPath, nil
 }
 
 func (v *RemoteMode) cleanupAfterBootstrap() {
@@ -424,4 +443,22 @@ func (v *RemoteMode) copyOutput(r io.Reader, doneCh chan<- struct{}) {
 	for line := range lr.Ch {
 		v.o.Output(line)
 	}
+}
+
+func ensureLocalhostInHosts(hosts []string) []string {
+	found := false
+	for _, host := range hosts {
+		if host == "localhost" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		newHosts := []string{"localhost"}
+		for _, host := range hosts {
+			newHosts = append(newHosts, host)
+		}
+		return newHosts
+	}
+	return hosts
 }
