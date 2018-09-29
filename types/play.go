@@ -15,7 +15,7 @@ type Play struct {
 	defaults                *Defaults
 	enabled                 bool
 	entity                  interface{}
-	hosts                   []Host
+	hosts                   []string
 	groups                  []string
 	become                  bool
 	becomeMethod            string
@@ -75,7 +75,11 @@ func NewPlaySchema() *schema.Schema {
 				},
 				playAttributePlaybook: NewPlaybookSchema(),
 				playAttributeModule:   NewModuleSchema(),
-				playAttributeHosts:    NewHostSchema(),
+				playAttributeHosts: &schema.Schema{
+					Type:     schema.TypeList,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+					Optional: true,
+				},
 				playAttributeGroups: &schema.Schema{
 					Type:     schema.TypeList,
 					Elem:     &schema.Schema{Type: schema.TypeString},
@@ -155,12 +159,10 @@ func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 	}
 
 	if val, ok := vals[playAttributeHosts]; ok {
-		hosts := make([]Host, 0)
-		hostSchema := NewHostSchema()
-		for _, iface := range val.([]interface{}) {
-			hosts = append(hosts, *NewHostFromInterface(schema.NewSet(schema.HashResource(hostSchema.Elem.(*schema.Resource)), []interface{}{iface})))
-		}
-		v.hosts = hosts
+		v.hosts = listOfInterfaceToListOfString(val.([]interface{}))
+	}
+	if val, ok := vals[playAttributeGroups]; ok {
+		v.groups = listOfInterfaceToListOfString(val.([]interface{}))
 	}
 
 	return v
@@ -178,14 +180,14 @@ func (v *Play) Entity() interface{} {
 }
 
 // Hosts to include in the auto-generated inventory file.
-func (v *Play) Hosts() []Host {
+func (v *Play) Hosts() []string {
 	if len(v.hosts) > 0 {
 		return v.hosts
 	}
 	if v.defaults.hostsIsSet {
 		return v.defaults.hosts
 	}
-	return make([]Host, 0)
+	return make([]string, 0)
 }
 
 // Groups to include in the auto-generated inventory file.
