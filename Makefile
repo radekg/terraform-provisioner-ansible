@@ -44,4 +44,4 @@ test:
 
 .PHONY: test-verbose
 test-verbose:
-	go test -v
+	go test -v ./...

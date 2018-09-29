@@ -6,7 +6,7 @@ import (
 
 // Defaults represents default settings for each consequent play.
 type Defaults struct {
-	hosts             []Host
+	hosts             []string
 	groups            []string
 	becomeMethod      string
 	becomeUser        string
@@ -47,7 +47,11 @@ func NewDefaultsSchema() *schema.Schema {
 		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				defaultsAttributeHosts: NewHostSchema(),
+				defaultsAttributeHosts: &schema.Schema{
+					Type:     schema.TypeList,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+					Optional: true,
+				},
 				defaultsAttributeGroups: &schema.Schema{
 					Type:     schema.TypeList,
 					Elem:     &schema.Schema{Type: schema.TypeString},
@@ -96,12 +100,7 @@ func NewDefaultsFromInterface(i interface{}, ok bool) *Defaults {
 	if ok {
 		vals := mapFromTypeSetList(i.(*schema.Set).List())
 		if val, ok := vals[defaultsAttributeHosts]; ok {
-			hosts := make([]Host, 0)
-			hostSchema := NewHostSchema()
-			for _, iface := range val.([]interface{}) {
-				hosts = append(hosts, *NewHostFromInterface(schema.NewSet(schema.HashResource(hostSchema.Elem.(*schema.Resource)), []interface{}{iface})))
-			}
-			v.hosts = hosts
+			v.hosts = listOfInterfaceToListOfString(val.([]interface{}))
 			v.hostsIsSet = len(v.hosts) > 0
 		}
 		if val, ok := vals[defaultsAttributeGroups]; ok {
@@ -138,4 +137,9 @@ func NewDefaultsFromInterface(i interface{}, ok bool) *Defaults {
 		}
 	}
 	return v
+}
+
+// Hosts returns default hosts.
+func (v *Defaults) Hosts() []string {
+	return v.hosts
 }

@@ -1,10 +1,12 @@
 package mode
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"text/template"
 	"time"
 
 	"github.com/radekg/terraform-provisioner-ansible/types"
@@ -19,6 +21,35 @@ type LocalMode struct {
 	o        terraform.UIOutput
 	connInfo *connectionInfo
 }
+
+type inventoryTemplateLocalDataHost struct {
+	Alias       string
+	AnsibleHost string
+}
+
+type inventoryTemplateLocalData struct {
+	Hosts  []inventoryTemplateLocalDataHost
+	Groups []string
+}
+
+const inventoryTemplateLocal = `{{$top := . -}}
+{{range .Hosts -}}
+{{.Alias -}}
+{{if ne .AnsibleHost "" -}}
+{{" "}}ansible_host={{.AnsibleHost -}}
+{{end -}}
+{{end}}
+
+{{range .Groups -}}
+[{{.}}]
+{{range $top.Hosts -}}
+{{.Alias -}}
+{{if ne .AnsibleHost "" -}}
+{{" "}}ansible_host={{.AnsibleHost -}}
+{{end -}}
+{{end}}
+
+{{end}}`
 
 // NewLocalMode returns configured local mode provisioner.
 func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode, error) {
@@ -98,7 +129,7 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 
 		if inventoryFile != play.InventoryFile() {
 			play.SetOverrideInventoryFile(inventoryFile)
-			defer os.Remove(play.InventoryFile())
+			//defer os.Remove(play.InventoryFile())
 		}
 
 		command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
@@ -197,36 +228,52 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 			return "", fmt.Errorf("Host could not be established from the connection info")
 		}
 
-		/*
-			$$ TODO: restore this functionality but without a template:
-			inplaceMeta := ansibleInventoryMeta{
-				Hosts:  []string{connInfo.Host},
-				Groups: inventoryMeta.Groups,
+		playHosts := play.Hosts()
+
+		templateData := inventoryTemplateLocalData{
+			Hosts:  make([]inventoryTemplateLocalDataHost, 0),
+			Groups: play.Groups(),
+		}
+
+		if len(playHosts) > 0 {
+			if playHosts[0] != "" {
+				templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+					Alias:       playHosts[0],
+					AnsibleHost: v.connInfo.Host,
+				})
+			} else {
+				templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+					Alias: v.connInfo.Host,
+				})
 			}
+		} else {
+			templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+				Alias: v.connInfo.Host,
+			})
+		}
 
-			o.Output("Generating temporary ansible inventory...")
-			t := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
-			var buf bytes.Buffer
-			err := t.Execute(&buf, inplaceMeta)
-			if err != nil {
-				return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
-			}
+		v.o.Output("Generating temporary ansible inventory...")
+		t := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
+		var buf bytes.Buffer
+		err := t.Execute(&buf, templateData)
+		if err != nil {
+			return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+		}
 
-			file, err := ioutil.TempFile(os.TempDir(), "temporary-ansible-inventory")
-			defer file.Close()
-			if err != nil {
-				return "", err
-			}
+		file, err := ioutil.TempFile(os.TempDir(), "temporary-ansible-inventory")
+		defer file.Close()
+		if err != nil {
+			return "", err
+		}
 
-			o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", file.Name()))
-			if err := ioutil.WriteFile(file.Name(), buf.Bytes(), 0644); err != nil {
-				return "", err
-			}
+		v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", file.Name()))
+		if err := ioutil.WriteFile(file.Name(), buf.Bytes(), 0644); err != nil {
+			return "", err
+		}
 
-			o.Output("Ansible inventory written.")
+		v.o.Output("Ansible inventory written.")
 
-			return file.Name(), nil
-		*/
+		return file.Name(), nil
 	}
 
 	return play.InventoryFile(), nil

@@ -43,6 +43,47 @@ func TestProvisioner(t *testing.T) {
 	}
 }
 
+func TestBadConfig(t *testing.T) {
+	// play.0.playbook with no file_path
+	// play.0.module with no module
+	c := testConfig(t, map[string]interface{}{
+		"plays": []map[string]interface{}{
+			map[string]interface{}{
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{},
+				},
+			},
+			map[string]interface{}{
+				"module": []map[string]interface{}{
+					map[string]interface{}{},
+				},
+			},
+		},
+
+		"remote": []map[string]interface{}{
+			map[string]interface{}{
+				"use_sudo":        false,
+				"skip_install":    true,
+				"skip_cleanup":    true,
+				"install_version": "2.3.0.0",
+			},
+		},
+
+		"defaults": []map[string]interface{}{
+			map[string]interface{}{
+				"hosts": []interface{}{},
+			},
+		},
+	})
+	warn, errs := Provisioner().Validate(c)
+	if len(warn) > 0 {
+		t.Fatalf("Warnings: %v", warn)
+	}
+	if len(errs) != 2 {
+		t.Fatalf("Expected 2 errors but got: %v", errs)
+	}
+}
+
 func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 	// warnings:
 	// = plays.0.playbook.roles_path
@@ -85,12 +126,8 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 
 		"defaults": []map[string]interface{}{
 			map[string]interface{}{
-				"hosts": []map[string]interface{}{
-					map[string]interface{}{
-						"fqdn": "localhost",
-					},
-				},
-				"groups":              []string{"group1", "group2"},
+				"hosts":               []interface{}{"localhost"},
+				"groups":              []interface{}{"group1", "group2"},
 				"become_method":       "sudo",
 				"become_user":         "test",
 				"extra_vars":          map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"},
@@ -250,12 +287,7 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 						"file_path": playbookFile,
 					},
 				},
-				"hosts": []map[string]interface{}{
-					map[string]interface{}{
-						"fqdn":               "host.to.play",
-						"ansible_connection": "local",
-					},
-				},
+				"hosts": []interface{}{"host.to.play"},
 			},
 			map[string]interface{}{
 				"module": []map[string]interface{}{
@@ -277,13 +309,8 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 
 		"defaults": []map[string]interface{}{
 			map[string]interface{}{
-				"hosts": []map[string]interface{}{
-					map[string]interface{}{
-						"fqdn":               "localhost",
-						"ansible_connection": "local",
-					},
-				},
-				"groups":              []string{"group1", "group2"},
+				"hosts":               []interface{}{"localhost"},
+				"groups":              []interface{}{"group1", "group2"},
 				"become_method":       "sudo",
 				"become_user":         "test",
 				"extra_vars":          map[string]interface{}{"VAR1": "value 1", "VAR2": "value 2"},

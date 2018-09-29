@@ -12,16 +12,3 @@ const inventoryTemplateRemote = `{{$top := . -}}
 {{end}}
 
 {{end}}`
-
-const inventoryTemplateLocal = `{{$top := . -}}
-{{range .Hosts -}}
-{{.}}
-{{end}}
-
-{{range .Groups -}}
-[{{.}}]
-{{range $top.Hosts -}}
-{{.}}
-{{end}}
-
-{{end}}`
