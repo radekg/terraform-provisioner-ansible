@@ -201,7 +201,7 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 		}
 
 		switch entity := play.Entity().(type) {
-		case types.Playbook:
+		case *types.Playbook:
 			playbookPath, err := types.ResolvePath(entity.FilePath())
 			if err != nil {
 				return err
@@ -251,7 +251,7 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 			}
 			play.SetOverrideInventoryFile(inventoryFile)
 
-		case types.Module:
+		case *types.Module:
 			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
 				return err
 			}
