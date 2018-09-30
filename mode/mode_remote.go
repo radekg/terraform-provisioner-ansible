@@ -65,10 +65,29 @@ else
 fi
 `
 
+type inventoryTemplateRemoteData struct {
+	Hosts  []string
+	Groups []string
+}
+
+const inventoryTemplateRemote = `{{$top := . -}}
+{{range .Hosts -}}
+{{.}} ansible_connection=local
+{{end}}
+
+{{range .Groups -}}
+[{{.}}]
+{{range $top.Hosts -}}
+{{.}} ansible_connection=local
+{{end}}
+
+{{end}}`
+
 // RemoteMode represents remote provisioner mode.
 type RemoteMode struct {
 	o              terraform.UIOutput
 	comm           communicator.Communicator
+	connInfo       *connectionInfo
 	remoteSettings *types.RemoteSettings
 }
 
@@ -87,9 +106,22 @@ func NewRemoteMode(o terraform.UIOutput, s *terraform.InstanceState, remoteSetti
 	if err != nil {
 		return nil, err
 	}
+
+	connType := s.Ephemeral.ConnInfo["type"]
+	switch connType {
+	case "ssh", "": // The default connection type is ssh, so if connType is empty use ssh
+	default:
+		return nil, fmt.Errorf("Currently, only SSH connection is supported")
+	}
+	connInfo, err := parseConnectionInfo(s)
+	if err != nil {
+		return nil, err
+	}
+
 	return &RemoteMode{
 		o:              o,
 		comm:           comm,
+		connInfo:       connInfo,
 		remoteSettings: remoteSettings,
 	}, nil
 }
@@ -119,7 +151,7 @@ func (v *RemoteMode) Run(plays []*types.Play) error {
 	}
 
 	for _, play := range plays {
-		command, err := play.ToCommand(types.LocalModeAnsibleArgs{})
+		command, err := play.ToCommand(types.LocalModeAnsibleArgs{Username: v.connInfo.User})
 		if err != nil {
 			return err
 		}
@@ -169,7 +201,7 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 		}
 
 		switch entity := play.Entity().(type) {
-		case types.Playbook:
+		case *types.Playbook:
 			playbookPath, err := types.ResolvePath(entity.FilePath())
 			if err != nil {
 				return err
@@ -219,7 +251,7 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 			}
 			play.SetOverrideInventoryFile(inventoryFile)
 
-		case types.Module:
+		case *types.Module:
 			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
 				return err
 			}
@@ -336,28 +368,29 @@ func (v *RemoteMode) writeInventory(destination string, play *types.Play) (strin
 
 	}
 
-	/*
-		$$ TODO: resotre this without a template:
-		o.Output("Generating temporary ansible inventory...")
-		t := template.Must(template.New("hosts").Parse(inventoryTemplateRemote))
-		var buf bytes.Buffer
-		err := t.Execute(&buf, inventoryMeta)
-		if err != nil {
-			return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
-		}
+	templateData := inventoryTemplateRemoteData{
+		Hosts:  ensureLocalhostInHosts(play.Hosts()),
+		Groups: play.Groups(),
+	}
 
-		u1 := uuid.Must(uuid.NewV4())
-		targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
+	v.o.Output("Generating temporary ansible inventory...")
+	t := template.Must(template.New("hosts").Parse(inventoryTemplateRemote))
+	var buf bytes.Buffer
+	err := t.Execute(&buf, templateData)
+	if err != nil {
+		return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+	}
 
-		o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
-		if err := comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
-			return "", err
-		}
+	u1 := uuid.Must(uuid.NewV4())
+	targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
 
-		o.Output("Ansible inventory written.")
-		return targetPath, nil
-	*/
-	return "", nil
+	v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
+	if err := v.comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+		return "", err
+	}
+
+	v.o.Output("Ansible inventory written.")
+	return targetPath, nil
 }
 
 func (v *RemoteMode) cleanupAfterBootstrap() {
@@ -424,4 +457,22 @@ func (v *RemoteMode) copyOutput(r io.Reader, doneCh chan<- struct{}) {
 	for line := range lr.Ch {
 		v.o.Output(line)
 	}
+}
+
+func ensureLocalhostInHosts(hosts []string) []string {
+	found := false
+	for _, host := range hosts {
+		if host == "localhost" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		newHosts := []string{"localhost"}
+		for _, host := range hosts {
+			newHosts = append(newHosts, host)
+		}
+		return newHosts
+	}
+	return hosts
 }

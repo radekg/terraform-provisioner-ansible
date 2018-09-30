@@ -160,9 +160,9 @@ func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 	emptySet := "*Set(map[string]interface {}(nil))"
 
 	if vals[playAttributePlaybook].(*schema.Set).GoString() != emptySet {
-		v.entity = *NewPlaybookFromInterface(vals[playAttributePlaybook])
+		v.entity = NewPlaybookFromInterface(vals[playAttributePlaybook])
 	} else if vals[playAttributeModule].(*schema.Set).GoString() != emptySet {
-		v.entity = *NewModuleFromInterface(vals[playAttributeModule])
+		v.entity = NewModuleFromInterface(vals[playAttributeModule])
 	}
 
 	if val, ok := vals[playAttributeHosts]; ok {
@@ -336,7 +336,7 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 	command := ""
 	// entity to call:
 	switch entity := v.Entity().(type) {
-	case Playbook:
+	case *Playbook:
 		command = fmt.Sprintf("%s=true", ansibleEnvVarForceColor)
 
 		// handling role directories:
@@ -365,7 +365,7 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 			command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(entity.Tags(), ","))
 		}
 
-	case Module:
+	case *Module:
 		hostPattern := entity.HostPattern()
 		if hostPattern == "" {
 			hostPattern = ansibleModuleDefaultHostPattern

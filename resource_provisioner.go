@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-// $$ TODO: localhost in hosts
-
 type provisioner struct {
 	defaults           *types.Defaults
 	plays              []*types.Play

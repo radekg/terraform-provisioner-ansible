@@ -601,34 +601,6 @@ func TestResourceProvisioner_Verify_fallbacks(t *testing.T) {
 	}
 }
 
-func TestResourceProvisioner_Verify_template_local_generates(t *testing.T) {
-	inplaceMeta := ansibleInventoryMeta{
-		Hosts:  []string{"host1", "host2"},
-		Groups: []string{"group1", "group2"},
-	}
-
-	tpl := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
-	var buf bytes.Buffer
-	err := tpl.Execute(&buf, inplaceMeta)
-	if err != nil {
-		t.Fatalf("Expected template to generate correctly but received: %v", err)
-	}
-}
-
-func TestResourceProvisioner_Verify_template_remote_generates(t *testing.T) {
-	inplaceMeta := ansibleInventoryMeta{
-		Hosts:  []string{"host1", "host2"},
-		Groups: []string{"group1", "group2"},
-	}
-
-	tpl := template.Must(template.New("hosts").Parse(inventoryTemplateRemote))
-	var buf bytes.Buffer
-	err := tpl.Execute(&buf, inplaceMeta)
-	if err != nil {
-		t.Fatalf("Expected template to generate correctly but received: %v", err)
-	}
-}
-
 func mapToJSON(m map[string]interface{}) string {
 	str, err := json.Marshal(m)
 	if err != nil {
