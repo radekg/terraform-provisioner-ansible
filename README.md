@@ -84,7 +84,7 @@ resource "aws_instance" "test_box" {
       forks = 5
       inventory_file = "/optional/inventory/file/path"
       limit = "limit"
-      vault_password_file = "/vault/password/file/path"
+      vault_id = ["/vault/password/file/path"]
       verbose = false
     }
     plays {
@@ -117,7 +117,7 @@ resource "aws_instance" "test_box" {
       forks = 5
       inventory_file = "/optional/inventory/file/path"
       limit = "limit"
-      vault_password_file = "/vault/password/file/path"
+      vault_id = ["/vault/password/file/path"]
     }
     ansible_ssh_settings {
       connect_timeout_seconds = 10
@@ -169,7 +169,8 @@ Each `plays` may contain at most one `playbook` or `module`. Define multiple `pl
 - `plays.forks`: `ansible[-playbook] --forks`, integer, default `5`
 - `plays.inventory_file`: full path to an inventory file, `ansible[-playbook] --inventory-file`, string, default `empty string`; if `inventory_file` attribute is not given or empty, a temporary inventory using `hosts` and `groups` will be generated; when specified, `hosts` and `groups` are not in use
 - `plays.limit`: `ansible[-playbook] --limit`, string, default `empty string` (not applied)
-- `plays.vault_password_file`: `ansible-playbook --vault-password-file`, full path to the vault password file; file file will be uploaded to the server, string, default `empty string` (not applied)
+- `plays.vault_id`: `ansible[-playbook] --vault-id`, list of full paths to vault password files; files will be uploaded to the server, string list, default `empty list` (not applied); takes precedence over `plays.vault_password_file`
+- `plays.vault_password_file`: `ansible[-playbook] --vault-password-file`, full path to the vault password file; file will be uploaded to the server, string, default `empty string` (not applied)
 - `plays.verbose`: `ansible[-playbook] --verbose`, boolean, default `false` (not applied)
 
 #### Defaults
@@ -184,6 +185,7 @@ Some of the `plays` settings might be common along multiple `plays`. Such settin
 - `defaults.forks`
 - `defaults.inventory_file`
 - `defaults.limit`
+- `defaults.vault_id`
 - `defaults.vault_password_file`
 
 None of the boolean attributes can be specified in `defaults`. Neither `playbook` nor `module` can be specified in `defaults`.
@@ -288,12 +290,19 @@ Remote provisioning works with a Linux target host only.
 
 ## Changes from 1.0.0
 
+### Breaking changes
+
 - change `plays.playbook` and `plays.module` to a resource
 - remove `yes/no` strings, boolean values are used instead
 - **local provisioning becomes the default**, remote provisioning enabled with `remote {}` resource
 - default values now provided using the `defaults` resource
 - added `ansible_ssh_settings {}` resource
 - `diff`, `become` and `verbose` can be set only on `plays`, no default override for boolean values
+
+### New features
+
+- added `--diff` support
+- added `--vault_id` support
 
 ## Creating releases
 

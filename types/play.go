@@ -12,23 +12,25 @@ import (
 
 // Play return a new Ansible item to play.
 type Play struct {
-	defaults                *Defaults
-	enabled                 bool
-	entity                  interface{}
-	hosts                   []string
-	groups                  []string
-	become                  bool
-	becomeMethod            string
-	becomeUser              string
-	diff                    bool
-	extraVars               map[string]interface{}
-	forks                   int
-	inventoryFile           string
-	limit                   string
-	vaultPasswordFile       string
-	verbose                 bool
-	overrideInventoryFile   string
-	remoteVaultPasswordFile string
+	defaults                  *Defaults
+	enabled                   bool
+	entity                    interface{}
+	hosts                     []string
+	groups                    []string
+	become                    bool
+	becomeMethod              string
+	becomeUser                string
+	diff                      bool
+	extraVars                 map[string]interface{}
+	forks                     int
+	inventoryFile             string
+	limit                     string
+	vaultID                   []string
+	vaultPasswordFile         string
+	verbose                   bool
+	overrideInventoryFile     string
+	overrideVaultID           []string
+	overrideVaultPasswordFile string
 }
 
 var (
@@ -58,6 +60,7 @@ const (
 	playAttributeForks             = "forks"
 	playAttributeInventoryFile     = "inventory_file"
 	playAttributeLimit             = "limit"
+	playAttributeVaultID           = "vault_id"
 	playAttributeVaultPasswordFile = "vault_password_file"
 	playAttributeVerbose           = "verbose"
 )
@@ -125,10 +128,17 @@ func NewPlaySchema() *schema.Schema {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				playAttributeVaultID: &schema.Schema{
+					Type:          schema.TypeList,
+					Elem:          &schema.Schema{Type: schema.TypeString},
+					Optional:      true,
+					ConflictsWith: []string{"plays.vault_password_file"},
+				},
 				playAttributeVaultPasswordFile: &schema.Schema{
-					Type:         schema.TypeString,
-					Optional:     true,
-					ValidateFunc: vfPath,
+					Type:          schema.TypeString,
+					Optional:      true,
+					ValidateFunc:  vfPath,
+					ConflictsWith: []string{"plays.vault_id"},
 				},
 				playAttributeVerbose: &schema.Schema{
 					Type:     schema.TypeBool,
@@ -153,6 +163,7 @@ func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 		forks:             vals[playAttributeForks].(int),
 		inventoryFile:     vals[playAttributeInventoryFile].(string),
 		limit:             vals[playAttributeLimit].(string),
+		vaultID:           listOfInterfaceToListOfString(vals[playAttributeVaultID].([]interface{})),
 		vaultPasswordFile: vals[playAttributeVaultPasswordFile].(string),
 		verbose:           vals[playAttributeVerbose].(bool),
 	}
@@ -289,8 +300,8 @@ func (v *Play) Limit() string {
 
 // VaultPasswordFile represents Ansible --vault-password-file flag.
 func (v *Play) VaultPasswordFile() string {
-	if v.remoteVaultPasswordFile != "" {
-		return v.remoteVaultPasswordFile
+	if v.overrideVaultPasswordFile != "" {
+		return v.overrideVaultPasswordFile
 	}
 	if v.vaultPasswordFile != "" {
 		return v.vaultPasswordFile
@@ -299,6 +310,20 @@ func (v *Play) VaultPasswordFile() string {
 		return v.defaults.vaultPasswordFile
 	}
 	return ""
+}
+
+// VaultID represents Ansible --vault-id flag.
+func (v *Play) VaultID() []string {
+	if len(v.overrideVaultID) > 0 {
+		return v.overrideVaultID
+	}
+	if len(v.vaultID) > 0 {
+		return v.vaultID
+	}
+	if v.defaults.vaultIDIsSet {
+		return v.defaults.vaultID
+	}
+	return make([]string, 0)
 }
 
 // Verbose represents Ansible --verbose flag.
@@ -313,11 +338,18 @@ func (v *Play) SetOverrideInventoryFile(path string) {
 	v.overrideInventoryFile = path
 }
 
-// SetRemoteVaultPasswordPath is used by remote provisioner when a vault password file is defined.
+// SetOverrideVaultID is used by remote provisioner when vault id files are defined.
+// After uploading the files to the machine, the paths are updated to the remote paths, such that Ansible
+// can be given correct remote locations.
+func (v *Play) SetOverrideVaultID(paths []string) {
+	v.overrideVaultID = paths
+}
+
+// SetOverrideVaultPasswordPath is used by remote provisioner when a vault password file is defined.
 // After uploading the file to the machine, the path is updated to the remote path, such that Ansible
 // can be given the correct remote location.
-func (v *Play) SetRemoteVaultPasswordPath(path string) {
-	v.remoteVaultPasswordFile = path
+func (v *Play) SetOverrideVaultPasswordPath(path string) {
+	v.overrideVaultPasswordFile = path
 }
 
 func (v *Play) defaultRolePaths() []string {
@@ -427,10 +459,18 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 	if v.Limit() != "" {
 		command = fmt.Sprintf("%s --limit='%s'", command, v.Limit())
 	}
-	// vault password file:
-	if v.VaultPasswordFile() != "" {
-		command = fmt.Sprintf("%s --vault-password-file='%s'", command, v.VaultPasswordFile())
+
+	if len(v.VaultID()) > 0 {
+		for _, vaultID := range v.VaultID() {
+			command = fmt.Sprintf("%s --vault-id='%s'", command, filepath.Clean(vaultID))
+		}
+	} else {
+		// vault password file:
+		if v.VaultPasswordFile() != "" {
+			command = fmt.Sprintf("%s --vault-password-file='%s'", command, v.VaultPasswordFile())
+		}
 	}
+
 	// verbose:
 	if v.Verbose() {
 		command = fmt.Sprintf("%s --verbose", command)

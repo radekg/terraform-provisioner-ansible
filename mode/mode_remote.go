@@ -236,19 +236,33 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 
 			entity.SetOverrideFilePath(remotePlaybookPath)
 
-			// always upload vault password file:
-			uploadedVaultPasswordFilePath, err := v.uploadVaultPasswordFile(remotePlaybookDir, play)
-			if err != nil {
-				return err
-			}
-			play.SetRemoteVaultPasswordPath(uploadedVaultPasswordFilePath)
-
 			// always create temp inventory:
 			inventoryFile, err := v.writeInventory(remotePlaybookDir, play)
 			if err != nil {
 				return err
 			}
 			play.SetOverrideInventoryFile(inventoryFile)
+
+			// always handle Vault ID or password file
+			if len(play.VaultID()) > 0 {
+				overrideVaultIDs := make([]string, 0)
+				for _, vaultID := range play.VaultID() {
+					uploadedVaultIDPath, err := v.uploadVaultPasswordOrIDFile(remotePlaybookDir, vaultID)
+					if err != nil {
+						return err
+					}
+					if uploadedVaultIDPath != "" {
+						overrideVaultIDs = append(overrideVaultIDs, uploadedVaultIDPath)
+					}
+				}
+				play.SetOverrideVaultID(overrideVaultIDs)
+			} else {
+				uploadedVaultPasswordFilePath, err := v.uploadVaultPasswordOrIDFile(remotePlaybookDir, play.VaultPasswordFile())
+				if err != nil {
+					return err
+				}
+				play.SetOverrideVaultPasswordPath(uploadedVaultPasswordFilePath)
+			}
 
 			// upload roles paths, if any:
 			remoteRolesPath := make([]string, 0)
@@ -278,19 +292,37 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 			entity.SetOverrideRolesPath(remoteRolesPath)
 
 		case *types.Module:
-			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
+
+			moduleDirHash := v.getMD5Hash(entity.Module())
+			remoteModuleDir := filepath.Join(bootstrapDirectory, moduleDirHash)
+
+			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", remoteModuleDir)); err != nil {
 				return err
 			}
 
-			// always upload vault password file:
-			uploadedVaultPasswordFilePath, err := v.uploadVaultPasswordFile(bootstrapDirectory, play)
-			if err != nil {
-				return err
+			// always handle Vault ID or password file
+			if len(play.VaultID()) > 0 {
+				overrideVaultIDs := make([]string, 0)
+				for _, vaultID := range play.VaultID() {
+					uploadedVaultIDPath, err := v.uploadVaultPasswordOrIDFile(remoteModuleDir, vaultID)
+					if err != nil {
+						return err
+					}
+					if uploadedVaultIDPath != "" {
+						overrideVaultIDs = append(overrideVaultIDs, uploadedVaultIDPath)
+					}
+				}
+				play.SetOverrideVaultID(overrideVaultIDs)
+			} else {
+				uploadedVaultPasswordFilePath, err := v.uploadVaultPasswordOrIDFile(remoteModuleDir, play.VaultPasswordFile())
+				if err != nil {
+					return err
+				}
+				play.SetOverrideVaultPasswordPath(uploadedVaultPasswordFilePath)
 			}
-			play.SetRemoteVaultPasswordPath(uploadedVaultPasswordFilePath)
 
 			// always create temp inventory:
-			inventoryFile, err := v.writeInventory(bootstrapDirectory, play)
+			inventoryFile, err := v.writeInventory(remoteModuleDir, play)
 			if err != nil {
 				return err
 			}
@@ -334,21 +366,21 @@ func (v *RemoteMode) installAnsible(remoteSettings *types.RemoteSettings) error 
 	return nil
 }
 
-func (v *RemoteMode) uploadVaultPasswordFile(destination string, play *types.Play) (string, error) {
+func (v *RemoteMode) uploadVaultPasswordOrIDFile(destination string, source string) (string, error) {
 
-	if play.VaultPasswordFile() == "" {
+	if source == "" {
 		return "", nil
 	}
 
-	source, err := types.ResolvePath(play.VaultPasswordFile())
+	source, err := types.ResolvePath(source)
 	if err != nil {
 		return "", err
 	}
 
 	u1 := uuid.Must(uuid.NewV4())
-	targetPath := filepath.Join(destination, fmt.Sprintf(".vault-password-file-%s", u1))
+	targetPath := filepath.Join(destination, fmt.Sprintf(".vault-file-%s", u1))
 
-	v.o.Output(fmt.Sprintf("Uploading ansible vault password file to '%s'...", targetPath))
+	v.o.Output(fmt.Sprintf("Uploading ansible vault password file / ID to '%s'...", targetPath))
 
 	file, err := os.Open(source)
 	if err != nil {

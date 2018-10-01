@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -97,7 +98,7 @@ func listOfInterfaceToListOfString(v interface{}) []string {
 func ResolvePath(path string) (string, error) {
 	expandedPath, _ := homedir.Expand(path)
 	if _, err := os.Stat(expandedPath); err == nil {
-		return expandedPath, nil
+		return filepath.Clean(expandedPath), nil
 	}
 	return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
 }
@@ -109,7 +110,7 @@ func ResolveDirectory(path string) (string, error) {
 		if !stat.IsDir() {
 			return "", fmt.Errorf("Path [%s] must be a directory", path)
 		}
-		return expandedPath, nil
+		return filepath.Clean(expandedPath), nil
 	}
 	return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
 }

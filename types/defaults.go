@@ -14,6 +14,7 @@ type Defaults struct {
 	forks             int
 	inventoryFile     string
 	limit             string
+	vaultID           []string
 	vaultPasswordFile string
 	//
 	hostsIsSet             bool
@@ -24,6 +25,7 @@ type Defaults struct {
 	forksIsSet             bool
 	inventoryFileIsSet     bool
 	limitIsSet             bool
+	vaultIDIsSet           bool
 	vaultPasswordFileIsSet bool
 }
 
@@ -37,6 +39,7 @@ const (
 	defaultsAttributeForks             = "forks"
 	defaultsAttributeInventoryFile     = "inventory_file"
 	defaultsAttributeLimit             = "limit"
+	defaultsAttributeVaultID           = "vault_id"
 	defaultsAttributeVaultPasswordFile = "vault_password_file"
 )
 
@@ -84,10 +87,17 @@ func NewDefaultsSchema() *schema.Schema {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				defaultsAttributeVaultID: &schema.Schema{
+					Type:          schema.TypeList,
+					Elem:          &schema.Schema{Type: schema.TypeString},
+					Optional:      true,
+					ConflictsWith: []string{"defaults.vault_password_file"},
+				},
 				defaultsAttributeVaultPasswordFile: &schema.Schema{
-					Type:         schema.TypeString,
-					Optional:     true,
-					ValidateFunc: vfPath,
+					Type:          schema.TypeString,
+					Optional:      true,
+					ValidateFunc:  vfPath,
+					ConflictsWith: []string{"defaults.vault_id"},
 				},
 			},
 		},
@@ -130,6 +140,10 @@ func NewDefaultsFromInterface(i interface{}, ok bool) *Defaults {
 		if val, ok := vals[defaultsAttributeLimit]; ok {
 			v.limit = val.(string)
 			v.limitIsSet = v.limit != ""
+		}
+		if val, ok := vals[defaultsAttributeVaultID]; ok {
+			v.vaultID = listOfInterfaceToListOfString(val.([]interface{}))
+			v.vaultIDIsSet = len(v.vaultID) > 0
 		}
 		if val, ok := vals[defaultsAttributeVaultPasswordFile]; ok {
 			v.vaultPasswordFile = val.(string)
