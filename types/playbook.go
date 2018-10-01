@@ -23,7 +23,8 @@ type Playbook struct {
 	rolesPath     []string
 
 	// when running a remote provisioner, the path will changed to the remote path:
-	runnableFilePath string
+	overrideFilePath  string
+	overrideRolesPath []string
 }
 
 // NewPlaybookSchema returns a new Ansible playbook schema.
@@ -84,10 +85,10 @@ func NewPlaybookFromInterface(i interface{}) *Playbook {
 
 // FilePath represents a path to the Ansible playbook to be executed.
 func (v *Playbook) FilePath() string {
-	if v.runnableFilePath == "" {
+	if v.overrideFilePath == "" {
 		return v.filePath
 	}
-	return v.runnableFilePath
+	return v.overrideFilePath
 }
 
 // ForceHandlers represents Ansible Playbook --force-handlers flag.
@@ -113,11 +114,20 @@ func (v *Playbook) Tags() []string {
 // RolesPath appends role directories to ANSIBLE_ROLES_PATH environment variable,
 // as documented in https://docs.ansible.com/ansible/2.5/reference_appendices/config.html#envvar-ANSIBLE_ROLES_PATH
 func (v *Playbook) RolesPath() []string {
-	return v.rolesPath
+	if len(v.overrideRolesPath) == 0 {
+		return v.rolesPath
+	}
+	return v.overrideRolesPath
 }
 
-// SetRunnableFilePath is used by the remote provisioner to reference the correct
+// SetOverrideFilePath is used by the remote provisioner to reference the correct
 // playbook location after the upload to the provisioned machine.
-func (v *Playbook) SetRunnableFilePath(path string) {
-	v.runnableFilePath = path
+func (v *Playbook) SetOverrideFilePath(path string) {
+	v.overrideFilePath = path
+}
+
+// SetOverrideRolesPath is used by the remote provisioner to reference the correct
+// role locations after the upload to the provisioned machine.
+func (v *Playbook) SetOverrideRolesPath(path []string) {
+	v.overrideRolesPath = path
 }

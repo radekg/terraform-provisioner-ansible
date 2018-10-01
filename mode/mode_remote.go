@@ -137,17 +137,17 @@ func (v *RemoteMode) Run(plays []*types.Play) error {
 	}
 	defer v.comm.Disconnect()
 
-	if !v.remoteSettings.SkipInstall() {
-		if err := v.installAnsible(v.remoteSettings); err != nil {
-			return err
-		}
-	}
-
 	err = v.deployAnsibleData(plays)
 
 	if err != nil {
 		v.o.Output(fmt.Sprintf("%+v", err))
 		return err
+	}
+
+	if !v.remoteSettings.SkipInstall() {
+		if err := v.installAnsible(v.remoteSettings); err != nil {
+			return err
+		}
 	}
 
 	for _, play := range plays {
@@ -202,6 +202,7 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 
 		switch entity := play.Entity().(type) {
 		case *types.Playbook:
+
 			playbookPath, err := types.ResolvePath(entity.FilePath())
 			if err != nil {
 				return err
@@ -219,14 +220,12 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 				return err
 			}
 
-			errCmdCheck := v.runCommandNoSudo(fmt.Sprintf("/bin/bash -c 'if [ -d \"%s\" ]; then exit 50; fi'", remotePlaybookDir))
+			dirExists, err := v.checkRemoteDirExists(remotePlaybookDir)
 			if err != nil {
-				errCmdCheckDetail := strings.Split(fmt.Sprintf("%v", errCmdCheck), ": ")
-				if errCmdCheckDetail[len(errCmdCheckDetail)-1] == "50" {
-					v.o.Output(fmt.Sprintf("The playbook '%s' directory '%s' has been already uploaded.", entity.FilePath(), playbookDir))
-				} else {
-					return err
-				}
+				return err
+			}
+			if dirExists {
+				v.o.Output(fmt.Sprintf("The playbook '%s' directory '%s' has been already uploaded.", entity.FilePath(), playbookDir))
 			} else {
 				v.o.Output(fmt.Sprintf("Uploading the parent directory '%s' of playbook '%s' to '%s'...", playbookDir, entity.FilePath(), remotePlaybookDir))
 				// upload ansible source and playbook to the host
@@ -235,7 +234,7 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 				}
 			}
 
-			entity.SetRunnableFilePath(remotePlaybookPath)
+			entity.SetOverrideFilePath(remotePlaybookPath)
 
 			// always upload vault password file:
 			uploadedVaultPasswordFilePath, err := v.uploadVaultPasswordFile(remotePlaybookDir, play)
@@ -250,6 +249,33 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 				return err
 			}
 			play.SetOverrideInventoryFile(inventoryFile)
+
+			// upload roles paths, if any:
+			remoteRolesPath := make([]string, 0)
+			for _, path := range entity.RolesPath() {
+				resolvedPath, err := types.ResolvePath(path)
+				if err != nil {
+					return err
+				}
+				dirHash := v.getMD5Hash(resolvedPath)
+				remoteDir := filepath.Join(bootstrapDirectory, dirHash)
+				dirExists, err := v.checkRemoteDirExists(remoteDir)
+
+				if err != nil {
+					return err
+				}
+				if dirExists {
+					v.o.Output(fmt.Sprintf("Roles path '%s' has been already uploaded.", resolvedPath))
+				} else {
+					v.o.Output(fmt.Sprintf("Uploading roles path '%s' to '%s'...", resolvedPath, remoteDir))
+					// upload ansible source and playbook to the host
+					if err := v.comm.UploadDir(remoteDir, resolvedPath); err != nil {
+						return err
+					}
+				}
+				remoteRolesPath = append(remoteRolesPath, remoteDir)
+			}
+			entity.SetOverrideRolesPath(remoteRolesPath)
 
 		case *types.Module:
 			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
@@ -397,6 +423,18 @@ func (v *RemoteMode) cleanupAfterBootstrap() {
 	v.o.Output("Cleaning up after bootstrap...")
 	v.runCommandNoSudo(fmt.Sprintf("rm -rf \"%s\"", bootstrapDirectory))
 	v.o.Output("Cleanup complete.")
+}
+
+func (v *RemoteMode) checkRemoteDirExists(remoteDir string) (bool, error) {
+	command := "/bin/bash -c 'if [ -d \"%s\" ]; then exit 50; fi'"
+	if err := v.runCommandNoSudo(fmt.Sprintf(command, remoteDir)); err != nil {
+		errDetail := strings.Split(fmt.Sprintf("%v", err), ": ")
+		if errDetail[len(errDetail)-1] == "50" {
+			return true, nil
+		}
+		return false, err
+	}
+	return false, nil
 }
 
 func (v *RemoteMode) runCommandSudo(command string) error {
