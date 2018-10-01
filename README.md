@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/radekg/terraform-provisioner-ansible.svg?branch=master)](https://travis-ci.org/radekg/terraform-provisioner-ansible)
 
-Ansible with Terraform - `remote` and `local` modes.
+Ansible with Terraform - `remote` and `local` provisioners.
 
 ## General overview
 
@@ -12,12 +12,12 @@ This provisioner, however, is not designed to handle all possible responsibiliti
 
 ### What's possible
 
-- `local mode`
+- `local provisioner`
   - runs Ansible installed on the same machine where Terraform is executed
   - the provisioner will create a temporary inventory and execute Ansible only against the hosts created with Terraform `resource`
   - Ansible Vault password file can be used
   - the temporary inventory uses `ansible_connection=ssh`, the `ansible_host` is resolved from the `resource.connection` resource, it is possible to specify an `alias` using `hosts`
-- `remote mode`
+- `remote provisioner`
   - runs Ansible on the hosts created with Terraform `resource`
   - if Ansible is not installed on the newly created hosts, the provisioner can install one
   - the provisioner will create a temporary inventory and execute Ansible only against the hosts created with Terraform `resource`
@@ -39,7 +39,8 @@ If you find yourself in need of executing Ansible against well specified, comple
 
 Alternatively, you can download and deploy an existing release using the following script:
 
-    curl -sL https://raw.githubusercontent.com/radekg/terraform-provisioner-ansible/master/bin/deploy-release.sh \
+    curl -sL \
+      https://raw.githubusercontent.com/radekg/terraform-provisioner-ansible/master/bin/deploy-release.sh \
       --output /tmp/deploy-release.sh
     chmod +x /tmp/deploy-release.sh
     /tmp/deploy-release.sh -v <version number>
@@ -69,9 +70,9 @@ resource "aws_instance" "test_box" {
       enabled = true
       hosts = ["zookeeper"]
       groups = ["consensus"]
-      become = true
+      become = false
       become_method = "sudo"
-      become_user = "${aws_instance.test_box.connection.user}" # default behaviour
+      become_user = "root"
       diff = false
       extra_vars = {
         extra = {
@@ -105,7 +106,7 @@ resource "aws_instance" "test_box" {
       hosts = ["eu-central-1"]
       groups = ["platform"]
       become_method = "sudo"
-      become_user = "${aws_instance.test_box.connection.user}" # default behaviour
+      become_user = "root"
       extra_vars = {
         extra = {
           variables = {
@@ -160,16 +161,16 @@ Each `plays` may contain at most one `playbook` or `module`. Define multiple `pl
 - `plays.hosts`: list of hosts to include in auto-generated inventory file when `inventory_file` not given, `string list`, default `empty list`; more details below
 - `plays.groups`: list of groups to include in auto-generated inventory file when `inventory_file` not given, `string list`, default `empty list`; more details below
 - `plays.enabled`: boolean, default `true`; set to `false` to skip execution
-- `plays.become`: `ansible-playbook --become`, boolean, default `false` (not applied)
-- `plays.become_method`: `ansible-playbook --become-method`, string, default `sudo`, only takes effect when `become = true`
-- `plays.become_user`: `ansible-playbook --become-user`, string, default `root`, only takes effect when `become = true`
-- `plays.diff`: `ansible-playbook --diff`, boolean, default `false` (not applied)
-- `plays.extra_vars`: `ansible-playbook --extra-vars`, map, default `empty map` (not applied); will be serialized to a json string
-- `plays.forks`: `ansible-playbook --forks`, integer, default `5`
-- `plays.inventory_file`: full path to an inventory file, `ansible-playbook --inventory-file`, string, default `empty string`; if `inventory_file` attribute is not given or empty, a temporary inventory using `hosts` and `groups` will be generated; when specified, `hosts` and `groups` are not in use
-- `plays.limit`: `ansible-playbook --limit`, string, default `empty string` (not applied)
+- `plays.become`: `ansible[-playbook] --become`, boolean, default `false` (not applied)
+- `plays.become_method`: `ansible[-playbook] --become-method`, string, default `sudo`, only takes effect when `become = true`
+- `plays.become_user`: `ansible[-playbook] --become-user`, string, default `root`, only takes effect when `become = true`
+- `plays.diff`: `ansible[-playbook] --diff`, boolean, default `false` (not applied)
+- `plays.extra_vars`: `ansible[-playbook] --extra-vars`, map, default `empty map` (not applied); will be serialized to a json string
+- `plays.forks`: `ansible[-playbook] --forks`, integer, default `5`
+- `plays.inventory_file`: full path to an inventory file, `ansible[-playbook] --inventory-file`, string, default `empty string`; if `inventory_file` attribute is not given or empty, a temporary inventory using `hosts` and `groups` will be generated; when specified, `hosts` and `groups` are not in use
+- `plays.limit`: `ansible[-playbook] --limit`, string, default `empty string` (not applied)
 - `plays.vault_password_file`: `ansible-playbook --vault-password-file`, full path to the vault password file; file file will be uploaded to the server, string, default `empty string` (not applied)
-- `plays.verbose`: `ansible-playbook --verbose`, boolean, default `false` (not applied)
+- `plays.verbose`: `ansible[-playbook] --verbose`, boolean, default `false` (not applied)
 
 #### Defaults
 
@@ -192,17 +193,17 @@ None of the boolean attributes can be specified in `defaults`. Neither `playbook
 Only used when `local provisioner` is used.
 
 - `ansible_ssh_settings.connect_timeout_seconds`: SSH `ConnectTimeout`, default `10` seconds
-- `ansible_ssh_settings.connect_timeout_seconds`: SSH `ConnectionAttempts`, default `10`
+- `ansible_ssh_settings.connection_attempts`: SSH `ConnectionAttempts`, default `10`
 - `ansible_ssh_settings.ssh_keyscan_timeout`: when `ssh-keyscan` is used, how long to try fetching the host key until failing, default `60` seconds
 
 #### Remote
 
 The existence of this attribute enables `remote provisioning`. To use the defaults with remote provisioner, simply add `remote {}` to your provisioner.
 
-- `use_sudo`: should `sudo` be used for bootstrap commands, boolean, default `true`, `become` does not make much sense; this attribute has no relevance to Ansible `--sudo` flag
-- `skip_install`: if set to `true`, Ansible installation on the server will be skipped, assume Ansible is already installed, boolean, default `false`
-- `skip_cleanup`: if set to `true`, Ansible bootstrap data will be left on the server after bootstrap, boolean, default `false`
-- `install_version`: Ansible version to install when `skip_install = false`, string, default `empty string` (latest version available in respective repositories)
+- `remote.use_sudo`: should `sudo` be used for bootstrap commands, boolean, default `true`, `become` does not make much sense; this attribute has no relevance to Ansible `--sudo` flag
+- `remote.skip_install`: if set to `true`, Ansible installation on the server will be skipped, assume Ansible is already installed, boolean, default `false`
+- `remote.skip_cleanup`: if set to `true`, Ansible bootstrap data will be left on the server after bootstrap, boolean, default `false`
+- `remote.install_version`: Ansible version to install when `skip_install = false`, string, default `empty string` (latest version available in respective repositories)
 
 ## Usage
 
@@ -288,7 +289,7 @@ Remote provisioning works with a Linux target host only.
 ## Changes from 1.0.0
 
 - change `plays.playbook` and `plays.module` to a resource
-- remove `yes/no`, boolean values are used instead
+- remove `yes/no` strings, boolean values are used instead
 - **local provisioning becomes the default**, remote provisioning enabled with `remote {}` resource
 - default values now provided using the `defaults` resource
 - added `ansible_ssh_settings {}` resource
