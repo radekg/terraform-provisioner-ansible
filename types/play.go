@@ -37,8 +37,8 @@ var (
 
 const (
 	// default values:
-	playDefaultBecome       = true
 	playDefaultBecomeMethod = "sudo"
+	playDefaultBecomeUser   = "root"
 	playDefaultForks        = 5
 	// environment variable names:
 	ansibleEnvVarForceColor       = "ANSIBLE_FORCE_COLOR"
@@ -90,7 +90,6 @@ func NewPlaySchema() *schema.Schema {
 				playAttributeBecome: &schema.Schema{
 					Type:     schema.TypeBool,
 					Optional: true,
-					Default:  playDefaultBecome,
 				},
 				playAttributeBecomeMethod: &schema.Schema{
 					Type:         schema.TypeString,
@@ -101,6 +100,7 @@ func NewPlaySchema() *schema.Schema {
 				playAttributeBecomeUser: &schema.Schema{
 					Type:     schema.TypeString,
 					Optional: true,
+					Default:  playDefaultBecomeUser,
 				},
 				playAttributeDiff: &schema.Schema{
 					Type:     schema.TypeBool,
