@@ -336,25 +336,47 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 
 func (v *RemoteMode) installAnsible(remoteSettings *types.RemoteSettings) error {
 
-	installer := &ansibleInstaller{
-		AnsibleVersion: "ansible",
-	}
-	if remoteSettings.InstallVersion() != "" {
-		installer.AnsibleVersion = fmt.Sprintf("%s==%s", installer.AnsibleVersion, remoteSettings.InstallVersion())
+	var installerScript *bufio.Reader
+	if remoteSettings.LocalInstallerPath() != "" {
+
+		cleanInstallerPath := filepath.Clean(remoteSettings.LocalInstallerPath())
+		file, err := os.Open(cleanInstallerPath)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		v.o.Output(fmt.Sprintf("Installing Ansible using provided installer '%s'...", cleanInstallerPath))
+
+		installerScript = bufio.NewReader(file)
+
+	} else {
+
+		embeddedInstaller := &ansibleInstaller{
+			AnsibleVersion: "ansible",
+		}
+
+		if remoteSettings.InstallVersion() != "" {
+			embeddedInstaller.AnsibleVersion = fmt.Sprintf("%s==%s",
+				embeddedInstaller.AnsibleVersion,
+				remoteSettings.InstallVersion())
+		}
+
+		v.o.Output(fmt.Sprintf("Installing Ansible '%s' using default installer...", embeddedInstaller.AnsibleVersion))
+
+		t := template.Must(template.New("installer").Parse(installerProgramTemplate))
+		var buf bytes.Buffer
+		err := t.Execute(&buf, embeddedInstaller)
+		if err != nil {
+			return fmt.Errorf("Error executing 'installer' template: %s", err)
+		}
+		installerScript = bufio.NewReader(bytes.NewReader(buf.Bytes()))
 	}
 
-	v.o.Output(fmt.Sprintf("Installing '%s'...", installer.AnsibleVersion))
-
-	t := template.Must(template.New("installer").Parse(installerProgramTemplate))
-	var buf bytes.Buffer
-	err := t.Execute(&buf, installer)
-	if err != nil {
-		return fmt.Errorf("Error executing 'installer' template: %s", err)
-	}
 	targetPath := "/tmp/ansible-install.sh"
 
-	v.o.Output(fmt.Sprintf("Uploading ansible installer program to %s...", targetPath))
-	if err := v.comm.UploadScript(targetPath, bytes.NewReader(buf.Bytes())); err != nil {
+	v.o.Output(fmt.Sprintf("Uploading Ansible installer program to '%s'...", targetPath))
+	if err := v.comm.UploadScript(targetPath, installerScript); err != nil {
 		return err
 	}
 
