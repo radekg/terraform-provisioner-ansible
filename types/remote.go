@@ -2,30 +2,37 @@ package types
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
 // RemoteSettings represents remote settings.
 type RemoteSettings struct {
-	isRemoteInUse      bool
-	useSudo            bool
-	skipInstall        bool
-	skipCleanup        bool
-	installVersion     string
-	localInstallerPath string
+	isRemoteInUse            bool
+	useSudo                  bool
+	skipInstall              bool
+	skipCleanup              bool
+	installVersion           string
+	localInstallerPath       string
+	remoteInstallerDirectory string
+	bootstrapDirectory       string
 }
 
 const (
 	// default values:
-	remoteDefaultUseSudo        = true
-	remoteDefaultInstallVersion = "" // latest
+	remoteDefaultUseSudo                  = true
+	remoteDefaultInstallVersion           = "" // latest
+	remoteDefaultRemoteInstallerDirectory = "/tmp"
+	remoteDefaultBootstrapDirectory       = "/tmp"
 	// attribute names:
-	remoteAttributeUseSudo            = "use_sudo"
-	remoteAttributeSkipInstall        = "skip_install"
-	remoteAttributeSkipCleanup        = "skip_cleanup"
-	remoteAttributeInstallVersion     = "install_version"
-	remoteAttributeLocalInstallerPath = "local_installer_path"
+	remoteAttributeUseSudo                  = "use_sudo"
+	remoteAttributeSkipInstall              = "skip_install"
+	remoteAttributeSkipCleanup              = "skip_cleanup"
+	remoteAttributeInstallVersion           = "install_version"
+	remoteAttributeLocalInstallerPath       = "local_installer_path"
+	remoteAttributeRemoteInstallerDirectory = "remote_installer_directory"
+	remoteAttributeBootstrapDirectory       = "bootstrap_directory"
 )
 
 // NewRemoteSchema returns a new remote schema.
@@ -60,6 +67,16 @@ func NewRemoteSchema() *schema.Schema {
 					ValidateFunc:  vfPath,
 					ConflictsWith: []string{fmt.Sprintf("remote.%s", remoteAttributeInstallVersion)},
 				},
+				remoteAttributeRemoteInstallerDirectory: &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
+					Default:  remoteDefaultRemoteInstallerDirectory,
+				},
+				remoteAttributeBootstrapDirectory: &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
+					Default:  remoteDefaultBootstrapDirectory,
+				},
 			},
 		},
 	}
@@ -79,6 +96,8 @@ func NewRemoteSettingsFromInterface(i interface{}, ok bool) *RemoteSettings {
 		v.skipCleanup = vals[remoteAttributeSkipCleanup].(bool)
 		v.installVersion = vals[remoteAttributeInstallVersion].(string)
 		v.localInstallerPath = vals[remoteAttributeLocalInstallerPath].(string)
+		v.remoteInstallerDirectory = vals[remoteAttributeRemoteInstallerDirectory].(string)
+		v.bootstrapDirectory = vals[remoteAttributeBootstrapDirectory].(string)
 	}
 	return v
 }
@@ -111,4 +130,15 @@ func (v *RemoteSettings) InstallVersion() string {
 // LocalInstallerPath returns a path to the custom Ansible installer.
 func (v *RemoteSettings) LocalInstallerPath() string {
 	return v.localInstallerPath
+}
+
+// RemoteInstallerPath returns a path to the where the Ansible installer script in uploaded to and executed from.
+// This is essentially remote_installer_directory with /ansible-installer appended.
+func (v *RemoteSettings) RemoteInstallerPath() string {
+	return filepath.Join(v.remoteInstallerDirectory, "tf-ansible-installer")
+}
+
+// BootstrapDirectory returns a path to where the playbooks, roles, inventory fiels, vault password / ID files and such are uploded to.
+func (v *RemoteSettings) BootstrapDirectory() string {
+	return filepath.Join(v.bootstrapDirectory, "tf-ansible-bootstrap")
 }
