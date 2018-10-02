@@ -50,7 +50,7 @@ Alternatively, you can download and deploy an existing release using the followi
 
 Example:
 
-```
+```tf
 resource "aws_instance" "test_box" {
   # ...
   connection {
@@ -129,6 +129,7 @@ resource "aws_instance" "test_box" {
       skip_install = false
       skip_cleanup = false
       install_version = ""
+      local_installer_path = ""
     }
   }
 }
@@ -206,6 +207,7 @@ The existence of this attribute enables `remote provisioning`. To use the defaul
 - `remote.skip_install`: if set to `true`, Ansible installation on the server will be skipped, assume Ansible is already installed, boolean, default `false`
 - `remote.skip_cleanup`: if set to `true`, Ansible bootstrap data will be left on the server after bootstrap, boolean, default `false`
 - `remote.install_version`: Ansible version to install when `skip_install = false`, string, default `empty string` (latest version available in respective repositories)
+- `remote.local_installer_path`: full path to the custom Ansible installer on the local machine, used when `skip_install = false`, string, default `empty string`; when empty and `skip_install = false`, the default installer is used
 
 ## Usage
 
@@ -292,17 +294,18 @@ Remote provisioning works with a Linux target host only.
 
 ### Breaking changes
 
+- **local provisioning becomes the default**, remote provisioning enabled with `remote {}` resource
 - change `plays.playbook` and `plays.module` to a resource
 - remove `yes/no` strings, boolean values are used instead
-- **local provisioning becomes the default**, remote provisioning enabled with `remote {}` resource
 - default values now provided using the `defaults` resource
-- added `ansible_ssh_settings {}` resource
 - `diff`, `become` and `verbose` can be set only on `plays`, no default override for boolean values
 
 ### New features
 
 - added `--diff` support
 - added `--vault_id` support
+- added `ansible_ssh_settings {}` resource instead of magic environment variables
+- it's now possible to use a custom Ansible installer: https://github.com/radekg/terraform-provisioner-ansible/issues/76
 
 ## Creating releases
 

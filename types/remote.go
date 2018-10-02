@@ -1,16 +1,19 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
 // RemoteSettings represents remote settings.
 type RemoteSettings struct {
-	isRemoteInUse  bool
-	useSudo        bool
-	skipInstall    bool
-	skipCleanup    bool
-	installVersion string
+	isRemoteInUse      bool
+	useSudo            bool
+	skipInstall        bool
+	skipCleanup        bool
+	installVersion     string
+	localInstallerPath string
 }
 
 const (
@@ -18,10 +21,11 @@ const (
 	remoteDefaultUseSudo        = true
 	remoteDefaultInstallVersion = "" // latest
 	// attribute names:
-	remoteAttributeUseSudo        = "use_sudo"
-	remoteAttributeSkipInstall    = "skip_install"
-	remoteAttributeSkipCleanup    = "skip_cleanup"
-	remoteAttributeInstallVersion = "install_version"
+	remoteAttributeUseSudo            = "use_sudo"
+	remoteAttributeSkipInstall        = "skip_install"
+	remoteAttributeSkipCleanup        = "skip_cleanup"
+	remoteAttributeInstallVersion     = "install_version"
+	remoteAttributeLocalInstallerPath = "local_installer_path"
 )
 
 // NewRemoteSchema returns a new remote schema.
@@ -45,9 +49,16 @@ func NewRemoteSchema() *schema.Schema {
 					Optional: true,
 				},
 				remoteAttributeInstallVersion: &schema.Schema{
-					Type:     schema.TypeString,
-					Optional: true,
-					Default:  remoteDefaultInstallVersion,
+					Type:          schema.TypeString,
+					Optional:      true,
+					Default:       remoteDefaultInstallVersion,
+					ConflictsWith: []string{fmt.Sprintf("remote.%s", remoteAttributeLocalInstallerPath)},
+				},
+				remoteAttributeLocalInstallerPath: &schema.Schema{
+					Type:          schema.TypeString,
+					Optional:      true,
+					ValidateFunc:  vfPath,
+					ConflictsWith: []string{fmt.Sprintf("remote.%s", remoteAttributeInstallVersion)},
 				},
 			},
 		},
@@ -67,6 +78,7 @@ func NewRemoteSettingsFromInterface(i interface{}, ok bool) *RemoteSettings {
 		v.skipInstall = vals[remoteAttributeSkipInstall].(bool)
 		v.skipCleanup = vals[remoteAttributeSkipCleanup].(bool)
 		v.installVersion = vals[remoteAttributeInstallVersion].(string)
+		v.localInstallerPath = vals[remoteAttributeLocalInstallerPath].(string)
 	}
 	return v
 }
@@ -94,4 +106,9 @@ func (v *RemoteSettings) SkipCleanup() bool {
 // InstallVersion returns Ansible version to install, empty string means latest.
 func (v *RemoteSettings) InstallVersion() string {
 	return v.installVersion
+}
+
+// LocalInstallerPath returns a path to the custom Ansible installer.
+func (v *RemoteSettings) LocalInstallerPath() string {
+	return v.localInstallerPath
 }
