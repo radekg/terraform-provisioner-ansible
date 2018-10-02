@@ -95,10 +95,6 @@ type ansibleInstaller struct {
 	AnsibleVersion string
 }
 
-const (
-	bootstrapDirectory string = "/tmp/ansible-terraform-bootstrap"
-)
-
 // NewRemoteMode returns configured remote mode provisioner.
 func NewRemoteMode(o terraform.UIOutput, s *terraform.InstanceState, remoteSettings *types.RemoteSettings) (*RemoteMode, error) {
 	// Get a new communicator
@@ -213,10 +209,11 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 			playbookDir := filepath.Dir(playbookPath)
 			playbookDirHash := v.getMD5Hash(playbookDir)
 
-			remotePlaybookDir := filepath.Join(bootstrapDirectory, playbookDirHash)
+			remotePlaybookDir := filepath.Join(v.remoteSettings.BootstrapDirectory(), playbookDirHash)
 			remotePlaybookPath := filepath.Join(remotePlaybookDir, filepath.Base(playbookPath))
 
-			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", bootstrapDirectory)); err != nil {
+			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"",
+				v.remoteSettings.BootstrapDirectory())); err != nil {
 				return err
 			}
 
@@ -272,7 +269,7 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 					return err
 				}
 				dirHash := v.getMD5Hash(resolvedPath)
-				remoteDir := filepath.Join(bootstrapDirectory, dirHash)
+				remoteDir := filepath.Join(v.remoteSettings.BootstrapDirectory(), dirHash)
 				dirExists, err := v.checkRemoteDirExists(remoteDir)
 
 				if err != nil {
@@ -294,7 +291,7 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 		case *types.Module:
 
 			moduleDirHash := v.getMD5Hash(entity.Module())
-			remoteModuleDir := filepath.Join(bootstrapDirectory, moduleDirHash)
+			remoteModuleDir := filepath.Join(v.remoteSettings.BootstrapDirectory(), moduleDirHash)
 
 			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", remoteModuleDir)); err != nil {
 				return err
@@ -373,14 +370,19 @@ func (v *RemoteMode) installAnsible(remoteSettings *types.RemoteSettings) error 
 		installerScript = bufio.NewReader(bytes.NewReader(buf.Bytes()))
 	}
 
-	targetPath := "/tmp/ansible-install.sh"
-
-	v.o.Output(fmt.Sprintf("Uploading Ansible installer program to '%s'...", targetPath))
-	if err := v.comm.UploadScript(targetPath, installerScript); err != nil {
+	if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"",
+		filepath.Dir(remoteSettings.RemoteInstallerPath()))); err != nil {
 		return err
 	}
 
-	if err := v.runCommandSudo(fmt.Sprintf("/bin/bash -c '\"%s\" && rm \"%s\"'", targetPath, targetPath)); err != nil {
+	v.o.Output(fmt.Sprintf("Uploading Ansible installer program to '%s'...", remoteSettings.RemoteInstallerPath()))
+	if err := v.comm.UploadScript(remoteSettings.RemoteInstallerPath(), installerScript); err != nil {
+		return err
+	}
+
+	if err := v.runCommandSudo(fmt.Sprintf("/bin/bash -c '\"%s\" && rm \"%s\"'",
+		remoteSettings.RemoteInstallerPath(),
+		remoteSettings.RemoteInstallerPath())); err != nil {
 		return err
 	}
 
@@ -471,11 +473,12 @@ func (v *RemoteMode) writeInventory(destination string, play *types.Play) (strin
 
 	v.o.Output("Ansible inventory written.")
 	return targetPath, nil
+
 }
 
 func (v *RemoteMode) cleanupAfterBootstrap() {
 	v.o.Output("Cleaning up after bootstrap...")
-	v.runCommandNoSudo(fmt.Sprintf("rm -rf \"%s\"", bootstrapDirectory))
+	v.runCommandNoSudo(fmt.Sprintf("rm -rf \"%s\"", v.remoteSettings.BootstrapDirectory()))
 	v.o.Output("Cleanup complete.")
 }
 

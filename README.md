@@ -130,6 +130,8 @@ resource "aws_instance" "test_box" {
       skip_cleanup = false
       install_version = ""
       local_installer_path = ""
+      remote_installer_directory = "/tmp"
+      bootstrap_directory = "/tmp"
     }
   }
 }
@@ -208,6 +210,8 @@ The existence of this attribute enables `remote provisioning`. To use the defaul
 - `remote.skip_cleanup`: if set to `true`, Ansible bootstrap data will be left on the server after bootstrap, boolean, default `false`
 - `remote.install_version`: Ansible version to install when `skip_install = false`, string, default `empty string` (latest version available in respective repositories)
 - `remote.local_installer_path`: full path to the custom Ansible installer on the local machine, used when `skip_install = false`, string, default `empty string`; when empty and `skip_install = false`, the default installer is used
+- `remote.remote_installer_directory`: full path to the remote directory where custom Ansible installer will be deployed to and executed from, used when `skip_install = false`, string, default `/tmp`; any intermediate directories will be created; the program will be executed with `bash`, use shebang if program requires a non-shell interpreter; the installer will be saved as `tf-ansible-installer` under the given directory; for `/tmp`, the path will be `/tmp/tf-ansible-installer`
+- `remote.bootstrap_directory`: full path to the remote directory where playbooks, roles, password files and such will be uploaded to, used when `skip_install = false`, string, default `/tmp`; the final directory will have `tf-ansible-bootstrap` appended to it; for `/tmp`, the directory will be `/tmp/tf-ansible-bootstrap`
 
 ## Usage
 
@@ -270,21 +274,24 @@ If `hosts` is an empty list or not given, the resulting generated inventory is:
 
 Remote provisioner can be enabled by adding `remote {}` resource to the `provisioner` resource.
 
-    resource "aws_instance" "ansible_test" {
+```tf
+resource "aws_instance" "ansible_test" {
+  # ...
+  connection {
+    user = "centos"
+    private_key = "${file("${path.module}/keys/centos.pem")}"
+  }
+  provisioner "ansible" {
+    plays {
       # ...
-      connection {
-        user = "centos"
-        private_key = "${file("${path.module}/keys/centos.pem")}"
-      }
-      provisioner "ansible" {
-        
-        plays {
-          # ...
-        }
-        
-        remote {}
-      }
     }
+    
+    # enable remote provisioner
+    remote {}
+    
+  }
+}
+```
 
 Unless `remote.skip_install = true`, the provisioner will install Ansible on the bootstrapped machine. Next, a temporary inventory file is created and uploaded to the host, playbooks and roles referenced by `plays.playbook.file_path` and `plays.playbook.roles_path` are uploaded, Ansible Vault password file is uploaded (unless no vault password file is given). Finally, Ansible will be executed.
 
@@ -305,7 +312,9 @@ Remote provisioning works with a Linux target host only.
 - added `--diff` support
 - added `--vault_id` support
 - added `ansible_ssh_settings {}` resource instead of magic environment variables
-- it's now possible to use a custom Ansible installer: https://github.com/radekg/terraform-provisioner-ansible/issues/76
+- remote provisioner: use a custom Ansible installer: https://github.com/radekg/terraform-provisioner-ansible/issues/76
+- remote provisioner: use a custom remote directory for the Ansible installer: https://github.com/radekg/terraform-provisioner-ansible/issues/78
+- remote provisioner: use a custom bootstrap directory for Ansible data: https://github.com/radekg/terraform-provisioner-ansible/issues/79
 
 ## Creating releases
 
