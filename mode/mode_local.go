@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
+	"strings"
 	"text/template"
-	"time"
 
 	"github.com/radekg/terraform-provisioner-ansible/types"
+	uuid "github.com/satori/go.uuid"
 
 	localExec "github.com/hashicorp/terraform/builtin/provisioners/local-exec"
 	"github.com/hashicorp/terraform/terraform"
-	uuid "github.com/satori/go.uuid"
 )
 
 // LocalMode represents local provisioner mode.
@@ -90,9 +89,48 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		defer os.Remove(pemFile)
 	}
 
-	bastion := NewBastionHostFromConnectionInfo(v.connInfo, pemFile)
+	bastion := newBastionHostFromConnectionInfo(v.connInfo)
 
-	knownHostsFile, err := v.ensureKnownHosts(ansibleSSHSettings)
+	knownHosts := make([]string, 0)
+
+	if bastion.inUse() {
+		// wait for bastion:
+		sshClient, err := bastion.connect()
+		if err != nil {
+			return err
+		}
+		defer sshClient.Close()
+		if v.connInfo.HostKey == "" {
+			v.o.Output(fmt.Sprintf("Host key not given, executing ssh-keyscan on bastion: %s@%s:%d",
+				bastion.user(),
+				bastion.host(),
+				bastion.port()))
+			targetKnownHosts, err := newBastionKeyScan(v.o,
+				sshClient,
+				v.connInfo.Host,
+				v.connInfo.Port,
+				ansibleSSHSettings.SSHKeyscanSeconds()).scan()
+			if err != nil {
+				return err
+			}
+			// ssh-keyscan gave us full lines with hosts, like this:
+			// <ip> ecdsa-sha2-nistp256 AAAA...
+			// <ip> ssh-rsa AAAAB...
+			// <ip> ssh-ed25519 AAAAC...
+			knownHosts = append(knownHosts, targetKnownHosts)
+		} else {
+			knownHosts = append(knownHosts, fmt.Sprintf("%s %s", v.connInfo.Host, v.connInfo.HostKey))
+		}
+		knownHosts = append(knownHosts, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
+	} else {
+		if v.connInfo.HostKey == "" {
+			// $$ TODO: ... we shall obtain the host key ...
+		} else {
+			knownHosts = append(knownHosts, fmt.Sprintf("%s %s", v.connInfo.Host, v.connInfo.HostKey))
+		}
+	}
+
+	knownHostsFile, err := v.writeKnownHosts(knownHosts)
 	if err != nil {
 		return err
 	}
@@ -123,22 +161,18 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 			Port:            v.connInfo.Port,
 			PemFile:         pemFile,
 			KnownHostsFile:  knownHostsFile,
-			BastionHost:     bastion.Host(),
-			BastionPemFile:  bastion.PemFile(),
-			BastionPort:     bastion.Port(),
-			BastionUsername: bastion.User(),
+			BastionHost:     bastion.host(),
+			BastionPemFile:  bastion.pemFile(),
+			BastionPort:     bastion.port(),
+			BastionUsername: bastion.user(),
 		}, ansibleSSHSettings)
 
 		if err != nil {
 			return err
 		}
 
-		if bastion.Host() != "" {
-			v.o.Output(fmt.Sprintf("executing ssh-keyscan on bastion: %s@%s", bastion.User(), fmt.Sprintf("%s:%d", bastion.Host(), bastion.Port())))
-			bastionSSHKeyScan := NewBastionKeyScan(bastion)
-			if err := bastionSSHKeyScan.Scan(v.o, v.connInfo.Host, v.connInfo.Port, ansibleSSHSettings); err != nil {
-				return err
-			}
+		if bastion.host() != "" {
+
 		}
 
 		v.o.Output(fmt.Sprintf("running local command: %s", command))
@@ -152,37 +186,21 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 	return nil
 }
 
-func (v *LocalMode) ensureKnownHosts(ansibleSSHSettings *types.AnsibleSSHSettings) (string, error) {
-
-	if v.connInfo.Host == "" {
-		return "", fmt.Errorf("Host could not be established from the connection info")
+func (v *LocalMode) writeKnownHosts(knownHosts []string) (string, error) {
+	trimmedKnownHosts := make([]string, 0)
+	for _, entry := range knownHosts {
+		trimmedKnownHosts = append(trimmedKnownHosts, strings.TrimSpace(entry))
 	}
-	u1 := uuid.Must(uuid.NewV4())
-	targetPath := filepath.Join(os.TempDir(), u1.String())
-
-	startedAt := time.Now().Unix()
-	timeoutSeconds := int64(ansibleSSHSettings.SSHKeyscanSeconds())
-
-	for {
-		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan -p %d %s 2>/dev/null | head -n1 > \"%s\"", v.connInfo.Port, v.connInfo.Host, targetPath)
-		if err := v.runCommand(sshKeyScanCommand); err != nil {
-			return "", err
-		}
-		fi, err := os.Stat(targetPath)
-		if err != nil {
-			return "", err
-		}
-		if fi.Size() > 0 {
-			break
-		} else {
-			v.o.Output("ssh-keyscan hasn't succeeded yet; retrying...")
-			if time.Now().Unix()-startedAt > timeoutSeconds {
-				return "", fmt.Errorf("ssh-keyscan %s:%d has not completed within the timeout of %d seconds", v.connInfo.Host, v.connInfo.Port, timeoutSeconds)
-			}
-		}
+	knownHostsFileContents := strings.Join(trimmedKnownHosts, "\n")
+	file, err := ioutil.TempFile(os.TempDir(), uuid.Must(uuid.NewV4()).String())
+	defer file.Close()
+	if err != nil {
+		return "", err
 	}
-
-	return targetPath, nil
+	if err := ioutil.WriteFile(file.Name(), []byte(fmt.Sprintf("%s\n", knownHostsFileContents)), 0644); err != nil {
+		return "", err
+	}
+	return file.Name(), nil
 }
 
 func (v *LocalMode) writePem() (string, error) {

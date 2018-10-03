@@ -1,62 +1,50 @@
 package mode
 
 import (
+	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"net"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/radekg/terraform-provisioner-ansible/types"
 
 	"github.com/hashicorp/terraform/terraform"
 	linereader "github.com/mitchellh/go-linereader"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/agent"
 )
 
 const (
-	bastionHostKnownHostsFile = "~/.ssh/known_hosts"
+	homeSSHDirectory = "~/.ssh"
 )
 
 type cleanup func()
 
 // BastionKeyScan holds the ssh-keyscan metadata.
-type BastionKeyScan struct {
-	bastion *BastionHost
+type bastionKeyScan struct {
+	o                 terraform.UIOutput
+	sshClient         *ssh.Client
+	host              string
+	port              int
+	sshKeyscanTimeout int
 }
 
 // NewBastionKeyScan create an ssh-keyscan operation wrapper.
-func NewBastionKeyScan(bastion *BastionHost) *BastionKeyScan {
-	return &BastionKeyScan{
-		bastion: bastion,
+func newBastionKeyScan(o terraform.UIOutput,
+	sshClient *ssh.Client,
+	host string,
+	port int,
+	sshKeyscanTimeout int) *bastionKeyScan {
+	return &bastionKeyScan{
+		o:                 o,
+		sshClient:         sshClient,
+		host:              host,
+		port:              port,
+		sshKeyscanTimeout: sshKeyscanTimeout,
 	}
 }
 
-func (b *BastionKeyScan) publicKeyFile() ssh.AuthMethod {
-	buffer, err := ioutil.ReadFile(b.bastion.PemFile())
-	if err != nil {
-		return nil
-	}
-	key, err := ssh.ParsePrivateKey(buffer)
-	if err != nil {
-		return nil
-	}
-	return ssh.PublicKeys(key)
-}
-
-func (b *BastionKeyScan) sshAgent() ssh.AuthMethod {
-	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
-		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
-	}
-	return nil
-}
-
-func (b *BastionKeyScan) sshModes() ssh.TerminalModes {
+func (b *bastionKeyScan) sshModes() ssh.TerminalModes {
 	return ssh.TerminalModes{
 		ssh.ECHO:          0,     // disable echoing
 		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
@@ -64,49 +52,32 @@ func (b *BastionKeyScan) sshModes() ssh.TerminalModes {
 	}
 }
 
-func (b *BastionKeyScan) sshConfig() *ssh.ClientConfig {
-	authMethods := make([]ssh.AuthMethod, 0)
-	if b.bastion.PemFile() == "" {
-		authMethods = append(authMethods, b.sshAgent())
-	} else {
-		authMethods = append(authMethods, b.publicKeyFile())
-	}
-
-	return &ssh.ClientConfig{
-		User: b.bastion.User(),
-		Auth: authMethods,
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			return nil
-		},
-	}
-}
-
-func (b *BastionKeyScan) makeError(pattern string, e error) error {
+func (b *bastionKeyScan) makeError(pattern string, e error) error {
 	if e == nil {
 		return fmt.Errorf("Bastion ssh-keyscan: %s", pattern)
 	}
 	return fmt.Errorf("Bastion ssh-keyscan: %s", fmt.Sprintf(pattern, e))
 }
 
-func (b *BastionKeyScan) output(o terraform.UIOutput, message string) {
-	o.Output(fmt.Sprintf("Bastion host: %s", message))
+func (b *bastionKeyScan) output(message string) {
+	b.o.Output(fmt.Sprintf("Bastion host: %s", message))
 }
 
-func (b *BastionKeyScan) copyOutput(o terraform.UIOutput, r io.Reader, doneCh chan<- struct{}) {
+func (b *bastionKeyScan) copyOutput(r io.Reader, doneCh chan<- struct{}) {
 	defer close(doneCh)
 	lr := linereader.New(r)
 	for line := range lr.Ch {
-		o.Output(line)
+		b.o.Output(line)
 	}
 }
 
-func (b *BastionKeyScan) redirectOutputs(o terraform.UIOutput, s *ssh.Session) (cleanup, error) {
+func (b *bastionKeyScan) redirectOutputs(s *ssh.Session) (cleanup, error) {
 	outR, outW := io.Pipe()
 	errR, errW := io.Pipe()
 	outDoneCh := make(chan struct{})
 	errDoneCh := make(chan struct{})
-	go b.copyOutput(o, outR, outDoneCh)
-	go b.copyOutput(o, errR, errDoneCh)
+	go b.copyOutput(outR, outDoneCh)
+	go b.copyOutput(errR, errDoneCh)
 	stdout, err := s.StdoutPipe()
 
 	cleanupF := func() {
@@ -132,9 +103,9 @@ func (b *BastionKeyScan) redirectOutputs(o terraform.UIOutput, s *ssh.Session) (
 	return cleanupF, nil
 }
 
-func (b *BastionKeyScan) execute(command string, connection *ssh.Client, o terraform.UIOutput) error {
-	b.output(o, fmt.Sprintf("running command: %s", command))
-	session, err := connection.NewSession()
+func (b *bastionKeyScan) execute(command string) error {
+	b.output(fmt.Sprintf("running command: %s", command))
+	session, err := b.sshClient.NewSession()
 	if err != nil {
 		return b.makeError("failed to create session: %s.", err)
 	}
@@ -142,7 +113,7 @@ func (b *BastionKeyScan) execute(command string, connection *ssh.Client, o terra
 	if err := session.RequestPty("xterm", 80, 40, b.sshModes()); err != nil {
 		return b.makeError("request for pseudo terminal failed: %s.", err)
 	}
-	cleanupF, err := b.redirectOutputs(o, session)
+	cleanupF, err := b.redirectOutputs(session)
 	if err != nil {
 		return err
 	}
@@ -151,65 +122,65 @@ func (b *BastionKeyScan) execute(command string, connection *ssh.Client, o terra
 	return commandResult
 }
 
-// Scan executes an ssh-keyscan operation.
-func (b *BastionKeyScan) Scan(o terraform.UIOutput, host string, port int, ansibleSSHSettings *types.AnsibleSSHSettings) error {
-	b.output(o, fmt.Sprintf("connecting using SSH to %s@%s:%d...", b.bastion.User(), b.bastion.Host(), b.bastion.Port()))
-	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", b.bastion.Host(), b.bastion.Port()), b.sshConfig())
-	if err != nil {
-		return b.makeError("failed to dial: %s.", err)
-	}
-	defer connection.Close()
+func (b *bastionKeyScan) scan() (string, error) {
 
-	b.output(o, fmt.Sprintf("ensuring the existence of a known hosts file at %s...", bastionHostKnownHostsFile))
+	b.output(fmt.Sprintf("ensuring the existence of '%s'...", homeSSHDirectory))
 	if err := b.execute(
 		fmt.Sprintf(
-			"mkdir -p \"%s\" && touch \"%s\"",
-			b.quotedSSHKnownFileDir(),
-			b.quotedSSHKnownFilePath()),
-		connection, o); err != nil {
-		return err
+			"mkdir -p \"%s\"",
+			b.quotedSSHKnownFileDir())); err != nil {
+		return "", err
 	}
 
 	u1 := uuid.Must(uuid.NewV4())
 	targetPath := filepath.Join(b.quotedSSHKnownFileDir(), u1.String())
 
-	timeoutMs := ansibleSSHSettings.SSHKeyscanSeconds() * 1000
+	timeoutMs := b.sshKeyscanTimeout * 1000
 	timeSpentMs := 0
-	intervalMs := 500
+	intervalMs := 5000
 
+	sshKeyScanCommand := fmt.Sprintf("ssh_keyscan_result=$(ssh-keyscan -T %d -p %d %s 2>/dev/null | grep %s) && echo -e \"${ssh_keyscan_result}\" > \"%s\"",
+		b.sshKeyscanTimeout,
+		b.port,
+		b.host,
+		b.host,
+		targetPath)
+
+	// do not rely just on the ssh-keyscan -T;
+	// it may take time until the instance starts replying to ssh requests
+	// until then, we may be getting "no route to host",
+	// in such case the keyscan would fail regardless of timeout
+	// we need to repeat until we succeed or time out
 	for {
-		sshKeyScanCommand := fmt.Sprintf("ssh-keyscan -p %d %s 2>/dev/null | head -n1 > \"%s\"", port, host, targetPath)
-		keyScanError := b.execute(sshKeyScanCommand, connection, o)
-		if err := b.execute(fmt.Sprintf("stat \"%s\"", targetPath), connection, o); err == nil {
+		keyScanError := b.execute(sshKeyScanCommand)
+		if keyScanError == nil {
 			break
-		} else {
-			b.output(o, fmt.Sprintf("ssh-keyscan hasn't succeeded yet (last error: %s); retrying...", keyScanError))
-			time.Sleep(time.Duration(intervalMs) * time.Millisecond)
-			timeSpentMs = timeSpentMs + intervalMs
-			if timeSpentMs > timeoutMs {
-				b.execute(fmt.Sprintf("rm -rf \"%s\"", targetPath), connection, o) // cleanup, just in case
-				return b.makeError(
-					fmt.Sprintf(
-						"failed receive target ssh key for %s:%d within time specified period of %d seconds.",
-						host, port, timeoutMs/1000), nil)
-			}
+		}
+		b.output(fmt.Sprintf("ssh-keyscan hasn't succeeded yet (last error: %s); retrying...", keyScanError))
+		time.Sleep(time.Duration(intervalMs) * time.Millisecond)
+		timeSpentMs = timeSpentMs + intervalMs
+		if timeSpentMs > timeoutMs {
+			return "", b.makeError(
+				fmt.Sprintf(
+					"failed receive target ssh key for %s:%d within time specified period of %d seconds.",
+					b.host, b.port, b.sshKeyscanTimeout), nil)
 		}
 	}
 
-	b.execute(
-		fmt.Sprintf(
-			"echo $(cat \"%s\") >> \"%s\" && rm -rf \"%s\"",
-			targetPath,
-			b.quotedSSHKnownFilePath(),
-			targetPath),
-		connection, o)
-
-	return nil
+	// read and remove the temporary known hosts file:
+	var buf bytes.Buffer
+	session, err := b.sshClient.NewSession()
+	if err != nil {
+		return "", err
+	}
+	defer session.Close()
+	session.Stdout = &buf
+	if err := session.Run(fmt.Sprintf("echo -e \"$(cat \"%s\")\"", targetPath)); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
-func (b *BastionKeyScan) quotedSSHKnownFileDir() string {
-	return strings.Replace(filepath.Dir(bastionHostKnownHostsFile), "~/", "$HOME/", 1)
-}
-func (b *BastionKeyScan) quotedSSHKnownFilePath() string {
-	return strings.Replace(bastionHostKnownHostsFile, "~/", "$HOME/", 1)
+func (b *bastionKeyScan) quotedSSHKnownFileDir() string {
+	return strings.Replace(homeSSHDirectory, "~/", "$HOME/", 1)
 }
