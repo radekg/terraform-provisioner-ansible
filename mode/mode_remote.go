@@ -483,7 +483,7 @@ func (v *RemoteMode) cleanupAfterBootstrap() {
 }
 
 func (v *RemoteMode) checkRemoteDirExists(remoteDir string) (bool, error) {
-	command := "/bin/bash -c 'if [ -d \"%s\" ]; then exit 50; fi'"
+	command := "/bin/sh -c 'if [ -d \"%s\" ]; then exit 50; fi'"
 	if err := v.runCommandNoSudo(fmt.Sprintf(command, remoteDir)); err != nil {
 		errDetail := strings.Split(fmt.Sprintf("%v", err), ": ")
 		if errDetail[len(errDetail)-1] == "50" {

@@ -20,7 +20,6 @@ const (
 
 type cleanup func()
 
-// BastionKeyScan holds the ssh-keyscan metadata.
 type bastionKeyScan struct {
 	o                 terraform.UIOutput
 	sshClient         *ssh.Client
@@ -29,7 +28,6 @@ type bastionKeyScan struct {
 	sshKeyscanTimeout int
 }
 
-// NewBastionKeyScan create an ssh-keyscan operation wrapper.
 func newBastionKeyScan(o terraform.UIOutput,
 	sshClient *ssh.Client,
 	host string,
