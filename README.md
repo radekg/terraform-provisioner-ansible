@@ -221,15 +221,32 @@ Local provisioner requires the `resource.connection` with, at least, the `user` 
 
 In the process of doing so, a temporary inventory will be created for the newly created host, the pem file will be written to a temp file and a temporary `known_hosts` file will be created. Temporary `known_hosts` and temporary pem are per provisioner run, inventory is created for each `plays`. Files should be cleaned up after the provisioner finishes or fails. Inventory will be removed only if not supplied with `inventory_file`.
 
-### Local provisioner: bastion host
+### Local provisioner: host and bastion host keys
 
-If the `resource.connection` specifies a `bastion_host`, bastion host will be used. Bastion host must fulfill the same criteria as the host itself: `bastion_user` must be set, `bastion_private_key` may be set, if no `bastion_private_key` is specified, `ssh agent` is assumed.
+Because the provisioner executes the SSH commands outside of itself, via Ansible commands, the provisioner must construct a temporary SSH `known_hosts` file to feed to Ansible. There are two possible scenarios.
 
-Bastion host must:
+#### Host without a bastion
+
+If `connection.host_key` is used, the provisioner will use the provided host key to contruct the temporary `known_hosts` file.
+
+If `connection.host_key` is not given or empty, the provisioner will attempt a connection to the host and retrieve first host key returned during the handshake.
+
+#### Host with bastion
+
+This is a little bit more involved than the previous case.
+
+If `connection.bastion_host_key` is provided, the provisioner will use the provided bastion host key for the `known_hosts` file.
+
+If `connection.bastion_host_key` is not given or empty, the provisioner will attempt a connection to the bastion host and retrieve first host key returned during the handshake.
+
+However, Ansible must know the host key of the target host where the bootstrap actually happens. If `connection.host_key` is provided, the provisioner will simply use the provieded value. But, if no `connection.host_key` is given (or empty), the provisioner will open an SSH connection to the bastion host and perform an `ssh-keyscan` operation against the target host on the bastion host.
+
+For the `ssh-keyscan` case, the bastion host must:
 
 - be a Linux / BSD based system
-- have `mkdir`, `touch`, `ssh-keyscan`, `echo`, `cat` and `rm` commands available on the `$PATH` for the SSH `user`
-- `$HOME` enviornment variable must be set for the SSH `user`
+- **unless `bastion_host_key` is used**:
+  - have `cat`, `echo`, `grep`, `mkdir`, `rm`, `ssh-keyscan` commands available on the `$PATH` for the SSH `user`
+  - have `$HOME` enviornment variable set for the SSH `user`
 
 ### Local provisioner: hosts and groups
 
@@ -297,7 +314,67 @@ Unless `remote.skip_install = true`, the provisioner will install Ansible on the
 
 Remote provisioning works with a Linux target host only.
 
+## Supported Ansible repository layouts
+
+This provisioner supports two main repository layouts.
+
+1. Roles nested under the playbook directory:
+    
+    ```
+    .
+    ├── install-tree.yml
+    └── roles
+        └── tree
+            └── tasks
+                └── main.yml
+    ```
+
+2. Roles and playbooks directories separate:
+
+    ```
+    .
+    ├── playbooks
+    │   └── install-tree.yml
+    └── roles
+        └── tree
+            └── tasks
+                └── main.yml
+    ```
+    
+In the first case, to reference the roles, it is necessary to use `plays.playbook.roles_path` attribute:
+
+```tf
+    plays {
+      playbook = {
+        file_path = ".../playbooks/install-tree.yml"
+        roles_path = [
+            ".../ansible-data/roles"
+        ]
+      }
+    }
+```
+
+In the second case, it is sufficient to use only the `plays.playbook.file_path`, roles are nested, thus available to Ansible:
+
+```tf
+    plays {
+      playbook = {
+        file_path = ".../playbooks/install-tree.yml"
+      }
+    }
+```
+
+### Remote provisioning directory upload
+
+A remark regardng remote provisioning. Remote provisioner must upload referenced playbooks and role paths to the remote server. In case of a playbook, the complete parent directory of the YAML file will be uploaded. Remote provisioner attempts to deduplicate uploads, if multiple `plays` reference the same playbook, the playbook will be uploaded only once. This is achieved by generating an MD5 hash of the absolute path to the playbook's parent directory and storing your playbooks at `${remote.bootstrap_direcotry}/${md5-hash}` on the remote server.
+
+For the roles path, the complete directory as referenced in `roles_path` will be uploaded to the remote server. Same deduplication method applies but the MD5 hash is the `roles_path` itself.
+
 ## Changes from 1.0.0
+
+### Fixed
+
+- bastion host support in `1.0.0` was implemented very badly, generally, that version should not be used when bastion host should be used; there are no plans for fixing `1.0.0` bastion support, please switch to `2.x`
 
 ### Breaking changes
 
@@ -315,6 +392,7 @@ Remote provisioning works with a Linux target host only.
 - remote provisioner: use a custom Ansible installer: https://github.com/radekg/terraform-provisioner-ansible/issues/76
 - remote provisioner: use a custom remote directory for the Ansible installer: https://github.com/radekg/terraform-provisioner-ansible/issues/78
 - remote provisioner: use a custom bootstrap directory for Ansible data: https://github.com/radekg/terraform-provisioner-ansible/issues/79
+- support `connection.host_key` and `connection.bastion_host_key`
 
 ## Creating releases
 

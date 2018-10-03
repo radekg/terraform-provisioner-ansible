@@ -67,9 +67,6 @@ func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode,
 	if connInfo.User == "" || connInfo.Host == "" {
 		return nil, fmt.Errorf("Local mode requires a connection with username and host")
 	}
-	if connInfo.PrivateKey == "" {
-		o.Output(fmt.Sprintf("no private key for %s@%s found, assuming ssh agent...", connInfo.User, connInfo.Host))
-	}
 
 	return &LocalMode{
 		o:        o,
@@ -90,6 +87,7 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 	}
 
 	bastion := newBastionHostFromConnectionInfo(v.connInfo)
+	target := newTargetHostFromConnectionInfo(v.connInfo)
 
 	knownHosts := make([]string, 0)
 
@@ -100,15 +98,15 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 			return err
 		}
 		defer sshClient.Close()
-		if v.connInfo.HostKey == "" {
+		if target.hostKey() == "" {
 			v.o.Output(fmt.Sprintf("Host key not given, executing ssh-keyscan on bastion: %s@%s:%d",
 				bastion.user(),
 				bastion.host(),
 				bastion.port()))
 			targetKnownHosts, err := newBastionKeyScan(v.o,
 				sshClient,
-				v.connInfo.Host,
-				v.connInfo.Port,
+				target.host(),
+				target.port(),
 				ansibleSSHSettings.SSHKeyscanSeconds()).scan()
 			if err != nil {
 				return err
@@ -119,15 +117,17 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 			// <ip> ssh-ed25519 AAAAC...
 			knownHosts = append(knownHosts, targetKnownHosts)
 		} else {
-			knownHosts = append(knownHosts, fmt.Sprintf("%s %s", v.connInfo.Host, v.connInfo.HostKey))
+			knownHosts = append(knownHosts, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
 		}
 		knownHosts = append(knownHosts, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
 	} else {
-		if v.connInfo.HostKey == "" {
-			// $$ TODO: ... we shall obtain the host key ...
-		} else {
-			knownHosts = append(knownHosts, fmt.Sprintf("%s %s", v.connInfo.Host, v.connInfo.HostKey))
+		if target.hostKey() == "" {
+			// fetchHostKey will issue an ssh Dial and update the hostKey() value:
+			if err := target.fetchHostKey(); err != nil {
+				return err
+			}
 		}
+		knownHosts = append(knownHosts, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
 	}
 
 	knownHostsFile, err := v.writeKnownHosts(knownHosts)
@@ -169,10 +169,6 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 
 		if err != nil {
 			return err
-		}
-
-		if bastion.host() != "" {
-
 		}
 
 		v.o.Output(fmt.Sprintf("running local command: %s", command))
