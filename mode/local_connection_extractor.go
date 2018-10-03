@@ -1,4 +1,4 @@
-package main
+package mode
 
 import (
 	"log"
@@ -30,6 +30,7 @@ type connectionInfo struct {
 	Password   string
 	PrivateKey string `mapstructure:"private_key"`
 	Host       string
+	HostKey    string `mapstructure:"host_key"`
 	Port       int
 	Agent      bool
 	Timeout    string
@@ -40,6 +41,7 @@ type connectionInfo struct {
 	BastionPassword   string `mapstructure:"bastion_password"`
 	BastionPrivateKey string `mapstructure:"bastion_private_key"`
 	BastionHost       string `mapstructure:"bastion_host"`
+	BastionHostKey    string `mapstructure:"bastion_host_key"`
 	BastionPort       int    `mapstructure:"bastion_port"`
 
 	AgentIdentity string `mapstructure:"agent_identity"`

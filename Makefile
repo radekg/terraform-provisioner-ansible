@@ -23,11 +23,13 @@ check-golang-version:
 build-linux: check-golang-version plugins-dir
 	CGO_ENABLED=0 GOOS=linux installsuffix=cgo go build -o ./${BINARY_NAME}-linux
 	cp ./${BINARY_NAME}-linux ${PLUGINS_DIR}/${BINARY_NAME}
+	rm ./${BINARY_NAME}-linux
 
 .PHONY: build-darwin
 build-darwin: check-golang-version plugins-dir
 	CGO_ENABLED=0 GOOS=darwin installsuffix=cgo go build -o ./${BINARY_NAME}-darwin
 	cp ./${BINARY_NAME}-darwin ${PLUGINS_DIR}/${BINARY_NAME}
+	rm ./${BINARY_NAME}-darwin
 
 # this rule must not be used directly
 # this rule is invoked by the bin/build-release-binaries.sh script inside of a docker container where the build happens
@@ -42,4 +44,4 @@ test:
 
 .PHONY: test-verbose
 test-verbose:
-	go test -v
+	go test -v ./...
