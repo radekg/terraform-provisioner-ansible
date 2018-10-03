@@ -503,10 +503,11 @@ func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSe
 		sshExtraAgrsOptions = append(
 			sshExtraAgrsOptions,
 			fmt.Sprintf(
-				"-o ProxyCommand=\"ssh -p %d -W %%h:%%p %s@%s\"",
+				"-o ProxyCommand=\"ssh -p %d -W %%h:%%p %s@%s -o UserKnownHostsFile=%s\"",
 				ansibleArgs.BastionPort,
 				ansibleArgs.BastionUsername,
-				ansibleArgs.BastionHost))
+				ansibleArgs.BastionHost,
+				ansibleArgs.KnownHostsFile))
 		if ansibleArgs.BastionPemFile == "" && os.Getenv("SSH_AUTH_SOCK") != "" {
 			sshExtraAgrsOptions = append(sshExtraAgrsOptions, "-o ForwardAgent=yes")
 		}

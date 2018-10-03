@@ -23,7 +23,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const installerProgramTemplate = `#!/usr/bin/env bash
+const installerProgramTemplate = `#!/usr/bin/env sh
 if [ -z "$(which ansible-playbook)" ]; then
   
   # only check the cloud boot finished if the directory exists
@@ -380,7 +380,7 @@ func (v *RemoteMode) installAnsible(remoteSettings *types.RemoteSettings) error 
 		return err
 	}
 
-	if err := v.runCommandSudo(fmt.Sprintf("/bin/bash -c '\"%s\" && rm \"%s\"'",
+	if err := v.runCommandSudo(fmt.Sprintf("/bin/sh -c '\"%s\" && rm \"%s\"'",
 		remoteSettings.RemoteInstallerPath(),
 		remoteSettings.RemoteInstallerPath())); err != nil {
 		return err
