@@ -1,3 +1,7 @@
 .DS_Store
+**/**/*.retry
+**/**/.terraform
+**/**/crash.log
+**/**/terraform.*
 /terraform-provisioner-ansible*
 /bin/.build_output
