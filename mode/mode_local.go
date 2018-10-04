@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/radekg/terraform-provisioner-ansible/types"
 	uuid "github.com/satori/go.uuid"
@@ -122,9 +123,30 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		knownHosts = append(knownHosts, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
 	} else {
 		if target.hostKey() == "" {
-			// fetchHostKey will issue an ssh Dial and update the hostKey() value:
-			if err := target.fetchHostKey(); err != nil {
-				return err
+
+			// fetchHostKey will issue an ssh Dial and update the hostKey() value
+			// as with bastionKeyScan, we might ask for the host key while the instance
+			// is not ready to respond to SSH, we need to retry for a number of times
+			timeoutMs := ansibleSSHSettings.SSHKeyscanSeconds() * 1000
+			timeSpentMs := 0
+			intervalMs := 5000
+			for {
+				if err := target.fetchHostKey(); err != nil {
+					v.o.Output(fmt.Sprintf("host key for '%s' not received yet; retrying...", target.host()))
+					time.Sleep(time.Duration(intervalMs) * time.Millisecond)
+					timeSpentMs = timeSpentMs + intervalMs
+					if timeSpentMs > timeoutMs {
+						v.o.Output(fmt.Sprintf("host key for '%s' not received within %d seconds",
+							target.host(),
+							ansibleSSHSettings.SSHKeyscanSeconds()))
+						return err
+					}
+				} else {
+					break
+				}
+			}
+			if target.hostKey() == "" {
+				return fmt.Errorf("expected to receive the host key for '%s', but no host key arrived", target.host())
 			}
 		}
 		knownHosts = append(knownHosts, fmt.Sprintf("%s %s", target.host(), target.hostKey()))

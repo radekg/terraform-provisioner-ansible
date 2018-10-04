@@ -50,6 +50,15 @@ func (v *targetHost) receiveHostKey(hostKey string) {
 }
 
 func (v *targetHost) fetchHostKey() error {
+
+	var returnError error
+
+	defer func() {
+		if e := recover(); e != nil {
+			returnError = e.(error)
+		}
+	}()
+
 	configurator := &sshConfigurator{
 		provider: v,
 	}
@@ -58,9 +67,9 @@ func (v *targetHost) fetchHostKey() error {
 		return err
 	}
 	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", v.host(), v.port()), sshConfig)
-	defer client.Close()
 	if err != nil {
 		return err
 	}
-	return nil
+	defer client.Close()
+	return returnError
 }
