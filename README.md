@@ -212,6 +212,10 @@ The existence of this resource enables `remote provisioning`. To use remote prov
 - `remote.remote_installer_directory`: full path to the remote directory where custom Ansible installer will be deployed to and executed from, used when `skip_install = false`, string, default `/tmp`; any intermediate directories will be created; the program will be executed with `sh`, use shebang if program requires a non-shell interpreter; the installer will be saved as `tf-ansible-installer` under the given directory; for `/tmp`, the path will be `/tmp/tf-ansible-installer`
 - `remote.bootstrap_directory`: full path to the remote directory where playbooks, roles, password files and such will be uploaded to, used when `skip_install = false`, string, default `/tmp`; the final directory will have `tf-ansible-bootstrap` appended to it; for `/tmp`, the directory will be `/tmp/tf-ansible-bootstrap`
 
+## Examples
+
+[Working examples](https://github.com/radekg/terraform-provisioner-ansible/tree/master/examples).
+
 ## Usage
 
 The provisioner does not support passwords. It is possible to add password support for:
