@@ -77,7 +77,7 @@ After testing each of the examples, you will need to destroy the infrastructure.
     ```
     cd local-no-bastion
     terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
-    ...
+    # ...
     terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
     ```
 
@@ -86,6 +86,58 @@ After testing each of the examples, you will need to destroy the infrastructure.
     ```
     cd remote-no-bastion
     terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
-    ...
+    # ...
     terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
+    ```
+
+3. `local-with-bastion`: VPC setup, bastion, provision local over bastion
+    
+    ```
+    cd local-with-bastion
+    export R_NAME=terraform-provisioner-ansible
+    export R_REGION=eu-central-1
+    export R_VPC_CIDR_BLOCK=10.0.0.0/16
+    terraform plan -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}" \
+        -var "region=${R_REGION}" \
+        -var "aws_admin_profile=${R_NAME}" \
+        -var "vpc_cidr_block=${R_VPC_CIDR_BLOCK}" \
+        -var "infrastructure_name=${R_NAME}-local"
+    # ...
+    terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}" \
+        -var "region=${R_REGION}" \
+        -var "aws_admin_profile=${R_NAME}" \
+        -var "vpc_cidr_block=${R_VPC_CIDR_BLOCK}" \
+        -var "infrastructure_name=${R_NAME}-local"
+    # ...
+    terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}" \
+        -var "region=${R_REGION}" \
+        -var "aws_admin_profile=${R_NAME}-ansible" \
+        -var "vpc_cidr_block=${R_VPC_CIDR_BLOCK}" \
+        -var "infrastructure_name=${R_NAME}-local"
+    ```
+
+4. `remote-with-bastion`: VPC setup, bastion, provision remote over bastion
+    
+    ```
+    cd remote-with-bastion
+    export R_NAME=terraform-provisioner-ansible
+    export R_REGION=eu-central-1
+    export R_VPC_CIDR_BLOCK=10.0.0.0/16
+    terraform plan -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}" \
+        -var "region=${R_REGION}" \
+        -var "aws_admin_profile=${R_NAME}" \
+        -var "vpc_cidr_block=${R_VPC_CIDR_BLOCK}" \
+        -var "infrastructure_name=${R_NAME}-remote"
+    # ...
+    terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}" \
+        -var "region=${R_REGION}" \
+        -var "aws_admin_profile=${R_NAME}" \
+        -var "vpc_cidr_block=${R_VPC_CIDR_BLOCK}" \
+        -var "infrastructure_name=${R_NAME}-remote"
+    # ...
+    terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}" \
+        -var "region=${R_REGION}" \
+        -var "aws_admin_profile=${R_NAME}-ansible" \
+        -var "vpc_cidr_block=${R_VPC_CIDR_BLOCK}" \
+        -var "infrastructure_name=${R_NAME}-remote"
     ```
