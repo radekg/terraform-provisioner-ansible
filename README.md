@@ -444,7 +444,10 @@ For the roles path, the complete directory as referenced in `roles_path` will be
 
 To cut a release, run: 
 
-    ./bin/release.sh
+    curl -sL https://raw.githubusercontent.com/radekg/git-release/master/git-release --output /tmp/git-release
+    chmod +x /tmp/git-release
+    /tmp/git-release --repository-path=$GOPATH/src/github.com/radekg/terraform-provisioner-ansible
+    rm -rf /tmp/git-release
 
 After the release is cut, build the binaries for the release:
 
