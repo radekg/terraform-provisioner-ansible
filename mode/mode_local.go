@@ -78,14 +78,24 @@ func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode,
 // Run executes local provisioning process.
 func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSSHSettings) error {
 
-	pemFile := ""
-	if v.connInfo.PrivateKey != "" {
+	bastionPemFile := ""
+	if v.connInfo.BastionPrivateKey != "" {
 		var err error
-		pemFile, err = v.writePem()
+		bastionPemFile, err = v.writePem(v.connInfo.BastionPrivateKey)
 		if err != nil {
 			return err
 		}
-		defer os.Remove(pemFile)
+		defer os.Remove(bastionPemFile)
+	}
+
+	targetPemFile := ""
+	if v.connInfo.PrivateKey != "" {
+		var err error
+		targetPemFile, err = v.writePem(v.connInfo.PrivateKey)
+		if err != nil {
+			return err
+		}
+		defer os.Remove(targetPemFile)
 	}
 
 	bastion := newBastionHostFromConnectionInfo(v.connInfo)
@@ -197,10 +207,10 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
 			Username:        v.connInfo.User,
 			Port:            v.connInfo.Port,
-			PemFile:         pemFile,
+			PemFile:         targetPemFile,
 			KnownHostsFile:  knownHostsFile,
 			BastionHost:     bastion.host(),
-			BastionPemFile:  bastion.pemFile(),
+			BastionPemFile:  bastionPemFile,
 			BastionPort:     bastion.port(),
 			BastionUsername: bastion.user(),
 		}, ansibleSSHSettings)
@@ -237,7 +247,7 @@ func (v *LocalMode) writeKnownHosts(knownHosts []string) (string, error) {
 	return file.Name(), nil
 }
 
-func (v *LocalMode) writePem() (string, error) {
+func (v *LocalMode) writePem(pk string) (string, error) {
 	if v.connInfo.PrivateKey != "" {
 		file, err := ioutil.TempFile(os.TempDir(), "temporary-private-key.pem")
 		defer file.Close()
@@ -246,7 +256,7 @@ func (v *LocalMode) writePem() (string, error) {
 		}
 
 		v.o.Output(fmt.Sprintf("Writing temprary PEM to '%s'...", file.Name()))
-		if err := ioutil.WriteFile(file.Name(), []byte(v.connInfo.PrivateKey), 0400); err != nil {
+		if err := ioutil.WriteFile(file.Name(), []byte(pk), 0400); err != nil {
 			return "", err
 		}
 

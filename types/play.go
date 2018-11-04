@@ -511,6 +511,9 @@ func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSe
 		proxyCommand := "-o ProxyCommand=\"ssh"
 		proxyCommand = fmt.Sprintf("%s -p %d", proxyCommand, ansibleArgs.BastionPort)
 		proxyCommand = fmt.Sprintf("%s -W %%h:%%p %s@%s", proxyCommand, ansibleArgs.BastionUsername, ansibleArgs.BastionHost)
+		if ansibleArgs.BastionPemFile != "" {
+			proxyCommand = fmt.Sprintf("%s -i %s", proxyCommand, ansibleArgs.BastionPemFile)
+		}
 		if ansibleSSHSettings.InsecureBastionNoStrictHostKeyChecking() {
 			proxyCommand = fmt.Sprintf("%s -o StrictHostKeyChecking=no", proxyCommand)
 		} else {
