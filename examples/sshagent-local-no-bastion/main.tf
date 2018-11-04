@@ -4,7 +4,9 @@ provider "aws" {
 }
 
 variable "ami_id" {}
-
+variable "insecure_no_strict_host_key_checking" {
+  default = false
+}
 
 ## -- security groups:
 
@@ -50,6 +52,9 @@ resource "aws_instance" "test_box" {
         ]
       }
       hosts = ["testBoxToBootstrap"]
+    }
+    ansible_ssh_settings {
+      insecure_no_strict_host_key_checking = "${var.insecure_no_strict_host_key_checking}"
     }
   }
 

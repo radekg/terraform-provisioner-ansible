@@ -4,6 +4,12 @@ variable "vpc_cidr_block" {}
 variable "infrastructure_name" {}
 
 variable "ami_id" {}
+variable "insecure_no_strict_host_key_checking" {
+  default = false
+}
+variable "insecure_bastion_no_strict_host_key_checking" {
+  default = false
+}
 
 provider "aws" {
   region  = "${var.region}"
@@ -139,6 +145,11 @@ resource "aws_instance" "test_box" {
         ]
       }
       hosts = ["testBoxToBootstrap"]
+    }
+    ansible_ssh_settings {
+      insecure_no_strict_host_key_checking = "${var.insecure_no_strict_host_key_checking}"
+      insecure_bastion_no_strict_host_key_checking = "${var.insecure_bastion_no_strict_host_key_checking}"
+      connect_timeout_seconds = 60
     }
   }
 
