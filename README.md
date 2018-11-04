@@ -52,8 +52,10 @@ $ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible apply
 To select a version of the provisioner included in the Docker image, use the `TAP_VERSION` build argument:
 
 ```console
-$ docker build --build-arg TAP_VERSION=2.0.1 -t terraform-ansible .
+$ docker build --build-arg TAP_VERSION=$(cat .version) -t terraform-ansible:$(cat .version) .
 ```
+
+To build a Docker image from a released versiion, check out the correct tag first.
 
 ### Local Installation
 
