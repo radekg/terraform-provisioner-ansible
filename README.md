@@ -49,6 +49,12 @@ $ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible init
 $ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible apply
 ```
 
+To select a version of the provisioner included in the Docker image, use the `TAP_VERSION` build argument:
+
+```console
+$ docker build --build-arg TAP_VERSION=2.0.1 -t terraform-ansible .
+```
+
 ### Local Installation
 
 Note that although `terraform-provisioner-ansible` is in the [terraform registry](https://registry.terraform.io/modules/radekg/ansible/provisioner/2.0.0), it cannot be installed using a `module` terraform stanza, as such a configuration will not cause terraform to download the `terraform-provisioner-ansible` binary.
