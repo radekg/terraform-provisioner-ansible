@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"golang.org/x/text/internal/gen"
+	"golang.org/x/text/internal/language/compact"
 	"golang.org/x/text/language"
 	"golang.org/x/text/unicode/cldr"
 )
@@ -73,7 +74,7 @@ func TestBuild(t *testing.T) {
 	tree1, _ := loadTestdata(t, "test1")
 	tree2, _ := loadTestdata(t, "test2")
 
-	// Constants for second test test
+	// Constants for second test
 	const (
 		calendar = iota
 		field
@@ -277,7 +278,7 @@ func TestBuild(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			tag, _ := language.CompactIndex(language.MustParse(tc.locale))
+			tag, _ := compact.RegionalID(compact.Tag(language.MustParse(tc.locale)))
 			s := tc.tree.lookup(tag, tc.isFeature, tc.path...)
 			if s != tc.result {
 				t.Errorf("got %q; want %q", s, tc.result)
@@ -448,7 +449,7 @@ func loadTestdata(t *testing.T, test string) (tree *Tree, file []byte) {
 	generate(b, tree, w)
 	generateTestData(b, w)
 	buf := &bytes.Buffer{}
-	if _, err = w.WriteGo(buf, "test"); err != nil {
+	if _, err = w.WriteGo(buf, "test", ""); err != nil {
 		t.Log(buf.String())
 		t.Fatal("error generating code:", err)
 	}

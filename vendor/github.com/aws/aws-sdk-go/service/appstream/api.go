@@ -15,8 +15,8 @@ const opAssociateFleet = "AssociateFleet"
 
 // AssociateFleetRequest generates a "aws/request.Request" representing the
 // client's request for the AssociateFleet operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -68,6 +68,10 @@ func (c *AppStream) AssociateFleetRequest(input *AssociateFleetInput) (req *requ
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
 //
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
 //   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
 //   The specified resource was not found.
 //
@@ -102,12 +106,263 @@ func (c *AppStream) AssociateFleetWithContext(ctx aws.Context, input *AssociateF
 	return out, req.Send()
 }
 
+const opBatchAssociateUserStack = "BatchAssociateUserStack"
+
+// BatchAssociateUserStackRequest generates a "aws/request.Request" representing the
+// client's request for the BatchAssociateUserStack operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See BatchAssociateUserStack for more information on using the BatchAssociateUserStack
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the BatchAssociateUserStackRequest method.
+//    req, resp := client.BatchAssociateUserStackRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/BatchAssociateUserStack
+func (c *AppStream) BatchAssociateUserStackRequest(input *BatchAssociateUserStackInput) (req *request.Request, output *BatchAssociateUserStackOutput) {
+	op := &request.Operation{
+		Name:       opBatchAssociateUserStack,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &BatchAssociateUserStackInput{}
+	}
+
+	output = &BatchAssociateUserStackOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// BatchAssociateUserStack API operation for Amazon AppStream.
+//
+// Associates the specified users with the specified stacks. Users in a user
+// pool cannot be assigned to stacks with fleets that are joined to an Active
+// Directory domain.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation BatchAssociateUserStack for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeOperationNotPermittedException "OperationNotPermittedException"
+//   The attempted operation is not permitted.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/BatchAssociateUserStack
+func (c *AppStream) BatchAssociateUserStack(input *BatchAssociateUserStackInput) (*BatchAssociateUserStackOutput, error) {
+	req, out := c.BatchAssociateUserStackRequest(input)
+	return out, req.Send()
+}
+
+// BatchAssociateUserStackWithContext is the same as BatchAssociateUserStack with the addition of
+// the ability to pass a context and additional request options.
+//
+// See BatchAssociateUserStack for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) BatchAssociateUserStackWithContext(ctx aws.Context, input *BatchAssociateUserStackInput, opts ...request.Option) (*BatchAssociateUserStackOutput, error) {
+	req, out := c.BatchAssociateUserStackRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opBatchDisassociateUserStack = "BatchDisassociateUserStack"
+
+// BatchDisassociateUserStackRequest generates a "aws/request.Request" representing the
+// client's request for the BatchDisassociateUserStack operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See BatchDisassociateUserStack for more information on using the BatchDisassociateUserStack
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the BatchDisassociateUserStackRequest method.
+//    req, resp := client.BatchDisassociateUserStackRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/BatchDisassociateUserStack
+func (c *AppStream) BatchDisassociateUserStackRequest(input *BatchDisassociateUserStackInput) (req *request.Request, output *BatchDisassociateUserStackOutput) {
+	op := &request.Operation{
+		Name:       opBatchDisassociateUserStack,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &BatchDisassociateUserStackInput{}
+	}
+
+	output = &BatchDisassociateUserStackOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// BatchDisassociateUserStack API operation for Amazon AppStream.
+//
+// Disassociates the specified users from the specified stacks.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation BatchDisassociateUserStack for usage and error information.
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/BatchDisassociateUserStack
+func (c *AppStream) BatchDisassociateUserStack(input *BatchDisassociateUserStackInput) (*BatchDisassociateUserStackOutput, error) {
+	req, out := c.BatchDisassociateUserStackRequest(input)
+	return out, req.Send()
+}
+
+// BatchDisassociateUserStackWithContext is the same as BatchDisassociateUserStack with the addition of
+// the ability to pass a context and additional request options.
+//
+// See BatchDisassociateUserStack for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) BatchDisassociateUserStackWithContext(ctx aws.Context, input *BatchDisassociateUserStackInput, opts ...request.Option) (*BatchDisassociateUserStackOutput, error) {
+	req, out := c.BatchDisassociateUserStackRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opCopyImage = "CopyImage"
+
+// CopyImageRequest generates a "aws/request.Request" representing the
+// client's request for the CopyImage operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CopyImage for more information on using the CopyImage
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the CopyImageRequest method.
+//    req, resp := client.CopyImageRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CopyImage
+func (c *AppStream) CopyImageRequest(input *CopyImageInput) (req *request.Request, output *CopyImageOutput) {
+	op := &request.Operation{
+		Name:       opCopyImage,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CopyImageInput{}
+	}
+
+	output = &CopyImageOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CopyImage API operation for Amazon AppStream.
+//
+// Copies the image within the same region or to a new region within the same
+// AWS account. Note that any tags you added to the image will not be copied.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation CopyImage for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceAlreadyExistsException "ResourceAlreadyExistsException"
+//   The specified resource already exists.
+//
+//   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
+//   The specified resource was not found.
+//
+//   * ErrCodeResourceNotAvailableException "ResourceNotAvailableException"
+//   The specified resource exists and is not in use, but isn't available.
+//
+//   * ErrCodeLimitExceededException "LimitExceededException"
+//   The requested limit exceeds the permitted limit for an account.
+//
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
+//   * ErrCodeIncompatibleImageException "IncompatibleImageException"
+//   The image does not support storage connectors.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CopyImage
+func (c *AppStream) CopyImage(input *CopyImageInput) (*CopyImageOutput, error) {
+	req, out := c.CopyImageRequest(input)
+	return out, req.Send()
+}
+
+// CopyImageWithContext is the same as CopyImage with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CopyImage for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) CopyImageWithContext(ctx aws.Context, input *CopyImageInput, opts ...request.Option) (*CopyImageOutput, error) {
+	req, out := c.CopyImageRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opCreateDirectoryConfig = "CreateDirectoryConfig"
 
 // CreateDirectoryConfigRequest generates a "aws/request.Request" representing the
 // client's request for the CreateDirectoryConfig operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -146,7 +401,9 @@ func (c *AppStream) CreateDirectoryConfigRequest(input *CreateDirectoryConfigInp
 
 // CreateDirectoryConfig API operation for Amazon AppStream.
 //
-// Creates a directory configuration.
+// Creates a Directory Config object in AppStream 2.0. This object includes
+// the information required to join streaming instances to an Active Directory
+// domain.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -161,6 +418,10 @@ func (c *AppStream) CreateDirectoryConfigRequest(input *CreateDirectoryConfigInp
 //
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
+//
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateDirectoryConfig
 func (c *AppStream) CreateDirectoryConfig(input *CreateDirectoryConfigInput) (*CreateDirectoryConfigOutput, error) {
@@ -188,8 +449,8 @@ const opCreateFleet = "CreateFleet"
 
 // CreateFleetRequest generates a "aws/request.Request" representing the
 // client's request for the CreateFleet operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -228,7 +489,8 @@ func (c *AppStream) CreateFleetRequest(input *CreateFleetInput) (req *request.Re
 
 // CreateFleet API operation for Amazon AppStream.
 //
-// Creates a fleet.
+// Creates a fleet. A fleet consists of streaming instances that run a specified
+// image.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -250,6 +512,10 @@ func (c *AppStream) CreateFleetRequest(input *CreateFleetInput) (req *request.Re
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
 //
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
 //   * ErrCodeInvalidRoleException "InvalidRoleException"
 //   The specified role is invalid.
 //
@@ -261,6 +527,9 @@ func (c *AppStream) CreateFleetRequest(input *CreateFleetInput) (req *request.Re
 //
 //   * ErrCodeIncompatibleImageException "IncompatibleImageException"
 //   The image does not support storage connectors.
+//
+//   * ErrCodeOperationNotPermittedException "OperationNotPermittedException"
+//   The attempted operation is not permitted.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateFleet
 func (c *AppStream) CreateFleet(input *CreateFleetInput) (*CreateFleetOutput, error) {
@@ -288,8 +557,8 @@ const opCreateImageBuilder = "CreateImageBuilder"
 
 // CreateImageBuilderRequest generates a "aws/request.Request" representing the
 // client's request for the CreateImageBuilder operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -328,7 +597,8 @@ func (c *AppStream) CreateImageBuilderRequest(input *CreateImageBuilderInput) (r
 
 // CreateImageBuilder API operation for Amazon AppStream.
 //
-// Creates an image builder.
+// Creates an image builder. An image builder is a virtual machine that is used
+// to create an image.
 //
 // The initial state of the builder is PENDING. When it is ready, the state
 // is RUNNING.
@@ -343,6 +613,10 @@ func (c *AppStream) CreateImageBuilderRequest(input *CreateImageBuilderInput) (r
 // Returned Error Codes:
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
+//
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
 //
 //   * ErrCodeResourceAlreadyExistsException "ResourceAlreadyExistsException"
 //   The specified resource already exists.
@@ -364,6 +638,9 @@ func (c *AppStream) CreateImageBuilderRequest(input *CreateImageBuilderInput) (r
 //
 //   * ErrCodeIncompatibleImageException "IncompatibleImageException"
 //   The image does not support storage connectors.
+//
+//   * ErrCodeOperationNotPermittedException "OperationNotPermittedException"
+//   The attempted operation is not permitted.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateImageBuilder
 func (c *AppStream) CreateImageBuilder(input *CreateImageBuilderInput) (*CreateImageBuilderOutput, error) {
@@ -391,8 +668,8 @@ const opCreateImageBuilderStreamingURL = "CreateImageBuilderStreamingURL"
 
 // CreateImageBuilderStreamingURLRequest generates a "aws/request.Request" representing the
 // client's request for the CreateImageBuilderStreamingURL operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -473,8 +750,8 @@ const opCreateStack = "CreateStack"
 
 // CreateStackRequest generates a "aws/request.Request" representing the
 // client's request for the CreateStack operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -513,7 +790,8 @@ func (c *AppStream) CreateStackRequest(input *CreateStackInput) (req *request.Re
 
 // CreateStack API operation for Amazon AppStream.
 //
-// Creates a stack.
+// Creates a stack to start streaming applications to users. A stack consists
+// of an associated fleet, user access policies, and storage configurations.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -525,6 +803,10 @@ func (c *AppStream) CreateStackRequest(input *CreateStackInput) (req *request.Re
 // Returned Error Codes:
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
+//
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
 //
 //   * ErrCodeResourceAlreadyExistsException "ResourceAlreadyExistsException"
 //   The specified resource already exists.
@@ -567,8 +849,8 @@ const opCreateStreamingURL = "CreateStreamingURL"
 
 // CreateStreamingURLRequest generates a "aws/request.Request" representing the
 // client's request for the CreateStreamingURL operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -607,7 +889,9 @@ func (c *AppStream) CreateStreamingURLRequest(input *CreateStreamingURLInput) (r
 
 // CreateStreamingURL API operation for Amazon AppStream.
 //
-// Creates a URL to start a streaming session for the specified user.
+// Creates a temporary URL to start an AppStream 2.0 streaming session for the
+// specified user. A streaming URL enables application streaming to be tested
+// without user setup.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -651,12 +935,104 @@ func (c *AppStream) CreateStreamingURLWithContext(ctx aws.Context, input *Create
 	return out, req.Send()
 }
 
+const opCreateUser = "CreateUser"
+
+// CreateUserRequest generates a "aws/request.Request" representing the
+// client's request for the CreateUser operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateUser for more information on using the CreateUser
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the CreateUserRequest method.
+//    req, resp := client.CreateUserRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateUser
+func (c *AppStream) CreateUserRequest(input *CreateUserInput) (req *request.Request, output *CreateUserOutput) {
+	op := &request.Operation{
+		Name:       opCreateUser,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateUserInput{}
+	}
+
+	output = &CreateUserOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateUser API operation for Amazon AppStream.
+//
+// Creates a new user in the user pool.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation CreateUser for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceAlreadyExistsException "ResourceAlreadyExistsException"
+//   The specified resource already exists.
+//
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
+//   * ErrCodeInvalidParameterCombinationException "InvalidParameterCombinationException"
+//   Indicates an incorrect combination of parameters, or a missing parameter.
+//
+//   * ErrCodeLimitExceededException "LimitExceededException"
+//   The requested limit exceeds the permitted limit for an account.
+//
+//   * ErrCodeOperationNotPermittedException "OperationNotPermittedException"
+//   The attempted operation is not permitted.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateUser
+func (c *AppStream) CreateUser(input *CreateUserInput) (*CreateUserOutput, error) {
+	req, out := c.CreateUserRequest(input)
+	return out, req.Send()
+}
+
+// CreateUserWithContext is the same as CreateUser with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateUser for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) CreateUserWithContext(ctx aws.Context, input *CreateUserInput, opts ...request.Option) (*CreateUserOutput, error) {
+	req, out := c.CreateUserRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opDeleteDirectoryConfig = "DeleteDirectoryConfig"
 
 // DeleteDirectoryConfigRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteDirectoryConfig operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -695,7 +1071,9 @@ func (c *AppStream) DeleteDirectoryConfigRequest(input *DeleteDirectoryConfigInp
 
 // DeleteDirectoryConfig API operation for Amazon AppStream.
 //
-// Deletes the specified directory configuration.
+// Deletes the specified Directory Config object from AppStream 2.0. This object
+// includes the information required to join streaming instances to an Active
+// Directory domain.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -737,8 +1115,8 @@ const opDeleteFleet = "DeleteFleet"
 
 // DeleteFleetRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteFleet operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -822,8 +1200,8 @@ const opDeleteImage = "DeleteImage"
 
 // DeleteImageRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteImage operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -862,9 +1240,8 @@ func (c *AppStream) DeleteImageRequest(input *DeleteImageInput) (req *request.Re
 
 // DeleteImage API operation for Amazon AppStream.
 //
-// Deletes the specified image. You cannot delete an image that is currently
-// in use. After you delete an image, you cannot provision new capacity using
-// the image.
+// Deletes the specified image. You cannot delete an image when it is in use.
+// After you delete an image, you cannot provision new capacity using the image.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -912,8 +1289,8 @@ const opDeleteImageBuilder = "DeleteImageBuilder"
 
 // DeleteImageBuilderRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteImageBuilder operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -993,12 +1370,96 @@ func (c *AppStream) DeleteImageBuilderWithContext(ctx aws.Context, input *Delete
 	return out, req.Send()
 }
 
+const opDeleteImagePermissions = "DeleteImagePermissions"
+
+// DeleteImagePermissionsRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteImagePermissions operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteImagePermissions for more information on using the DeleteImagePermissions
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DeleteImagePermissionsRequest method.
+//    req, resp := client.DeleteImagePermissionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteImagePermissions
+func (c *AppStream) DeleteImagePermissionsRequest(input *DeleteImagePermissionsInput) (req *request.Request, output *DeleteImagePermissionsOutput) {
+	op := &request.Operation{
+		Name:       opDeleteImagePermissions,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteImagePermissionsInput{}
+	}
+
+	output = &DeleteImagePermissionsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DeleteImagePermissions API operation for Amazon AppStream.
+//
+// Deletes permissions for the specified private image. After you delete permissions
+// for an image, AWS accounts to which you previously granted these permissions
+// can no longer use the image.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation DeleteImagePermissions for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceNotAvailableException "ResourceNotAvailableException"
+//   The specified resource exists and is not in use, but isn't available.
+//
+//   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
+//   The specified resource was not found.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteImagePermissions
+func (c *AppStream) DeleteImagePermissions(input *DeleteImagePermissionsInput) (*DeleteImagePermissionsOutput, error) {
+	req, out := c.DeleteImagePermissionsRequest(input)
+	return out, req.Send()
+}
+
+// DeleteImagePermissionsWithContext is the same as DeleteImagePermissions with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteImagePermissions for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) DeleteImagePermissionsWithContext(ctx aws.Context, input *DeleteImagePermissionsInput, opts ...request.Option) (*DeleteImagePermissionsOutput, error) {
+	req, out := c.DeleteImagePermissionsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opDeleteStack = "DeleteStack"
 
 // DeleteStackRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteStack operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1037,8 +1498,10 @@ func (c *AppStream) DeleteStackRequest(input *DeleteStackInput) (req *request.Re
 
 // DeleteStack API operation for Amazon AppStream.
 //
-// Deletes the specified stack. After this operation completes, the environment
-// can no longer be activated and any reservations made for the stack are released.
+// Deletes the specified stack. After the stack is deleted, the application
+// streaming environment provided by the stack is no longer available to users.
+// Also, any reservations made for application streaming sessions for the stack
+// are released.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1079,12 +1542,91 @@ func (c *AppStream) DeleteStackWithContext(ctx aws.Context, input *DeleteStackIn
 	return out, req.Send()
 }
 
+const opDeleteUser = "DeleteUser"
+
+// DeleteUserRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteUser operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteUser for more information on using the DeleteUser
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DeleteUserRequest method.
+//    req, resp := client.DeleteUserRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteUser
+func (c *AppStream) DeleteUserRequest(input *DeleteUserInput) (req *request.Request, output *DeleteUserOutput) {
+	op := &request.Operation{
+		Name:       opDeleteUser,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteUserInput{}
+	}
+
+	output = &DeleteUserOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DeleteUser API operation for Amazon AppStream.
+//
+// Deletes a user from the user pool.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation DeleteUser for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
+//   The specified resource was not found.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteUser
+func (c *AppStream) DeleteUser(input *DeleteUserInput) (*DeleteUserOutput, error) {
+	req, out := c.DeleteUserRequest(input)
+	return out, req.Send()
+}
+
+// DeleteUserWithContext is the same as DeleteUser with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteUser for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) DeleteUserWithContext(ctx aws.Context, input *DeleteUserInput, opts ...request.Option) (*DeleteUserOutput, error) {
+	req, out := c.DeleteUserRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opDescribeDirectoryConfigs = "DescribeDirectoryConfigs"
 
 // DescribeDirectoryConfigsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeDirectoryConfigs operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1123,7 +1665,14 @@ func (c *AppStream) DescribeDirectoryConfigsRequest(input *DescribeDirectoryConf
 
 // DescribeDirectoryConfigs API operation for Amazon AppStream.
 //
-// Describes the specified directory configurations.
+// Retrieves a list that describes one or more specified Directory Config objects
+// for AppStream 2.0, if the names for these objects are provided. Otherwise,
+// all Directory Config objects in the account are described. These objects
+// include the information required to join streaming instances to an Active
+// Directory domain.
+//
+// Although the response syntax in this topic includes the account password,
+// this password is not returned in the actual response.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1162,8 +1711,8 @@ const opDescribeFleets = "DescribeFleets"
 
 // DescribeFleetsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeFleets operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1202,7 +1751,8 @@ func (c *AppStream) DescribeFleetsRequest(input *DescribeFleetsInput) (req *requ
 
 // DescribeFleets API operation for Amazon AppStream.
 //
-// Describes the specified fleets or all fleets in the account.
+// Retrieves a list that describes one or more specified fleets, if the fleet
+// names are provided. Otherwise, all fleets in the account are described.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1241,8 +1791,8 @@ const opDescribeImageBuilders = "DescribeImageBuilders"
 
 // DescribeImageBuildersRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeImageBuilders operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1281,7 +1831,9 @@ func (c *AppStream) DescribeImageBuildersRequest(input *DescribeImageBuildersInp
 
 // DescribeImageBuilders API operation for Amazon AppStream.
 //
-// Describes the specified image builders or all image builders in the account.
+// Retrieves a list that describes one or more specified image builders, if
+// the image builder names are provided. Otherwise, all image builders in the
+// account are described.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1316,12 +1868,148 @@ func (c *AppStream) DescribeImageBuildersWithContext(ctx aws.Context, input *Des
 	return out, req.Send()
 }
 
+const opDescribeImagePermissions = "DescribeImagePermissions"
+
+// DescribeImagePermissionsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeImagePermissions operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DescribeImagePermissions for more information on using the DescribeImagePermissions
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DescribeImagePermissionsRequest method.
+//    req, resp := client.DescribeImagePermissionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeImagePermissions
+func (c *AppStream) DescribeImagePermissionsRequest(input *DescribeImagePermissionsInput) (req *request.Request, output *DescribeImagePermissionsOutput) {
+	op := &request.Operation{
+		Name:       opDescribeImagePermissions,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"NextToken"},
+			OutputTokens:    []string{"NextToken"},
+			LimitToken:      "MaxResults",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &DescribeImagePermissionsInput{}
+	}
+
+	output = &DescribeImagePermissionsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DescribeImagePermissions API operation for Amazon AppStream.
+//
+// Retrieves a list that describes the permissions for shared AWS account IDs
+// on a private image that you own.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation DescribeImagePermissions for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
+//   The specified resource was not found.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeImagePermissions
+func (c *AppStream) DescribeImagePermissions(input *DescribeImagePermissionsInput) (*DescribeImagePermissionsOutput, error) {
+	req, out := c.DescribeImagePermissionsRequest(input)
+	return out, req.Send()
+}
+
+// DescribeImagePermissionsWithContext is the same as DescribeImagePermissions with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DescribeImagePermissions for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) DescribeImagePermissionsWithContext(ctx aws.Context, input *DescribeImagePermissionsInput, opts ...request.Option) (*DescribeImagePermissionsOutput, error) {
+	req, out := c.DescribeImagePermissionsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// DescribeImagePermissionsPages iterates over the pages of a DescribeImagePermissions operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeImagePermissions method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeImagePermissions operation.
+//    pageNum := 0
+//    err := client.DescribeImagePermissionsPages(params,
+//        func(page *DescribeImagePermissionsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *AppStream) DescribeImagePermissionsPages(input *DescribeImagePermissionsInput, fn func(*DescribeImagePermissionsOutput, bool) bool) error {
+	return c.DescribeImagePermissionsPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// DescribeImagePermissionsPagesWithContext same as DescribeImagePermissionsPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) DescribeImagePermissionsPagesWithContext(ctx aws.Context, input *DescribeImagePermissionsInput, fn func(*DescribeImagePermissionsOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *DescribeImagePermissionsInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.DescribeImagePermissionsRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	cont := true
+	for p.Next() && cont {
+		cont = fn(p.Page().(*DescribeImagePermissionsOutput), !p.HasNextPage())
+	}
+	return p.Err()
+}
+
 const opDescribeImages = "DescribeImages"
 
 // DescribeImagesRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeImages operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1347,6 +2035,12 @@ func (c *AppStream) DescribeImagesRequest(input *DescribeImagesInput) (req *requ
 		Name:       opDescribeImages,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"NextToken"},
+			OutputTokens:    []string{"NextToken"},
+			LimitToken:      "MaxResults",
+			TruncationToken: "",
+		},
 	}
 
 	if input == nil {
@@ -1360,7 +2054,9 @@ func (c *AppStream) DescribeImagesRequest(input *DescribeImagesInput) (req *requ
 
 // DescribeImages API operation for Amazon AppStream.
 //
-// Describes the specified images or all images in the account.
+// Retrieves a list that describes one or more specified images, if the image
+// names or image ARNs are provided. Otherwise, all images in the account are
+// described.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1370,6 +2066,9 @@ func (c *AppStream) DescribeImagesRequest(input *DescribeImagesInput) (req *requ
 // API operation DescribeImages for usage and error information.
 //
 // Returned Error Codes:
+//   * ErrCodeInvalidParameterCombinationException "InvalidParameterCombinationException"
+//   Indicates an incorrect combination of parameters, or a missing parameter.
+//
 //   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
 //   The specified resource was not found.
 //
@@ -1395,12 +2094,62 @@ func (c *AppStream) DescribeImagesWithContext(ctx aws.Context, input *DescribeIm
 	return out, req.Send()
 }
 
+// DescribeImagesPages iterates over the pages of a DescribeImages operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeImages method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeImages operation.
+//    pageNum := 0
+//    err := client.DescribeImagesPages(params,
+//        func(page *DescribeImagesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *AppStream) DescribeImagesPages(input *DescribeImagesInput, fn func(*DescribeImagesOutput, bool) bool) error {
+	return c.DescribeImagesPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// DescribeImagesPagesWithContext same as DescribeImagesPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) DescribeImagesPagesWithContext(ctx aws.Context, input *DescribeImagesInput, fn func(*DescribeImagesOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *DescribeImagesInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.DescribeImagesRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	cont := true
+	for p.Next() && cont {
+		cont = fn(p.Page().(*DescribeImagesOutput), !p.HasNextPage())
+	}
+	return p.Err()
+}
+
 const opDescribeSessions = "DescribeSessions"
 
 // DescribeSessionsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeSessions operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1439,10 +2188,10 @@ func (c *AppStream) DescribeSessionsRequest(input *DescribeSessionsInput) (req *
 
 // DescribeSessions API operation for Amazon AppStream.
 //
-// Describes the streaming sessions for the specified stack and fleet. If a
-// user ID is provided, only the streaming sessions for only that user are returned.
-// If an authentication type is not provided, the default is to authenticate
-// users using a streaming URL.
+// Retrieves a list that describes the streaming sessions for a specified stack
+// and fleet. If a user ID is provided for the stack and fleet, only streaming
+// sessions for that user are described. If an authentication type is not provided,
+// the default is to authenticate users using a streaming URL.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1481,8 +2230,8 @@ const opDescribeStacks = "DescribeStacks"
 
 // DescribeStacksRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeStacks operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1521,7 +2270,8 @@ func (c *AppStream) DescribeStacksRequest(input *DescribeStacksInput) (req *requ
 
 // DescribeStacks API operation for Amazon AppStream.
 //
-// Describes the specified stacks or all stacks in the account.
+// Retrieves a list that describes one or more specified stacks, if the stack
+// names are provided. Otherwise, all stacks in the account are described.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1556,12 +2306,260 @@ func (c *AppStream) DescribeStacksWithContext(ctx aws.Context, input *DescribeSt
 	return out, req.Send()
 }
 
+const opDescribeUserStackAssociations = "DescribeUserStackAssociations"
+
+// DescribeUserStackAssociationsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeUserStackAssociations operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DescribeUserStackAssociations for more information on using the DescribeUserStackAssociations
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DescribeUserStackAssociationsRequest method.
+//    req, resp := client.DescribeUserStackAssociationsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeUserStackAssociations
+func (c *AppStream) DescribeUserStackAssociationsRequest(input *DescribeUserStackAssociationsInput) (req *request.Request, output *DescribeUserStackAssociationsOutput) {
+	op := &request.Operation{
+		Name:       opDescribeUserStackAssociations,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DescribeUserStackAssociationsInput{}
+	}
+
+	output = &DescribeUserStackAssociationsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DescribeUserStackAssociations API operation for Amazon AppStream.
+//
+// Retrieves a list that describes the UserStackAssociation objects. You must
+// specify either or both of the following:
+//
+//    * The stack name
+//
+//    * The user name (email address of the user associated with the stack)
+//    and the authentication type for the user
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation DescribeUserStackAssociations for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeInvalidParameterCombinationException "InvalidParameterCombinationException"
+//   Indicates an incorrect combination of parameters, or a missing parameter.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeUserStackAssociations
+func (c *AppStream) DescribeUserStackAssociations(input *DescribeUserStackAssociationsInput) (*DescribeUserStackAssociationsOutput, error) {
+	req, out := c.DescribeUserStackAssociationsRequest(input)
+	return out, req.Send()
+}
+
+// DescribeUserStackAssociationsWithContext is the same as DescribeUserStackAssociations with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DescribeUserStackAssociations for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) DescribeUserStackAssociationsWithContext(ctx aws.Context, input *DescribeUserStackAssociationsInput, opts ...request.Option) (*DescribeUserStackAssociationsOutput, error) {
+	req, out := c.DescribeUserStackAssociationsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDescribeUsers = "DescribeUsers"
+
+// DescribeUsersRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeUsers operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DescribeUsers for more information on using the DescribeUsers
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DescribeUsersRequest method.
+//    req, resp := client.DescribeUsersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeUsers
+func (c *AppStream) DescribeUsersRequest(input *DescribeUsersInput) (req *request.Request, output *DescribeUsersOutput) {
+	op := &request.Operation{
+		Name:       opDescribeUsers,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DescribeUsersInput{}
+	}
+
+	output = &DescribeUsersOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DescribeUsers API operation for Amazon AppStream.
+//
+// Retrieves a list that describes one or more specified users in the user pool,
+// if user names are provided. Otherwise, all users in the user pool are described.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation DescribeUsers for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
+//   The specified resource was not found.
+//
+//   * ErrCodeInvalidParameterCombinationException "InvalidParameterCombinationException"
+//   Indicates an incorrect combination of parameters, or a missing parameter.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeUsers
+func (c *AppStream) DescribeUsers(input *DescribeUsersInput) (*DescribeUsersOutput, error) {
+	req, out := c.DescribeUsersRequest(input)
+	return out, req.Send()
+}
+
+// DescribeUsersWithContext is the same as DescribeUsers with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DescribeUsers for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) DescribeUsersWithContext(ctx aws.Context, input *DescribeUsersInput, opts ...request.Option) (*DescribeUsersOutput, error) {
+	req, out := c.DescribeUsersRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDisableUser = "DisableUser"
+
+// DisableUserRequest generates a "aws/request.Request" representing the
+// client's request for the DisableUser operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DisableUser for more information on using the DisableUser
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DisableUserRequest method.
+//    req, resp := client.DisableUserRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DisableUser
+func (c *AppStream) DisableUserRequest(input *DisableUserInput) (req *request.Request, output *DisableUserOutput) {
+	op := &request.Operation{
+		Name:       opDisableUser,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DisableUserInput{}
+	}
+
+	output = &DisableUserOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DisableUser API operation for Amazon AppStream.
+//
+// Disables the specified user in the user pool. Users can't sign in to AppStream
+// 2.0 until they are re-enabled. This action does not delete the user.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation DisableUser for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
+//   The specified resource was not found.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DisableUser
+func (c *AppStream) DisableUser(input *DisableUserInput) (*DisableUserOutput, error) {
+	req, out := c.DisableUserRequest(input)
+	return out, req.Send()
+}
+
+// DisableUserWithContext is the same as DisableUser with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DisableUser for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) DisableUserWithContext(ctx aws.Context, input *DisableUserInput, opts ...request.Option) (*DisableUserOutput, error) {
+	req, out := c.DisableUserRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opDisassociateFleet = "DisassociateFleet"
 
 // DisassociateFleetRequest generates a "aws/request.Request" representing the
 // client's request for the DisassociateFleet operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1641,12 +2639,96 @@ func (c *AppStream) DisassociateFleetWithContext(ctx aws.Context, input *Disasso
 	return out, req.Send()
 }
 
+const opEnableUser = "EnableUser"
+
+// EnableUserRequest generates a "aws/request.Request" representing the
+// client's request for the EnableUser operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See EnableUser for more information on using the EnableUser
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the EnableUserRequest method.
+//    req, resp := client.EnableUserRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/EnableUser
+func (c *AppStream) EnableUserRequest(input *EnableUserInput) (req *request.Request, output *EnableUserOutput) {
+	op := &request.Operation{
+		Name:       opEnableUser,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &EnableUserInput{}
+	}
+
+	output = &EnableUserOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// EnableUser API operation for Amazon AppStream.
+//
+// Enables a user in the user pool. After being enabled, users can sign in to
+// AppStream 2.0 and open applications from the stacks to which they are assigned.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation EnableUser for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
+//   The specified resource was not found.
+//
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/EnableUser
+func (c *AppStream) EnableUser(input *EnableUserInput) (*EnableUserOutput, error) {
+	req, out := c.EnableUserRequest(input)
+	return out, req.Send()
+}
+
+// EnableUserWithContext is the same as EnableUser with the addition of
+// the ability to pass a context and additional request options.
+//
+// See EnableUser for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) EnableUserWithContext(ctx aws.Context, input *EnableUserInput, opts ...request.Option) (*EnableUserOutput, error) {
+	req, out := c.EnableUserRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opExpireSession = "ExpireSession"
 
 // ExpireSessionRequest generates a "aws/request.Request" representing the
 // client's request for the ExpireSession operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1685,7 +2767,7 @@ func (c *AppStream) ExpireSessionRequest(input *ExpireSessionInput) (req *reques
 
 // ExpireSession API operation for Amazon AppStream.
 //
-// Stops the specified streaming session.
+// Immediately stops the specified streaming session.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1719,8 +2801,8 @@ const opListAssociatedFleets = "ListAssociatedFleets"
 
 // ListAssociatedFleetsRequest generates a "aws/request.Request" representing the
 // client's request for the ListAssociatedFleets operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1759,7 +2841,7 @@ func (c *AppStream) ListAssociatedFleetsRequest(input *ListAssociatedFleetsInput
 
 // ListAssociatedFleets API operation for Amazon AppStream.
 //
-// Lists the fleets associated with the specified stack.
+// Retrieves the name of the fleet that is associated with the specified stack.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1793,8 +2875,8 @@ const opListAssociatedStacks = "ListAssociatedStacks"
 
 // ListAssociatedStacksRequest generates a "aws/request.Request" representing the
 // client's request for the ListAssociatedStacks operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1833,7 +2915,7 @@ func (c *AppStream) ListAssociatedStacksRequest(input *ListAssociatedStacksInput
 
 // ListAssociatedStacks API operation for Amazon AppStream.
 //
-// Lists the stacks associated with the specified fleet.
+// Retrieves the name of the stack with which the specified fleet is associated.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1867,8 +2949,8 @@ const opListTagsForResource = "ListTagsForResource"
 
 // ListTagsForResourceRequest generates a "aws/request.Request" representing the
 // client's request for the ListTagsForResource operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1907,10 +2989,10 @@ func (c *AppStream) ListTagsForResourceRequest(input *ListTagsForResourceInput) 
 
 // ListTagsForResource API operation for Amazon AppStream.
 //
-// Lists the tags for the specified AppStream 2.0 resource. You can tag AppStream
-// 2.0 image builders, images, fleets, and stacks.
+// Retrieves a list of all tags for the specified AppStream 2.0 resource. You
+// can tag AppStream 2.0 image builders, images, fleets, and stacks.
 //
-// For more information about tags, see Tagging Your Resources (http://docs.aws.amazon.com/appstream2/latest/developerguide/tagging-basic)
+// For more information about tags, see Tagging Your Resources (http://docs.aws.amazon.com/appstream2/latest/developerguide/tagging-basic.html)
 // in the Amazon AppStream 2.0 Developer Guide.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -1950,8 +3032,8 @@ const opStartFleet = "StartFleet"
 
 // StartFleetRequest generates a "aws/request.Request" representing the
 // client's request for the StartFleet operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2009,6 +3091,10 @@ func (c *AppStream) StartFleetRequest(input *StartFleetInput) (req *request.Requ
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
 //
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
 //   * ErrCodeConcurrentModificationException "ConcurrentModificationException"
 //   An API error occurred. Wait a few minutes and try again.
 //
@@ -2038,8 +3124,8 @@ const opStartImageBuilder = "StartImageBuilder"
 
 // StartImageBuilderRequest generates a "aws/request.Request" representing the
 // client's request for the StartImageBuilder operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2097,6 +3183,10 @@ func (c *AppStream) StartImageBuilderRequest(input *StartImageBuilderInput) (req
 //   * ErrCodeConcurrentModificationException "ConcurrentModificationException"
 //   An API error occurred. Wait a few minutes and try again.
 //
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
 //   * ErrCodeIncompatibleImageException "IncompatibleImageException"
 //   The image does not support storage connectors.
 //
@@ -2126,8 +3216,8 @@ const opStopFleet = "StopFleet"
 
 // StopFleetRequest generates a "aws/request.Request" representing the
 // client's request for the StopFleet operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2208,8 +3298,8 @@ const opStopImageBuilder = "StopImageBuilder"
 
 // StopImageBuilderRequest generates a "aws/request.Request" representing the
 // client's request for the StopImageBuilder operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2293,8 +3383,8 @@ const opTagResource = "TagResource"
 
 // TagResourceRequest generates a "aws/request.Request" representing the
 // client's request for the TagResource operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2342,7 +3432,7 @@ func (c *AppStream) TagResourceRequest(input *TagResourceInput) (req *request.Re
 // To list the current tags for your resources, use ListTagsForResource. To
 // disassociate tags from your resources, use UntagResource.
 //
-// For more information about tags, see Tagging Your Resources (http://docs.aws.amazon.com/appstream2/latest/developerguide/tagging-basic)
+// For more information about tags, see Tagging Your Resources (http://docs.aws.amazon.com/appstream2/latest/developerguide/tagging-basic.html)
 // in the Amazon AppStream 2.0 Developer Guide.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -2355,6 +3445,10 @@ func (c *AppStream) TagResourceRequest(input *TagResourceInput) (req *request.Re
 // Returned Error Codes:
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
+//
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
 //
 //   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
 //   The specified resource was not found.
@@ -2385,8 +3479,8 @@ const opUntagResource = "UntagResource"
 
 // UntagResourceRequest generates a "aws/request.Request" representing the
 // client's request for the UntagResource operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2425,11 +3519,12 @@ func (c *AppStream) UntagResourceRequest(input *UntagResourceInput) (req *reques
 
 // UntagResource API operation for Amazon AppStream.
 //
-// Disassociates the specified tags from the specified AppStream 2.0 resource.
+// Disassociates one or more specified tags from the specified AppStream 2.0
+// resource.
 //
 // To list the current tags for your resources, use ListTagsForResource.
 //
-// For more information about tags, see Tagging Your Resources (http://docs.aws.amazon.com/appstream2/latest/developerguide/tagging-basic)
+// For more information about tags, see Tagging Your Resources (http://docs.aws.amazon.com/appstream2/latest/developerguide/tagging-basic.html)
 // in the Amazon AppStream 2.0 Developer Guide.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -2469,8 +3564,8 @@ const opUpdateDirectoryConfig = "UpdateDirectoryConfig"
 
 // UpdateDirectoryConfigRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateDirectoryConfig operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2509,7 +3604,9 @@ func (c *AppStream) UpdateDirectoryConfigRequest(input *UpdateDirectoryConfigInp
 
 // UpdateDirectoryConfig API operation for Amazon AppStream.
 //
-// Updates the specified directory configuration.
+// Updates the specified Directory Config object in AppStream 2.0. This object
+// includes the information required to join streaming instances to an Active
+// Directory domain.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2554,8 +3651,8 @@ const opUpdateFleet = "UpdateFleet"
 
 // UpdateFleetRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateFleet operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2615,6 +3712,10 @@ func (c *AppStream) UpdateFleetRequest(input *UpdateFleetInput) (req *request.Re
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
 //
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
 //   * ErrCodeInvalidRoleException "InvalidRoleException"
 //   The specified role is invalid.
 //
@@ -2658,12 +3759,97 @@ func (c *AppStream) UpdateFleetWithContext(ctx aws.Context, input *UpdateFleetIn
 	return out, req.Send()
 }
 
+const opUpdateImagePermissions = "UpdateImagePermissions"
+
+// UpdateImagePermissionsRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateImagePermissions operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See UpdateImagePermissions for more information on using the UpdateImagePermissions
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the UpdateImagePermissionsRequest method.
+//    req, resp := client.UpdateImagePermissionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateImagePermissions
+func (c *AppStream) UpdateImagePermissionsRequest(input *UpdateImagePermissionsInput) (req *request.Request, output *UpdateImagePermissionsOutput) {
+	op := &request.Operation{
+		Name:       opUpdateImagePermissions,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &UpdateImagePermissionsInput{}
+	}
+
+	output = &UpdateImagePermissionsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// UpdateImagePermissions API operation for Amazon AppStream.
+//
+// Adds or updates permissions for the specified private image.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon AppStream's
+// API operation UpdateImagePermissions for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeResourceNotFoundException "ResourceNotFoundException"
+//   The specified resource was not found.
+//
+//   * ErrCodeResourceNotAvailableException "ResourceNotAvailableException"
+//   The specified resource exists and is not in use, but isn't available.
+//
+//   * ErrCodeLimitExceededException "LimitExceededException"
+//   The requested limit exceeds the permitted limit for an account.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateImagePermissions
+func (c *AppStream) UpdateImagePermissions(input *UpdateImagePermissionsInput) (*UpdateImagePermissionsOutput, error) {
+	req, out := c.UpdateImagePermissionsRequest(input)
+	return out, req.Send()
+}
+
+// UpdateImagePermissionsWithContext is the same as UpdateImagePermissions with the addition of
+// the ability to pass a context and additional request options.
+//
+// See UpdateImagePermissions for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AppStream) UpdateImagePermissionsWithContext(ctx aws.Context, input *UpdateImagePermissionsInput, opts ...request.Option) (*UpdateImagePermissionsOutput, error) {
+	req, out := c.UpdateImagePermissionsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opUpdateStack = "UpdateStack"
 
 // UpdateStackRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateStack operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2702,7 +3888,7 @@ func (c *AppStream) UpdateStackRequest(input *UpdateStackInput) (req *request.Re
 
 // UpdateStack API operation for Amazon AppStream.
 //
-// Updates the specified stack.
+// Updates the specified fields for the specified stack.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2727,8 +3913,15 @@ func (c *AppStream) UpdateStackRequest(input *UpdateStackInput) (req *request.Re
 //   * ErrCodeLimitExceededException "LimitExceededException"
 //   The requested limit exceeds the permitted limit for an account.
 //
+//   * ErrCodeInvalidAccountStatusException "InvalidAccountStatusException"
+//   The resource cannot be created because your AWS account is suspended. For
+//   assistance, contact AWS Support.
+//
 //   * ErrCodeIncompatibleImageException "IncompatibleImageException"
 //   The image does not support storage connectors.
+//
+//   * ErrCodeOperationNotPermittedException "OperationNotPermittedException"
+//   The attempted operation is not permitted.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateStack
 func (c *AppStream) UpdateStack(input *UpdateStackInput) (*UpdateStackOutput, error) {
@@ -2753,7 +3946,6 @@ func (c *AppStream) UpdateStackWithContext(ctx aws.Context, input *UpdateStackIn
 }
 
 // Describes an application in the application catalog.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/Application
 type Application struct {
 	_ struct{} `type:"structure"`
 
@@ -2831,7 +4023,105 @@ func (s *Application) SetName(v string) *Application {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/AssociateFleetRequest
+// The persistent application settings for users of a stack.
+type ApplicationSettings struct {
+	_ struct{} `type:"structure"`
+
+	// Enables or disables persistent application settings for users during their
+	// streaming sessions.
+	//
+	// Enabled is a required field
+	Enabled *bool `type:"boolean" required:"true"`
+
+	// The path prefix for the S3 bucket where users’ persistent application settings
+	// are stored. You can allow the same persistent application settings to be
+	// used across multiple stacks by specifying the same settings group for each
+	// stack.
+	SettingsGroup *string `type:"string"`
+}
+
+// String returns the string representation
+func (s ApplicationSettings) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ApplicationSettings) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ApplicationSettings) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ApplicationSettings"}
+	if s.Enabled == nil {
+		invalidParams.Add(request.NewErrParamRequired("Enabled"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetEnabled sets the Enabled field's value.
+func (s *ApplicationSettings) SetEnabled(v bool) *ApplicationSettings {
+	s.Enabled = &v
+	return s
+}
+
+// SetSettingsGroup sets the SettingsGroup field's value.
+func (s *ApplicationSettings) SetSettingsGroup(v string) *ApplicationSettings {
+	s.SettingsGroup = &v
+	return s
+}
+
+// Describes the persistent application settings for users of a stack.
+type ApplicationSettingsResponse struct {
+	_ struct{} `type:"structure"`
+
+	// Specifies whether persistent application settings are enabled for users during
+	// their streaming sessions.
+	Enabled *bool `type:"boolean"`
+
+	// The S3 bucket where users’ persistent application settings are stored. When
+	// persistent application settings are enabled for the first time for an account
+	// in an AWS Region, an S3 bucket is created. The bucket is unique to the AWS
+	// account and the Region.
+	S3BucketName *string `min:"1" type:"string"`
+
+	// The path prefix for the S3 bucket where users’ persistent application settings
+	// are stored.
+	SettingsGroup *string `type:"string"`
+}
+
+// String returns the string representation
+func (s ApplicationSettingsResponse) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ApplicationSettingsResponse) GoString() string {
+	return s.String()
+}
+
+// SetEnabled sets the Enabled field's value.
+func (s *ApplicationSettingsResponse) SetEnabled(v bool) *ApplicationSettingsResponse {
+	s.Enabled = &v
+	return s
+}
+
+// SetS3BucketName sets the S3BucketName field's value.
+func (s *ApplicationSettingsResponse) SetS3BucketName(v string) *ApplicationSettingsResponse {
+	s.S3BucketName = &v
+	return s
+}
+
+// SetSettingsGroup sets the SettingsGroup field's value.
+func (s *ApplicationSettingsResponse) SetSettingsGroup(v string) *ApplicationSettingsResponse {
+	s.SettingsGroup = &v
+	return s
+}
+
 type AssociateFleetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2890,7 +4180,6 @@ func (s *AssociateFleetInput) SetStackName(v string) *AssociateFleetInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/AssociateFleetResult
 type AssociateFleetOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -2905,8 +4194,149 @@ func (s AssociateFleetOutput) GoString() string {
 	return s.String()
 }
 
+type BatchAssociateUserStackInput struct {
+	_ struct{} `type:"structure"`
+
+	// The list of UserStackAssociation objects.
+	//
+	// UserStackAssociations is a required field
+	UserStackAssociations []*UserStackAssociation `type:"list" required:"true"`
+}
+
+// String returns the string representation
+func (s BatchAssociateUserStackInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BatchAssociateUserStackInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *BatchAssociateUserStackInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "BatchAssociateUserStackInput"}
+	if s.UserStackAssociations == nil {
+		invalidParams.Add(request.NewErrParamRequired("UserStackAssociations"))
+	}
+	if s.UserStackAssociations != nil {
+		for i, v := range s.UserStackAssociations {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "UserStackAssociations", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetUserStackAssociations sets the UserStackAssociations field's value.
+func (s *BatchAssociateUserStackInput) SetUserStackAssociations(v []*UserStackAssociation) *BatchAssociateUserStackInput {
+	s.UserStackAssociations = v
+	return s
+}
+
+type BatchAssociateUserStackOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The list of UserStackAssociationError objects.
+	Errors []*UserStackAssociationError `locationName:"errors" type:"list"`
+}
+
+// String returns the string representation
+func (s BatchAssociateUserStackOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BatchAssociateUserStackOutput) GoString() string {
+	return s.String()
+}
+
+// SetErrors sets the Errors field's value.
+func (s *BatchAssociateUserStackOutput) SetErrors(v []*UserStackAssociationError) *BatchAssociateUserStackOutput {
+	s.Errors = v
+	return s
+}
+
+type BatchDisassociateUserStackInput struct {
+	_ struct{} `type:"structure"`
+
+	// The list of UserStackAssociation objects.
+	//
+	// UserStackAssociations is a required field
+	UserStackAssociations []*UserStackAssociation `type:"list" required:"true"`
+}
+
+// String returns the string representation
+func (s BatchDisassociateUserStackInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BatchDisassociateUserStackInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *BatchDisassociateUserStackInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "BatchDisassociateUserStackInput"}
+	if s.UserStackAssociations == nil {
+		invalidParams.Add(request.NewErrParamRequired("UserStackAssociations"))
+	}
+	if s.UserStackAssociations != nil {
+		for i, v := range s.UserStackAssociations {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "UserStackAssociations", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetUserStackAssociations sets the UserStackAssociations field's value.
+func (s *BatchDisassociateUserStackInput) SetUserStackAssociations(v []*UserStackAssociation) *BatchDisassociateUserStackInput {
+	s.UserStackAssociations = v
+	return s
+}
+
+type BatchDisassociateUserStackOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The list of UserStackAssociationError objects.
+	Errors []*UserStackAssociationError `locationName:"errors" type:"list"`
+}
+
+// String returns the string representation
+func (s BatchDisassociateUserStackOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BatchDisassociateUserStackOutput) GoString() string {
+	return s.String()
+}
+
+// SetErrors sets the Errors field's value.
+func (s *BatchDisassociateUserStackOutput) SetErrors(v []*UserStackAssociationError) *BatchDisassociateUserStackOutput {
+	s.Errors = v
+	return s
+}
+
 // Describes the capacity for a fleet.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ComputeCapacity
 type ComputeCapacity struct {
 	_ struct{} `type:"structure"`
 
@@ -2946,7 +4376,6 @@ func (s *ComputeCapacity) SetDesiredInstances(v int64) *ComputeCapacity {
 }
 
 // Describes the capacity status for a fleet.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ComputeCapacityStatus
 type ComputeCapacityStatus struct {
 	_ struct{} `type:"structure"`
 
@@ -2999,7 +4428,108 @@ func (s *ComputeCapacityStatus) SetRunning(v int64) *ComputeCapacityStatus {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateDirectoryConfigRequest
+type CopyImageInput struct {
+	_ struct{} `type:"structure"`
+
+	// The description that the image will have when it is copied to the destination.
+	DestinationImageDescription *string `type:"string"`
+
+	// The name that the image will have when it is copied to the destination.
+	//
+	// DestinationImageName is a required field
+	DestinationImageName *string `type:"string" required:"true"`
+
+	// The destination region to which the image will be copied. This parameter
+	// is required, even if you are copying an image within the same region.
+	//
+	// DestinationRegion is a required field
+	DestinationRegion *string `min:"1" type:"string" required:"true"`
+
+	// The name of the image to copy.
+	//
+	// SourceImageName is a required field
+	SourceImageName *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s CopyImageInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CopyImageInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CopyImageInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CopyImageInput"}
+	if s.DestinationImageName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DestinationImageName"))
+	}
+	if s.DestinationRegion == nil {
+		invalidParams.Add(request.NewErrParamRequired("DestinationRegion"))
+	}
+	if s.DestinationRegion != nil && len(*s.DestinationRegion) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("DestinationRegion", 1))
+	}
+	if s.SourceImageName == nil {
+		invalidParams.Add(request.NewErrParamRequired("SourceImageName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetDestinationImageDescription sets the DestinationImageDescription field's value.
+func (s *CopyImageInput) SetDestinationImageDescription(v string) *CopyImageInput {
+	s.DestinationImageDescription = &v
+	return s
+}
+
+// SetDestinationImageName sets the DestinationImageName field's value.
+func (s *CopyImageInput) SetDestinationImageName(v string) *CopyImageInput {
+	s.DestinationImageName = &v
+	return s
+}
+
+// SetDestinationRegion sets the DestinationRegion field's value.
+func (s *CopyImageInput) SetDestinationRegion(v string) *CopyImageInput {
+	s.DestinationRegion = &v
+	return s
+}
+
+// SetSourceImageName sets the SourceImageName field's value.
+func (s *CopyImageInput) SetSourceImageName(v string) *CopyImageInput {
+	s.SourceImageName = &v
+	return s
+}
+
+type CopyImageOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the destination image.
+	DestinationImageName *string `type:"string"`
+}
+
+// String returns the string representation
+func (s CopyImageOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CopyImageOutput) GoString() string {
+	return s.String()
+}
+
+// SetDestinationImageName sets the DestinationImageName field's value.
+func (s *CopyImageOutput) SetDestinationImageName(v string) *CopyImageOutput {
+	s.DestinationImageName = &v
+	return s
+}
+
 type CreateDirectoryConfigInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3072,7 +4602,6 @@ func (s *CreateDirectoryConfigInput) SetServiceAccountCredentials(v *ServiceAcco
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateDirectoryConfigResult
 type CreateDirectoryConfigOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3096,7 +4625,6 @@ func (s *CreateDirectoryConfigOutput) SetDirectoryConfig(v *DirectoryConfig) *Cr
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateFleetRequest
 type CreateFleetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3134,10 +4662,11 @@ type CreateFleetInput struct {
 	// apps.
 	FleetType *string `type:"string" enum:"FleetType"`
 
+	// The ARN of the public, private, or shared image to use.
+	ImageArn *string `type:"string"`
+
 	// The name of the image used to create the fleet.
-	//
-	// ImageName is a required field
-	ImageName *string `min:"1" type:"string" required:"true"`
+	ImageName *string `min:"1" type:"string"`
 
 	// The instance type to use when launching fleet instances. The following instance
 	// types are available:
@@ -3214,9 +4743,6 @@ func (s *CreateFleetInput) Validate() error {
 	if s.ComputeCapacity == nil {
 		invalidParams.Add(request.NewErrParamRequired("ComputeCapacity"))
 	}
-	if s.ImageName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ImageName"))
-	}
 	if s.ImageName != nil && len(*s.ImageName) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("ImageName", 1))
 	}
@@ -3283,6 +4809,12 @@ func (s *CreateFleetInput) SetFleetType(v string) *CreateFleetInput {
 	return s
 }
 
+// SetImageArn sets the ImageArn field's value.
+func (s *CreateFleetInput) SetImageArn(v string) *CreateFleetInput {
+	s.ImageArn = &v
+	return s
+}
+
 // SetImageName sets the ImageName field's value.
 func (s *CreateFleetInput) SetImageName(v string) *CreateFleetInput {
 	s.ImageName = &v
@@ -3313,7 +4845,6 @@ func (s *CreateFleetInput) SetVpcConfig(v *VpcConfig) *CreateFleetInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateFleetResult
 type CreateFleetOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3337,7 +4868,6 @@ func (s *CreateFleetOutput) SetFleet(v *Fleet) *CreateFleetOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateImageBuilderRequest
 type CreateImageBuilderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3357,10 +4887,11 @@ type CreateImageBuilderInput struct {
 	// Enables or disables default internet access for the image builder.
 	EnableDefaultInternetAccess *bool `type:"boolean"`
 
+	// The ARN of the public, private, or shared image to use.
+	ImageArn *string `type:"string"`
+
 	// The name of the image used to create the builder.
-	//
-	// ImageName is a required field
-	ImageName *string `min:"1" type:"string" required:"true"`
+	ImageName *string `min:"1" type:"string"`
 
 	// The instance type to use when launching the image builder.
 	//
@@ -3391,9 +4922,6 @@ func (s *CreateImageBuilderInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "CreateImageBuilderInput"}
 	if s.AppstreamAgentVersion != nil && len(*s.AppstreamAgentVersion) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("AppstreamAgentVersion", 1))
-	}
-	if s.ImageName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ImageName"))
 	}
 	if s.ImageName != nil && len(*s.ImageName) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("ImageName", 1))
@@ -3444,6 +4972,12 @@ func (s *CreateImageBuilderInput) SetEnableDefaultInternetAccess(v bool) *Create
 	return s
 }
 
+// SetImageArn sets the ImageArn field's value.
+func (s *CreateImageBuilderInput) SetImageArn(v string) *CreateImageBuilderInput {
+	s.ImageArn = &v
+	return s
+}
+
 // SetImageName sets the ImageName field's value.
 func (s *CreateImageBuilderInput) SetImageName(v string) *CreateImageBuilderInput {
 	s.ImageName = &v
@@ -3468,7 +5002,6 @@ func (s *CreateImageBuilderInput) SetVpcConfig(v *VpcConfig) *CreateImageBuilder
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateImageBuilderResult
 type CreateImageBuilderOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3492,7 +5025,6 @@ func (s *CreateImageBuilderOutput) SetImageBuilder(v *ImageBuilder) *CreateImage
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateImageBuilderStreamingURLRequest
 type CreateImageBuilderStreamingURLInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3544,12 +5076,11 @@ func (s *CreateImageBuilderStreamingURLInput) SetValidity(v int64) *CreateImageB
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateImageBuilderStreamingURLResult
 type CreateImageBuilderStreamingURLOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The elapsed time, in seconds after the Unix epoch, when this URL expires.
-	Expires *time.Time `type:"timestamp" timestampFormat:"unix"`
+	Expires *time.Time `type:"timestamp"`
 
 	// The URL to start the AppStream 2.0 streaming session.
 	StreamingURL *string `min:"1" type:"string"`
@@ -3577,9 +5108,13 @@ func (s *CreateImageBuilderStreamingURLOutput) SetStreamingURL(v string) *Create
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateStackRequest
 type CreateStackInput struct {
 	_ struct{} `type:"structure"`
+
+	// The persistent application settings for users of a stack. When these settings
+	// are enabled, changes that users make to applications and Windows settings
+	// are automatically saved after each session and applied to the next session.
+	ApplicationSettings *ApplicationSettings `type:"structure"`
 
 	// The description for display.
 	Description *string `type:"string"`
@@ -3587,13 +5122,24 @@ type CreateStackInput struct {
 	// The stack name for display.
 	DisplayName *string `type:"string"`
 
+	// The URL that users are redirected to after they click the Send Feedback link.
+	// If no URL is specified, no Send Feedback link is displayed.
+	FeedbackURL *string `type:"string"`
+
 	// The name of the stack.
 	//
 	// Name is a required field
-	Name *string `min:"1" type:"string" required:"true"`
+	Name *string `type:"string" required:"true"`
+
+	// The URL that users are redirected to after their streaming session ends.
+	RedirectURL *string `type:"string"`
 
 	// The storage connectors to enable.
 	StorageConnectors []*StorageConnector `type:"list"`
+
+	// The actions that are enabled or disabled for users during their streaming
+	// sessions. By default, these actions are enabled.
+	UserSettings []*UserSetting `min:"1" type:"list"`
 }
 
 // String returns the string representation
@@ -3612,8 +5158,13 @@ func (s *CreateStackInput) Validate() error {
 	if s.Name == nil {
 		invalidParams.Add(request.NewErrParamRequired("Name"))
 	}
-	if s.Name != nil && len(*s.Name) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	if s.UserSettings != nil && len(s.UserSettings) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("UserSettings", 1))
+	}
+	if s.ApplicationSettings != nil {
+		if err := s.ApplicationSettings.Validate(); err != nil {
+			invalidParams.AddNested("ApplicationSettings", err.(request.ErrInvalidParams))
+		}
 	}
 	if s.StorageConnectors != nil {
 		for i, v := range s.StorageConnectors {
@@ -3625,11 +5176,27 @@ func (s *CreateStackInput) Validate() error {
 			}
 		}
 	}
+	if s.UserSettings != nil {
+		for i, v := range s.UserSettings {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "UserSettings", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetApplicationSettings sets the ApplicationSettings field's value.
+func (s *CreateStackInput) SetApplicationSettings(v *ApplicationSettings) *CreateStackInput {
+	s.ApplicationSettings = v
+	return s
 }
 
 // SetDescription sets the Description field's value.
@@ -3644,9 +5211,21 @@ func (s *CreateStackInput) SetDisplayName(v string) *CreateStackInput {
 	return s
 }
 
+// SetFeedbackURL sets the FeedbackURL field's value.
+func (s *CreateStackInput) SetFeedbackURL(v string) *CreateStackInput {
+	s.FeedbackURL = &v
+	return s
+}
+
 // SetName sets the Name field's value.
 func (s *CreateStackInput) SetName(v string) *CreateStackInput {
 	s.Name = &v
+	return s
+}
+
+// SetRedirectURL sets the RedirectURL field's value.
+func (s *CreateStackInput) SetRedirectURL(v string) *CreateStackInput {
+	s.RedirectURL = &v
 	return s
 }
 
@@ -3656,7 +5235,12 @@ func (s *CreateStackInput) SetStorageConnectors(v []*StorageConnector) *CreateSt
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateStackResult
+// SetUserSettings sets the UserSettings field's value.
+func (s *CreateStackInput) SetUserSettings(v []*UserSetting) *CreateStackInput {
+	s.UserSettings = v
+	return s
+}
+
 type CreateStackOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3680,7 +5264,6 @@ func (s *CreateStackOutput) SetStack(v *Stack) *CreateStackOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateStreamingURLRequest
 type CreateStreamingURLInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3792,12 +5375,11 @@ func (s *CreateStreamingURLInput) SetValidity(v int64) *CreateStreamingURLInput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/CreateStreamingURLResult
 type CreateStreamingURLOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The elapsed time, in seconds after the Unix epoch, when this URL expires.
-	Expires *time.Time `type:"timestamp" timestampFormat:"unix"`
+	Expires *time.Time `type:"timestamp"`
 
 	// The URL to start the AppStream 2.0 streaming session.
 	StreamingURL *string `min:"1" type:"string"`
@@ -3825,7 +5407,109 @@ func (s *CreateStreamingURLOutput) SetStreamingURL(v string) *CreateStreamingURL
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteDirectoryConfigRequest
+type CreateUserInput struct {
+	_ struct{} `type:"structure"`
+
+	// The authentication type for the user. You must specify USERPOOL.
+	//
+	// AuthenticationType is a required field
+	AuthenticationType *string `type:"string" required:"true" enum:"AuthenticationType"`
+
+	// The first name, or given name, of the user.
+	FirstName *string `type:"string"`
+
+	// The last name, or surname, of the user.
+	LastName *string `type:"string"`
+
+	// The action to take for the welcome email that is sent to a user after the
+	// user is created in the user pool. If you specify SUPPRESS, no email is sent.
+	// If you specify RESEND, do not specify the first name or last name of the
+	// user. If the value is null, the email is sent.
+	//
+	// The temporary password in the welcome email is valid for only 7 days. If
+	// users don’t set their passwords within 7 days, you must send them a new welcome
+	// email.
+	MessageAction *string `type:"string" enum:"MessageAction"`
+
+	// The email address of the user.
+	//
+	// UserName is a required field
+	UserName *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s CreateUserInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateUserInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateUserInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateUserInput"}
+	if s.AuthenticationType == nil {
+		invalidParams.Add(request.NewErrParamRequired("AuthenticationType"))
+	}
+	if s.UserName == nil {
+		invalidParams.Add(request.NewErrParamRequired("UserName"))
+	}
+	if s.UserName != nil && len(*s.UserName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("UserName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthenticationType sets the AuthenticationType field's value.
+func (s *CreateUserInput) SetAuthenticationType(v string) *CreateUserInput {
+	s.AuthenticationType = &v
+	return s
+}
+
+// SetFirstName sets the FirstName field's value.
+func (s *CreateUserInput) SetFirstName(v string) *CreateUserInput {
+	s.FirstName = &v
+	return s
+}
+
+// SetLastName sets the LastName field's value.
+func (s *CreateUserInput) SetLastName(v string) *CreateUserInput {
+	s.LastName = &v
+	return s
+}
+
+// SetMessageAction sets the MessageAction field's value.
+func (s *CreateUserInput) SetMessageAction(v string) *CreateUserInput {
+	s.MessageAction = &v
+	return s
+}
+
+// SetUserName sets the UserName field's value.
+func (s *CreateUserInput) SetUserName(v string) *CreateUserInput {
+	s.UserName = &v
+	return s
+}
+
+type CreateUserOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s CreateUserOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateUserOutput) GoString() string {
+	return s.String()
+}
+
 type DeleteDirectoryConfigInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3864,7 +5548,6 @@ func (s *DeleteDirectoryConfigInput) SetDirectoryName(v string) *DeleteDirectory
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteDirectoryConfigResult
 type DeleteDirectoryConfigOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -3879,7 +5562,6 @@ func (s DeleteDirectoryConfigOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteFleetRequest
 type DeleteFleetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3921,7 +5603,6 @@ func (s *DeleteFleetInput) SetName(v string) *DeleteFleetInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteFleetResult
 type DeleteFleetOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -3936,7 +5617,6 @@ func (s DeleteFleetOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteImageBuilderRequest
 type DeleteImageBuilderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3975,7 +5655,6 @@ func (s *DeleteImageBuilderInput) SetName(v string) *DeleteImageBuilderInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteImageBuilderResult
 type DeleteImageBuilderOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -3999,7 +5678,6 @@ func (s *DeleteImageBuilderOutput) SetImageBuilder(v *ImageBuilder) *DeleteImage
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteImageRequest
 type DeleteImageInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4038,7 +5716,6 @@ func (s *DeleteImageInput) SetName(v string) *DeleteImageInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteImageResult
 type DeleteImageOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4062,7 +5739,72 @@ func (s *DeleteImageOutput) SetImage(v *Image) *DeleteImageOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteStackRequest
+type DeleteImagePermissionsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the private image.
+	//
+	// Name is a required field
+	Name *string `type:"string" required:"true"`
+
+	// The 12-digit ID of the AWS account for which to delete image permissions.
+	//
+	// SharedAccountId is a required field
+	SharedAccountId *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteImagePermissionsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteImagePermissionsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteImagePermissionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteImagePermissionsInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.SharedAccountId == nil {
+		invalidParams.Add(request.NewErrParamRequired("SharedAccountId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetName sets the Name field's value.
+func (s *DeleteImagePermissionsInput) SetName(v string) *DeleteImagePermissionsInput {
+	s.Name = &v
+	return s
+}
+
+// SetSharedAccountId sets the SharedAccountId field's value.
+func (s *DeleteImagePermissionsInput) SetSharedAccountId(v string) *DeleteImagePermissionsInput {
+	s.SharedAccountId = &v
+	return s
+}
+
+type DeleteImagePermissionsOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeleteImagePermissionsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteImagePermissionsOutput) GoString() string {
+	return s.String()
+}
+
 type DeleteStackInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4104,7 +5846,6 @@ func (s *DeleteStackInput) SetName(v string) *DeleteStackInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DeleteStackResult
 type DeleteStackOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -4119,7 +5860,75 @@ func (s DeleteStackOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeDirectoryConfigsRequest
+type DeleteUserInput struct {
+	_ struct{} `type:"structure"`
+
+	// The authentication type for the user. You must specify USERPOOL.
+	//
+	// AuthenticationType is a required field
+	AuthenticationType *string `type:"string" required:"true" enum:"AuthenticationType"`
+
+	// The email address of the user.
+	//
+	// UserName is a required field
+	UserName *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteUserInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteUserInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteUserInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteUserInput"}
+	if s.AuthenticationType == nil {
+		invalidParams.Add(request.NewErrParamRequired("AuthenticationType"))
+	}
+	if s.UserName == nil {
+		invalidParams.Add(request.NewErrParamRequired("UserName"))
+	}
+	if s.UserName != nil && len(*s.UserName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("UserName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthenticationType sets the AuthenticationType field's value.
+func (s *DeleteUserInput) SetAuthenticationType(v string) *DeleteUserInput {
+	s.AuthenticationType = &v
+	return s
+}
+
+// SetUserName sets the UserName field's value.
+func (s *DeleteUserInput) SetUserName(v string) *DeleteUserInput {
+	s.UserName = &v
+	return s
+}
+
+type DeleteUserOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeleteUserOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteUserOutput) GoString() string {
+	return s.String()
+}
+
 type DescribeDirectoryConfigsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4175,11 +5984,12 @@ func (s *DescribeDirectoryConfigsInput) SetNextToken(v string) *DescribeDirector
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeDirectoryConfigsResult
 type DescribeDirectoryConfigsOutput struct {
 	_ struct{} `type:"structure"`
 
-	// Information about the directory configurations.
+	// Information about the directory configurations. Note that although the response
+	// syntax in this topic includes the account password, this password is not
+	// returned in the actual response.
 	DirectoryConfigs []*DirectoryConfig `type:"list"`
 
 	// The pagination token to use to retrieve the next page of results for this
@@ -4209,7 +6019,6 @@ func (s *DescribeDirectoryConfigsOutput) SetNextToken(v string) *DescribeDirecto
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeFleetsRequest
 type DescribeFleetsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4256,7 +6065,6 @@ func (s *DescribeFleetsInput) SetNextToken(v string) *DescribeFleetsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeFleetsResult
 type DescribeFleetsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4290,7 +6098,6 @@ func (s *DescribeFleetsOutput) SetNextToken(v string) *DescribeFleetsOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeImageBuildersRequest
 type DescribeImageBuildersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4346,7 +6153,6 @@ func (s *DescribeImageBuildersInput) SetNextToken(v string) *DescribeImageBuilde
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeImageBuildersResult
 type DescribeImageBuildersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4380,12 +6186,139 @@ func (s *DescribeImageBuildersOutput) SetNextToken(v string) *DescribeImageBuild
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeImagesRequest
+type DescribeImagePermissionsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The maximum size of each page of results.
+	MaxResults *int64 `type:"integer"`
+
+	// The name of the private image for which to describe permissions. The image
+	// must be one that you own.
+	//
+	// Name is a required field
+	Name *string `type:"string" required:"true"`
+
+	// The pagination token to use to retrieve the next page of results for this
+	// operation. If this value is null, it retrieves the first page.
+	NextToken *string `min:"1" type:"string"`
+
+	// The 12-digit ID of one or more AWS accounts with which the image is shared.
+	SharedAwsAccountIds []*string `min:"1" type:"list"`
+}
+
+// String returns the string representation
+func (s DescribeImagePermissionsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeImagePermissionsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeImagePermissionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeImagePermissionsInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
+	}
+	if s.SharedAwsAccountIds != nil && len(s.SharedAwsAccountIds) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SharedAwsAccountIds", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetMaxResults sets the MaxResults field's value.
+func (s *DescribeImagePermissionsInput) SetMaxResults(v int64) *DescribeImagePermissionsInput {
+	s.MaxResults = &v
+	return s
+}
+
+// SetName sets the Name field's value.
+func (s *DescribeImagePermissionsInput) SetName(v string) *DescribeImagePermissionsInput {
+	s.Name = &v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeImagePermissionsInput) SetNextToken(v string) *DescribeImagePermissionsInput {
+	s.NextToken = &v
+	return s
+}
+
+// SetSharedAwsAccountIds sets the SharedAwsAccountIds field's value.
+func (s *DescribeImagePermissionsInput) SetSharedAwsAccountIds(v []*string) *DescribeImagePermissionsInput {
+	s.SharedAwsAccountIds = v
+	return s
+}
+
+type DescribeImagePermissionsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the private image.
+	Name *string `type:"string"`
+
+	// The pagination token to use to retrieve the next page of results for this
+	// operation. If there are no more pages, this value is null.
+	NextToken *string `min:"1" type:"string"`
+
+	// The permissions for a private image that you own.
+	SharedImagePermissionsList []*SharedImagePermissions `type:"list"`
+}
+
+// String returns the string representation
+func (s DescribeImagePermissionsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeImagePermissionsOutput) GoString() string {
+	return s.String()
+}
+
+// SetName sets the Name field's value.
+func (s *DescribeImagePermissionsOutput) SetName(v string) *DescribeImagePermissionsOutput {
+	s.Name = &v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeImagePermissionsOutput) SetNextToken(v string) *DescribeImagePermissionsOutput {
+	s.NextToken = &v
+	return s
+}
+
+// SetSharedImagePermissionsList sets the SharedImagePermissionsList field's value.
+func (s *DescribeImagePermissionsOutput) SetSharedImagePermissionsList(v []*SharedImagePermissions) *DescribeImagePermissionsOutput {
+	s.SharedImagePermissionsList = v
+	return s
+}
+
 type DescribeImagesInput struct {
 	_ struct{} `type:"structure"`
 
-	// The names of the images to describe.
+	// The ARNs of the public, private, and shared images to describe.
+	Arns []*string `type:"list"`
+
+	// The maximum size of each page of results.
+	MaxResults *int64 `type:"integer"`
+
+	// The names of the public or private images to describe.
 	Names []*string `type:"list"`
+
+	// The pagination token to use to retrieve the next page of results for this
+	// operation. If this value is null, it retrieves the first page.
+	NextToken *string `min:"1" type:"string"`
+
+	// The type of image (public, private, or shared) to describe.
+	Type *string `type:"string" enum:"VisibilityType"`
 }
 
 // String returns the string representation
@@ -4398,18 +6331,58 @@ func (s DescribeImagesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeImagesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeImagesInput"}
+	if s.NextToken != nil && len(*s.NextToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetArns sets the Arns field's value.
+func (s *DescribeImagesInput) SetArns(v []*string) *DescribeImagesInput {
+	s.Arns = v
+	return s
+}
+
+// SetMaxResults sets the MaxResults field's value.
+func (s *DescribeImagesInput) SetMaxResults(v int64) *DescribeImagesInput {
+	s.MaxResults = &v
+	return s
+}
+
 // SetNames sets the Names field's value.
 func (s *DescribeImagesInput) SetNames(v []*string) *DescribeImagesInput {
 	s.Names = v
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeImagesResult
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeImagesInput) SetNextToken(v string) *DescribeImagesInput {
+	s.NextToken = &v
+	return s
+}
+
+// SetType sets the Type field's value.
+func (s *DescribeImagesInput) SetType(v string) *DescribeImagesInput {
+	s.Type = &v
+	return s
+}
+
 type DescribeImagesOutput struct {
 	_ struct{} `type:"structure"`
 
 	// Information about the images.
 	Images []*Image `type:"list"`
+
+	// The pagination token to use to retrieve the next page of results for this
+	// operation. If there are no more pages, this value is null.
+	NextToken *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -4428,7 +6401,12 @@ func (s *DescribeImagesOutput) SetImages(v []*Image) *DescribeImagesOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeSessionsRequest
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeImagesOutput) SetNextToken(v string) *DescribeImagesOutput {
+	s.NextToken = &v
+	return s
+}
+
 type DescribeSessionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4437,7 +6415,7 @@ type DescribeSessionsInput struct {
 	// using a streaming URL.
 	AuthenticationType *string `type:"string" enum:"AuthenticationType"`
 
-	// The name of the fleet.
+	// The name of the fleet. This value is case-sensitive.
 	//
 	// FleetName is a required field
 	FleetName *string `min:"1" type:"string" required:"true"`
@@ -4450,7 +6428,7 @@ type DescribeSessionsInput struct {
 	// operation. If this value is null, it retrieves the first page.
 	NextToken *string `min:"1" type:"string"`
 
-	// The name of the stack.
+	// The name of the stack. This value is case-sensitive.
 	//
 	// StackName is a required field
 	StackName *string `min:"1" type:"string" required:"true"`
@@ -4533,7 +6511,6 @@ func (s *DescribeSessionsInput) SetUserId(v string) *DescribeSessionsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeSessionsResult
 type DescribeSessionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4567,7 +6544,6 @@ func (s *DescribeSessionsOutput) SetSessions(v []*Session) *DescribeSessionsOutp
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeStacksRequest
 type DescribeStacksInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4614,7 +6590,6 @@ func (s *DescribeStacksInput) SetNextToken(v string) *DescribeStacksInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DescribeStacksResult
 type DescribeStacksOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4648,13 +6623,219 @@ func (s *DescribeStacksOutput) SetStacks(v []*Stack) *DescribeStacksOutput {
 	return s
 }
 
+type DescribeUserStackAssociationsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The authentication type for the user who is associated with the stack. You
+	// must specify USERPOOL.
+	AuthenticationType *string `type:"string" enum:"AuthenticationType"`
+
+	// The maximum size of each page of results.
+	MaxResults *int64 `type:"integer"`
+
+	// The pagination token to use to retrieve the next page of results for this
+	// operation. If this value is null, it retrieves the first page.
+	NextToken *string `min:"1" type:"string"`
+
+	// The name of the stack that is associated with the user.
+	StackName *string `min:"1" type:"string"`
+
+	// The email address of the user who is associated with the stack.
+	UserName *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s DescribeUserStackAssociationsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeUserStackAssociationsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeUserStackAssociationsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeUserStackAssociationsInput"}
+	if s.NextToken != nil && len(*s.NextToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
+	}
+	if s.StackName != nil && len(*s.StackName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
+	}
+	if s.UserName != nil && len(*s.UserName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("UserName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthenticationType sets the AuthenticationType field's value.
+func (s *DescribeUserStackAssociationsInput) SetAuthenticationType(v string) *DescribeUserStackAssociationsInput {
+	s.AuthenticationType = &v
+	return s
+}
+
+// SetMaxResults sets the MaxResults field's value.
+func (s *DescribeUserStackAssociationsInput) SetMaxResults(v int64) *DescribeUserStackAssociationsInput {
+	s.MaxResults = &v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeUserStackAssociationsInput) SetNextToken(v string) *DescribeUserStackAssociationsInput {
+	s.NextToken = &v
+	return s
+}
+
+// SetStackName sets the StackName field's value.
+func (s *DescribeUserStackAssociationsInput) SetStackName(v string) *DescribeUserStackAssociationsInput {
+	s.StackName = &v
+	return s
+}
+
+// SetUserName sets the UserName field's value.
+func (s *DescribeUserStackAssociationsInput) SetUserName(v string) *DescribeUserStackAssociationsInput {
+	s.UserName = &v
+	return s
+}
+
+type DescribeUserStackAssociationsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The pagination token to use to retrieve the next page of results for this
+	// operation. If there are no more pages, this value is null.
+	NextToken *string `min:"1" type:"string"`
+
+	// The UserStackAssociation objects.
+	UserStackAssociations []*UserStackAssociation `type:"list"`
+}
+
+// String returns the string representation
+func (s DescribeUserStackAssociationsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeUserStackAssociationsOutput) GoString() string {
+	return s.String()
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeUserStackAssociationsOutput) SetNextToken(v string) *DescribeUserStackAssociationsOutput {
+	s.NextToken = &v
+	return s
+}
+
+// SetUserStackAssociations sets the UserStackAssociations field's value.
+func (s *DescribeUserStackAssociationsOutput) SetUserStackAssociations(v []*UserStackAssociation) *DescribeUserStackAssociationsOutput {
+	s.UserStackAssociations = v
+	return s
+}
+
+type DescribeUsersInput struct {
+	_ struct{} `type:"structure"`
+
+	// The authentication type for the users in the user pool to describe. You must
+	// specify USERPOOL.
+	//
+	// AuthenticationType is a required field
+	AuthenticationType *string `type:"string" required:"true" enum:"AuthenticationType"`
+
+	// The maximum size of each page of results.
+	MaxResults *int64 `type:"integer"`
+
+	// The pagination token to use to retrieve the next page of results for this
+	// operation. If this value is null, it retrieves the first page.
+	NextToken *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s DescribeUsersInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeUsersInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeUsersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeUsersInput"}
+	if s.AuthenticationType == nil {
+		invalidParams.Add(request.NewErrParamRequired("AuthenticationType"))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthenticationType sets the AuthenticationType field's value.
+func (s *DescribeUsersInput) SetAuthenticationType(v string) *DescribeUsersInput {
+	s.AuthenticationType = &v
+	return s
+}
+
+// SetMaxResults sets the MaxResults field's value.
+func (s *DescribeUsersInput) SetMaxResults(v int64) *DescribeUsersInput {
+	s.MaxResults = &v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeUsersInput) SetNextToken(v string) *DescribeUsersInput {
+	s.NextToken = &v
+	return s
+}
+
+type DescribeUsersOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The pagination token to use to retrieve the next page of results for this
+	// operation. If there are no more pages, this value is null.
+	NextToken *string `min:"1" type:"string"`
+
+	// Information about users in the user pool.
+	Users []*User `type:"list"`
+}
+
+// String returns the string representation
+func (s DescribeUsersOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeUsersOutput) GoString() string {
+	return s.String()
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeUsersOutput) SetNextToken(v string) *DescribeUsersOutput {
+	s.NextToken = &v
+	return s
+}
+
+// SetUsers sets the Users field's value.
+func (s *DescribeUsersOutput) SetUsers(v []*User) *DescribeUsersOutput {
+	s.Users = v
+	return s
+}
+
 // Configuration information for the directory used to join domains.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DirectoryConfig
 type DirectoryConfig struct {
 	_ struct{} `type:"structure"`
 
 	// The time the directory configuration was created.
-	CreatedTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTime *time.Time `type:"timestamp"`
 
 	// The fully qualified name of the directory (for example, corp.example.com).
 	//
@@ -4703,7 +6884,75 @@ func (s *DirectoryConfig) SetServiceAccountCredentials(v *ServiceAccountCredenti
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DisassociateFleetRequest
+type DisableUserInput struct {
+	_ struct{} `type:"structure"`
+
+	// The authentication type for the user. You must specify USERPOOL.
+	//
+	// AuthenticationType is a required field
+	AuthenticationType *string `type:"string" required:"true" enum:"AuthenticationType"`
+
+	// The email address of the user.
+	//
+	// UserName is a required field
+	UserName *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DisableUserInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableUserInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisableUserInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisableUserInput"}
+	if s.AuthenticationType == nil {
+		invalidParams.Add(request.NewErrParamRequired("AuthenticationType"))
+	}
+	if s.UserName == nil {
+		invalidParams.Add(request.NewErrParamRequired("UserName"))
+	}
+	if s.UserName != nil && len(*s.UserName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("UserName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthenticationType sets the AuthenticationType field's value.
+func (s *DisableUserInput) SetAuthenticationType(v string) *DisableUserInput {
+	s.AuthenticationType = &v
+	return s
+}
+
+// SetUserName sets the UserName field's value.
+func (s *DisableUserInput) SetUserName(v string) *DisableUserInput {
+	s.UserName = &v
+	return s
+}
+
+type DisableUserOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DisableUserOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableUserOutput) GoString() string {
+	return s.String()
+}
+
 type DisassociateFleetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4762,7 +7011,6 @@ func (s *DisassociateFleetInput) SetStackName(v string) *DisassociateFleetInput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DisassociateFleetResult
 type DisassociateFleetOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -4778,7 +7026,6 @@ func (s DisassociateFleetOutput) GoString() string {
 }
 
 // Contains the information needed to join a Microsoft Active Directory domain.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/DomainJoinInfo
 type DomainJoinInfo struct {
 	_ struct{} `type:"structure"`
 
@@ -4811,7 +7058,75 @@ func (s *DomainJoinInfo) SetOrganizationalUnitDistinguishedName(v string) *Domai
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ExpireSessionRequest
+type EnableUserInput struct {
+	_ struct{} `type:"structure"`
+
+	// The authentication type for the user. You must specify USERPOOL.
+	//
+	// AuthenticationType is a required field
+	AuthenticationType *string `type:"string" required:"true" enum:"AuthenticationType"`
+
+	// The email address of the user.
+	//
+	// UserName is a required field
+	UserName *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s EnableUserInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableUserInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EnableUserInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EnableUserInput"}
+	if s.AuthenticationType == nil {
+		invalidParams.Add(request.NewErrParamRequired("AuthenticationType"))
+	}
+	if s.UserName == nil {
+		invalidParams.Add(request.NewErrParamRequired("UserName"))
+	}
+	if s.UserName != nil && len(*s.UserName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("UserName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthenticationType sets the AuthenticationType field's value.
+func (s *EnableUserInput) SetAuthenticationType(v string) *EnableUserInput {
+	s.AuthenticationType = &v
+	return s
+}
+
+// SetUserName sets the UserName field's value.
+func (s *EnableUserInput) SetUserName(v string) *EnableUserInput {
+	s.UserName = &v
+	return s
+}
+
+type EnableUserOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s EnableUserOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableUserOutput) GoString() string {
+	return s.String()
+}
+
 type ExpireSessionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4853,7 +7168,6 @@ func (s *ExpireSessionInput) SetSessionId(v string) *ExpireSessionInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ExpireSessionResult
 type ExpireSessionOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -4869,7 +7183,6 @@ func (s ExpireSessionOutput) GoString() string {
 }
 
 // Contains the parameters for a fleet.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/Fleet
 type Fleet struct {
 	_ struct{} `type:"structure"`
 
@@ -4884,7 +7197,7 @@ type Fleet struct {
 	ComputeCapacityStatus *ComputeCapacityStatus `type:"structure" required:"true"`
 
 	// The time the fleet was created.
-	CreatedTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTime *time.Time `type:"timestamp"`
 
 	// The description for display.
 	Description *string `min:"1" type:"string"`
@@ -4918,10 +7231,11 @@ type Fleet struct {
 	// apps.
 	FleetType *string `type:"string" enum:"FleetType"`
 
+	// The ARN for the public, private, or shared image.
+	ImageArn *string `type:"string"`
+
 	// The name of the image used to create the fleet.
-	//
-	// ImageName is a required field
-	ImageName *string `min:"1" type:"string" required:"true"`
+	ImageName *string `min:"1" type:"string"`
 
 	// The instance type to use when launching fleet instances.
 	//
@@ -5016,6 +7330,12 @@ func (s *Fleet) SetFleetType(v string) *Fleet {
 	return s
 }
 
+// SetImageArn sets the ImageArn field's value.
+func (s *Fleet) SetImageArn(v string) *Fleet {
+	s.ImageArn = &v
+	return s
+}
+
 // SetImageName sets the ImageName field's value.
 func (s *Fleet) SetImageName(v string) *Fleet {
 	s.ImageName = &v
@@ -5053,7 +7373,6 @@ func (s *Fleet) SetVpcConfig(v *VpcConfig) *Fleet {
 }
 
 // Describes a fleet error.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/FleetError
 type FleetError struct {
 	_ struct{} `type:"structure"`
 
@@ -5087,7 +7406,6 @@ func (s *FleetError) SetErrorMessage(v string) *FleetError {
 }
 
 // Describes an image.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/Image
 type Image struct {
 	_ struct{} `type:"structure"`
 
@@ -5105,7 +7423,7 @@ type Image struct {
 	BaseImageArn *string `type:"string"`
 
 	// The time the image was created.
-	CreatedTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTime *time.Time `type:"timestamp"`
 
 	// The description for display.
 	Description *string `min:"1" type:"string"`
@@ -5115,6 +7433,10 @@ type Image struct {
 
 	// Indicates whether an image builder can be launched from this image.
 	ImageBuilderSupported *bool `type:"boolean"`
+
+	// The permissions to provide to the destination AWS account for the specified
+	// image.
+	ImagePermissions *ImagePermissions `type:"structure"`
 
 	// The name of the image.
 	//
@@ -5126,7 +7448,7 @@ type Image struct {
 
 	// The release date of the public base image. For private images, this date
 	// is the release date of the base image from which the image was created.
-	PublicBaseImageReleasedDate *time.Time `type:"timestamp" timestampFormat:"unix"`
+	PublicBaseImageReleasedDate *time.Time `type:"timestamp"`
 
 	// The image starts in the PENDING state. If image creation succeeds, the state
 	// is AVAILABLE. If image creation fails, the state is FAILED.
@@ -5197,6 +7519,12 @@ func (s *Image) SetImageBuilderSupported(v bool) *Image {
 	return s
 }
 
+// SetImagePermissions sets the ImagePermissions field's value.
+func (s *Image) SetImagePermissions(v *ImagePermissions) *Image {
+	s.ImagePermissions = v
+	return s
+}
+
 // SetName sets the Name field's value.
 func (s *Image) SetName(v string) *Image {
 	s.Name = &v
@@ -5235,7 +7563,6 @@ func (s *Image) SetVisibility(v string) *Image {
 
 // Describes a streaming instance used for editing an image. New images are
 // created from a snapshot through an image builder.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ImageBuilder
 type ImageBuilder struct {
 	_ struct{} `type:"structure"`
 
@@ -5247,7 +7574,7 @@ type ImageBuilder struct {
 	Arn *string `type:"string"`
 
 	// The time stamp when the image builder was created.
-	CreatedTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTime *time.Time `type:"timestamp"`
 
 	// The description for display.
 	Description *string `min:"1" type:"string"`
@@ -5389,7 +7716,6 @@ func (s *ImageBuilder) SetVpcConfig(v *VpcConfig) *ImageBuilder {
 }
 
 // Describes the reason why the last image builder state change occurred.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ImageBuilderStateChangeReason
 type ImageBuilderStateChangeReason struct {
 	_ struct{} `type:"structure"`
 
@@ -5422,8 +7748,40 @@ func (s *ImageBuilderStateChangeReason) SetMessage(v string) *ImageBuilderStateC
 	return s
 }
 
+// Describes the permissions for an image.
+type ImagePermissions struct {
+	_ struct{} `type:"structure"`
+
+	// Indicates whether the image can be used for a fleet.
+	AllowFleet *bool `locationName:"allowFleet" type:"boolean"`
+
+	// Indicates whether the image can be used for an image builder.
+	AllowImageBuilder *bool `locationName:"allowImageBuilder" type:"boolean"`
+}
+
+// String returns the string representation
+func (s ImagePermissions) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ImagePermissions) GoString() string {
+	return s.String()
+}
+
+// SetAllowFleet sets the AllowFleet field's value.
+func (s *ImagePermissions) SetAllowFleet(v bool) *ImagePermissions {
+	s.AllowFleet = &v
+	return s
+}
+
+// SetAllowImageBuilder sets the AllowImageBuilder field's value.
+func (s *ImagePermissions) SetAllowImageBuilder(v bool) *ImagePermissions {
+	s.AllowImageBuilder = &v
+	return s
+}
+
 // Describes the reason why the last image state change occurred.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ImageStateChangeReason
 type ImageStateChangeReason struct {
 	_ struct{} `type:"structure"`
 
@@ -5456,7 +7814,6 @@ func (s *ImageStateChangeReason) SetMessage(v string) *ImageStateChangeReason {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ListAssociatedFleetsRequest
 type ListAssociatedFleetsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5511,11 +7868,10 @@ func (s *ListAssociatedFleetsInput) SetStackName(v string) *ListAssociatedFleets
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ListAssociatedFleetsResult
 type ListAssociatedFleetsOutput struct {
 	_ struct{} `type:"structure"`
 
-	// The names of the fleets.
+	// The name of the fleet.
 	Names []*string `type:"list"`
 
 	// The pagination token to use to retrieve the next page of results for this
@@ -5545,7 +7901,6 @@ func (s *ListAssociatedFleetsOutput) SetNextToken(v string) *ListAssociatedFleet
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ListAssociatedStacksRequest
 type ListAssociatedStacksInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5600,11 +7955,10 @@ func (s *ListAssociatedStacksInput) SetNextToken(v string) *ListAssociatedStacks
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ListAssociatedStacksResult
 type ListAssociatedStacksOutput struct {
 	_ struct{} `type:"structure"`
 
-	// The names of the stacks.
+	// The name of the stack.
 	Names []*string `type:"list"`
 
 	// The pagination token to use to retrieve the next page of results for this
@@ -5634,7 +7988,6 @@ func (s *ListAssociatedStacksOutput) SetNextToken(v string) *ListAssociatedStack
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ListTagsForResourceRequest
 type ListTagsForResourceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5673,7 +8026,6 @@ func (s *ListTagsForResourceInput) SetResourceArn(v string) *ListTagsForResource
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ListTagsForResourceResponse
 type ListTagsForResourceOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -5697,8 +8049,43 @@ func (s *ListTagsForResourceOutput) SetTags(v map[string]*string) *ListTagsForRe
 	return s
 }
 
+// The network details of the fleet instance for the streaming session.
+type NetworkAccessConfiguration struct {
+	_ struct{} `type:"structure"`
+
+	// The resource identifier of the elastic network interface that is attached
+	// to instances in your VPC. All network interfaces have the eni-xxxxxxxx resource
+	// identifier.
+	EniId *string `min:"1" type:"string"`
+
+	// The private IP address of the elastic network interface that is attached
+	// to instances in your VPC.
+	EniPrivateIpAddress *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s NetworkAccessConfiguration) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s NetworkAccessConfiguration) GoString() string {
+	return s.String()
+}
+
+// SetEniId sets the EniId field's value.
+func (s *NetworkAccessConfiguration) SetEniId(v string) *NetworkAccessConfiguration {
+	s.EniId = &v
+	return s
+}
+
+// SetEniPrivateIpAddress sets the EniPrivateIpAddress field's value.
+func (s *NetworkAccessConfiguration) SetEniPrivateIpAddress(v string) *NetworkAccessConfiguration {
+	s.EniPrivateIpAddress = &v
+	return s
+}
+
 // Describes a resource error.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ResourceError
 type ResourceError struct {
 	_ struct{} `type:"structure"`
 
@@ -5709,7 +8096,7 @@ type ResourceError struct {
 	ErrorMessage *string `min:"1" type:"string"`
 
 	// The time the error occurred.
-	ErrorTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ErrorTimestamp *time.Time `type:"timestamp"`
 }
 
 // String returns the string representation
@@ -5742,7 +8129,6 @@ func (s *ResourceError) SetErrorTimestamp(v time.Time) *ResourceError {
 
 // Describes the credentials for the service account used by the streaming instance
 // to connect to the directory.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/ServiceAccountCredentials
 type ServiceAccountCredentials struct {
 	_ struct{} `type:"structure"`
 
@@ -5804,7 +8190,6 @@ func (s *ServiceAccountCredentials) SetAccountPassword(v string) *ServiceAccount
 }
 
 // Describes a streaming session.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/Session
 type Session struct {
 	_ struct{} `type:"structure"`
 
@@ -5821,6 +8206,9 @@ type Session struct {
 	//
 	// Id is a required field
 	Id *string `min:"1" type:"string" required:"true"`
+
+	// The network details for the streaming session.
+	NetworkAccessConfiguration *NetworkAccessConfiguration `type:"structure"`
 
 	// The name of the stack for the streaming session.
 	//
@@ -5866,6 +8254,12 @@ func (s *Session) SetId(v string) *Session {
 	return s
 }
 
+// SetNetworkAccessConfiguration sets the NetworkAccessConfiguration field's value.
+func (s *Session) SetNetworkAccessConfiguration(v *NetworkAccessConfiguration) *Session {
+	s.NetworkAccessConfiguration = v
+	return s
+}
+
 // SetStackName sets the StackName field's value.
 func (s *Session) SetStackName(v string) *Session {
 	s.StackName = &v
@@ -5884,16 +8278,56 @@ func (s *Session) SetUserId(v string) *Session {
 	return s
 }
 
+// Describes the permissions that are available to the specified AWS account
+// for a shared image.
+type SharedImagePermissions struct {
+	_ struct{} `type:"structure"`
+
+	// Describes the permissions for a shared image.
+	//
+	// ImagePermissions is a required field
+	ImagePermissions *ImagePermissions `locationName:"imagePermissions" type:"structure" required:"true"`
+
+	// The 12-digit ID of the AWS account with which the image is shared.
+	//
+	// SharedAccountId is a required field
+	SharedAccountId *string `locationName:"sharedAccountId" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s SharedImagePermissions) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s SharedImagePermissions) GoString() string {
+	return s.String()
+}
+
+// SetImagePermissions sets the ImagePermissions field's value.
+func (s *SharedImagePermissions) SetImagePermissions(v *ImagePermissions) *SharedImagePermissions {
+	s.ImagePermissions = v
+	return s
+}
+
+// SetSharedAccountId sets the SharedAccountId field's value.
+func (s *SharedImagePermissions) SetSharedAccountId(v string) *SharedImagePermissions {
+	s.SharedAccountId = &v
+	return s
+}
+
 // Describes a stack.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/Stack
 type Stack struct {
 	_ struct{} `type:"structure"`
+
+	// The persistent application settings for users of the stack.
+	ApplicationSettings *ApplicationSettingsResponse `type:"structure"`
 
 	// The ARN of the stack.
 	Arn *string `type:"string"`
 
 	// The time the stack was created.
-	CreatedTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTime *time.Time `type:"timestamp"`
 
 	// The description for display.
 	Description *string `min:"1" type:"string"`
@@ -5901,16 +8335,27 @@ type Stack struct {
 	// The stack name for display.
 	DisplayName *string `min:"1" type:"string"`
 
+	// The URL that users are redirected to after they click the Send Feedback link.
+	// If no URL is specified, no Send Feedback link is displayed.
+	FeedbackURL *string `type:"string"`
+
 	// The name of the stack.
 	//
 	// Name is a required field
 	Name *string `min:"1" type:"string" required:"true"`
+
+	// The URL that users are redirected to after their streaming session ends.
+	RedirectURL *string `type:"string"`
 
 	// The errors for the stack.
 	StackErrors []*StackError `type:"list"`
 
 	// The storage connectors to enable.
 	StorageConnectors []*StorageConnector `type:"list"`
+
+	// The actions that are enabled or disabled for users during their streaming
+	// sessions. By default these actions are enabled.
+	UserSettings []*UserSetting `min:"1" type:"list"`
 }
 
 // String returns the string representation
@@ -5921,6 +8366,12 @@ func (s Stack) String() string {
 // GoString returns the string representation
 func (s Stack) GoString() string {
 	return s.String()
+}
+
+// SetApplicationSettings sets the ApplicationSettings field's value.
+func (s *Stack) SetApplicationSettings(v *ApplicationSettingsResponse) *Stack {
+	s.ApplicationSettings = v
+	return s
 }
 
 // SetArn sets the Arn field's value.
@@ -5947,9 +8398,21 @@ func (s *Stack) SetDisplayName(v string) *Stack {
 	return s
 }
 
+// SetFeedbackURL sets the FeedbackURL field's value.
+func (s *Stack) SetFeedbackURL(v string) *Stack {
+	s.FeedbackURL = &v
+	return s
+}
+
 // SetName sets the Name field's value.
 func (s *Stack) SetName(v string) *Stack {
 	s.Name = &v
+	return s
+}
+
+// SetRedirectURL sets the RedirectURL field's value.
+func (s *Stack) SetRedirectURL(v string) *Stack {
+	s.RedirectURL = &v
 	return s
 }
 
@@ -5965,8 +8428,13 @@ func (s *Stack) SetStorageConnectors(v []*StorageConnector) *Stack {
 	return s
 }
 
+// SetUserSettings sets the UserSettings field's value.
+func (s *Stack) SetUserSettings(v []*UserSetting) *Stack {
+	s.UserSettings = v
+	return s
+}
+
 // Describes a stack error.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StackError
 type StackError struct {
 	_ struct{} `type:"structure"`
 
@@ -5999,7 +8467,6 @@ func (s *StackError) SetErrorMessage(v string) *StackError {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StartFleetRequest
 type StartFleetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6041,7 +8508,6 @@ func (s *StartFleetInput) SetName(v string) *StartFleetInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StartFleetResult
 type StartFleetOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -6056,7 +8522,6 @@ func (s StartFleetOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StartImageBuilderRequest
 type StartImageBuilderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6111,7 +8576,6 @@ func (s *StartImageBuilderInput) SetName(v string) *StartImageBuilderInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StartImageBuilderResult
 type StartImageBuilderOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6135,7 +8599,6 @@ func (s *StartImageBuilderOutput) SetImageBuilder(v *ImageBuilder) *StartImageBu
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StopFleetRequest
 type StopFleetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6177,7 +8640,6 @@ func (s *StopFleetInput) SetName(v string) *StopFleetInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StopFleetResult
 type StopFleetOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -6192,7 +8654,6 @@ func (s StopFleetOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StopImageBuilderRequest
 type StopImageBuilderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6234,7 +8695,6 @@ func (s *StopImageBuilderInput) SetName(v string) *StopImageBuilderInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StopImageBuilderResult
 type StopImageBuilderOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6258,8 +8718,7 @@ func (s *StopImageBuilderOutput) SetImageBuilder(v *ImageBuilder) *StopImageBuil
 	return s
 }
 
-// Describes a storage connector.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/StorageConnector
+// Describes a connector to enable persistent storage for users.
 type StorageConnector struct {
 	_ struct{} `type:"structure"`
 
@@ -6267,6 +8726,9 @@ type StorageConnector struct {
 	//
 	// ConnectorType is a required field
 	ConnectorType *string `type:"string" required:"true" enum:"StorageConnectorType"`
+
+	// The names of the domains for the G Suite account.
+	Domains []*string `type:"list"`
 
 	// The ARN of the storage connector.
 	ResourceIdentifier *string `min:"1" type:"string"`
@@ -6304,13 +8766,18 @@ func (s *StorageConnector) SetConnectorType(v string) *StorageConnector {
 	return s
 }
 
+// SetDomains sets the Domains field's value.
+func (s *StorageConnector) SetDomains(v []*string) *StorageConnector {
+	s.Domains = v
+	return s
+}
+
 // SetResourceIdentifier sets the ResourceIdentifier field's value.
 func (s *StorageConnector) SetResourceIdentifier(v string) *StorageConnector {
 	s.ResourceIdentifier = &v
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/TagResourceRequest
 type TagResourceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6369,7 +8836,6 @@ func (s *TagResourceInput) SetTags(v map[string]*string) *TagResourceInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/TagResourceResponse
 type TagResourceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -6384,7 +8850,6 @@ func (s TagResourceOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UntagResourceRequest
 type UntagResourceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6440,7 +8905,6 @@ func (s *UntagResourceInput) SetTagKeys(v []*string) *UntagResourceInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UntagResourceResponse
 type UntagResourceOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -6455,11 +8919,10 @@ func (s UntagResourceOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateDirectoryConfigRequest
 type UpdateDirectoryConfigInput struct {
 	_ struct{} `type:"structure"`
 
-	// The name of the directory configuration.
+	// The name of the Directory Config object.
 	//
 	// DirectoryName is a required field
 	DirectoryName *string `type:"string" required:"true"`
@@ -6518,11 +8981,10 @@ func (s *UpdateDirectoryConfigInput) SetServiceAccountCredentials(v *ServiceAcco
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateDirectoryConfigResult
 type UpdateDirectoryConfigOutput struct {
 	_ struct{} `type:"structure"`
 
-	// Information about the directory configuration.
+	// Information about the Directory Config object.
 	DirectoryConfig *DirectoryConfig `type:"structure"`
 }
 
@@ -6542,7 +9004,6 @@ func (s *UpdateDirectoryConfigOutput) SetDirectoryConfig(v *DirectoryConfig) *Up
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateFleetRequest
 type UpdateFleetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6553,6 +9014,8 @@ type UpdateFleetInput struct {
 	ComputeCapacity *ComputeCapacity `type:"structure"`
 
 	// Deletes the VPC association for the specified fleet.
+	//
+	// Deprecated: DeleteVpcConfig has been deprecated
 	DeleteVpcConfig *bool `deprecated:"true" type:"boolean"`
 
 	// The description for display.
@@ -6572,6 +9035,9 @@ type UpdateFleetInput struct {
 
 	// Enables or disables default internet access for the fleet.
 	EnableDefaultInternetAccess *bool `type:"boolean"`
+
+	// The ARN of the public, private, or shared image to use.
+	ImageArn *string `type:"string"`
 
 	// The name of the image used to create the fleet.
 	ImageName *string `min:"1" type:"string"`
@@ -6625,9 +9091,7 @@ type UpdateFleetInput struct {
 	MaxUserDurationInSeconds *int64 `type:"integer"`
 
 	// A unique name for the fleet.
-	//
-	// Name is a required field
-	Name *string `min:"1" type:"string" required:"true"`
+	Name *string `min:"1" type:"string"`
 
 	// The VPC configuration for the fleet.
 	VpcConfig *VpcConfig `type:"structure"`
@@ -6651,9 +9115,6 @@ func (s *UpdateFleetInput) Validate() error {
 	}
 	if s.InstanceType != nil && len(*s.InstanceType) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("InstanceType", 1))
-	}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
 	}
 	if s.Name != nil && len(*s.Name) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
@@ -6718,6 +9179,12 @@ func (s *UpdateFleetInput) SetEnableDefaultInternetAccess(v bool) *UpdateFleetIn
 	return s
 }
 
+// SetImageArn sets the ImageArn field's value.
+func (s *UpdateFleetInput) SetImageArn(v string) *UpdateFleetInput {
+	s.ImageArn = &v
+	return s
+}
+
 // SetImageName sets the ImageName field's value.
 func (s *UpdateFleetInput) SetImageName(v string) *UpdateFleetInput {
 	s.ImageName = &v
@@ -6748,7 +9215,6 @@ func (s *UpdateFleetInput) SetVpcConfig(v *VpcConfig) *UpdateFleetInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateFleetResult
 type UpdateFleetOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6772,12 +9238,102 @@ func (s *UpdateFleetOutput) SetFleet(v *Fleet) *UpdateFleetOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateStackRequest
+type UpdateImagePermissionsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The permissions for the image.
+	//
+	// ImagePermissions is a required field
+	ImagePermissions *ImagePermissions `type:"structure" required:"true"`
+
+	// The name of the private image.
+	//
+	// Name is a required field
+	Name *string `type:"string" required:"true"`
+
+	// The 12-digit ID of the AWS account for which you want add or update image
+	// permissions.
+	//
+	// SharedAccountId is a required field
+	SharedAccountId *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s UpdateImagePermissionsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateImagePermissionsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateImagePermissionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateImagePermissionsInput"}
+	if s.ImagePermissions == nil {
+		invalidParams.Add(request.NewErrParamRequired("ImagePermissions"))
+	}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.SharedAccountId == nil {
+		invalidParams.Add(request.NewErrParamRequired("SharedAccountId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetImagePermissions sets the ImagePermissions field's value.
+func (s *UpdateImagePermissionsInput) SetImagePermissions(v *ImagePermissions) *UpdateImagePermissionsInput {
+	s.ImagePermissions = v
+	return s
+}
+
+// SetName sets the Name field's value.
+func (s *UpdateImagePermissionsInput) SetName(v string) *UpdateImagePermissionsInput {
+	s.Name = &v
+	return s
+}
+
+// SetSharedAccountId sets the SharedAccountId field's value.
+func (s *UpdateImagePermissionsInput) SetSharedAccountId(v string) *UpdateImagePermissionsInput {
+	s.SharedAccountId = &v
+	return s
+}
+
+type UpdateImagePermissionsOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s UpdateImagePermissionsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateImagePermissionsOutput) GoString() string {
+	return s.String()
+}
+
 type UpdateStackInput struct {
 	_ struct{} `type:"structure"`
 
+	// The persistent application settings for users of a stack. When these settings
+	// are enabled, changes that users make to applications and Windows settings
+	// are automatically saved after each session and applied to the next session.
+	ApplicationSettings *ApplicationSettings `type:"structure"`
+
+	// The stack attributes to delete.
+	AttributesToDelete []*string `type:"list"`
+
 	// Deletes the storage connectors currently enabled for the stack.
-	DeleteStorageConnectors *bool `type:"boolean"`
+	//
+	// Deprecated: DeleteStorageConnectors has been deprecated
+	DeleteStorageConnectors *bool `deprecated:"true" type:"boolean"`
 
 	// The description for display.
 	Description *string `type:"string"`
@@ -6785,13 +9341,24 @@ type UpdateStackInput struct {
 	// The stack name for display.
 	DisplayName *string `type:"string"`
 
+	// The URL that users are redirected to after they click the Send Feedback link.
+	// If no URL is specified, no Send Feedback link is displayed.
+	FeedbackURL *string `type:"string"`
+
 	// The name of the stack.
 	//
 	// Name is a required field
 	Name *string `min:"1" type:"string" required:"true"`
 
+	// The URL that users are redirected to after their streaming session ends.
+	RedirectURL *string `type:"string"`
+
 	// The storage connectors to enable.
 	StorageConnectors []*StorageConnector `type:"list"`
+
+	// The actions that are enabled or disabled for users during their streaming
+	// sessions. By default, these actions are enabled.
+	UserSettings []*UserSetting `min:"1" type:"list"`
 }
 
 // String returns the string representation
@@ -6813,6 +9380,14 @@ func (s *UpdateStackInput) Validate() error {
 	if s.Name != nil && len(*s.Name) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
 	}
+	if s.UserSettings != nil && len(s.UserSettings) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("UserSettings", 1))
+	}
+	if s.ApplicationSettings != nil {
+		if err := s.ApplicationSettings.Validate(); err != nil {
+			invalidParams.AddNested("ApplicationSettings", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.StorageConnectors != nil {
 		for i, v := range s.StorageConnectors {
 			if v == nil {
@@ -6823,11 +9398,33 @@ func (s *UpdateStackInput) Validate() error {
 			}
 		}
 	}
+	if s.UserSettings != nil {
+		for i, v := range s.UserSettings {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "UserSettings", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetApplicationSettings sets the ApplicationSettings field's value.
+func (s *UpdateStackInput) SetApplicationSettings(v *ApplicationSettings) *UpdateStackInput {
+	s.ApplicationSettings = v
+	return s
+}
+
+// SetAttributesToDelete sets the AttributesToDelete field's value.
+func (s *UpdateStackInput) SetAttributesToDelete(v []*string) *UpdateStackInput {
+	s.AttributesToDelete = v
+	return s
 }
 
 // SetDeleteStorageConnectors sets the DeleteStorageConnectors field's value.
@@ -6848,9 +9445,21 @@ func (s *UpdateStackInput) SetDisplayName(v string) *UpdateStackInput {
 	return s
 }
 
+// SetFeedbackURL sets the FeedbackURL field's value.
+func (s *UpdateStackInput) SetFeedbackURL(v string) *UpdateStackInput {
+	s.FeedbackURL = &v
+	return s
+}
+
 // SetName sets the Name field's value.
 func (s *UpdateStackInput) SetName(v string) *UpdateStackInput {
 	s.Name = &v
+	return s
+}
+
+// SetRedirectURL sets the RedirectURL field's value.
+func (s *UpdateStackInput) SetRedirectURL(v string) *UpdateStackInput {
+	s.RedirectURL = &v
 	return s
 }
 
@@ -6860,7 +9469,12 @@ func (s *UpdateStackInput) SetStorageConnectors(v []*StorageConnector) *UpdateSt
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/UpdateStackResult
+// SetUserSettings sets the UserSettings field's value.
+func (s *UpdateStackInput) SetUserSettings(v []*UserSetting) *UpdateStackInput {
+	s.UserSettings = v
+	return s
+}
+
 type UpdateStackOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6884,8 +9498,288 @@ func (s *UpdateStackOutput) SetStack(v *Stack) *UpdateStackOutput {
 	return s
 }
 
+// Describes a user in the user pool.
+type User struct {
+	_ struct{} `type:"structure"`
+
+	// The ARN of the user.
+	Arn *string `type:"string"`
+
+	// The authentication type for the user.
+	//
+	// AuthenticationType is a required field
+	AuthenticationType *string `type:"string" required:"true" enum:"AuthenticationType"`
+
+	// The date and time the user was created in the user pool.
+	CreatedTime *time.Time `type:"timestamp"`
+
+	// Specifies whether the user in the user pool is enabled.
+	Enabled *bool `type:"boolean"`
+
+	// The first name, or given name, of the user.
+	FirstName *string `type:"string"`
+
+	// The last name, or surname, of the user.
+	LastName *string `type:"string"`
+
+	// The status of the user in the user pool. The status can be one of the following:
+	//
+	//    * UNCONFIRMED – The user is created but not confirmed.
+	//
+	//    * CONFIRMED – The user is confirmed.
+	//
+	//    * ARCHIVED – The user is no longer active.
+	//
+	//    * COMPROMISED – The user is disabled because of a potential security threat.
+	//
+	//    * UNKNOWN – The user status is not known.
+	Status *string `min:"1" type:"string"`
+
+	// The email address of the user.
+	UserName *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s User) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s User) GoString() string {
+	return s.String()
+}
+
+// SetArn sets the Arn field's value.
+func (s *User) SetArn(v string) *User {
+	s.Arn = &v
+	return s
+}
+
+// SetAuthenticationType sets the AuthenticationType field's value.
+func (s *User) SetAuthenticationType(v string) *User {
+	s.AuthenticationType = &v
+	return s
+}
+
+// SetCreatedTime sets the CreatedTime field's value.
+func (s *User) SetCreatedTime(v time.Time) *User {
+	s.CreatedTime = &v
+	return s
+}
+
+// SetEnabled sets the Enabled field's value.
+func (s *User) SetEnabled(v bool) *User {
+	s.Enabled = &v
+	return s
+}
+
+// SetFirstName sets the FirstName field's value.
+func (s *User) SetFirstName(v string) *User {
+	s.FirstName = &v
+	return s
+}
+
+// SetLastName sets the LastName field's value.
+func (s *User) SetLastName(v string) *User {
+	s.LastName = &v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *User) SetStatus(v string) *User {
+	s.Status = &v
+	return s
+}
+
+// SetUserName sets the UserName field's value.
+func (s *User) SetUserName(v string) *User {
+	s.UserName = &v
+	return s
+}
+
+// Describes an action and whether the action is enabled or disabled for users
+// during their streaming sessions.
+type UserSetting struct {
+	_ struct{} `type:"structure"`
+
+	// The action that is enabled or disabled.
+	//
+	// Action is a required field
+	Action *string `type:"string" required:"true" enum:"Action"`
+
+	// Indicates whether the action is enabled or disabled.
+	//
+	// Permission is a required field
+	Permission *string `type:"string" required:"true" enum:"Permission"`
+}
+
+// String returns the string representation
+func (s UserSetting) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UserSetting) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UserSetting) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UserSetting"}
+	if s.Action == nil {
+		invalidParams.Add(request.NewErrParamRequired("Action"))
+	}
+	if s.Permission == nil {
+		invalidParams.Add(request.NewErrParamRequired("Permission"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAction sets the Action field's value.
+func (s *UserSetting) SetAction(v string) *UserSetting {
+	s.Action = &v
+	return s
+}
+
+// SetPermission sets the Permission field's value.
+func (s *UserSetting) SetPermission(v string) *UserSetting {
+	s.Permission = &v
+	return s
+}
+
+// Describes a user in the user pool and the associated stack.
+type UserStackAssociation struct {
+	_ struct{} `type:"structure"`
+
+	// The authentication type for the user.
+	//
+	// AuthenticationType is a required field
+	AuthenticationType *string `type:"string" required:"true" enum:"AuthenticationType"`
+
+	// Specifies whether a welcome email is sent to a user after the user is created
+	// in the user pool.
+	SendEmailNotification *bool `type:"boolean"`
+
+	// The name of the stack that is associated with the user.
+	//
+	// StackName is a required field
+	StackName *string `min:"1" type:"string" required:"true"`
+
+	// The email address of the user who is associated with the stack.
+	//
+	// UserName is a required field
+	UserName *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s UserStackAssociation) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UserStackAssociation) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UserStackAssociation) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UserStackAssociation"}
+	if s.AuthenticationType == nil {
+		invalidParams.Add(request.NewErrParamRequired("AuthenticationType"))
+	}
+	if s.StackName == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackName"))
+	}
+	if s.StackName != nil && len(*s.StackName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
+	}
+	if s.UserName == nil {
+		invalidParams.Add(request.NewErrParamRequired("UserName"))
+	}
+	if s.UserName != nil && len(*s.UserName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("UserName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthenticationType sets the AuthenticationType field's value.
+func (s *UserStackAssociation) SetAuthenticationType(v string) *UserStackAssociation {
+	s.AuthenticationType = &v
+	return s
+}
+
+// SetSendEmailNotification sets the SendEmailNotification field's value.
+func (s *UserStackAssociation) SetSendEmailNotification(v bool) *UserStackAssociation {
+	s.SendEmailNotification = &v
+	return s
+}
+
+// SetStackName sets the StackName field's value.
+func (s *UserStackAssociation) SetStackName(v string) *UserStackAssociation {
+	s.StackName = &v
+	return s
+}
+
+// SetUserName sets the UserName field's value.
+func (s *UserStackAssociation) SetUserName(v string) *UserStackAssociation {
+	s.UserName = &v
+	return s
+}
+
+// Describes the error that is returned when a user can’t be associated with
+// or disassociated from a stack.
+type UserStackAssociationError struct {
+	_ struct{} `type:"structure"`
+
+	// The error code for the error that is returned when a user can’t be associated
+	// with or disassociated from a stack.
+	ErrorCode *string `type:"string" enum:"UserStackAssociationErrorCode"`
+
+	// The error message for the error that is returned when a user can’t be associated
+	// with or disassociated from a stack.
+	ErrorMessage *string `min:"1" type:"string"`
+
+	// Information about the user and associated stack.
+	UserStackAssociation *UserStackAssociation `type:"structure"`
+}
+
+// String returns the string representation
+func (s UserStackAssociationError) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UserStackAssociationError) GoString() string {
+	return s.String()
+}
+
+// SetErrorCode sets the ErrorCode field's value.
+func (s *UserStackAssociationError) SetErrorCode(v string) *UserStackAssociationError {
+	s.ErrorCode = &v
+	return s
+}
+
+// SetErrorMessage sets the ErrorMessage field's value.
+func (s *UserStackAssociationError) SetErrorMessage(v string) *UserStackAssociationError {
+	s.ErrorMessage = &v
+	return s
+}
+
+// SetUserStackAssociation sets the UserStackAssociation field's value.
+func (s *UserStackAssociationError) SetUserStackAssociation(v *UserStackAssociation) *UserStackAssociationError {
+	s.UserStackAssociation = v
+	return s
+}
+
 // Describes VPC configuration information.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/appstream-2016-12-01/VpcConfig
 type VpcConfig struct {
 	_ struct{} `type:"structure"`
 
@@ -6917,6 +9811,23 @@ func (s *VpcConfig) SetSubnetIds(v []*string) *VpcConfig {
 	s.SubnetIds = v
 	return s
 }
+
+const (
+	// ActionClipboardCopyFromLocalDevice is a Action enum value
+	ActionClipboardCopyFromLocalDevice = "CLIPBOARD_COPY_FROM_LOCAL_DEVICE"
+
+	// ActionClipboardCopyToLocalDevice is a Action enum value
+	ActionClipboardCopyToLocalDevice = "CLIPBOARD_COPY_TO_LOCAL_DEVICE"
+
+	// ActionFileUpload is a Action enum value
+	ActionFileUpload = "FILE_UPLOAD"
+
+	// ActionFileDownload is a Action enum value
+	ActionFileDownload = "FILE_DOWNLOAD"
+
+	// ActionPrintingToLocalDevice is a Action enum value
+	ActionPrintingToLocalDevice = "PRINTING_TO_LOCAL_DEVICE"
+)
 
 const (
 	// AuthenticationTypeApi is a AuthenticationType enum value
@@ -7090,6 +10001,9 @@ const (
 	// ImageStateFailed is a ImageState enum value
 	ImageStateFailed = "FAILED"
 
+	// ImageStateCopying is a ImageState enum value
+	ImageStateCopying = "COPYING"
+
 	// ImageStateDeleting is a ImageState enum value
 	ImageStateDeleting = "DELETING"
 )
@@ -7100,6 +10014,25 @@ const (
 
 	// ImageStateChangeReasonCodeImageBuilderNotAvailable is a ImageStateChangeReasonCode enum value
 	ImageStateChangeReasonCodeImageBuilderNotAvailable = "IMAGE_BUILDER_NOT_AVAILABLE"
+
+	// ImageStateChangeReasonCodeImageCopyFailure is a ImageStateChangeReasonCode enum value
+	ImageStateChangeReasonCodeImageCopyFailure = "IMAGE_COPY_FAILURE"
+)
+
+const (
+	// MessageActionSuppress is a MessageAction enum value
+	MessageActionSuppress = "SUPPRESS"
+
+	// MessageActionResend is a MessageAction enum value
+	MessageActionResend = "RESEND"
+)
+
+const (
+	// PermissionEnabled is a Permission enum value
+	PermissionEnabled = "ENABLED"
+
+	// PermissionDisabled is a Permission enum value
+	PermissionDisabled = "DISABLED"
 )
 
 const (
@@ -7120,6 +10053,32 @@ const (
 )
 
 const (
+	// StackAttributeStorageConnectors is a StackAttribute enum value
+	StackAttributeStorageConnectors = "STORAGE_CONNECTORS"
+
+	// StackAttributeStorageConnectorHomefolders is a StackAttribute enum value
+	StackAttributeStorageConnectorHomefolders = "STORAGE_CONNECTOR_HOMEFOLDERS"
+
+	// StackAttributeStorageConnectorGoogleDrive is a StackAttribute enum value
+	StackAttributeStorageConnectorGoogleDrive = "STORAGE_CONNECTOR_GOOGLE_DRIVE"
+
+	// StackAttributeStorageConnectorOneDrive is a StackAttribute enum value
+	StackAttributeStorageConnectorOneDrive = "STORAGE_CONNECTOR_ONE_DRIVE"
+
+	// StackAttributeRedirectUrl is a StackAttribute enum value
+	StackAttributeRedirectUrl = "REDIRECT_URL"
+
+	// StackAttributeFeedbackUrl is a StackAttribute enum value
+	StackAttributeFeedbackUrl = "FEEDBACK_URL"
+
+	// StackAttributeThemeName is a StackAttribute enum value
+	StackAttributeThemeName = "THEME_NAME"
+
+	// StackAttributeUserSettings is a StackAttribute enum value
+	StackAttributeUserSettings = "USER_SETTINGS"
+)
+
+const (
 	// StackErrorCodeStorageConnectorError is a StackErrorCode enum value
 	StackErrorCodeStorageConnectorError = "STORAGE_CONNECTOR_ERROR"
 
@@ -7131,6 +10090,23 @@ const (
 const (
 	// StorageConnectorTypeHomefolders is a StorageConnectorType enum value
 	StorageConnectorTypeHomefolders = "HOMEFOLDERS"
+
+	// StorageConnectorTypeGoogleDrive is a StorageConnectorType enum value
+	StorageConnectorTypeGoogleDrive = "GOOGLE_DRIVE"
+
+	// StorageConnectorTypeOneDrive is a StorageConnectorType enum value
+	StorageConnectorTypeOneDrive = "ONE_DRIVE"
+)
+
+const (
+	// UserStackAssociationErrorCodeStackNotFound is a UserStackAssociationErrorCode enum value
+	UserStackAssociationErrorCodeStackNotFound = "STACK_NOT_FOUND"
+
+	// UserStackAssociationErrorCodeUserNameNotFound is a UserStackAssociationErrorCode enum value
+	UserStackAssociationErrorCodeUserNameNotFound = "USER_NAME_NOT_FOUND"
+
+	// UserStackAssociationErrorCodeInternalError is a UserStackAssociationErrorCode enum value
+	UserStackAssociationErrorCodeInternalError = "INTERNAL_ERROR"
 )
 
 const (
@@ -7139,4 +10115,7 @@ const (
 
 	// VisibilityTypePrivate is a VisibilityType enum value
 	VisibilityTypePrivate = "PRIVATE"
+
+	// VisibilityTypeShared is a VisibilityType enum value
+	VisibilityTypeShared = "SHARED"
 )

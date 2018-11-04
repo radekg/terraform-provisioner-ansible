@@ -113,6 +113,10 @@ func ExampleRDS_ApplyPendingMaintenanceAction_shared00() {
 			switch aerr.Code() {
 			case rds.ErrCodeResourceNotFoundFault:
 				fmt.Println(rds.ErrCodeResourceNotFoundFault, aerr.Error())
+			case rds.ErrCodeInvalidDBClusterStateFault:
+				fmt.Println(rds.ErrCodeInvalidDBClusterStateFault, aerr.Error())
+			case rds.ErrCodeInvalidDBInstanceStateFault:
+				fmt.Println(rds.ErrCodeInvalidDBInstanceStateFault, aerr.Error())
 			default:
 				fmt.Println(aerr.Error())
 			}
@@ -542,6 +546,8 @@ func ExampleRDS_CreateDBInstance_shared00() {
 				fmt.Println(rds.ErrCodeKMSKeyNotAccessibleFault, aerr.Error())
 			case rds.ErrCodeDomainNotFoundFault:
 				fmt.Println(rds.ErrCodeDomainNotFoundFault, aerr.Error())
+			case rds.ErrCodeBackupPolicyNotFoundFault:
+				fmt.Println(rds.ErrCodeBackupPolicyNotFoundFault, aerr.Error())
 			default:
 				fmt.Println(aerr.Error())
 			}
@@ -2306,6 +2312,8 @@ func ExampleRDS_ModifyDBInstance_shared00() {
 				fmt.Println(rds.ErrCodeCertificateNotFoundFault, aerr.Error())
 			case rds.ErrCodeDomainNotFoundFault:
 				fmt.Println(rds.ErrCodeDomainNotFoundFault, aerr.Error())
+			case rds.ErrCodeBackupPolicyNotFoundFault:
+				fmt.Println(rds.ErrCodeBackupPolicyNotFoundFault, aerr.Error())
 			default:
 				fmt.Println(aerr.Error())
 			}
@@ -2803,6 +2811,8 @@ func ExampleRDS_RestoreDBClusterFromSnapshot_shared00() {
 				fmt.Println(rds.ErrCodeOptionGroupNotFoundFault, aerr.Error())
 			case rds.ErrCodeKMSKeyNotAccessibleFault:
 				fmt.Println(rds.ErrCodeKMSKeyNotAccessibleFault, aerr.Error())
+			case rds.ErrCodeDBClusterParameterGroupNotFoundFault:
+				fmt.Println(rds.ErrCodeDBClusterParameterGroupNotFoundFault, aerr.Error())
 			default:
 				fmt.Println(aerr.Error())
 			}
@@ -2865,6 +2875,8 @@ func ExampleRDS_RestoreDBClusterToPointInTime_shared00() {
 				fmt.Println(rds.ErrCodeOptionGroupNotFoundFault, aerr.Error())
 			case rds.ErrCodeStorageQuotaExceededFault:
 				fmt.Println(rds.ErrCodeStorageQuotaExceededFault, aerr.Error())
+			case rds.ErrCodeDBClusterParameterGroupNotFoundFault:
+				fmt.Println(rds.ErrCodeDBClusterParameterGroupNotFoundFault, aerr.Error())
 			default:
 				fmt.Println(aerr.Error())
 			}
@@ -2929,6 +2941,10 @@ func ExampleRDS_RestoreDBInstanceFromDBSnapshot_shared00() {
 				fmt.Println(rds.ErrCodeDBSecurityGroupNotFoundFault, aerr.Error())
 			case rds.ErrCodeDomainNotFoundFault:
 				fmt.Println(rds.ErrCodeDomainNotFoundFault, aerr.Error())
+			case rds.ErrCodeDBParameterGroupNotFoundFault:
+				fmt.Println(rds.ErrCodeDBParameterGroupNotFoundFault, aerr.Error())
+			case rds.ErrCodeBackupPolicyNotFoundFault:
+				fmt.Println(rds.ErrCodeBackupPolicyNotFoundFault, aerr.Error())
 			default:
 				fmt.Println(aerr.Error())
 			}
@@ -2997,6 +3013,10 @@ func ExampleRDS_RestoreDBInstanceToPointInTime_shared00() {
 				fmt.Println(rds.ErrCodeDBSecurityGroupNotFoundFault, aerr.Error())
 			case rds.ErrCodeDomainNotFoundFault:
 				fmt.Println(rds.ErrCodeDomainNotFoundFault, aerr.Error())
+			case rds.ErrCodeDBParameterGroupNotFoundFault:
+				fmt.Println(rds.ErrCodeDBParameterGroupNotFoundFault, aerr.Error())
+			case rds.ErrCodeBackupPolicyNotFoundFault:
+				fmt.Println(rds.ErrCodeBackupPolicyNotFoundFault, aerr.Error())
 			default:
 				fmt.Println(aerr.Error())
 			}

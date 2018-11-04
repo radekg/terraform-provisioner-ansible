@@ -132,6 +132,44 @@ if err != nil {
 
 ```
 
+By passing a Dial in the Parameters struct it is possible to use different dialer (e.g. tunnel through SSH)
+
+```go
+package main
+     
+ import (
+    "github.com/masterzen/winrm"
+    "golang.org/x/crypto/ssh"
+    "os"
+ )
+ 
+ func main() {
+ 
+    sshClient, err := ssh.Dial("tcp","localhost:22", &ssh.ClientConfig{
+        User:"ubuntu",
+        Auth: []ssh.AuthMethod{ssh.Password("ubuntu")},
+        HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+    })
+ 
+    endpoint := winrm.NewEndpoint("other-host", 5985, false, false, nil, nil, nil, 0)
+ 
+    params := winrm.DefaultParameters
+    params.Dial = sshClient.Dial
+ 
+    client, err := winrm.NewClientWithParameters(endpoint, "test", "test", params)
+    if err != nil {
+        panic(err)
+    }
+ 
+    _, err = client.RunWithInput("ipconfig", os.Stdout, os.Stderr, os.Stdin)
+    if err != nil {
+        panic(err)
+    }
+ }
+
+```
+
+
 For a more complex example, it is possible to call the various functions directly:
 
 ```go

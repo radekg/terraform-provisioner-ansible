@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	. "gopkg.in/check.v1"
+	"net"
+	"time"
 )
 
 var response = `<s:Envelope xml:lang="en-US" xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:a="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:x="http://schemas.xmlsoap.org/ws/2004/09/transfer" xmlns:w="http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd" xmlns:rsp="http://schemas.microsoft.com/wbem/wsman/1/windows/shell" xmlns:p="http://schemas.microsoft.com/wbem/wsman/1/wsman.xsd">
@@ -51,4 +53,32 @@ func (s *WinRMSuite) TestHttpRequest(c *C) {
 	shell, err := client.CreateShell()
 	c.Assert(err, IsNil)
 	c.Assert(shell.id, Equals, "67A74734-DD32-4F10-89DE-49A060483810")
+}
+
+
+func (s *WinRMSuite) TestHttpViaCustomDialerRequest(c *C) {
+	normalDialer := (&net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}).Dial
+	usedCustomDialer := false
+	dial := func(network, addr string) (net.Conn, error) {
+		usedCustomDialer = true
+		return normalDialer(network, addr)
+	}
+
+	ts, host, port, err := StartTestServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/soap+xml")
+		w.Write([]byte(response))
+	}))
+	c.Assert(err, IsNil)
+	defer ts.Close()
+	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
+	params := DefaultParameters
+	params.TransportDecorator = func() Transporter { return NewClientWithDial(dial) }
+	client, err := NewClientWithParameters(endpoint, "test", "test", params)
+	c.Assert(err, IsNil)
+	_, err = client.CreateShell()
+	c.Assert(err, IsNil)
+	c.Assert(usedCustomDialer, Equals, true)
 }

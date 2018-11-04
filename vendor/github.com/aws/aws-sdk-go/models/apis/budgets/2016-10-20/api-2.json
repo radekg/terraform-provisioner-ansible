@@ -7,6 +7,7 @@
     "protocol":"json",
     "serviceAbbreviation":"AWSBudgets",
     "serviceFullName":"AWS Budgets",
+    "serviceId":"Budgets",
     "signatureVersion":"v4",
     "targetPrefix":"AWSBudgetServiceGateway",
     "uid":"budgets-2016-10-20"
@@ -218,9 +219,7 @@
       "type":"structure",
       "required":[
         "BudgetName",
-        "BudgetLimit",
         "TimeUnit",
-        "TimePeriod",
         "BudgetType"
       ],
       "members":{
@@ -244,7 +243,8 @@
       "enum":[
         "USAGE",
         "COST",
-        "RI_UTILIZATION"
+        "RI_UTILIZATION",
+        "RI_COVERAGE"
       ]
     },
     "Budgets":{
@@ -587,7 +587,7 @@
     },
     "NumericValue":{
       "type":"string",
-      "pattern":"[0-9]*(\\.)?[0-9]+"
+      "pattern":"([0-9]*\\.)?[0-9]+"
     },
     "Spend":{
       "type":"structure",
@@ -637,10 +637,6 @@
     },
     "TimePeriod":{
       "type":"structure",
-      "required":[
-        "Start",
-        "End"
-      ],
       "members":{
         "Start":{"shape":"GenericTimestamp"},
         "End":{"shape":"GenericTimestamp"}

@@ -14,8 +14,8 @@ const opAllocateStaticIp = "AllocateStaticIp"
 
 // AllocateStaticIpRequest generates a "aws/request.Request" representing the
 // client's request for the AllocateStaticIp operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -72,8 +72,8 @@ func (c *Lightsail) AllocateStaticIpRequest(input *AllocateStaticIpInput) (req *
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -118,8 +118,8 @@ const opAttachDisk = "AttachDisk"
 
 // AttachDiskRequest generates a "aws/request.Request" representing the
 // client's request for the AttachDisk operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -177,8 +177,8 @@ func (c *Lightsail) AttachDiskRequest(input *AttachDiskInput) (req *request.Requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -223,8 +223,8 @@ const opAttachInstancesToLoadBalancer = "AttachInstancesToLoadBalancer"
 
 // AttachInstancesToLoadBalancerRequest generates a "aws/request.Request" representing the
 // client's request for the AttachInstancesToLoadBalancer operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -265,6 +265,9 @@ func (c *Lightsail) AttachInstancesToLoadBalancerRequest(input *AttachInstancesT
 //
 // Attaches one or more Lightsail instances to a load balancer.
 //
+// After some time, the instances are attached to the load balancer and the
+// health check status is available.
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -281,8 +284,8 @@ func (c *Lightsail) AttachInstancesToLoadBalancerRequest(input *AttachInstancesT
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -327,8 +330,8 @@ const opAttachLoadBalancerTlsCertificate = "AttachLoadBalancerTlsCertificate"
 
 // AttachLoadBalancerTlsCertificateRequest generates a "aws/request.Request" representing the
 // client's request for the AttachLoadBalancerTlsCertificate operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -368,8 +371,13 @@ func (c *Lightsail) AttachLoadBalancerTlsCertificateRequest(input *AttachLoadBal
 // AttachLoadBalancerTlsCertificate API operation for Amazon Lightsail.
 //
 // Attaches a Transport Layer Security (TLS) certificate to your load balancer.
-//
 // TLS is just an updated, more secure version of Secure Socket Layer (SSL).
+//
+// Once you create and validate your certificate, you can attach it to your
+// load balancer. You can also use this API to rotate the certificates on your
+// account. Use the AttachLoadBalancerTlsCertificate operation with the non-attached
+// certificate, and it will replace the existing one and become the attached
+// certificate.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -387,8 +395,8 @@ func (c *Lightsail) AttachLoadBalancerTlsCertificateRequest(input *AttachLoadBal
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -433,8 +441,8 @@ const opAttachStaticIp = "AttachStaticIp"
 
 // AttachStaticIpRequest generates a "aws/request.Request" representing the
 // client's request for the AttachStaticIp operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -491,8 +499,8 @@ func (c *Lightsail) AttachStaticIpRequest(input *AttachStaticIpInput) (req *requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -537,8 +545,8 @@ const opCloseInstancePublicPorts = "CloseInstancePublicPorts"
 
 // CloseInstancePublicPortsRequest generates a "aws/request.Request" representing the
 // client's request for the CloseInstancePublicPorts operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -595,8 +603,8 @@ func (c *Lightsail) CloseInstancePublicPortsRequest(input *CloseInstancePublicPo
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -641,8 +649,8 @@ const opCreateDisk = "CreateDisk"
 
 // CreateDiskRequest generates a "aws/request.Request" representing the
 // client's request for the CreateDisk operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -702,8 +710,8 @@ func (c *Lightsail) CreateDiskRequest(input *CreateDiskInput) (req *request.Requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -748,8 +756,8 @@ const opCreateDiskFromSnapshot = "CreateDiskFromSnapshot"
 
 // CreateDiskFromSnapshotRequest generates a "aws/request.Request" representing the
 // client's request for the CreateDiskFromSnapshot operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -809,8 +817,8 @@ func (c *Lightsail) CreateDiskFromSnapshotRequest(input *CreateDiskFromSnapshotI
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -855,8 +863,8 @@ const opCreateDiskSnapshot = "CreateDiskSnapshot"
 
 // CreateDiskSnapshotRequest generates a "aws/request.Request" representing the
 // client's request for the CreateDiskSnapshot operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -926,8 +934,8 @@ func (c *Lightsail) CreateDiskSnapshotRequest(input *CreateDiskSnapshotInput) (r
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -972,8 +980,8 @@ const opCreateDomain = "CreateDomain"
 
 // CreateDomainRequest generates a "aws/request.Request" representing the
 // client's request for the CreateDomain operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1030,8 +1038,8 @@ func (c *Lightsail) CreateDomainRequest(input *CreateDomainInput) (req *request.
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1076,8 +1084,8 @@ const opCreateDomainEntry = "CreateDomainEntry"
 
 // CreateDomainEntryRequest generates a "aws/request.Request" representing the
 // client's request for the CreateDomainEntry operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1135,8 +1143,8 @@ func (c *Lightsail) CreateDomainEntryRequest(input *CreateDomainEntryInput) (req
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1181,8 +1189,8 @@ const opCreateInstanceSnapshot = "CreateInstanceSnapshot"
 
 // CreateInstanceSnapshotRequest generates a "aws/request.Request" representing the
 // client's request for the CreateInstanceSnapshot operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1240,8 +1248,8 @@ func (c *Lightsail) CreateInstanceSnapshotRequest(input *CreateInstanceSnapshotI
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1286,8 +1294,8 @@ const opCreateInstances = "CreateInstances"
 
 // CreateInstancesRequest generates a "aws/request.Request" representing the
 // client's request for the CreateInstances operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1327,6 +1335,11 @@ func (c *Lightsail) CreateInstancesRequest(input *CreateInstancesInput) (req *re
 // CreateInstances API operation for Amazon Lightsail.
 //
 // Creates one or more Amazon Lightsail virtual private servers, or instances.
+// Create instances using active blueprints. Inactive blueprints are listed
+// to support customers with existing instances but are not necessarily available
+// for launch of new instances. Blueprints are marked inactive when they become
+// outdated due to operating system updates or new application releases. Use
+// the get blueprints operation to return a list of available blueprints.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1344,8 +1357,8 @@ func (c *Lightsail) CreateInstancesRequest(input *CreateInstancesInput) (req *re
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1390,8 +1403,8 @@ const opCreateInstancesFromSnapshot = "CreateInstancesFromSnapshot"
 
 // CreateInstancesFromSnapshotRequest generates a "aws/request.Request" representing the
 // client's request for the CreateInstancesFromSnapshot operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1449,8 +1462,8 @@ func (c *Lightsail) CreateInstancesFromSnapshotRequest(input *CreateInstancesFro
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1495,8 +1508,8 @@ const opCreateKeyPair = "CreateKeyPair"
 
 // CreateKeyPairRequest generates a "aws/request.Request" representing the
 // client's request for the CreateKeyPair operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1535,7 +1548,7 @@ func (c *Lightsail) CreateKeyPairRequest(input *CreateKeyPairInput) (req *reques
 
 // CreateKeyPair API operation for Amazon Lightsail.
 //
-// Creates sn SSH key pair.
+// Creates an SSH key pair.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1553,8 +1566,8 @@ func (c *Lightsail) CreateKeyPairRequest(input *CreateKeyPairInput) (req *reques
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1599,8 +1612,8 @@ const opCreateLoadBalancer = "CreateLoadBalancer"
 
 // CreateLoadBalancerRequest generates a "aws/request.Request" representing the
 // client's request for the CreateLoadBalancer operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1639,10 +1652,14 @@ func (c *Lightsail) CreateLoadBalancerRequest(input *CreateLoadBalancerInput) (r
 
 // CreateLoadBalancer API operation for Amazon Lightsail.
 //
-// Creates a Lightsail load balancer.
-//
-// When you create a load balancer, you can specify certificates and port settings.
+// Creates a Lightsail load balancer. To learn more about deciding whether to
+// load balance your application, see Configure your Lightsail instances for
+// load balancing (https://lightsail.aws.amazon.com/ls/docs/how-to/article/configure-lightsail-instances-for-load-balancing).
 // You can create up to 5 load balancers per AWS Region in your account.
+//
+// When you create a load balancer, you can specify a unique name and port settings.
+// To change additional load balancer settings, use the UpdateLoadBalancerAttribute
+// operation.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1660,8 +1677,8 @@ func (c *Lightsail) CreateLoadBalancerRequest(input *CreateLoadBalancerInput) (r
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1706,8 +1723,8 @@ const opCreateLoadBalancerTlsCertificate = "CreateLoadBalancerTlsCertificate"
 
 // CreateLoadBalancerTlsCertificateRequest generates a "aws/request.Request" representing the
 // client's request for the CreateLoadBalancerTlsCertificate operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1766,8 +1783,8 @@ func (c *Lightsail) CreateLoadBalancerTlsCertificateRequest(input *CreateLoadBal
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1808,12 +1825,330 @@ func (c *Lightsail) CreateLoadBalancerTlsCertificateWithContext(ctx aws.Context,
 	return out, req.Send()
 }
 
+const opCreateRelationalDatabase = "CreateRelationalDatabase"
+
+// CreateRelationalDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the CreateRelationalDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateRelationalDatabase for more information on using the CreateRelationalDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the CreateRelationalDatabaseRequest method.
+//    req, resp := client.CreateRelationalDatabaseRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateRelationalDatabase
+func (c *Lightsail) CreateRelationalDatabaseRequest(input *CreateRelationalDatabaseInput) (req *request.Request, output *CreateRelationalDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opCreateRelationalDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateRelationalDatabaseInput{}
+	}
+
+	output = &CreateRelationalDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateRelationalDatabase API operation for Amazon Lightsail.
+//
+// Creates a new database in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation CreateRelationalDatabase for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateRelationalDatabase
+func (c *Lightsail) CreateRelationalDatabase(input *CreateRelationalDatabaseInput) (*CreateRelationalDatabaseOutput, error) {
+	req, out := c.CreateRelationalDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// CreateRelationalDatabaseWithContext is the same as CreateRelationalDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateRelationalDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) CreateRelationalDatabaseWithContext(ctx aws.Context, input *CreateRelationalDatabaseInput, opts ...request.Option) (*CreateRelationalDatabaseOutput, error) {
+	req, out := c.CreateRelationalDatabaseRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opCreateRelationalDatabaseFromSnapshot = "CreateRelationalDatabaseFromSnapshot"
+
+// CreateRelationalDatabaseFromSnapshotRequest generates a "aws/request.Request" representing the
+// client's request for the CreateRelationalDatabaseFromSnapshot operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateRelationalDatabaseFromSnapshot for more information on using the CreateRelationalDatabaseFromSnapshot
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the CreateRelationalDatabaseFromSnapshotRequest method.
+//    req, resp := client.CreateRelationalDatabaseFromSnapshotRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateRelationalDatabaseFromSnapshot
+func (c *Lightsail) CreateRelationalDatabaseFromSnapshotRequest(input *CreateRelationalDatabaseFromSnapshotInput) (req *request.Request, output *CreateRelationalDatabaseFromSnapshotOutput) {
+	op := &request.Operation{
+		Name:       opCreateRelationalDatabaseFromSnapshot,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateRelationalDatabaseFromSnapshotInput{}
+	}
+
+	output = &CreateRelationalDatabaseFromSnapshotOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateRelationalDatabaseFromSnapshot API operation for Amazon Lightsail.
+//
+// Creates a new database from an existing database snapshot in Amazon Lightsail.
+//
+// You can create a new database from a snapshot in if something goes wrong
+// with your original database, or to change it to a different plan, such as
+// a high availability or standard plan.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation CreateRelationalDatabaseFromSnapshot for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateRelationalDatabaseFromSnapshot
+func (c *Lightsail) CreateRelationalDatabaseFromSnapshot(input *CreateRelationalDatabaseFromSnapshotInput) (*CreateRelationalDatabaseFromSnapshotOutput, error) {
+	req, out := c.CreateRelationalDatabaseFromSnapshotRequest(input)
+	return out, req.Send()
+}
+
+// CreateRelationalDatabaseFromSnapshotWithContext is the same as CreateRelationalDatabaseFromSnapshot with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateRelationalDatabaseFromSnapshot for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) CreateRelationalDatabaseFromSnapshotWithContext(ctx aws.Context, input *CreateRelationalDatabaseFromSnapshotInput, opts ...request.Option) (*CreateRelationalDatabaseFromSnapshotOutput, error) {
+	req, out := c.CreateRelationalDatabaseFromSnapshotRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opCreateRelationalDatabaseSnapshot = "CreateRelationalDatabaseSnapshot"
+
+// CreateRelationalDatabaseSnapshotRequest generates a "aws/request.Request" representing the
+// client's request for the CreateRelationalDatabaseSnapshot operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateRelationalDatabaseSnapshot for more information on using the CreateRelationalDatabaseSnapshot
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the CreateRelationalDatabaseSnapshotRequest method.
+//    req, resp := client.CreateRelationalDatabaseSnapshotRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateRelationalDatabaseSnapshot
+func (c *Lightsail) CreateRelationalDatabaseSnapshotRequest(input *CreateRelationalDatabaseSnapshotInput) (req *request.Request, output *CreateRelationalDatabaseSnapshotOutput) {
+	op := &request.Operation{
+		Name:       opCreateRelationalDatabaseSnapshot,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateRelationalDatabaseSnapshotInput{}
+	}
+
+	output = &CreateRelationalDatabaseSnapshotOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateRelationalDatabaseSnapshot API operation for Amazon Lightsail.
+//
+// Creates a snapshot of your database in Amazon Lightsail. You can use snapshots
+// for backups, to make copies of a database, and to save data before deleting
+// a database.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation CreateRelationalDatabaseSnapshot for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateRelationalDatabaseSnapshot
+func (c *Lightsail) CreateRelationalDatabaseSnapshot(input *CreateRelationalDatabaseSnapshotInput) (*CreateRelationalDatabaseSnapshotOutput, error) {
+	req, out := c.CreateRelationalDatabaseSnapshotRequest(input)
+	return out, req.Send()
+}
+
+// CreateRelationalDatabaseSnapshotWithContext is the same as CreateRelationalDatabaseSnapshot with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateRelationalDatabaseSnapshot for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) CreateRelationalDatabaseSnapshotWithContext(ctx aws.Context, input *CreateRelationalDatabaseSnapshotInput, opts ...request.Option) (*CreateRelationalDatabaseSnapshotOutput, error) {
+	req, out := c.CreateRelationalDatabaseSnapshotRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opDeleteDisk = "DeleteDisk"
 
 // DeleteDiskRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteDisk operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1873,8 +2208,8 @@ func (c *Lightsail) DeleteDiskRequest(input *DeleteDiskInput) (req *request.Requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -1919,8 +2254,8 @@ const opDeleteDiskSnapshot = "DeleteDiskSnapshot"
 
 // DeleteDiskSnapshotRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteDiskSnapshot operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1984,8 +2319,8 @@ func (c *Lightsail) DeleteDiskSnapshotRequest(input *DeleteDiskSnapshotInput) (r
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2030,8 +2365,8 @@ const opDeleteDomain = "DeleteDomain"
 
 // DeleteDomainRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteDomain operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2088,8 +2423,8 @@ func (c *Lightsail) DeleteDomainRequest(input *DeleteDomainInput) (req *request.
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2134,8 +2469,8 @@ const opDeleteDomainEntry = "DeleteDomainEntry"
 
 // DeleteDomainEntryRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteDomainEntry operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2192,8 +2527,8 @@ func (c *Lightsail) DeleteDomainEntryRequest(input *DeleteDomainEntryInput) (req
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2238,8 +2573,8 @@ const opDeleteInstance = "DeleteInstance"
 
 // DeleteInstanceRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteInstance operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2296,8 +2631,8 @@ func (c *Lightsail) DeleteInstanceRequest(input *DeleteInstanceInput) (req *requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2342,8 +2677,8 @@ const opDeleteInstanceSnapshot = "DeleteInstanceSnapshot"
 
 // DeleteInstanceSnapshotRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteInstanceSnapshot operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2400,8 +2735,8 @@ func (c *Lightsail) DeleteInstanceSnapshotRequest(input *DeleteInstanceSnapshotI
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2446,8 +2781,8 @@ const opDeleteKeyPair = "DeleteKeyPair"
 
 // DeleteKeyPairRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteKeyPair operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2504,8 +2839,8 @@ func (c *Lightsail) DeleteKeyPairRequest(input *DeleteKeyPairInput) (req *reques
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2550,8 +2885,8 @@ const opDeleteLoadBalancer = "DeleteLoadBalancer"
 
 // DeleteLoadBalancerRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteLoadBalancer operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2590,7 +2925,9 @@ func (c *Lightsail) DeleteLoadBalancerRequest(input *DeleteLoadBalancerInput) (r
 
 // DeleteLoadBalancer API operation for Amazon Lightsail.
 //
-// Deletes a Lightsail load balancer.
+// Deletes a Lightsail load balancer and all its associated SSL/TLS certificates.
+// Once the load balancer is deleted, you will need to create a new load balancer,
+// create a new certificate, and verify domain ownership again.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2608,8 +2945,8 @@ func (c *Lightsail) DeleteLoadBalancerRequest(input *DeleteLoadBalancerInput) (r
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2654,8 +2991,8 @@ const opDeleteLoadBalancerTlsCertificate = "DeleteLoadBalancerTlsCertificate"
 
 // DeleteLoadBalancerTlsCertificateRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteLoadBalancerTlsCertificate operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2694,7 +3031,7 @@ func (c *Lightsail) DeleteLoadBalancerTlsCertificateRequest(input *DeleteLoadBal
 
 // DeleteLoadBalancerTlsCertificate API operation for Amazon Lightsail.
 //
-// Deletes a TLS/SSL certificate associated with a Lightsail load balancer.
+// Deletes an SSL/TLS certificate associated with a Lightsail load balancer.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2712,8 +3049,8 @@ func (c *Lightsail) DeleteLoadBalancerTlsCertificateRequest(input *DeleteLoadBal
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2754,12 +3091,220 @@ func (c *Lightsail) DeleteLoadBalancerTlsCertificateWithContext(ctx aws.Context,
 	return out, req.Send()
 }
 
+const opDeleteRelationalDatabase = "DeleteRelationalDatabase"
+
+// DeleteRelationalDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteRelationalDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteRelationalDatabase for more information on using the DeleteRelationalDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DeleteRelationalDatabaseRequest method.
+//    req, resp := client.DeleteRelationalDatabaseRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteRelationalDatabase
+func (c *Lightsail) DeleteRelationalDatabaseRequest(input *DeleteRelationalDatabaseInput) (req *request.Request, output *DeleteRelationalDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opDeleteRelationalDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteRelationalDatabaseInput{}
+	}
+
+	output = &DeleteRelationalDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DeleteRelationalDatabase API operation for Amazon Lightsail.
+//
+// Deletes a database in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation DeleteRelationalDatabase for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteRelationalDatabase
+func (c *Lightsail) DeleteRelationalDatabase(input *DeleteRelationalDatabaseInput) (*DeleteRelationalDatabaseOutput, error) {
+	req, out := c.DeleteRelationalDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// DeleteRelationalDatabaseWithContext is the same as DeleteRelationalDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteRelationalDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) DeleteRelationalDatabaseWithContext(ctx aws.Context, input *DeleteRelationalDatabaseInput, opts ...request.Option) (*DeleteRelationalDatabaseOutput, error) {
+	req, out := c.DeleteRelationalDatabaseRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDeleteRelationalDatabaseSnapshot = "DeleteRelationalDatabaseSnapshot"
+
+// DeleteRelationalDatabaseSnapshotRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteRelationalDatabaseSnapshot operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteRelationalDatabaseSnapshot for more information on using the DeleteRelationalDatabaseSnapshot
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DeleteRelationalDatabaseSnapshotRequest method.
+//    req, resp := client.DeleteRelationalDatabaseSnapshotRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteRelationalDatabaseSnapshot
+func (c *Lightsail) DeleteRelationalDatabaseSnapshotRequest(input *DeleteRelationalDatabaseSnapshotInput) (req *request.Request, output *DeleteRelationalDatabaseSnapshotOutput) {
+	op := &request.Operation{
+		Name:       opDeleteRelationalDatabaseSnapshot,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteRelationalDatabaseSnapshotInput{}
+	}
+
+	output = &DeleteRelationalDatabaseSnapshotOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DeleteRelationalDatabaseSnapshot API operation for Amazon Lightsail.
+//
+// Deletes a database snapshot in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation DeleteRelationalDatabaseSnapshot for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteRelationalDatabaseSnapshot
+func (c *Lightsail) DeleteRelationalDatabaseSnapshot(input *DeleteRelationalDatabaseSnapshotInput) (*DeleteRelationalDatabaseSnapshotOutput, error) {
+	req, out := c.DeleteRelationalDatabaseSnapshotRequest(input)
+	return out, req.Send()
+}
+
+// DeleteRelationalDatabaseSnapshotWithContext is the same as DeleteRelationalDatabaseSnapshot with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteRelationalDatabaseSnapshot for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) DeleteRelationalDatabaseSnapshotWithContext(ctx aws.Context, input *DeleteRelationalDatabaseSnapshotInput, opts ...request.Option) (*DeleteRelationalDatabaseSnapshotOutput, error) {
+	req, out := c.DeleteRelationalDatabaseSnapshotRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opDetachDisk = "DetachDisk"
 
 // DetachDiskRequest generates a "aws/request.Request" representing the
 // client's request for the DetachDisk operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2818,8 +3363,8 @@ func (c *Lightsail) DetachDiskRequest(input *DetachDiskInput) (req *request.Requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2864,8 +3409,8 @@ const opDetachInstancesFromLoadBalancer = "DetachInstancesFromLoadBalancer"
 
 // DetachInstancesFromLoadBalancerRequest generates a "aws/request.Request" representing the
 // client's request for the DetachInstancesFromLoadBalancer operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2906,6 +3451,9 @@ func (c *Lightsail) DetachInstancesFromLoadBalancerRequest(input *DetachInstance
 //
 // Detaches the specified instances from a Lightsail load balancer.
 //
+// This operation waits until the instances are no longer needed before they
+// are detached from the load balancer.
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -2922,8 +3470,8 @@ func (c *Lightsail) DetachInstancesFromLoadBalancerRequest(input *DetachInstance
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -2968,8 +3516,8 @@ const opDetachStaticIp = "DetachStaticIp"
 
 // DetachStaticIpRequest generates a "aws/request.Request" representing the
 // client's request for the DetachStaticIp operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3026,8 +3574,8 @@ func (c *Lightsail) DetachStaticIpRequest(input *DetachStaticIpInput) (req *requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3072,8 +3620,8 @@ const opDownloadDefaultKeyPair = "DownloadDefaultKeyPair"
 
 // DownloadDefaultKeyPairRequest generates a "aws/request.Request" representing the
 // client's request for the DownloadDefaultKeyPair operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3130,8 +3678,8 @@ func (c *Lightsail) DownloadDefaultKeyPairRequest(input *DownloadDefaultKeyPairI
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3176,8 +3724,8 @@ const opGetActiveNames = "GetActiveNames"
 
 // GetActiveNamesRequest generates a "aws/request.Request" representing the
 // client's request for the GetActiveNames operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3234,8 +3782,8 @@ func (c *Lightsail) GetActiveNamesRequest(input *GetActiveNamesInput) (req *requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3280,8 +3828,8 @@ const opGetBlueprints = "GetBlueprints"
 
 // GetBlueprintsRequest generates a "aws/request.Request" representing the
 // client's request for the GetBlueprints operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3341,8 +3889,8 @@ func (c *Lightsail) GetBlueprintsRequest(input *GetBlueprintsInput) (req *reques
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3387,8 +3935,8 @@ const opGetBundles = "GetBundles"
 
 // GetBundlesRequest generates a "aws/request.Request" representing the
 // client's request for the GetBundles operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3446,8 +3994,8 @@ func (c *Lightsail) GetBundlesRequest(input *GetBundlesInput) (req *request.Requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3492,8 +4040,8 @@ const opGetDisk = "GetDisk"
 
 // GetDiskRequest generates a "aws/request.Request" representing the
 // client's request for the GetDisk operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3550,8 +4098,8 @@ func (c *Lightsail) GetDiskRequest(input *GetDiskInput) (req *request.Request, o
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3596,8 +4144,8 @@ const opGetDiskSnapshot = "GetDiskSnapshot"
 
 // GetDiskSnapshotRequest generates a "aws/request.Request" representing the
 // client's request for the GetDiskSnapshot operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3654,8 +4202,8 @@ func (c *Lightsail) GetDiskSnapshotRequest(input *GetDiskSnapshotInput) (req *re
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3700,8 +4248,8 @@ const opGetDiskSnapshots = "GetDiskSnapshots"
 
 // GetDiskSnapshotsRequest generates a "aws/request.Request" representing the
 // client's request for the GetDiskSnapshots operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3763,8 +4311,8 @@ func (c *Lightsail) GetDiskSnapshotsRequest(input *GetDiskSnapshotsInput) (req *
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3809,8 +4357,8 @@ const opGetDisks = "GetDisks"
 
 // GetDisksRequest generates a "aws/request.Request" representing the
 // client's request for the GetDisks operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3872,8 +4420,8 @@ func (c *Lightsail) GetDisksRequest(input *GetDisksInput) (req *request.Request,
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -3918,8 +4466,8 @@ const opGetDomain = "GetDomain"
 
 // GetDomainRequest generates a "aws/request.Request" representing the
 // client's request for the GetDomain operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3976,8 +4524,8 @@ func (c *Lightsail) GetDomainRequest(input *GetDomainInput) (req *request.Reques
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4022,8 +4570,8 @@ const opGetDomains = "GetDomains"
 
 // GetDomainsRequest generates a "aws/request.Request" representing the
 // client's request for the GetDomains operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4080,8 +4628,8 @@ func (c *Lightsail) GetDomainsRequest(input *GetDomainsInput) (req *request.Requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4126,8 +4674,8 @@ const opGetInstance = "GetInstance"
 
 // GetInstanceRequest generates a "aws/request.Request" representing the
 // client's request for the GetInstance operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4185,8 +4733,8 @@ func (c *Lightsail) GetInstanceRequest(input *GetInstanceInput) (req *request.Re
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4231,8 +4779,8 @@ const opGetInstanceAccessDetails = "GetInstanceAccessDetails"
 
 // GetInstanceAccessDetailsRequest generates a "aws/request.Request" representing the
 // client's request for the GetInstanceAccessDetails operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4290,8 +4838,8 @@ func (c *Lightsail) GetInstanceAccessDetailsRequest(input *GetInstanceAccessDeta
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4336,8 +4884,8 @@ const opGetInstanceMetricData = "GetInstanceMetricData"
 
 // GetInstanceMetricDataRequest generates a "aws/request.Request" representing the
 // client's request for the GetInstanceMetricData operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4395,8 +4943,8 @@ func (c *Lightsail) GetInstanceMetricDataRequest(input *GetInstanceMetricDataInp
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4441,8 +4989,8 @@ const opGetInstancePortStates = "GetInstancePortStates"
 
 // GetInstancePortStatesRequest generates a "aws/request.Request" representing the
 // client's request for the GetInstancePortStates operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4499,8 +5047,8 @@ func (c *Lightsail) GetInstancePortStatesRequest(input *GetInstancePortStatesInp
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4545,8 +5093,8 @@ const opGetInstanceSnapshot = "GetInstanceSnapshot"
 
 // GetInstanceSnapshotRequest generates a "aws/request.Request" representing the
 // client's request for the GetInstanceSnapshot operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4603,8 +5151,8 @@ func (c *Lightsail) GetInstanceSnapshotRequest(input *GetInstanceSnapshotInput) 
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4649,8 +5197,8 @@ const opGetInstanceSnapshots = "GetInstanceSnapshots"
 
 // GetInstanceSnapshotsRequest generates a "aws/request.Request" representing the
 // client's request for the GetInstanceSnapshots operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4707,8 +5255,8 @@ func (c *Lightsail) GetInstanceSnapshotsRequest(input *GetInstanceSnapshotsInput
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4753,8 +5301,8 @@ const opGetInstanceState = "GetInstanceState"
 
 // GetInstanceStateRequest generates a "aws/request.Request" representing the
 // client's request for the GetInstanceState operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4811,8 +5359,8 @@ func (c *Lightsail) GetInstanceStateRequest(input *GetInstanceStateInput) (req *
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4857,8 +5405,8 @@ const opGetInstances = "GetInstances"
 
 // GetInstancesRequest generates a "aws/request.Request" representing the
 // client's request for the GetInstances operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4916,8 +5464,8 @@ func (c *Lightsail) GetInstancesRequest(input *GetInstancesInput) (req *request.
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -4962,8 +5510,8 @@ const opGetKeyPair = "GetKeyPair"
 
 // GetKeyPairRequest generates a "aws/request.Request" representing the
 // client's request for the GetKeyPair operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5020,8 +5568,8 @@ func (c *Lightsail) GetKeyPairRequest(input *GetKeyPairInput) (req *request.Requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5066,8 +5614,8 @@ const opGetKeyPairs = "GetKeyPairs"
 
 // GetKeyPairsRequest generates a "aws/request.Request" representing the
 // client's request for the GetKeyPairs operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5124,8 +5672,8 @@ func (c *Lightsail) GetKeyPairsRequest(input *GetKeyPairsInput) (req *request.Re
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5170,8 +5718,8 @@ const opGetLoadBalancer = "GetLoadBalancer"
 
 // GetLoadBalancerRequest generates a "aws/request.Request" representing the
 // client's request for the GetLoadBalancer operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5228,8 +5776,8 @@ func (c *Lightsail) GetLoadBalancerRequest(input *GetLoadBalancerInput) (req *re
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5274,8 +5822,8 @@ const opGetLoadBalancerMetricData = "GetLoadBalancerMetricData"
 
 // GetLoadBalancerMetricDataRequest generates a "aws/request.Request" representing the
 // client's request for the GetLoadBalancerMetricData operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5332,8 +5880,8 @@ func (c *Lightsail) GetLoadBalancerMetricDataRequest(input *GetLoadBalancerMetri
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5378,8 +5926,8 @@ const opGetLoadBalancerTlsCertificates = "GetLoadBalancerTlsCertificates"
 
 // GetLoadBalancerTlsCertificatesRequest generates a "aws/request.Request" representing the
 // client's request for the GetLoadBalancerTlsCertificates operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5423,6 +5971,9 @@ func (c *Lightsail) GetLoadBalancerTlsCertificatesRequest(input *GetLoadBalancer
 //
 // TLS is just an updated, more secure version of Secure Socket Layer (SSL).
 //
+// You can have a maximum of 2 certificates associated with a Lightsail load
+// balancer. One is active and the other is inactive.
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -5439,8 +5990,8 @@ func (c *Lightsail) GetLoadBalancerTlsCertificatesRequest(input *GetLoadBalancer
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5485,8 +6036,8 @@ const opGetLoadBalancers = "GetLoadBalancers"
 
 // GetLoadBalancersRequest generates a "aws/request.Request" representing the
 // client's request for the GetLoadBalancers operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5547,8 +6098,8 @@ func (c *Lightsail) GetLoadBalancersRequest(input *GetLoadBalancersInput) (req *
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5593,8 +6144,8 @@ const opGetOperation = "GetOperation"
 
 // GetOperationRequest generates a "aws/request.Request" representing the
 // client's request for the GetOperation operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5653,8 +6204,8 @@ func (c *Lightsail) GetOperationRequest(input *GetOperationInput) (req *request.
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5699,8 +6250,8 @@ const opGetOperations = "GetOperations"
 
 // GetOperationsRequest generates a "aws/request.Request" representing the
 // client's request for the GetOperations operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5761,8 +6312,8 @@ func (c *Lightsail) GetOperationsRequest(input *GetOperationsInput) (req *reques
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5807,8 +6358,8 @@ const opGetOperationsForResource = "GetOperationsForResource"
 
 // GetOperationsForResourceRequest generates a "aws/request.Request" representing the
 // client's request for the GetOperationsForResource operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5865,8 +6416,8 @@ func (c *Lightsail) GetOperationsForResourceRequest(input *GetOperationsForResou
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -5911,8 +6462,8 @@ const opGetRegions = "GetRegions"
 
 // GetRegionsRequest generates a "aws/request.Request" representing the
 // client's request for the GetRegions operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -5952,7 +6503,7 @@ func (c *Lightsail) GetRegionsRequest(input *GetRegionsInput) (req *request.Requ
 // GetRegions API operation for Amazon Lightsail.
 //
 // Returns a list of all valid regions for Amazon Lightsail. Use the include
-// availability zones parameter to also return the availability zones in a region.
+// availability zones parameter to also return the Availability Zones in a region.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5970,8 +6521,8 @@ func (c *Lightsail) GetRegionsRequest(input *GetRegionsInput) (req *request.Requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6012,12 +6563,1277 @@ func (c *Lightsail) GetRegionsWithContext(ctx aws.Context, input *GetRegionsInpu
 	return out, req.Send()
 }
 
+const opGetRelationalDatabase = "GetRelationalDatabase"
+
+// GetRelationalDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabase for more information on using the GetRelationalDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseRequest method.
+//    req, resp := client.GetRelationalDatabaseRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabase
+func (c *Lightsail) GetRelationalDatabaseRequest(input *GetRelationalDatabaseInput) (req *request.Request, output *GetRelationalDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseInput{}
+	}
+
+	output = &GetRelationalDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabase API operation for Amazon Lightsail.
+//
+// Returns information about a specific database in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabase for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabase
+func (c *Lightsail) GetRelationalDatabase(input *GetRelationalDatabaseInput) (*GetRelationalDatabaseOutput, error) {
+	req, out := c.GetRelationalDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseWithContext is the same as GetRelationalDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseWithContext(ctx aws.Context, input *GetRelationalDatabaseInput, opts ...request.Option) (*GetRelationalDatabaseOutput, error) {
+	req, out := c.GetRelationalDatabaseRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseBlueprints = "GetRelationalDatabaseBlueprints"
+
+// GetRelationalDatabaseBlueprintsRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseBlueprints operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseBlueprints for more information on using the GetRelationalDatabaseBlueprints
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseBlueprintsRequest method.
+//    req, resp := client.GetRelationalDatabaseBlueprintsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseBlueprints
+func (c *Lightsail) GetRelationalDatabaseBlueprintsRequest(input *GetRelationalDatabaseBlueprintsInput) (req *request.Request, output *GetRelationalDatabaseBlueprintsOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseBlueprints,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseBlueprintsInput{}
+	}
+
+	output = &GetRelationalDatabaseBlueprintsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseBlueprints API operation for Amazon Lightsail.
+//
+// Returns a list of available database blueprints in Amazon Lightsail. A blueprint
+// describes the major engine version of a database.
+//
+// You can use a blueprint ID to create a new database that runs a specific
+// database engine.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseBlueprints for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseBlueprints
+func (c *Lightsail) GetRelationalDatabaseBlueprints(input *GetRelationalDatabaseBlueprintsInput) (*GetRelationalDatabaseBlueprintsOutput, error) {
+	req, out := c.GetRelationalDatabaseBlueprintsRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseBlueprintsWithContext is the same as GetRelationalDatabaseBlueprints with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseBlueprints for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseBlueprintsWithContext(ctx aws.Context, input *GetRelationalDatabaseBlueprintsInput, opts ...request.Option) (*GetRelationalDatabaseBlueprintsOutput, error) {
+	req, out := c.GetRelationalDatabaseBlueprintsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseBundles = "GetRelationalDatabaseBundles"
+
+// GetRelationalDatabaseBundlesRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseBundles operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseBundles for more information on using the GetRelationalDatabaseBundles
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseBundlesRequest method.
+//    req, resp := client.GetRelationalDatabaseBundlesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseBundles
+func (c *Lightsail) GetRelationalDatabaseBundlesRequest(input *GetRelationalDatabaseBundlesInput) (req *request.Request, output *GetRelationalDatabaseBundlesOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseBundles,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseBundlesInput{}
+	}
+
+	output = &GetRelationalDatabaseBundlesOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseBundles API operation for Amazon Lightsail.
+//
+// Returns the list of bundles that are available in Amazon Lightsail. A bundle
+// describes the performance specifications for a database.
+//
+// You can use a bundle ID to create a new database with explicit performance
+// specifications.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseBundles for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseBundles
+func (c *Lightsail) GetRelationalDatabaseBundles(input *GetRelationalDatabaseBundlesInput) (*GetRelationalDatabaseBundlesOutput, error) {
+	req, out := c.GetRelationalDatabaseBundlesRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseBundlesWithContext is the same as GetRelationalDatabaseBundles with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseBundles for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseBundlesWithContext(ctx aws.Context, input *GetRelationalDatabaseBundlesInput, opts ...request.Option) (*GetRelationalDatabaseBundlesOutput, error) {
+	req, out := c.GetRelationalDatabaseBundlesRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseEvents = "GetRelationalDatabaseEvents"
+
+// GetRelationalDatabaseEventsRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseEvents operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseEvents for more information on using the GetRelationalDatabaseEvents
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseEventsRequest method.
+//    req, resp := client.GetRelationalDatabaseEventsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseEvents
+func (c *Lightsail) GetRelationalDatabaseEventsRequest(input *GetRelationalDatabaseEventsInput) (req *request.Request, output *GetRelationalDatabaseEventsOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseEvents,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseEventsInput{}
+	}
+
+	output = &GetRelationalDatabaseEventsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseEvents API operation for Amazon Lightsail.
+//
+// Returns a list of events for a specific database in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseEvents for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseEvents
+func (c *Lightsail) GetRelationalDatabaseEvents(input *GetRelationalDatabaseEventsInput) (*GetRelationalDatabaseEventsOutput, error) {
+	req, out := c.GetRelationalDatabaseEventsRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseEventsWithContext is the same as GetRelationalDatabaseEvents with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseEvents for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseEventsWithContext(ctx aws.Context, input *GetRelationalDatabaseEventsInput, opts ...request.Option) (*GetRelationalDatabaseEventsOutput, error) {
+	req, out := c.GetRelationalDatabaseEventsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseLogEvents = "GetRelationalDatabaseLogEvents"
+
+// GetRelationalDatabaseLogEventsRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseLogEvents operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseLogEvents for more information on using the GetRelationalDatabaseLogEvents
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseLogEventsRequest method.
+//    req, resp := client.GetRelationalDatabaseLogEventsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseLogEvents
+func (c *Lightsail) GetRelationalDatabaseLogEventsRequest(input *GetRelationalDatabaseLogEventsInput) (req *request.Request, output *GetRelationalDatabaseLogEventsOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseLogEvents,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseLogEventsInput{}
+	}
+
+	output = &GetRelationalDatabaseLogEventsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseLogEvents API operation for Amazon Lightsail.
+//
+// Returns a list of log events for a database in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseLogEvents for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseLogEvents
+func (c *Lightsail) GetRelationalDatabaseLogEvents(input *GetRelationalDatabaseLogEventsInput) (*GetRelationalDatabaseLogEventsOutput, error) {
+	req, out := c.GetRelationalDatabaseLogEventsRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseLogEventsWithContext is the same as GetRelationalDatabaseLogEvents with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseLogEvents for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseLogEventsWithContext(ctx aws.Context, input *GetRelationalDatabaseLogEventsInput, opts ...request.Option) (*GetRelationalDatabaseLogEventsOutput, error) {
+	req, out := c.GetRelationalDatabaseLogEventsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseLogStreams = "GetRelationalDatabaseLogStreams"
+
+// GetRelationalDatabaseLogStreamsRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseLogStreams operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseLogStreams for more information on using the GetRelationalDatabaseLogStreams
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseLogStreamsRequest method.
+//    req, resp := client.GetRelationalDatabaseLogStreamsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseLogStreams
+func (c *Lightsail) GetRelationalDatabaseLogStreamsRequest(input *GetRelationalDatabaseLogStreamsInput) (req *request.Request, output *GetRelationalDatabaseLogStreamsOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseLogStreams,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseLogStreamsInput{}
+	}
+
+	output = &GetRelationalDatabaseLogStreamsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseLogStreams API operation for Amazon Lightsail.
+//
+// Returns a list of available log streams for a specific database in Amazon
+// Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseLogStreams for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseLogStreams
+func (c *Lightsail) GetRelationalDatabaseLogStreams(input *GetRelationalDatabaseLogStreamsInput) (*GetRelationalDatabaseLogStreamsOutput, error) {
+	req, out := c.GetRelationalDatabaseLogStreamsRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseLogStreamsWithContext is the same as GetRelationalDatabaseLogStreams with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseLogStreams for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseLogStreamsWithContext(ctx aws.Context, input *GetRelationalDatabaseLogStreamsInput, opts ...request.Option) (*GetRelationalDatabaseLogStreamsOutput, error) {
+	req, out := c.GetRelationalDatabaseLogStreamsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseMasterUserPassword = "GetRelationalDatabaseMasterUserPassword"
+
+// GetRelationalDatabaseMasterUserPasswordRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseMasterUserPassword operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseMasterUserPassword for more information on using the GetRelationalDatabaseMasterUserPassword
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseMasterUserPasswordRequest method.
+//    req, resp := client.GetRelationalDatabaseMasterUserPasswordRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseMasterUserPassword
+func (c *Lightsail) GetRelationalDatabaseMasterUserPasswordRequest(input *GetRelationalDatabaseMasterUserPasswordInput) (req *request.Request, output *GetRelationalDatabaseMasterUserPasswordOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseMasterUserPassword,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseMasterUserPasswordInput{}
+	}
+
+	output = &GetRelationalDatabaseMasterUserPasswordOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseMasterUserPassword API operation for Amazon Lightsail.
+//
+// Returns the current, previous, or pending versions of the master user password
+// for a Lightsail database.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseMasterUserPassword for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseMasterUserPassword
+func (c *Lightsail) GetRelationalDatabaseMasterUserPassword(input *GetRelationalDatabaseMasterUserPasswordInput) (*GetRelationalDatabaseMasterUserPasswordOutput, error) {
+	req, out := c.GetRelationalDatabaseMasterUserPasswordRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseMasterUserPasswordWithContext is the same as GetRelationalDatabaseMasterUserPassword with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseMasterUserPassword for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseMasterUserPasswordWithContext(ctx aws.Context, input *GetRelationalDatabaseMasterUserPasswordInput, opts ...request.Option) (*GetRelationalDatabaseMasterUserPasswordOutput, error) {
+	req, out := c.GetRelationalDatabaseMasterUserPasswordRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseMetricData = "GetRelationalDatabaseMetricData"
+
+// GetRelationalDatabaseMetricDataRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseMetricData operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseMetricData for more information on using the GetRelationalDatabaseMetricData
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseMetricDataRequest method.
+//    req, resp := client.GetRelationalDatabaseMetricDataRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseMetricData
+func (c *Lightsail) GetRelationalDatabaseMetricDataRequest(input *GetRelationalDatabaseMetricDataInput) (req *request.Request, output *GetRelationalDatabaseMetricDataOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseMetricData,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseMetricDataInput{}
+	}
+
+	output = &GetRelationalDatabaseMetricDataOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseMetricData API operation for Amazon Lightsail.
+//
+// Returns the data points of the specified metric for a database in Amazon
+// Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseMetricData for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseMetricData
+func (c *Lightsail) GetRelationalDatabaseMetricData(input *GetRelationalDatabaseMetricDataInput) (*GetRelationalDatabaseMetricDataOutput, error) {
+	req, out := c.GetRelationalDatabaseMetricDataRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseMetricDataWithContext is the same as GetRelationalDatabaseMetricData with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseMetricData for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseMetricDataWithContext(ctx aws.Context, input *GetRelationalDatabaseMetricDataInput, opts ...request.Option) (*GetRelationalDatabaseMetricDataOutput, error) {
+	req, out := c.GetRelationalDatabaseMetricDataRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseParameters = "GetRelationalDatabaseParameters"
+
+// GetRelationalDatabaseParametersRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseParameters operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseParameters for more information on using the GetRelationalDatabaseParameters
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseParametersRequest method.
+//    req, resp := client.GetRelationalDatabaseParametersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseParameters
+func (c *Lightsail) GetRelationalDatabaseParametersRequest(input *GetRelationalDatabaseParametersInput) (req *request.Request, output *GetRelationalDatabaseParametersOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseParameters,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseParametersInput{}
+	}
+
+	output = &GetRelationalDatabaseParametersOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseParameters API operation for Amazon Lightsail.
+//
+// Returns all of the runtime parameters offered by the underlying database
+// software, or engine, for a specific database in Amazon Lightsail.
+//
+// In addition to the parameter names and values, this operation returns other
+// information about each parameter. This information includes whether changes
+// require a reboot, whether the parameter is modifiable, the allowed values,
+// and the data types.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseParameters for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseParameters
+func (c *Lightsail) GetRelationalDatabaseParameters(input *GetRelationalDatabaseParametersInput) (*GetRelationalDatabaseParametersOutput, error) {
+	req, out := c.GetRelationalDatabaseParametersRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseParametersWithContext is the same as GetRelationalDatabaseParameters with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseParameters for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseParametersWithContext(ctx aws.Context, input *GetRelationalDatabaseParametersInput, opts ...request.Option) (*GetRelationalDatabaseParametersOutput, error) {
+	req, out := c.GetRelationalDatabaseParametersRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseSnapshot = "GetRelationalDatabaseSnapshot"
+
+// GetRelationalDatabaseSnapshotRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseSnapshot operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseSnapshot for more information on using the GetRelationalDatabaseSnapshot
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseSnapshotRequest method.
+//    req, resp := client.GetRelationalDatabaseSnapshotRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseSnapshot
+func (c *Lightsail) GetRelationalDatabaseSnapshotRequest(input *GetRelationalDatabaseSnapshotInput) (req *request.Request, output *GetRelationalDatabaseSnapshotOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseSnapshot,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseSnapshotInput{}
+	}
+
+	output = &GetRelationalDatabaseSnapshotOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseSnapshot API operation for Amazon Lightsail.
+//
+// Returns information about a specific database snapshot in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseSnapshot for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseSnapshot
+func (c *Lightsail) GetRelationalDatabaseSnapshot(input *GetRelationalDatabaseSnapshotInput) (*GetRelationalDatabaseSnapshotOutput, error) {
+	req, out := c.GetRelationalDatabaseSnapshotRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseSnapshotWithContext is the same as GetRelationalDatabaseSnapshot with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseSnapshot for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseSnapshotWithContext(ctx aws.Context, input *GetRelationalDatabaseSnapshotInput, opts ...request.Option) (*GetRelationalDatabaseSnapshotOutput, error) {
+	req, out := c.GetRelationalDatabaseSnapshotRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabaseSnapshots = "GetRelationalDatabaseSnapshots"
+
+// GetRelationalDatabaseSnapshotsRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabaseSnapshots operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabaseSnapshots for more information on using the GetRelationalDatabaseSnapshots
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabaseSnapshotsRequest method.
+//    req, resp := client.GetRelationalDatabaseSnapshotsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseSnapshots
+func (c *Lightsail) GetRelationalDatabaseSnapshotsRequest(input *GetRelationalDatabaseSnapshotsInput) (req *request.Request, output *GetRelationalDatabaseSnapshotsOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabaseSnapshots,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabaseSnapshotsInput{}
+	}
+
+	output = &GetRelationalDatabaseSnapshotsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabaseSnapshots API operation for Amazon Lightsail.
+//
+// Returns information about all of your database snapshots in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabaseSnapshots for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabaseSnapshots
+func (c *Lightsail) GetRelationalDatabaseSnapshots(input *GetRelationalDatabaseSnapshotsInput) (*GetRelationalDatabaseSnapshotsOutput, error) {
+	req, out := c.GetRelationalDatabaseSnapshotsRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabaseSnapshotsWithContext is the same as GetRelationalDatabaseSnapshots with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabaseSnapshots for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabaseSnapshotsWithContext(ctx aws.Context, input *GetRelationalDatabaseSnapshotsInput, opts ...request.Option) (*GetRelationalDatabaseSnapshotsOutput, error) {
+	req, out := c.GetRelationalDatabaseSnapshotsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetRelationalDatabases = "GetRelationalDatabases"
+
+// GetRelationalDatabasesRequest generates a "aws/request.Request" representing the
+// client's request for the GetRelationalDatabases operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetRelationalDatabases for more information on using the GetRelationalDatabases
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetRelationalDatabasesRequest method.
+//    req, resp := client.GetRelationalDatabasesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabases
+func (c *Lightsail) GetRelationalDatabasesRequest(input *GetRelationalDatabasesInput) (req *request.Request, output *GetRelationalDatabasesOutput) {
+	op := &request.Operation{
+		Name:       opGetRelationalDatabases,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRelationalDatabasesInput{}
+	}
+
+	output = &GetRelationalDatabasesOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetRelationalDatabases API operation for Amazon Lightsail.
+//
+// Returns information about all of your databases in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation GetRelationalDatabases for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRelationalDatabases
+func (c *Lightsail) GetRelationalDatabases(input *GetRelationalDatabasesInput) (*GetRelationalDatabasesOutput, error) {
+	req, out := c.GetRelationalDatabasesRequest(input)
+	return out, req.Send()
+}
+
+// GetRelationalDatabasesWithContext is the same as GetRelationalDatabases with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetRelationalDatabases for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) GetRelationalDatabasesWithContext(ctx aws.Context, input *GetRelationalDatabasesInput, opts ...request.Option) (*GetRelationalDatabasesOutput, error) {
+	req, out := c.GetRelationalDatabasesRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opGetStaticIp = "GetStaticIp"
 
 // GetStaticIpRequest generates a "aws/request.Request" representing the
 // client's request for the GetStaticIp operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6074,8 +7890,8 @@ func (c *Lightsail) GetStaticIpRequest(input *GetStaticIpInput) (req *request.Re
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6120,8 +7936,8 @@ const opGetStaticIps = "GetStaticIps"
 
 // GetStaticIpsRequest generates a "aws/request.Request" representing the
 // client's request for the GetStaticIps operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6178,8 +7994,8 @@ func (c *Lightsail) GetStaticIpsRequest(input *GetStaticIpsInput) (req *request.
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6224,8 +8040,8 @@ const opImportKeyPair = "ImportKeyPair"
 
 // ImportKeyPairRequest generates a "aws/request.Request" representing the
 // client's request for the ImportKeyPair operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6282,8 +8098,8 @@ func (c *Lightsail) ImportKeyPairRequest(input *ImportKeyPairInput) (req *reques
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6328,8 +8144,8 @@ const opIsVpcPeered = "IsVpcPeered"
 
 // IsVpcPeeredRequest generates a "aws/request.Request" representing the
 // client's request for the IsVpcPeered operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6386,8 +8202,8 @@ func (c *Lightsail) IsVpcPeeredRequest(input *IsVpcPeeredInput) (req *request.Re
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6432,8 +8248,8 @@ const opOpenInstancePublicPorts = "OpenInstancePublicPorts"
 
 // OpenInstancePublicPortsRequest generates a "aws/request.Request" representing the
 // client's request for the OpenInstancePublicPorts operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6490,8 +8306,8 @@ func (c *Lightsail) OpenInstancePublicPortsRequest(input *OpenInstancePublicPort
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6536,8 +8352,8 @@ const opPeerVpc = "PeerVpc"
 
 // PeerVpcRequest generates a "aws/request.Request" representing the
 // client's request for the PeerVpc operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6594,8 +8410,8 @@ func (c *Lightsail) PeerVpcRequest(input *PeerVpcInput) (req *request.Request, o
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6640,8 +8456,8 @@ const opPutInstancePublicPorts = "PutInstancePublicPorts"
 
 // PutInstancePublicPortsRequest generates a "aws/request.Request" representing the
 // client's request for the PutInstancePublicPorts operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6699,8 +8515,8 @@ func (c *Lightsail) PutInstancePublicPortsRequest(input *PutInstancePublicPortsI
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6745,8 +8561,8 @@ const opRebootInstance = "RebootInstance"
 
 // RebootInstanceRequest generates a "aws/request.Request" representing the
 // client's request for the RebootInstance operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6806,8 +8622,8 @@ func (c *Lightsail) RebootInstanceRequest(input *RebootInstanceInput) (req *requ
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6848,12 +8664,116 @@ func (c *Lightsail) RebootInstanceWithContext(ctx aws.Context, input *RebootInst
 	return out, req.Send()
 }
 
+const opRebootRelationalDatabase = "RebootRelationalDatabase"
+
+// RebootRelationalDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the RebootRelationalDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See RebootRelationalDatabase for more information on using the RebootRelationalDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the RebootRelationalDatabaseRequest method.
+//    req, resp := client.RebootRelationalDatabaseRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/RebootRelationalDatabase
+func (c *Lightsail) RebootRelationalDatabaseRequest(input *RebootRelationalDatabaseInput) (req *request.Request, output *RebootRelationalDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opRebootRelationalDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &RebootRelationalDatabaseInput{}
+	}
+
+	output = &RebootRelationalDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// RebootRelationalDatabase API operation for Amazon Lightsail.
+//
+// Restarts a specific database in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation RebootRelationalDatabase for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/RebootRelationalDatabase
+func (c *Lightsail) RebootRelationalDatabase(input *RebootRelationalDatabaseInput) (*RebootRelationalDatabaseOutput, error) {
+	req, out := c.RebootRelationalDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// RebootRelationalDatabaseWithContext is the same as RebootRelationalDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See RebootRelationalDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) RebootRelationalDatabaseWithContext(ctx aws.Context, input *RebootRelationalDatabaseInput, opts ...request.Option) (*RebootRelationalDatabaseOutput, error) {
+	req, out := c.RebootRelationalDatabaseRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opReleaseStaticIp = "ReleaseStaticIp"
 
 // ReleaseStaticIpRequest generates a "aws/request.Request" representing the
 // client's request for the ReleaseStaticIp operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -6910,8 +8830,8 @@ func (c *Lightsail) ReleaseStaticIpRequest(input *ReleaseStaticIpInput) (req *re
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -6956,8 +8876,8 @@ const opStartInstance = "StartInstance"
 
 // StartInstanceRequest generates a "aws/request.Request" representing the
 // client's request for the StartInstance operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -7015,8 +8935,8 @@ func (c *Lightsail) StartInstanceRequest(input *StartInstanceInput) (req *reques
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -7057,12 +8977,117 @@ func (c *Lightsail) StartInstanceWithContext(ctx aws.Context, input *StartInstan
 	return out, req.Send()
 }
 
+const opStartRelationalDatabase = "StartRelationalDatabase"
+
+// StartRelationalDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the StartRelationalDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See StartRelationalDatabase for more information on using the StartRelationalDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the StartRelationalDatabaseRequest method.
+//    req, resp := client.StartRelationalDatabaseRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StartRelationalDatabase
+func (c *Lightsail) StartRelationalDatabaseRequest(input *StartRelationalDatabaseInput) (req *request.Request, output *StartRelationalDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opStartRelationalDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &StartRelationalDatabaseInput{}
+	}
+
+	output = &StartRelationalDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// StartRelationalDatabase API operation for Amazon Lightsail.
+//
+// Starts a specific database from a stopped state in Amazon Lightsail. To restart
+// a database, use the reboot relational database operation.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation StartRelationalDatabase for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StartRelationalDatabase
+func (c *Lightsail) StartRelationalDatabase(input *StartRelationalDatabaseInput) (*StartRelationalDatabaseOutput, error) {
+	req, out := c.StartRelationalDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// StartRelationalDatabaseWithContext is the same as StartRelationalDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See StartRelationalDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) StartRelationalDatabaseWithContext(ctx aws.Context, input *StartRelationalDatabaseInput, opts ...request.Option) (*StartRelationalDatabaseOutput, error) {
+	req, out := c.StartRelationalDatabaseRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opStopInstance = "StopInstance"
 
 // StopInstanceRequest generates a "aws/request.Request" representing the
 // client's request for the StopInstance operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -7119,8 +9144,8 @@ func (c *Lightsail) StopInstanceRequest(input *StopInstanceInput) (req *request.
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -7161,12 +9186,116 @@ func (c *Lightsail) StopInstanceWithContext(ctx aws.Context, input *StopInstance
 	return out, req.Send()
 }
 
+const opStopRelationalDatabase = "StopRelationalDatabase"
+
+// StopRelationalDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the StopRelationalDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See StopRelationalDatabase for more information on using the StopRelationalDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the StopRelationalDatabaseRequest method.
+//    req, resp := client.StopRelationalDatabaseRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StopRelationalDatabase
+func (c *Lightsail) StopRelationalDatabaseRequest(input *StopRelationalDatabaseInput) (req *request.Request, output *StopRelationalDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opStopRelationalDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &StopRelationalDatabaseInput{}
+	}
+
+	output = &StopRelationalDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// StopRelationalDatabase API operation for Amazon Lightsail.
+//
+// Stops a specific database that is currently running in Amazon Lightsail.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation StopRelationalDatabase for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StopRelationalDatabase
+func (c *Lightsail) StopRelationalDatabase(input *StopRelationalDatabaseInput) (*StopRelationalDatabaseOutput, error) {
+	req, out := c.StopRelationalDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// StopRelationalDatabaseWithContext is the same as StopRelationalDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See StopRelationalDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) StopRelationalDatabaseWithContext(ctx aws.Context, input *StopRelationalDatabaseInput, opts ...request.Option) (*StopRelationalDatabaseOutput, error) {
+	req, out := c.StopRelationalDatabaseRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opUnpeerVpc = "UnpeerVpc"
 
 // UnpeerVpcRequest generates a "aws/request.Request" representing the
 // client's request for the UnpeerVpc operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -7223,8 +9352,8 @@ func (c *Lightsail) UnpeerVpcRequest(input *UnpeerVpcInput) (req *request.Reques
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -7269,8 +9398,8 @@ const opUpdateDomainEntry = "UpdateDomainEntry"
 
 // UpdateDomainEntryRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateDomainEntry operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -7327,8 +9456,8 @@ func (c *Lightsail) UpdateDomainEntryRequest(input *UpdateDomainEntryInput) (req
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -7373,8 +9502,8 @@ const opUpdateLoadBalancerAttribute = "UpdateLoadBalancerAttribute"
 
 // UpdateLoadBalancerAttributeRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateLoadBalancerAttribute operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -7413,7 +9542,8 @@ func (c *Lightsail) UpdateLoadBalancerAttributeRequest(input *UpdateLoadBalancer
 
 // UpdateLoadBalancerAttribute API operation for Amazon Lightsail.
 //
-// Updates the specified attribute for a load balancer.
+// Updates the specified attribute for a load balancer. You can only update
+// one attribute at a time.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7431,8 +9561,8 @@ func (c *Lightsail) UpdateLoadBalancerAttributeRequest(input *UpdateLoadBalancer
 //   rules of an input field.
 //
 //   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
-//   Please set your Region configuration to us-east-1 to create, view, or edit
-//   these resources.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
 //
 //   * ErrCodeNotFoundException "NotFoundException"
 //   Lightsail throws this exception when it cannot find a resource.
@@ -7473,7 +9603,224 @@ func (c *Lightsail) UpdateLoadBalancerAttributeWithContext(ctx aws.Context, inpu
 	return out, req.Send()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AllocateStaticIpRequest
+const opUpdateRelationalDatabase = "UpdateRelationalDatabase"
+
+// UpdateRelationalDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateRelationalDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See UpdateRelationalDatabase for more information on using the UpdateRelationalDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the UpdateRelationalDatabaseRequest method.
+//    req, resp := client.UpdateRelationalDatabaseRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UpdateRelationalDatabase
+func (c *Lightsail) UpdateRelationalDatabaseRequest(input *UpdateRelationalDatabaseInput) (req *request.Request, output *UpdateRelationalDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opUpdateRelationalDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &UpdateRelationalDatabaseInput{}
+	}
+
+	output = &UpdateRelationalDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// UpdateRelationalDatabase API operation for Amazon Lightsail.
+//
+// Allows the update of one or more attributes of a database in Amazon Lightsail.
+//
+// Updates are applied immediately, or in cases where the updates could result
+// in an outage, are applied during the database's predefined maintenance window.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation UpdateRelationalDatabase for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UpdateRelationalDatabase
+func (c *Lightsail) UpdateRelationalDatabase(input *UpdateRelationalDatabaseInput) (*UpdateRelationalDatabaseOutput, error) {
+	req, out := c.UpdateRelationalDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// UpdateRelationalDatabaseWithContext is the same as UpdateRelationalDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See UpdateRelationalDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) UpdateRelationalDatabaseWithContext(ctx aws.Context, input *UpdateRelationalDatabaseInput, opts ...request.Option) (*UpdateRelationalDatabaseOutput, error) {
+	req, out := c.UpdateRelationalDatabaseRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opUpdateRelationalDatabaseParameters = "UpdateRelationalDatabaseParameters"
+
+// UpdateRelationalDatabaseParametersRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateRelationalDatabaseParameters operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See UpdateRelationalDatabaseParameters for more information on using the UpdateRelationalDatabaseParameters
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the UpdateRelationalDatabaseParametersRequest method.
+//    req, resp := client.UpdateRelationalDatabaseParametersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UpdateRelationalDatabaseParameters
+func (c *Lightsail) UpdateRelationalDatabaseParametersRequest(input *UpdateRelationalDatabaseParametersInput) (req *request.Request, output *UpdateRelationalDatabaseParametersOutput) {
+	op := &request.Operation{
+		Name:       opUpdateRelationalDatabaseParameters,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &UpdateRelationalDatabaseParametersInput{}
+	}
+
+	output = &UpdateRelationalDatabaseParametersOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// UpdateRelationalDatabaseParameters API operation for Amazon Lightsail.
+//
+// Allows the update of one or more parameters of a database in Amazon Lightsail.
+//
+// Parameter updates don't cause outages; therefore, their application is not
+// subject to the preferred maintenance window. However, there are two ways
+// in which paramater updates are applied: dynamic or pending-reboot. Parameters
+// marked with a dynamic apply type are applied immediately. Parameters marked
+// with a pending-reboot apply type are applied only after the database is rebooted
+// using the reboot relational database operation.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Lightsail's
+// API operation UpdateRelationalDatabaseParameters for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeServiceException "ServiceException"
+//   A general service exception.
+//
+//   * ErrCodeInvalidInputException "InvalidInputException"
+//   Lightsail throws this exception when user input does not conform to the validation
+//   rules of an input field.
+//
+//   Domain-related APIs are only available in the N. Virginia (us-east-1) Region.
+//   Please set your AWS Region configuration to us-east-1 to create, view, or
+//   edit these resources.
+//
+//   * ErrCodeNotFoundException "NotFoundException"
+//   Lightsail throws this exception when it cannot find a resource.
+//
+//   * ErrCodeOperationFailureException "OperationFailureException"
+//   Lightsail throws this exception when an operation fails to execute.
+//
+//   * ErrCodeAccessDeniedException "AccessDeniedException"
+//   Lightsail throws this exception when the user cannot be authenticated or
+//   uses invalid credentials to access a resource.
+//
+//   * ErrCodeAccountSetupInProgressException "AccountSetupInProgressException"
+//   Lightsail throws this exception when an account is still in the setup in
+//   progress state.
+//
+//   * ErrCodeUnauthenticatedException "UnauthenticatedException"
+//   Lightsail throws this exception when the user has not been authenticated.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UpdateRelationalDatabaseParameters
+func (c *Lightsail) UpdateRelationalDatabaseParameters(input *UpdateRelationalDatabaseParametersInput) (*UpdateRelationalDatabaseParametersOutput, error) {
+	req, out := c.UpdateRelationalDatabaseParametersRequest(input)
+	return out, req.Send()
+}
+
+// UpdateRelationalDatabaseParametersWithContext is the same as UpdateRelationalDatabaseParameters with the addition of
+// the ability to pass a context and additional request options.
+//
+// See UpdateRelationalDatabaseParameters for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lightsail) UpdateRelationalDatabaseParametersWithContext(ctx aws.Context, input *UpdateRelationalDatabaseParametersInput, opts ...request.Option) (*UpdateRelationalDatabaseParametersOutput, error) {
+	req, out := c.UpdateRelationalDatabaseParametersRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 type AllocateStaticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7512,7 +9859,6 @@ func (s *AllocateStaticIpInput) SetStaticIpName(v string) *AllocateStaticIpInput
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AllocateStaticIpResult
 type AllocateStaticIpOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7537,7 +9883,6 @@ func (s *AllocateStaticIpOutput) SetOperations(v []*Operation) *AllocateStaticIp
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AttachDiskRequest
 type AttachDiskInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7605,7 +9950,6 @@ func (s *AttachDiskInput) SetInstanceName(v string) *AttachDiskInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AttachDiskResult
 type AttachDiskOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7629,12 +9973,17 @@ func (s *AttachDiskOutput) SetOperations(v []*Operation) *AttachDiskOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AttachInstancesToLoadBalancerRequest
 type AttachInstancesToLoadBalancerInput struct {
 	_ struct{} `type:"structure"`
 
 	// An array of strings representing the instance name(s) you want to attach
 	// to your load balancer.
+	//
+	// An instance must be running before you can attach it to your load balancer.
+	//
+	// There are no additional limits on the number of instances you can attach
+	// to your load balancer, aside from the limit of Lightsail instances you can
+	// create in your account (20).
 	//
 	// InstanceNames is a required field
 	InstanceNames []*string `locationName:"instanceNames" type:"list" required:"true"`
@@ -7683,7 +10032,6 @@ func (s *AttachInstancesToLoadBalancerInput) SetLoadBalancerName(v string) *Atta
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AttachInstancesToLoadBalancerResult
 type AttachInstancesToLoadBalancerOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7707,16 +10055,15 @@ func (s *AttachInstancesToLoadBalancerOutput) SetOperations(v []*Operation) *Att
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AttachLoadBalancerTlsCertificateRequest
 type AttachLoadBalancerTlsCertificateInput struct {
 	_ struct{} `type:"structure"`
 
-	// The name of your TLS/SSL certificate.
+	// The name of your SSL/TLS certificate.
 	//
 	// CertificateName is a required field
 	CertificateName *string `locationName:"certificateName" type:"string" required:"true"`
 
-	// The name of the load balancer to which you want to associate the TLS/SSL
+	// The name of the load balancer to which you want to associate the SSL/TLS
 	// certificate.
 	//
 	// LoadBalancerName is a required field
@@ -7761,11 +10108,13 @@ func (s *AttachLoadBalancerTlsCertificateInput) SetLoadBalancerName(v string) *A
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AttachLoadBalancerTlsCertificateResult
 type AttachLoadBalancerTlsCertificateOutput struct {
 	_ struct{} `type:"structure"`
 
 	// An object representing the API operations.
+	//
+	// These SSL/TLS certificates are only usable by Lightsail load balancers. You
+	// can't get the certificate and use it for another purpose.
 	Operations []*Operation `locationName:"operations" type:"list"`
 }
 
@@ -7785,7 +10134,6 @@ func (s *AttachLoadBalancerTlsCertificateOutput) SetOperations(v []*Operation) *
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AttachStaticIpRequest
 type AttachStaticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7838,7 +10186,6 @@ func (s *AttachStaticIpInput) SetStaticIpName(v string) *AttachStaticIpInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AttachStaticIpResult
 type AttachStaticIpOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7863,7 +10210,6 @@ func (s *AttachStaticIpOutput) SetOperations(v []*Operation) *AttachStaticIpOutp
 }
 
 // Describes an Availability Zone.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/AvailabilityZone
 type AvailabilityZone struct {
 	_ struct{} `type:"structure"`
 
@@ -7897,7 +10243,6 @@ func (s *AvailabilityZone) SetZoneName(v string) *AvailabilityZone {
 }
 
 // Describes a blueprint (a virtual private server image).
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/Blueprint
 type Blueprint struct {
 	_ struct{} `type:"structure"`
 
@@ -7910,9 +10255,10 @@ type Blueprint struct {
 	// The group name of the blueprint (e.g., amazon-linux).
 	Group *string `locationName:"group" type:"string"`
 
-	// A Boolean value indicating whether the blueprint is active. When you update
-	// your blueprints, you will inactivate old blueprints and keep the most recent
-	// versions active.
+	// A Boolean value indicating whether the blueprint is active. Inactive blueprints
+	// are listed to support customers with existing instances but are not necessarily
+	// available for launch of new instances. Blueprints are marked inactive when
+	// they become outdated due to operating system updates or new application releases.
 	IsActive *bool `locationName:"isActive" type:"boolean"`
 
 	// The end-user license agreement URL for the image or blueprint.
@@ -8029,7 +10375,6 @@ func (s *Blueprint) SetVersionCode(v string) *Blueprint {
 
 // Describes a bundle, which is a set of specs describing your virtual private
 // server (or instance).
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/Bundle
 type Bundle struct {
 	_ struct{} `type:"structure"`
 
@@ -8150,7 +10495,6 @@ func (s *Bundle) SetTransferPerMonthInGb(v int64) *Bundle {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CloseInstancePublicPortsRequest
 type CloseInstancePublicPortsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8203,7 +10547,6 @@ func (s *CloseInstancePublicPortsInput) SetPortInfo(v *PortInfo) *CloseInstanceP
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CloseInstancePublicPortsResult
 type CloseInstancePublicPortsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8227,7 +10570,6 @@ func (s *CloseInstancePublicPortsOutput) SetOperation(v *Operation) *CloseInstan
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDiskFromSnapshotRequest
 type CreateDiskFromSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8314,7 +10656,6 @@ func (s *CreateDiskFromSnapshotInput) SetSizeInGb(v int64) *CreateDiskFromSnapsh
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDiskFromSnapshotResult
 type CreateDiskFromSnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8338,7 +10679,6 @@ func (s *CreateDiskFromSnapshotOutput) SetOperations(v []*Operation) *CreateDisk
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDiskRequest
 type CreateDiskInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8410,7 +10750,6 @@ func (s *CreateDiskInput) SetSizeInGb(v int64) *CreateDiskInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDiskResult
 type CreateDiskOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8434,7 +10773,6 @@ func (s *CreateDiskOutput) SetOperations(v []*Operation) *CreateDiskOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDiskSnapshotRequest
 type CreateDiskSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8488,7 +10826,6 @@ func (s *CreateDiskSnapshotInput) SetDiskSnapshotName(v string) *CreateDiskSnaps
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDiskSnapshotResult
 type CreateDiskSnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8512,7 +10849,6 @@ func (s *CreateDiskSnapshotOutput) SetOperations(v []*Operation) *CreateDiskSnap
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDomainEntryRequest
 type CreateDomainEntryInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8567,7 +10903,6 @@ func (s *CreateDomainEntryInput) SetDomainName(v string) *CreateDomainEntryInput
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDomainEntryResult
 type CreateDomainEntryOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8591,7 +10926,6 @@ func (s *CreateDomainEntryOutput) SetOperation(v *Operation) *CreateDomainEntryO
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDomainRequest
 type CreateDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8635,7 +10969,6 @@ func (s *CreateDomainInput) SetDomainName(v string) *CreateDomainInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateDomainResult
 type CreateDomainOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8660,7 +10993,6 @@ func (s *CreateDomainOutput) SetOperation(v *Operation) *CreateDomainOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateInstanceSnapshotRequest
 type CreateInstanceSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8713,7 +11045,6 @@ func (s *CreateInstanceSnapshotInput) SetInstanceSnapshotName(v string) *CreateI
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateInstanceSnapshotResult
 type CreateInstanceSnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8738,7 +11069,6 @@ func (s *CreateInstanceSnapshotOutput) SetOperations(v []*Operation) *CreateInst
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateInstancesFromSnapshotRequest
 type CreateInstancesFromSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8746,9 +11076,9 @@ type CreateInstancesFromSnapshotInput struct {
 	AttachedDiskMapping map[string][]*DiskMap `locationName:"attachedDiskMapping" type:"map"`
 
 	// The Availability Zone where you want to create your instances. Use the following
-	// formatting: us-east-2a (case sensitive). You can get a list of availability
-	// zones by using the get regions (http://docs.aws.amazon.com/lightsail/2016-11-28/api-reference/API_GetRegions.html)
-	// operation. Be sure to add the include availability zones parameter to your
+	// formatting: us-east-2a (case sensitive). You can get a list of Availability
+	// Zones by using the get regions (http://docs.aws.amazon.com/lightsail/2016-11-28/api-reference/API_GetRegions.html)
+	// operation. Be sure to add the include Availability Zones parameter to your
 	// request.
 	//
 	// AvailabilityZone is a required field
@@ -8781,7 +11111,7 @@ type CreateInstancesFromSnapshotInput struct {
 	// Depending on the machine image you choose, the command to get software on
 	// your instance varies. Amazon Linux and CentOS use yum, Debian and Ubuntu
 	// use apt-get, and FreeBSD uses pkg. For a complete list, see the Dev Guide
-	// (http://lightsail.aws.amazon.com/ls/docs/getting-started/articles/pre-installed-apps).
+	// (https://lightsail.aws.amazon.com/ls/docs/getting-started/article/compare-options-choose-lightsail-instance-image).
 	UserData *string `locationName:"userData" type:"string"`
 }
 
@@ -8859,7 +11189,6 @@ func (s *CreateInstancesFromSnapshotInput) SetUserData(v string) *CreateInstance
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateInstancesFromSnapshotResult
 type CreateInstancesFromSnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8884,14 +11213,13 @@ func (s *CreateInstancesFromSnapshotOutput) SetOperations(v []*Operation) *Creat
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateInstancesRequest
 type CreateInstancesInput struct {
 	_ struct{} `type:"structure"`
 
 	// The Availability Zone in which to create your instance. Use the following
-	// format: us-east-2a (case sensitive). You can get a list of availability zones
+	// format: us-east-2a (case sensitive). You can get a list of Availability Zones
 	// by using the get regions (http://docs.aws.amazon.com/lightsail/2016-11-28/api-reference/API_GetRegions.html)
-	// operation. Be sure to add the include availability zones parameter to your
+	// operation. Be sure to add the include Availability Zones parameter to your
 	// request.
 	//
 	// AvailabilityZone is a required field
@@ -8914,6 +11242,8 @@ type CreateInstancesInput struct {
 	//
 	// In releases prior to June 12, 2017, this parameter was ignored by the API.
 	// It is now deprecated.
+	//
+	// Deprecated: CustomImageName has been deprecated
 	CustomImageName *string `locationName:"customImageName" deprecated:"true" type:"string"`
 
 	// The names to use for your new Lightsail instances. Separate multiple values
@@ -9009,7 +11339,6 @@ func (s *CreateInstancesInput) SetUserData(v string) *CreateInstancesInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateInstancesResult
 type CreateInstancesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9034,7 +11363,6 @@ func (s *CreateInstancesOutput) SetOperations(v []*Operation) *CreateInstancesOu
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateKeyPairRequest
 type CreateKeyPairInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9073,7 +11401,6 @@ func (s *CreateKeyPairInput) SetKeyPairName(v string) *CreateKeyPairInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateKeyPairResult
 type CreateKeyPairOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9126,12 +11453,11 @@ func (s *CreateKeyPairOutput) SetPublicKeyBase64(v string) *CreateKeyPairOutput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateLoadBalancerRequest
 type CreateLoadBalancerInput struct {
 	_ struct{} `type:"structure"`
 
-	// The alternative domain names to use with your TLS/SSL certificate (e.g.,
-	// www.example.com, www.ejemplo.com, ejemplo.com).
+	// The optional alternative domains and subdomains to use with your SSL/TLS
+	// certificate (e.g., www.example.com, example.com, m.example.com, blog.example.com).
 	CertificateAlternativeNames []*string `locationName:"certificateAlternativeNames" type:"list"`
 
 	// The domain name with which your certificate is associated (e.g., example.com).
@@ -9140,7 +11466,7 @@ type CreateLoadBalancerInput struct {
 	// vice-versa).
 	CertificateDomainName *string `locationName:"certificateDomainName" type:"string"`
 
-	// The name of the TLS/SSL certificate.
+	// The name of the SSL/TLS certificate.
 	//
 	// If you specify certificateName, then certificateDomainName is required (and
 	// vice-versa).
@@ -9149,6 +11475,10 @@ type CreateLoadBalancerInput struct {
 	// The path you provided to perform the load balancer health check. If you didn't
 	// specify a health check path, Lightsail uses the root path of your website
 	// (e.g., "/").
+	//
+	// You may want to specify a custom health check path other than the root of
+	// your application if your home page loads slowly or has a lot of media or
+	// scripting on it.
 	HealthCheckPath *string `locationName:"healthCheckPath" type:"string"`
 
 	// The instance port where you're creating your load balancer.
@@ -9224,7 +11554,6 @@ func (s *CreateLoadBalancerInput) SetLoadBalancerName(v string) *CreateLoadBalan
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateLoadBalancerResult
 type CreateLoadBalancerOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9248,24 +11577,31 @@ func (s *CreateLoadBalancerOutput) SetOperations(v []*Operation) *CreateLoadBala
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateLoadBalancerTlsCertificateRequest
 type CreateLoadBalancerTlsCertificateInput struct {
 	_ struct{} `type:"structure"`
 
-	// An array of strings listing alternative domain names for your TLS/SSL certificate.
+	// An array of strings listing alternative domains and subdomains for your SSL/TLS
+	// certificate. Lightsail will de-dupe the names for you. You can have a maximum
+	// of 9 alternative names (in addition to the 1 primary domain). We do not support
+	// wildcards (e.g., *.example.com).
 	CertificateAlternativeNames []*string `locationName:"certificateAlternativeNames" type:"list"`
 
-	// The domain name (e.g., example.com) for your TLS/SSL certificate.
+	// The domain name (e.g., example.com) for your SSL/TLS certificate.
 	//
 	// CertificateDomainName is a required field
 	CertificateDomainName *string `locationName:"certificateDomainName" type:"string" required:"true"`
 
-	// The TLS/SSL certificate name.
+	// The SSL/TLS certificate name.
+	//
+	// You can have up to 10 certificates in your account at one time. Each Lightsail
+	// load balancer can have up to 2 certificates associated with it at one time.
+	// There is also an overall limit to the number of certificates that can be
+	// issue in a 365-day period. For more information, see Limits (http://docs.aws.amazon.com/acm/latest/userguide/acm-limits.html).
 	//
 	// CertificateName is a required field
 	CertificateName *string `locationName:"certificateName" type:"string" required:"true"`
 
-	// The load balancer name where you want to create the TLS/SSL certificate.
+	// The load balancer name where you want to create the SSL/TLS certificate.
 	//
 	// LoadBalancerName is a required field
 	LoadBalancerName *string `locationName:"loadBalancerName" type:"string" required:"true"`
@@ -9324,7 +11660,6 @@ func (s *CreateLoadBalancerTlsCertificateInput) SetLoadBalancerName(v string) *C
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/CreateLoadBalancerTlsCertificateResult
 type CreateLoadBalancerTlsCertificateOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9348,7 +11683,494 @@ func (s *CreateLoadBalancerTlsCertificateOutput) SetOperations(v []*Operation) *
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteDiskRequest
+type CreateRelationalDatabaseFromSnapshotInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Availability Zone in which to create your new database. Use the us-east-2a
+	// case-sensitive format.
+	//
+	// You can get a list of Availability Zones by using the get regions operation.
+	// Be sure to add the include relational database Availability Zones parameter
+	// to your request.
+	AvailabilityZone *string `locationName:"availabilityZone" type:"string"`
+
+	// Specifies the accessibility options for your new database. A value of true
+	// specifies a database that is available to resources outside of your Lightsail
+	// account. A value of false specifies a database that is available only to
+	// your Lightsail resources in the same region as your database.
+	PubliclyAccessible *bool `locationName:"publiclyAccessible" type:"boolean"`
+
+	// The bundle ID for your new database. A bundle describes the performance specifications
+	// for your database.
+	//
+	// You can get a list of database bundle IDs by using the get relational database
+	// bundles operation.
+	//
+	// When creating a new database from a snapshot, you cannot choose a bundle
+	// that is smaller than the bundle of the source database.
+	RelationalDatabaseBundleId *string `locationName:"relationalDatabaseBundleId" type:"string"`
+
+	// The name to use for your new database.
+	//
+	// Constraints:
+	//
+	//    * Must contain from 2 to 255 alphanumeric characters, or hyphens.
+	//
+	//    * The first and last character must be a letter or number.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+
+	// The name of the database snapshot from which to create your new database.
+	RelationalDatabaseSnapshotName *string `locationName:"relationalDatabaseSnapshotName" type:"string"`
+
+	// The date and time to restore your database from.
+	//
+	// Constraints:
+	//
+	//    * Must be before the latest restorable time for the database.
+	//
+	//    * Cannot be specified if the use latest restorable time parameter is true.
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Specified in the Unix time format.
+	//
+	// For example, if you wish to use a restore time of October 1, 2018, at 8 PM
+	//    UTC, then you input 1538424000 as the restore time.
+	RestoreTime *time.Time `locationName:"restoreTime" type:"timestamp"`
+
+	// The name of the source database.
+	SourceRelationalDatabaseName *string `locationName:"sourceRelationalDatabaseName" type:"string"`
+
+	// Specifies whether your database is restored from the latest backup time.
+	// A value of true restores from the latest backup time.
+	//
+	// Default: false
+	//
+	// Constraints: Cannot be specified if the restore time parameter is provided.
+	UseLatestRestorableTime *bool `locationName:"useLatestRestorableTime" type:"boolean"`
+}
+
+// String returns the string representation
+func (s CreateRelationalDatabaseFromSnapshotInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRelationalDatabaseFromSnapshotInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateRelationalDatabaseFromSnapshotInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateRelationalDatabaseFromSnapshotInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAvailabilityZone sets the AvailabilityZone field's value.
+func (s *CreateRelationalDatabaseFromSnapshotInput) SetAvailabilityZone(v string) *CreateRelationalDatabaseFromSnapshotInput {
+	s.AvailabilityZone = &v
+	return s
+}
+
+// SetPubliclyAccessible sets the PubliclyAccessible field's value.
+func (s *CreateRelationalDatabaseFromSnapshotInput) SetPubliclyAccessible(v bool) *CreateRelationalDatabaseFromSnapshotInput {
+	s.PubliclyAccessible = &v
+	return s
+}
+
+// SetRelationalDatabaseBundleId sets the RelationalDatabaseBundleId field's value.
+func (s *CreateRelationalDatabaseFromSnapshotInput) SetRelationalDatabaseBundleId(v string) *CreateRelationalDatabaseFromSnapshotInput {
+	s.RelationalDatabaseBundleId = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *CreateRelationalDatabaseFromSnapshotInput) SetRelationalDatabaseName(v string) *CreateRelationalDatabaseFromSnapshotInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+// SetRelationalDatabaseSnapshotName sets the RelationalDatabaseSnapshotName field's value.
+func (s *CreateRelationalDatabaseFromSnapshotInput) SetRelationalDatabaseSnapshotName(v string) *CreateRelationalDatabaseFromSnapshotInput {
+	s.RelationalDatabaseSnapshotName = &v
+	return s
+}
+
+// SetRestoreTime sets the RestoreTime field's value.
+func (s *CreateRelationalDatabaseFromSnapshotInput) SetRestoreTime(v time.Time) *CreateRelationalDatabaseFromSnapshotInput {
+	s.RestoreTime = &v
+	return s
+}
+
+// SetSourceRelationalDatabaseName sets the SourceRelationalDatabaseName field's value.
+func (s *CreateRelationalDatabaseFromSnapshotInput) SetSourceRelationalDatabaseName(v string) *CreateRelationalDatabaseFromSnapshotInput {
+	s.SourceRelationalDatabaseName = &v
+	return s
+}
+
+// SetUseLatestRestorableTime sets the UseLatestRestorableTime field's value.
+func (s *CreateRelationalDatabaseFromSnapshotInput) SetUseLatestRestorableTime(v bool) *CreateRelationalDatabaseFromSnapshotInput {
+	s.UseLatestRestorableTime = &v
+	return s
+}
+
+type CreateRelationalDatabaseFromSnapshotOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your create relational database from snapshot
+	// request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s CreateRelationalDatabaseFromSnapshotOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRelationalDatabaseFromSnapshotOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *CreateRelationalDatabaseFromSnapshotOutput) SetOperations(v []*Operation) *CreateRelationalDatabaseFromSnapshotOutput {
+	s.Operations = v
+	return s
+}
+
+type CreateRelationalDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Availability Zone in which to create your new database. Use the us-east-2a
+	// case-sensitive format.
+	//
+	// You can get a list of Availability Zones by using the get regions operation.
+	// Be sure to add the include relational database Availability Zones parameter
+	// to your request.
+	AvailabilityZone *string `locationName:"availabilityZone" type:"string"`
+
+	// The name of the master database created when the Lightsail database resource
+	// is created.
+	//
+	// Constraints:
+	//
+	//    * Must contain from 1 to 64 alphanumeric characters.
+	//
+	//    * Cannot be a word reserved by the specified database engine
+	//
+	// MasterDatabaseName is a required field
+	MasterDatabaseName *string `locationName:"masterDatabaseName" type:"string" required:"true"`
+
+	// The password for the master user of your new database. The password can include
+	// any printable ASCII character except "/", """, or "@".
+	//
+	// Constraints: Must contain 8 to 41 characters.
+	MasterUserPassword *string `locationName:"masterUserPassword" type:"string"`
+
+	// The master user name for your new database.
+	//
+	// Constraints:
+	//
+	//    * Master user name is required.
+	//
+	//    * Must contain from 1 to 16 alphanumeric characters.
+	//
+	//    * The first character must be a letter.
+	//
+	//    * Cannot be a reserved word for the database engine you choose.
+	//
+	// For more information about reserved words in MySQL 5.6 or 5.7, see the Keywords
+	//    and Reserved Words articles for MySQL 5.6 (https://dev.mysql.com/doc/refman/5.6/en/keywords.html)
+	//    or MySQL 5.7 (https://dev.mysql.com/doc/refman/5.7/en/keywords.html) respectively.
+	//
+	// MasterUsername is a required field
+	MasterUsername *string `locationName:"masterUsername" type:"string" required:"true"`
+
+	// The daily time range during which automated backups are created for your
+	// new database if automated backups are enabled.
+	//
+	// The default is a 30-minute window selected at random from an 8-hour block
+	// of time for each AWS Region. For more information about the preferred backup
+	// window time blocks for each region, see the Working With Backups (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html#USER_WorkingWithAutomatedBackups.BackupWindow)
+	// guide in the Amazon Relational Database Service (Amazon RDS) documentation.
+	//
+	// Constraints:
+	//
+	//    * Must be in the hh24:mi-hh24:mi format.
+	//
+	// Example: 16:00-16:30
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Must not conflict with the preferred maintenance window.
+	//
+	//    * Must be at least 30 minutes.
+	PreferredBackupWindow *string `locationName:"preferredBackupWindow" type:"string"`
+
+	// The weekly time range during which system maintenance can occur on your new
+	// database.
+	//
+	// The default is a 30-minute window selected at random from an 8-hour block
+	// of time for each AWS Region, occurring on a random day of the week.
+	//
+	// Constraints:
+	//
+	//    * Must be in the ddd:hh24:mi-ddd:hh24:mi format.
+	//
+	//    * Valid days: Mon, Tue, Wed, Thu, Fri, Sat, Sun.
+	//
+	//    * Must be at least 30 minutes.
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Example: Tue:17:00-Tue:17:30
+	PreferredMaintenanceWindow *string `locationName:"preferredMaintenanceWindow" type:"string"`
+
+	// Specifies the accessibility options for your new database. A value of true
+	// specifies a database that is available to resources outside of your Lightsail
+	// account. A value of false specifies a database that is available only to
+	// your Lightsail resources in the same region as your database.
+	PubliclyAccessible *bool `locationName:"publiclyAccessible" type:"boolean"`
+
+	// The blueprint ID for your new database. A blueprint describes the major engine
+	// version of a database.
+	//
+	// You can get a list of database blueprints IDs by using the get relational
+	// database blueprints operation.
+	//
+	// RelationalDatabaseBlueprintId is a required field
+	RelationalDatabaseBlueprintId *string `locationName:"relationalDatabaseBlueprintId" type:"string" required:"true"`
+
+	// The bundle ID for your new database. A bundle describes the performance specifications
+	// for your database.
+	//
+	// You can get a list of database bundle IDs by using the get relational database
+	// bundles operation.
+	//
+	// RelationalDatabaseBundleId is a required field
+	RelationalDatabaseBundleId *string `locationName:"relationalDatabaseBundleId" type:"string" required:"true"`
+
+	// The name to use for your new database.
+	//
+	// Constraints:
+	//
+	//    * Must contain from 2 to 255 alphanumeric characters, or hyphens.
+	//
+	//    * The first and last character must be a letter or number.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s CreateRelationalDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRelationalDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateRelationalDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateRelationalDatabaseInput"}
+	if s.MasterDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("MasterDatabaseName"))
+	}
+	if s.MasterUsername == nil {
+		invalidParams.Add(request.NewErrParamRequired("MasterUsername"))
+	}
+	if s.RelationalDatabaseBlueprintId == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseBlueprintId"))
+	}
+	if s.RelationalDatabaseBundleId == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseBundleId"))
+	}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAvailabilityZone sets the AvailabilityZone field's value.
+func (s *CreateRelationalDatabaseInput) SetAvailabilityZone(v string) *CreateRelationalDatabaseInput {
+	s.AvailabilityZone = &v
+	return s
+}
+
+// SetMasterDatabaseName sets the MasterDatabaseName field's value.
+func (s *CreateRelationalDatabaseInput) SetMasterDatabaseName(v string) *CreateRelationalDatabaseInput {
+	s.MasterDatabaseName = &v
+	return s
+}
+
+// SetMasterUserPassword sets the MasterUserPassword field's value.
+func (s *CreateRelationalDatabaseInput) SetMasterUserPassword(v string) *CreateRelationalDatabaseInput {
+	s.MasterUserPassword = &v
+	return s
+}
+
+// SetMasterUsername sets the MasterUsername field's value.
+func (s *CreateRelationalDatabaseInput) SetMasterUsername(v string) *CreateRelationalDatabaseInput {
+	s.MasterUsername = &v
+	return s
+}
+
+// SetPreferredBackupWindow sets the PreferredBackupWindow field's value.
+func (s *CreateRelationalDatabaseInput) SetPreferredBackupWindow(v string) *CreateRelationalDatabaseInput {
+	s.PreferredBackupWindow = &v
+	return s
+}
+
+// SetPreferredMaintenanceWindow sets the PreferredMaintenanceWindow field's value.
+func (s *CreateRelationalDatabaseInput) SetPreferredMaintenanceWindow(v string) *CreateRelationalDatabaseInput {
+	s.PreferredMaintenanceWindow = &v
+	return s
+}
+
+// SetPubliclyAccessible sets the PubliclyAccessible field's value.
+func (s *CreateRelationalDatabaseInput) SetPubliclyAccessible(v bool) *CreateRelationalDatabaseInput {
+	s.PubliclyAccessible = &v
+	return s
+}
+
+// SetRelationalDatabaseBlueprintId sets the RelationalDatabaseBlueprintId field's value.
+func (s *CreateRelationalDatabaseInput) SetRelationalDatabaseBlueprintId(v string) *CreateRelationalDatabaseInput {
+	s.RelationalDatabaseBlueprintId = &v
+	return s
+}
+
+// SetRelationalDatabaseBundleId sets the RelationalDatabaseBundleId field's value.
+func (s *CreateRelationalDatabaseInput) SetRelationalDatabaseBundleId(v string) *CreateRelationalDatabaseInput {
+	s.RelationalDatabaseBundleId = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *CreateRelationalDatabaseInput) SetRelationalDatabaseName(v string) *CreateRelationalDatabaseInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type CreateRelationalDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your create relational database request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s CreateRelationalDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRelationalDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *CreateRelationalDatabaseOutput) SetOperations(v []*Operation) *CreateRelationalDatabaseOutput {
+	s.Operations = v
+	return s
+}
+
+type CreateRelationalDatabaseSnapshotInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the database on which to base your new snapshot.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+
+	// The name for your new database snapshot.
+	//
+	// Constraints:
+	//
+	//    * Must contain from 2 to 255 alphanumeric characters, or hyphens.
+	//
+	//    * The first and last character must be a letter or number.
+	//
+	// RelationalDatabaseSnapshotName is a required field
+	RelationalDatabaseSnapshotName *string `locationName:"relationalDatabaseSnapshotName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s CreateRelationalDatabaseSnapshotInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRelationalDatabaseSnapshotInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateRelationalDatabaseSnapshotInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateRelationalDatabaseSnapshotInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+	if s.RelationalDatabaseSnapshotName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseSnapshotName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *CreateRelationalDatabaseSnapshotInput) SetRelationalDatabaseName(v string) *CreateRelationalDatabaseSnapshotInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+// SetRelationalDatabaseSnapshotName sets the RelationalDatabaseSnapshotName field's value.
+func (s *CreateRelationalDatabaseSnapshotInput) SetRelationalDatabaseSnapshotName(v string) *CreateRelationalDatabaseSnapshotInput {
+	s.RelationalDatabaseSnapshotName = &v
+	return s
+}
+
+type CreateRelationalDatabaseSnapshotOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your create relational database snapshot
+	// request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s CreateRelationalDatabaseSnapshotOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRelationalDatabaseSnapshotOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *CreateRelationalDatabaseSnapshotOutput) SetOperations(v []*Operation) *CreateRelationalDatabaseSnapshotOutput {
+	s.Operations = v
+	return s
+}
+
 type DeleteDiskInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9387,7 +12209,6 @@ func (s *DeleteDiskInput) SetDiskName(v string) *DeleteDiskInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteDiskResult
 type DeleteDiskOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9411,7 +12232,6 @@ func (s *DeleteDiskOutput) SetOperations(v []*Operation) *DeleteDiskOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteDiskSnapshotRequest
 type DeleteDiskSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9450,7 +12270,6 @@ func (s *DeleteDiskSnapshotInput) SetDiskSnapshotName(v string) *DeleteDiskSnaps
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteDiskSnapshotResult
 type DeleteDiskSnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9474,7 +12293,6 @@ func (s *DeleteDiskSnapshotOutput) SetOperations(v []*Operation) *DeleteDiskSnap
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteDomainEntryRequest
 type DeleteDomainEntryInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9527,7 +12345,6 @@ func (s *DeleteDomainEntryInput) SetDomainName(v string) *DeleteDomainEntryInput
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteDomainEntryResult
 type DeleteDomainEntryOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9552,7 +12369,6 @@ func (s *DeleteDomainEntryOutput) SetOperation(v *Operation) *DeleteDomainEntryO
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteDomainRequest
 type DeleteDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9591,7 +12407,6 @@ func (s *DeleteDomainInput) SetDomainName(v string) *DeleteDomainInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteDomainResult
 type DeleteDomainOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9616,7 +12431,6 @@ func (s *DeleteDomainOutput) SetOperation(v *Operation) *DeleteDomainOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteInstanceRequest
 type DeleteInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9655,7 +12469,6 @@ func (s *DeleteInstanceInput) SetInstanceName(v string) *DeleteInstanceInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteInstanceResult
 type DeleteInstanceOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9680,7 +12493,6 @@ func (s *DeleteInstanceOutput) SetOperations(v []*Operation) *DeleteInstanceOutp
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteInstanceSnapshotRequest
 type DeleteInstanceSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9719,7 +12531,6 @@ func (s *DeleteInstanceSnapshotInput) SetInstanceSnapshotName(v string) *DeleteI
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteInstanceSnapshotResult
 type DeleteInstanceSnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9744,7 +12555,6 @@ func (s *DeleteInstanceSnapshotOutput) SetOperations(v []*Operation) *DeleteInst
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteKeyPairRequest
 type DeleteKeyPairInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9783,7 +12593,6 @@ func (s *DeleteKeyPairInput) SetKeyPairName(v string) *DeleteKeyPairInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteKeyPairResult
 type DeleteKeyPairOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9808,7 +12617,6 @@ func (s *DeleteKeyPairOutput) SetOperation(v *Operation) *DeleteKeyPairOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteLoadBalancerRequest
 type DeleteLoadBalancerInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9847,7 +12655,6 @@ func (s *DeleteLoadBalancerInput) SetLoadBalancerName(v string) *DeleteLoadBalan
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteLoadBalancerResult
 type DeleteLoadBalancerOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9871,16 +12678,19 @@ func (s *DeleteLoadBalancerOutput) SetOperations(v []*Operation) *DeleteLoadBala
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteLoadBalancerTlsCertificateRequest
 type DeleteLoadBalancerTlsCertificateInput struct {
 	_ struct{} `type:"structure"`
 
-	// The TLS/SSL certificate name.
+	// The SSL/TLS certificate name.
 	//
 	// CertificateName is a required field
 	CertificateName *string `locationName:"certificateName" type:"string" required:"true"`
 
-	// When true, forces the deletion of a TLS/SSL certificate.
+	// When true, forces the deletion of an SSL/TLS certificate.
+	//
+	// There can be two certificates associated with a Lightsail load balancer:
+	// the primary and the backup. The force parameter is required when the primary
+	// SSL/TLS certificate is in use by an instance attached to the load balancer.
 	Force *bool `locationName:"force" type:"boolean"`
 
 	// The load balancer name.
@@ -9933,7 +12743,6 @@ func (s *DeleteLoadBalancerTlsCertificateInput) SetLoadBalancerName(v string) *D
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DeleteLoadBalancerTlsCertificateResult
 type DeleteLoadBalancerTlsCertificateOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9957,7 +12766,164 @@ func (s *DeleteLoadBalancerTlsCertificateOutput) SetOperations(v []*Operation) *
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DetachDiskRequest
+type DeleteRelationalDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the database snapshot created if skip final snapshot is false,
+	// which is the default value for that parameter.
+	//
+	// Specifying this parameter and also specifying the skip final snapshot parameter
+	// to true results in an error.
+	//
+	// Constraints:
+	//
+	//    * Must contain from 2 to 255 alphanumeric characters, or hyphens.
+	//
+	//    * The first and last character must be a letter or number.
+	FinalRelationalDatabaseSnapshotName *string `locationName:"finalRelationalDatabaseSnapshotName" type:"string"`
+
+	// The name of the database that you are deleting.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+
+	// Determines whether a final database snapshot is created before your database
+	// is deleted. If true is specified, no database snapshot is created. If false
+	// is specified, a database snapshot is created before your database is deleted.
+	//
+	// You must specify the final relational database snapshot name parameter if
+	// the skip final snapshot parameter is false.
+	//
+	// Default: false
+	SkipFinalSnapshot *bool `locationName:"skipFinalSnapshot" type:"boolean"`
+}
+
+// String returns the string representation
+func (s DeleteRelationalDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteRelationalDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteRelationalDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteRelationalDatabaseInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetFinalRelationalDatabaseSnapshotName sets the FinalRelationalDatabaseSnapshotName field's value.
+func (s *DeleteRelationalDatabaseInput) SetFinalRelationalDatabaseSnapshotName(v string) *DeleteRelationalDatabaseInput {
+	s.FinalRelationalDatabaseSnapshotName = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *DeleteRelationalDatabaseInput) SetRelationalDatabaseName(v string) *DeleteRelationalDatabaseInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+// SetSkipFinalSnapshot sets the SkipFinalSnapshot field's value.
+func (s *DeleteRelationalDatabaseInput) SetSkipFinalSnapshot(v bool) *DeleteRelationalDatabaseInput {
+	s.SkipFinalSnapshot = &v
+	return s
+}
+
+type DeleteRelationalDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your delete relational database request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s DeleteRelationalDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteRelationalDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *DeleteRelationalDatabaseOutput) SetOperations(v []*Operation) *DeleteRelationalDatabaseOutput {
+	s.Operations = v
+	return s
+}
+
+type DeleteRelationalDatabaseSnapshotInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the database snapshot that you are deleting.
+	//
+	// RelationalDatabaseSnapshotName is a required field
+	RelationalDatabaseSnapshotName *string `locationName:"relationalDatabaseSnapshotName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteRelationalDatabaseSnapshotInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteRelationalDatabaseSnapshotInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteRelationalDatabaseSnapshotInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteRelationalDatabaseSnapshotInput"}
+	if s.RelationalDatabaseSnapshotName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseSnapshotName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetRelationalDatabaseSnapshotName sets the RelationalDatabaseSnapshotName field's value.
+func (s *DeleteRelationalDatabaseSnapshotInput) SetRelationalDatabaseSnapshotName(v string) *DeleteRelationalDatabaseSnapshotInput {
+	s.RelationalDatabaseSnapshotName = &v
+	return s
+}
+
+type DeleteRelationalDatabaseSnapshotOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your delete relational database snapshot
+	// request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s DeleteRelationalDatabaseSnapshotOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteRelationalDatabaseSnapshotOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *DeleteRelationalDatabaseSnapshotOutput) SetOperations(v []*Operation) *DeleteRelationalDatabaseSnapshotOutput {
+	s.Operations = v
+	return s
+}
+
 type DetachDiskInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9997,7 +12963,6 @@ func (s *DetachDiskInput) SetDiskName(v string) *DetachDiskInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DetachDiskResult
 type DetachDiskOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10021,7 +12986,6 @@ func (s *DetachDiskOutput) SetOperations(v []*Operation) *DetachDiskOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DetachInstancesFromLoadBalancerRequest
 type DetachInstancesFromLoadBalancerInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10075,7 +13039,6 @@ func (s *DetachInstancesFromLoadBalancerInput) SetLoadBalancerName(v string) *De
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DetachInstancesFromLoadBalancerResult
 type DetachInstancesFromLoadBalancerOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10099,7 +13062,6 @@ func (s *DetachInstancesFromLoadBalancerOutput) SetOperations(v []*Operation) *D
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DetachStaticIpRequest
 type DetachStaticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10138,7 +13100,6 @@ func (s *DetachStaticIpInput) SetStaticIpName(v string) *DetachStaticIpInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DetachStaticIpResult
 type DetachStaticIpOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10164,7 +13125,6 @@ func (s *DetachStaticIpOutput) SetOperations(v []*Operation) *DetachStaticIpOutp
 }
 
 // Describes a system disk or an block storage disk.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/Disk
 type Disk struct {
 	_ struct{} `type:"structure"`
 
@@ -10179,15 +13139,19 @@ type Disk struct {
 	// In releases prior to November 14, 2017, this parameter returned attached
 	// for system disks in the API response. It is now deprecated, but still included
 	// in the response. Use isAttached instead.
+	//
+	// Deprecated: AttachmentState has been deprecated
 	AttachmentState *string `locationName:"attachmentState" deprecated:"true" type:"string"`
 
 	// The date when the disk was created.
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// (Deprecated) The number of GB in use by the disk.
 	//
 	// In releases prior to November 14, 2017, this parameter was not included in
 	// the API response. It is now deprecated.
+	//
+	// Deprecated: GbInUse has been deprecated
 	GbInUse *int64 `locationName:"gbInUse" deprecated:"true" type:"integer"`
 
 	// The input/output operations per second (IOPS) of the disk.
@@ -10325,7 +13289,6 @@ func (s *Disk) SetSupportCode(v string) *Disk {
 }
 
 // Describes a block storage disk mapping.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DiskMap
 type DiskMap struct {
 	_ struct{} `type:"structure"`
 
@@ -10359,7 +13322,6 @@ func (s *DiskMap) SetOriginalDiskPath(v string) *DiskMap {
 }
 
 // Describes a block storage disk snapshot.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DiskSnapshot
 type DiskSnapshot struct {
 	_ struct{} `type:"structure"`
 
@@ -10367,7 +13329,7 @@ type DiskSnapshot struct {
 	Arn *string `locationName:"arn" type:"string"`
 
 	// The date when the disk snapshot was created.
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// The Amazon Resource Name (ARN) of the source disk from which you are creating
 	// the disk snapshot.
@@ -10477,7 +13439,6 @@ func (s *DiskSnapshot) SetSupportCode(v string) *DiskSnapshot {
 }
 
 // Describes a domain where you are storing recordsets in Lightsail.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/Domain
 type Domain struct {
 	_ struct{} `type:"structure"`
 
@@ -10485,7 +13446,7 @@ type Domain struct {
 	Arn *string `locationName:"arn" type:"string"`
 
 	// The date when the domain recordset was created.
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// An array of key-value pairs containing information about the domain entries.
 	DomainEntries []*DomainEntry `locationName:"domainEntries" type:"list"`
@@ -10558,7 +13519,6 @@ func (s *Domain) SetSupportCode(v string) *Domain {
 }
 
 // Describes a domain recordset entry.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DomainEntry
 type DomainEntry struct {
 	_ struct{} `type:"structure"`
 
@@ -10566,7 +13526,9 @@ type DomainEntry struct {
 	Id *string `locationName:"id" type:"string"`
 
 	// When true, specifies whether the domain entry is an alias used by the Lightsail
-	// load balancer.
+	// load balancer. You can include an alias (A type) record in your request,
+	// which points to a load balancer DNS name and routes traffic to your load
+	// balancer
 	IsAlias *bool `locationName:"isAlias" type:"boolean"`
 
 	// The name of the domain.
@@ -10576,9 +13538,15 @@ type DomainEntry struct {
 	//
 	// In releases prior to November 29, 2017, this parameter was not included in
 	// the API response. It is now deprecated.
+	//
+	// Deprecated: Options has been deprecated
 	Options map[string]*string `locationName:"options" deprecated:"true" type:"map"`
 
 	// The target AWS name server (e.g., ns-111.awsdns-22.com.).
+	//
+	// For Lightsail load balancers, the value looks like ab1234c56789c6b86aba6fb203d443bc-123456789.us-east-2.elb.amazonaws.com.
+	// Be sure to also set isAlias to true when setting up an A record for a load
+	// balancer.
 	Target *string `locationName:"target" type:"string"`
 
 	// The type of domain entry (e.g., SOA or NS).
@@ -10631,7 +13599,6 @@ func (s *DomainEntry) SetType(v string) *DomainEntry {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DownloadDefaultKeyPairRequest
 type DownloadDefaultKeyPairInput struct {
 	_ struct{} `type:"structure"`
 }
@@ -10646,7 +13613,6 @@ func (s DownloadDefaultKeyPairInput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/DownloadDefaultKeyPairResult
 type DownloadDefaultKeyPairOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10679,7 +13645,6 @@ func (s *DownloadDefaultKeyPairOutput) SetPublicKeyBase64(v string) *DownloadDef
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetActiveNamesRequest
 type GetActiveNamesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10703,7 +13668,6 @@ func (s *GetActiveNamesInput) SetPageToken(v string) *GetActiveNamesInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetActiveNamesResult
 type GetActiveNamesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10737,7 +13701,6 @@ func (s *GetActiveNamesOutput) SetNextPageToken(v string) *GetActiveNamesOutput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetBlueprintsRequest
 type GetBlueprintsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10771,7 +13734,6 @@ func (s *GetBlueprintsInput) SetPageToken(v string) *GetBlueprintsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetBlueprintsResult
 type GetBlueprintsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10806,7 +13768,6 @@ func (s *GetBlueprintsOutput) SetNextPageToken(v string) *GetBlueprintsOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetBundlesRequest
 type GetBundlesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10841,7 +13802,6 @@ func (s *GetBundlesInput) SetPageToken(v string) *GetBundlesInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetBundlesResult
 type GetBundlesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10876,7 +13836,6 @@ func (s *GetBundlesOutput) SetNextPageToken(v string) *GetBundlesOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDiskRequest
 type GetDiskInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10915,7 +13874,6 @@ func (s *GetDiskInput) SetDiskName(v string) *GetDiskInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDiskResult
 type GetDiskOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10939,7 +13897,6 @@ func (s *GetDiskOutput) SetDisk(v *Disk) *GetDiskOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDiskSnapshotRequest
 type GetDiskSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -10978,7 +13935,6 @@ func (s *GetDiskSnapshotInput) SetDiskSnapshotName(v string) *GetDiskSnapshotInp
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDiskSnapshotResult
 type GetDiskSnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11002,7 +13958,6 @@ func (s *GetDiskSnapshotOutput) SetDiskSnapshot(v *DiskSnapshot) *GetDiskSnapsho
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDiskSnapshotsRequest
 type GetDiskSnapshotsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11027,7 +13982,6 @@ func (s *GetDiskSnapshotsInput) SetPageToken(v string) *GetDiskSnapshotsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDiskSnapshotsResult
 type GetDiskSnapshotsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11061,7 +14015,6 @@ func (s *GetDiskSnapshotsOutput) SetNextPageToken(v string) *GetDiskSnapshotsOut
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDisksRequest
 type GetDisksInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11086,7 +14039,6 @@ func (s *GetDisksInput) SetPageToken(v string) *GetDisksInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDisksResult
 type GetDisksOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11120,7 +14072,6 @@ func (s *GetDisksOutput) SetNextPageToken(v string) *GetDisksOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDomainRequest
 type GetDomainInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11159,7 +14110,6 @@ func (s *GetDomainInput) SetDomainName(v string) *GetDomainInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDomainResult
 type GetDomainOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11184,7 +14134,6 @@ func (s *GetDomainOutput) SetDomain(v *Domain) *GetDomainOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDomainsRequest
 type GetDomainsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11209,7 +14158,6 @@ func (s *GetDomainsInput) SetPageToken(v string) *GetDomainsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetDomainsResult
 type GetDomainsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11244,7 +14192,6 @@ func (s *GetDomainsOutput) SetNextPageToken(v string) *GetDomainsOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceAccessDetailsRequest
 type GetInstanceAccessDetailsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11292,7 +14239,6 @@ func (s *GetInstanceAccessDetailsInput) SetProtocol(v string) *GetInstanceAccess
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceAccessDetailsResult
 type GetInstanceAccessDetailsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11317,7 +14263,6 @@ func (s *GetInstanceAccessDetailsOutput) SetAccessDetails(v *InstanceAccessDetai
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceRequest
 type GetInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11356,14 +14301,13 @@ func (s *GetInstanceInput) SetInstanceName(v string) *GetInstanceInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceMetricDataRequest
 type GetInstanceMetricDataInput struct {
 	_ struct{} `type:"structure"`
 
 	// The end time of the time period.
 	//
 	// EndTime is a required field
-	EndTime *time.Time `locationName:"endTime" type:"timestamp" timestampFormat:"unix" required:"true"`
+	EndTime *time.Time `locationName:"endTime" type:"timestamp" required:"true"`
 
 	// The name of the instance for which you want to get metrics data.
 	//
@@ -11375,7 +14319,7 @@ type GetInstanceMetricDataInput struct {
 	// MetricName is a required field
 	MetricName *string `locationName:"metricName" type:"string" required:"true" enum:"InstanceMetricName"`
 
-	// The time period for which you are requesting data.
+	// The granularity, in seconds, of the returned data points.
 	//
 	// Period is a required field
 	Period *int64 `locationName:"period" min:"60" type:"integer" required:"true"`
@@ -11383,7 +14327,7 @@ type GetInstanceMetricDataInput struct {
 	// The start time of the time period.
 	//
 	// StartTime is a required field
-	StartTime *time.Time `locationName:"startTime" type:"timestamp" timestampFormat:"unix" required:"true"`
+	StartTime *time.Time `locationName:"startTime" type:"timestamp" required:"true"`
 
 	// The instance statistics.
 	//
@@ -11482,7 +14426,6 @@ func (s *GetInstanceMetricDataInput) SetUnit(v string) *GetInstanceMetricDataInp
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceMetricDataResult
 type GetInstanceMetricDataOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11516,7 +14459,6 @@ func (s *GetInstanceMetricDataOutput) SetMetricName(v string) *GetInstanceMetric
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceResult
 type GetInstanceOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11540,7 +14482,6 @@ func (s *GetInstanceOutput) SetInstance(v *Instance) *GetInstanceOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstancePortStatesRequest
 type GetInstancePortStatesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11579,7 +14520,6 @@ func (s *GetInstancePortStatesInput) SetInstanceName(v string) *GetInstancePortS
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstancePortStatesResult
 type GetInstancePortStatesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11603,7 +14543,6 @@ func (s *GetInstancePortStatesOutput) SetPortStates(v []*InstancePortState) *Get
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceSnapshotRequest
 type GetInstanceSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11642,7 +14581,6 @@ func (s *GetInstanceSnapshotInput) SetInstanceSnapshotName(v string) *GetInstanc
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceSnapshotResult
 type GetInstanceSnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11667,7 +14605,6 @@ func (s *GetInstanceSnapshotOutput) SetInstanceSnapshot(v *InstanceSnapshot) *Ge
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceSnapshotsRequest
 type GetInstanceSnapshotsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11692,7 +14629,6 @@ func (s *GetInstanceSnapshotsInput) SetPageToken(v string) *GetInstanceSnapshots
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceSnapshotsResult
 type GetInstanceSnapshotsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11727,7 +14663,6 @@ func (s *GetInstanceSnapshotsOutput) SetNextPageToken(v string) *GetInstanceSnap
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceStateRequest
 type GetInstanceStateInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11766,7 +14701,6 @@ func (s *GetInstanceStateInput) SetInstanceName(v string) *GetInstanceStateInput
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstanceStateResult
 type GetInstanceStateOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11790,7 +14724,6 @@ func (s *GetInstanceStateOutput) SetState(v *InstanceState) *GetInstanceStateOut
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstancesRequest
 type GetInstancesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11815,7 +14748,6 @@ func (s *GetInstancesInput) SetPageToken(v string) *GetInstancesInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetInstancesResult
 type GetInstancesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11849,7 +14781,6 @@ func (s *GetInstancesOutput) SetNextPageToken(v string) *GetInstancesOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetKeyPairRequest
 type GetKeyPairInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11888,7 +14819,6 @@ func (s *GetKeyPairInput) SetKeyPairName(v string) *GetKeyPairInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetKeyPairResult
 type GetKeyPairOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11912,7 +14842,6 @@ func (s *GetKeyPairOutput) SetKeyPair(v *KeyPair) *GetKeyPairOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetKeyPairsRequest
 type GetKeyPairsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11937,7 +14866,6 @@ func (s *GetKeyPairsInput) SetPageToken(v string) *GetKeyPairsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetKeyPairsResult
 type GetKeyPairsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -11971,7 +14899,6 @@ func (s *GetKeyPairsOutput) SetNextPageToken(v string) *GetKeyPairsOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetLoadBalancerRequest
 type GetLoadBalancerInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12010,14 +14937,13 @@ func (s *GetLoadBalancerInput) SetLoadBalancerName(v string) *GetLoadBalancerInp
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetLoadBalancerMetricDataRequest
 type GetLoadBalancerMetricDataInput struct {
 	_ struct{} `type:"structure"`
 
 	// The end time of the period.
 	//
 	// EndTime is a required field
-	EndTime *time.Time `locationName:"endTime" type:"timestamp" timestampFormat:"unix" required:"true"`
+	EndTime *time.Time `locationName:"endTime" type:"timestamp" required:"true"`
 
 	// The name of the load balancer.
 	//
@@ -12109,7 +15035,7 @@ type GetLoadBalancerMetricDataInput struct {
 	// MetricName is a required field
 	MetricName *string `locationName:"metricName" type:"string" required:"true" enum:"LoadBalancerMetricName"`
 
-	// The time period duration for your health data request.
+	// The granularity, in seconds, of the returned data points.
 	//
 	// Period is a required field
 	Period *int64 `locationName:"period" min:"60" type:"integer" required:"true"`
@@ -12117,10 +15043,28 @@ type GetLoadBalancerMetricDataInput struct {
 	// The start time of the period.
 	//
 	// StartTime is a required field
-	StartTime *time.Time `locationName:"startTime" type:"timestamp" timestampFormat:"unix" required:"true"`
+	StartTime *time.Time `locationName:"startTime" type:"timestamp" required:"true"`
 
 	// An array of statistics that you want to request metrics for. Valid values
 	// are listed below.
+	//
+	//    * SampleCount - The count (number) of data points used for the statistical
+	//    calculation.
+	//
+	//    * Average - The value of Sum / SampleCount during the specified period.
+	//    By comparing this statistic with the Minimum and Maximum, you can determine
+	//    the full scope of a metric and how close the average use is to the Minimum
+	//    and Maximum. This comparison helps you to know when to increase or decrease
+	//    your resources as needed.
+	//
+	//    * Sum - All values submitted for the matching metric added together. This
+	//    statistic can be useful for determining the total volume of a metric.
+	//
+	//    * Minimum - The lowest value observed during the specified period. You
+	//    can use this value to determine low volumes of activity for your application.
+	//
+	//    * Maximum - The highest value observed during the specified period. You
+	//    can use this value to determine high volumes of activity for your application.
 	//
 	// Statistics is a required field
 	Statistics []*string `locationName:"statistics" type:"list" required:"true"`
@@ -12217,7 +15161,6 @@ func (s *GetLoadBalancerMetricDataInput) SetUnit(v string) *GetLoadBalancerMetri
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetLoadBalancerMetricDataResult
 type GetLoadBalancerMetricDataOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12225,7 +15168,86 @@ type GetLoadBalancerMetricDataOutput struct {
 	MetricData []*MetricDatapoint `locationName:"metricData" type:"list"`
 
 	// The metric about which you are receiving information. Valid values are listed
-	// below.
+	// below, along with the most useful statistics to include in your request.
+	//
+	//    * ClientTLSNegotiationErrorCount - The number of TLS connections initiated
+	//    by the client that did not establish a session with the load balancer.
+	//    Possible causes include a mismatch of ciphers or protocols.
+	//
+	// Statistics: The most useful statistic is Sum.
+	//
+	//    * HealthyHostCount - The number of target instances that are considered
+	//    healthy.
+	//
+	// Statistics: The most useful statistic are Average, Minimum, and Maximum.
+	//
+	//    * UnhealthyHostCount - The number of target instances that are considered
+	//    unhealthy.
+	//
+	// Statistics: The most useful statistic are Average, Minimum, and Maximum.
+	//
+	//    * HTTPCode_LB_4XX_Count - The number of HTTP 4XX client error codes that
+	//    originate from the load balancer. Client errors are generated when requests
+	//    are malformed or incomplete. These requests have not been received by
+	//    the target instance. This count does not include any response codes generated
+	//    by the target instances.
+	//
+	// Statistics: The most useful statistic is Sum. Note that Minimum, Maximum,
+	//    and Average all return 1.
+	//
+	//    * HTTPCode_LB_5XX_Count - The number of HTTP 5XX server error codes that
+	//    originate from the load balancer. This count does not include any response
+	//    codes generated by the target instances.
+	//
+	// Statistics: The most useful statistic is Sum. Note that Minimum, Maximum,
+	//    and Average all return 1. Note that Minimum, Maximum, and Average all
+	//    return 1.
+	//
+	//    * HTTPCode_Instance_2XX_Count - The number of HTTP response codes generated
+	//    by the target instances. This does not include any response codes generated
+	//    by the load balancer.
+	//
+	// Statistics: The most useful statistic is Sum. Note that Minimum, Maximum,
+	//    and Average all return 1.
+	//
+	//    * HTTPCode_Instance_3XX_Count - The number of HTTP response codes generated
+	//    by the target instances. This does not include any response codes generated
+	//    by the load balancer.
+	//
+	// Statistics: The most useful statistic is Sum. Note that Minimum, Maximum,
+	//    and Average all return 1.
+	//
+	//    * HTTPCode_Instance_4XX_Count - The number of HTTP response codes generated
+	//    by the target instances. This does not include any response codes generated
+	//    by the load balancer.
+	//
+	// Statistics: The most useful statistic is Sum. Note that Minimum, Maximum,
+	//    and Average all return 1.
+	//
+	//    * HTTPCode_Instance_5XX_Count - The number of HTTP response codes generated
+	//    by the target instances. This does not include any response codes generated
+	//    by the load balancer.
+	//
+	// Statistics: The most useful statistic is Sum. Note that Minimum, Maximum,
+	//    and Average all return 1.
+	//
+	//    * InstanceResponseTime - The time elapsed, in seconds, after the request
+	//    leaves the load balancer until a response from the target instance is
+	//    received.
+	//
+	// Statistics: The most useful statistic is Average.
+	//
+	//    * RejectedConnectionCount - The number of connections that were rejected
+	//    because the load balancer had reached its maximum number of connections.
+	//
+	// Statistics: The most useful statistic is Sum.
+	//
+	//    * RequestCount - The number of requests processed over IPv4. This count
+	//    includes only the requests with a response generated by a target instance
+	//    of the load balancer.
+	//
+	// Statistics: The most useful statistic is Sum. Note that Minimum, Maximum,
+	//    and Average all return 1.
 	MetricName *string `locationName:"metricName" type:"string" enum:"LoadBalancerMetricName"`
 }
 
@@ -12251,7 +15273,6 @@ func (s *GetLoadBalancerMetricDataOutput) SetMetricName(v string) *GetLoadBalanc
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetLoadBalancerResult
 type GetLoadBalancerOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12275,11 +15296,10 @@ func (s *GetLoadBalancerOutput) SetLoadBalancer(v *LoadBalancer) *GetLoadBalance
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetLoadBalancerTlsCertificatesRequest
 type GetLoadBalancerTlsCertificatesInput struct {
 	_ struct{} `type:"structure"`
 
-	// The name of the load balancer where you stored your TLS/SSL certificate.
+	// The name of the load balancer you associated with your SSL/TLS certificate.
 	//
 	// LoadBalancerName is a required field
 	LoadBalancerName *string `locationName:"loadBalancerName" type:"string" required:"true"`
@@ -12314,11 +15334,10 @@ func (s *GetLoadBalancerTlsCertificatesInput) SetLoadBalancerName(v string) *Get
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetLoadBalancerTlsCertificatesResult
 type GetLoadBalancerTlsCertificatesOutput struct {
 	_ struct{} `type:"structure"`
 
-	// An array of LoadBalancerTlsCertificate objects describing your TLS/SSL certificates.
+	// An array of LoadBalancerTlsCertificate objects describing your SSL/TLS certificates.
 	TlsCertificates []*LoadBalancerTlsCertificate `locationName:"tlsCertificates" type:"list"`
 }
 
@@ -12338,7 +15357,6 @@ func (s *GetLoadBalancerTlsCertificatesOutput) SetTlsCertificates(v []*LoadBalan
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetLoadBalancersRequest
 type GetLoadBalancersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12362,7 +15380,6 @@ func (s *GetLoadBalancersInput) SetPageToken(v string) *GetLoadBalancersInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetLoadBalancersResult
 type GetLoadBalancersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12396,7 +15413,6 @@ func (s *GetLoadBalancersOutput) SetNextPageToken(v string) *GetLoadBalancersOut
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetOperationRequest
 type GetOperationInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12435,7 +15451,6 @@ func (s *GetOperationInput) SetOperationId(v string) *GetOperationInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetOperationResult
 type GetOperationOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12460,7 +15475,6 @@ func (s *GetOperationOutput) SetOperation(v *Operation) *GetOperationOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetOperationsForResourceRequest
 type GetOperationsForResourceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12509,14 +15523,15 @@ func (s *GetOperationsForResourceInput) SetResourceName(v string) *GetOperations
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetOperationsForResourceResult
 type GetOperationsForResourceOutput struct {
 	_ struct{} `type:"structure"`
 
 	// (Deprecated) Returns the number of pages of results that remain.
 	//
 	// In releases prior to June 12, 2017, this parameter returned null by the API.
-	// It is now deprecated, and the API returns the nextPageToken parameter instead.
+	// It is now deprecated, and the API returns the next page token parameter instead.
+	//
+	// Deprecated: NextPageCount has been deprecated
 	NextPageCount *string `locationName:"nextPageCount" deprecated:"true" type:"string"`
 
 	// An identifier that was returned from the previous call to this operation,
@@ -12556,7 +15571,6 @@ func (s *GetOperationsForResourceOutput) SetOperations(v []*Operation) *GetOpera
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetOperationsRequest
 type GetOperationsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12581,7 +15595,6 @@ func (s *GetOperationsInput) SetPageToken(v string) *GetOperationsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetOperationsResult
 type GetOperationsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12616,7 +15629,6 @@ func (s *GetOperationsOutput) SetOperations(v []*Operation) *GetOperationsOutput
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRegionsRequest
 type GetRegionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12624,6 +15636,11 @@ type GetRegionsInput struct {
 	// your get regions request. Availability Zones are indicated with a letter:
 	// e.g., us-east-2a.
 	IncludeAvailabilityZones *bool `locationName:"includeAvailabilityZones" type:"boolean"`
+
+	// >A Boolean value indicating whether to also include Availability Zones for
+	// databases in your get regions request. Availability Zones are indicated with
+	// a letter (e.g., us-east-2a).
+	IncludeRelationalDatabaseAvailabilityZones *bool `locationName:"includeRelationalDatabaseAvailabilityZones" type:"boolean"`
 }
 
 // String returns the string representation
@@ -12642,7 +15659,12 @@ func (s *GetRegionsInput) SetIncludeAvailabilityZones(v bool) *GetRegionsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetRegionsResult
+// SetIncludeRelationalDatabaseAvailabilityZones sets the IncludeRelationalDatabaseAvailabilityZones field's value.
+func (s *GetRegionsInput) SetIncludeRelationalDatabaseAvailabilityZones(v bool) *GetRegionsInput {
+	s.IncludeRelationalDatabaseAvailabilityZones = &v
+	return s
+}
+
 type GetRegionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12667,7 +15689,1018 @@ func (s *GetRegionsOutput) SetRegions(v []*Region) *GetRegionsOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetStaticIpRequest
+type GetRelationalDatabaseBlueprintsInput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to a specific page of results for your get relational
+	// database blueprints request.
+	PageToken *string `locationName:"pageToken" type:"string"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseBlueprintsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseBlueprintsInput) GoString() string {
+	return s.String()
+}
+
+// SetPageToken sets the PageToken field's value.
+func (s *GetRelationalDatabaseBlueprintsInput) SetPageToken(v string) *GetRelationalDatabaseBlueprintsInput {
+	s.PageToken = &v
+	return s
+}
+
+type GetRelationalDatabaseBlueprintsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your get relational database blueprints
+	// request.
+	Blueprints []*RelationalDatabaseBlueprint `locationName:"blueprints" type:"list"`
+
+	// A token used for advancing to the next page of results of your get relational
+	// database blueprints request.
+	NextPageToken *string `locationName:"nextPageToken" type:"string"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseBlueprintsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseBlueprintsOutput) GoString() string {
+	return s.String()
+}
+
+// SetBlueprints sets the Blueprints field's value.
+func (s *GetRelationalDatabaseBlueprintsOutput) SetBlueprints(v []*RelationalDatabaseBlueprint) *GetRelationalDatabaseBlueprintsOutput {
+	s.Blueprints = v
+	return s
+}
+
+// SetNextPageToken sets the NextPageToken field's value.
+func (s *GetRelationalDatabaseBlueprintsOutput) SetNextPageToken(v string) *GetRelationalDatabaseBlueprintsOutput {
+	s.NextPageToken = &v
+	return s
+}
+
+type GetRelationalDatabaseBundlesInput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to a specific page of results for your get relational
+	// database bundles request.
+	PageToken *string `locationName:"pageToken" type:"string"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseBundlesInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseBundlesInput) GoString() string {
+	return s.String()
+}
+
+// SetPageToken sets the PageToken field's value.
+func (s *GetRelationalDatabaseBundlesInput) SetPageToken(v string) *GetRelationalDatabaseBundlesInput {
+	s.PageToken = &v
+	return s
+}
+
+type GetRelationalDatabaseBundlesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your get relational database bundles request.
+	Bundles []*RelationalDatabaseBundle `locationName:"bundles" type:"list"`
+
+	// A token used for advancing to the next page of results of your get relational
+	// database bundles request.
+	NextPageToken *string `locationName:"nextPageToken" type:"string"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseBundlesOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseBundlesOutput) GoString() string {
+	return s.String()
+}
+
+// SetBundles sets the Bundles field's value.
+func (s *GetRelationalDatabaseBundlesOutput) SetBundles(v []*RelationalDatabaseBundle) *GetRelationalDatabaseBundlesOutput {
+	s.Bundles = v
+	return s
+}
+
+// SetNextPageToken sets the NextPageToken field's value.
+func (s *GetRelationalDatabaseBundlesOutput) SetNextPageToken(v string) *GetRelationalDatabaseBundlesOutput {
+	s.NextPageToken = &v
+	return s
+}
+
+type GetRelationalDatabaseEventsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The number of minutes in the past from which to retrieve events. For example,
+	// to get all events from the past 2 hours, enter 120.
+	//
+	// Default: 60
+	//
+	// The minimum is 1 and the maximum is 14 days (20160 minutes).
+	DurationInMinutes *int64 `locationName:"durationInMinutes" type:"integer"`
+
+	// A token used for advancing to a specific page of results from for get relational
+	// database events request.
+	PageToken *string `locationName:"pageToken" type:"string"`
+
+	// The name of the database from which to get events.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseEventsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseEventsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRelationalDatabaseEventsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRelationalDatabaseEventsInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetDurationInMinutes sets the DurationInMinutes field's value.
+func (s *GetRelationalDatabaseEventsInput) SetDurationInMinutes(v int64) *GetRelationalDatabaseEventsInput {
+	s.DurationInMinutes = &v
+	return s
+}
+
+// SetPageToken sets the PageToken field's value.
+func (s *GetRelationalDatabaseEventsInput) SetPageToken(v string) *GetRelationalDatabaseEventsInput {
+	s.PageToken = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *GetRelationalDatabaseEventsInput) SetRelationalDatabaseName(v string) *GetRelationalDatabaseEventsInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type GetRelationalDatabaseEventsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to the next page of results from your get relational
+	// database events request.
+	NextPageToken *string `locationName:"nextPageToken" type:"string"`
+
+	// An object describing the result of your get relational database events request.
+	RelationalDatabaseEvents []*RelationalDatabaseEvent `locationName:"relationalDatabaseEvents" type:"list"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseEventsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseEventsOutput) GoString() string {
+	return s.String()
+}
+
+// SetNextPageToken sets the NextPageToken field's value.
+func (s *GetRelationalDatabaseEventsOutput) SetNextPageToken(v string) *GetRelationalDatabaseEventsOutput {
+	s.NextPageToken = &v
+	return s
+}
+
+// SetRelationalDatabaseEvents sets the RelationalDatabaseEvents field's value.
+func (s *GetRelationalDatabaseEventsOutput) SetRelationalDatabaseEvents(v []*RelationalDatabaseEvent) *GetRelationalDatabaseEventsOutput {
+	s.RelationalDatabaseEvents = v
+	return s
+}
+
+type GetRelationalDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the database that you are looking up.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRelationalDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRelationalDatabaseInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *GetRelationalDatabaseInput) SetRelationalDatabaseName(v string) *GetRelationalDatabaseInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type GetRelationalDatabaseLogEventsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The end of the time interval from which to get log events.
+	//
+	// Constraints:
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Specified in the Unix time format.
+	//
+	// For example, if you wish to use an end time of October 1, 2018, at 8 PM UTC,
+	//    then you input 1538424000 as the end time.
+	EndTime *time.Time `locationName:"endTime" type:"timestamp"`
+
+	// The name of the log stream.
+	//
+	// Use the get relational database log streams operation to get a list of available
+	// log streams.
+	//
+	// LogStreamName is a required field
+	LogStreamName *string `locationName:"logStreamName" type:"string" required:"true"`
+
+	// A token used for advancing to a specific page of results for your get relational
+	// database log events request.
+	PageToken *string `locationName:"pageToken" type:"string"`
+
+	// The name of your database for which to get log events.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+
+	// Parameter to specify if the log should start from head or tail. If true is
+	// specified, the log event starts from the head of the log. If false is specified,
+	// the log event starts from the tail of the log.
+	//
+	// Default: false
+	StartFromHead *bool `locationName:"startFromHead" type:"boolean"`
+
+	// The start of the time interval from which to get log events.
+	//
+	// Constraints:
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Specified in the Unix time format.
+	//
+	// For example, if you wish to use a start time of October 1, 2018, at 8 PM
+	//    UTC, then you input 1538424000 as the start time.
+	StartTime *time.Time `locationName:"startTime" type:"timestamp"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseLogEventsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseLogEventsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRelationalDatabaseLogEventsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRelationalDatabaseLogEventsInput"}
+	if s.LogStreamName == nil {
+		invalidParams.Add(request.NewErrParamRequired("LogStreamName"))
+	}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetEndTime sets the EndTime field's value.
+func (s *GetRelationalDatabaseLogEventsInput) SetEndTime(v time.Time) *GetRelationalDatabaseLogEventsInput {
+	s.EndTime = &v
+	return s
+}
+
+// SetLogStreamName sets the LogStreamName field's value.
+func (s *GetRelationalDatabaseLogEventsInput) SetLogStreamName(v string) *GetRelationalDatabaseLogEventsInput {
+	s.LogStreamName = &v
+	return s
+}
+
+// SetPageToken sets the PageToken field's value.
+func (s *GetRelationalDatabaseLogEventsInput) SetPageToken(v string) *GetRelationalDatabaseLogEventsInput {
+	s.PageToken = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *GetRelationalDatabaseLogEventsInput) SetRelationalDatabaseName(v string) *GetRelationalDatabaseLogEventsInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+// SetStartFromHead sets the StartFromHead field's value.
+func (s *GetRelationalDatabaseLogEventsInput) SetStartFromHead(v bool) *GetRelationalDatabaseLogEventsInput {
+	s.StartFromHead = &v
+	return s
+}
+
+// SetStartTime sets the StartTime field's value.
+func (s *GetRelationalDatabaseLogEventsInput) SetStartTime(v time.Time) *GetRelationalDatabaseLogEventsInput {
+	s.StartTime = &v
+	return s
+}
+
+type GetRelationalDatabaseLogEventsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to the previous page of results from your get
+	// relational database log events request.
+	NextBackwardToken *string `locationName:"nextBackwardToken" type:"string"`
+
+	// A token used for advancing to the next page of results from your get relational
+	// database log events request.
+	NextForwardToken *string `locationName:"nextForwardToken" type:"string"`
+
+	// An object describing the result of your get relational database log events
+	// request.
+	ResourceLogEvents []*LogEvent `locationName:"resourceLogEvents" type:"list"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseLogEventsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseLogEventsOutput) GoString() string {
+	return s.String()
+}
+
+// SetNextBackwardToken sets the NextBackwardToken field's value.
+func (s *GetRelationalDatabaseLogEventsOutput) SetNextBackwardToken(v string) *GetRelationalDatabaseLogEventsOutput {
+	s.NextBackwardToken = &v
+	return s
+}
+
+// SetNextForwardToken sets the NextForwardToken field's value.
+func (s *GetRelationalDatabaseLogEventsOutput) SetNextForwardToken(v string) *GetRelationalDatabaseLogEventsOutput {
+	s.NextForwardToken = &v
+	return s
+}
+
+// SetResourceLogEvents sets the ResourceLogEvents field's value.
+func (s *GetRelationalDatabaseLogEventsOutput) SetResourceLogEvents(v []*LogEvent) *GetRelationalDatabaseLogEventsOutput {
+	s.ResourceLogEvents = v
+	return s
+}
+
+type GetRelationalDatabaseLogStreamsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of your database for which to get log streams.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseLogStreamsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseLogStreamsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRelationalDatabaseLogStreamsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRelationalDatabaseLogStreamsInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *GetRelationalDatabaseLogStreamsInput) SetRelationalDatabaseName(v string) *GetRelationalDatabaseLogStreamsInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type GetRelationalDatabaseLogStreamsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your get relational database log streams
+	// request.
+	LogStreams []*string `locationName:"logStreams" type:"list"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseLogStreamsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseLogStreamsOutput) GoString() string {
+	return s.String()
+}
+
+// SetLogStreams sets the LogStreams field's value.
+func (s *GetRelationalDatabaseLogStreamsOutput) SetLogStreams(v []*string) *GetRelationalDatabaseLogStreamsOutput {
+	s.LogStreams = v
+	return s
+}
+
+type GetRelationalDatabaseMasterUserPasswordInput struct {
+	_ struct{} `type:"structure"`
+
+	// The password version to return.
+	//
+	// Specifying CURRENT or PREVIOUS returns the current or previous passwords
+	// respectively. Specifying PENDING returns the newest version of the password
+	// that will rotate to CURRENT. After the PENDING password rotates to CURRENT,
+	// the PENDING password is no longer available.
+	//
+	// Default: CURRENT
+	PasswordVersion *string `locationName:"passwordVersion" type:"string" enum:"RelationalDatabasePasswordVersion"`
+
+	// The name of your database for which to get the master user password.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseMasterUserPasswordInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseMasterUserPasswordInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRelationalDatabaseMasterUserPasswordInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRelationalDatabaseMasterUserPasswordInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetPasswordVersion sets the PasswordVersion field's value.
+func (s *GetRelationalDatabaseMasterUserPasswordInput) SetPasswordVersion(v string) *GetRelationalDatabaseMasterUserPasswordInput {
+	s.PasswordVersion = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *GetRelationalDatabaseMasterUserPasswordInput) SetRelationalDatabaseName(v string) *GetRelationalDatabaseMasterUserPasswordInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type GetRelationalDatabaseMasterUserPasswordOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The timestamp when the specified version of the master user password was
+	// created.
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
+
+	// The master user password for the password version specified.
+	MasterUserPassword *string `locationName:"masterUserPassword" type:"string"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseMasterUserPasswordOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseMasterUserPasswordOutput) GoString() string {
+	return s.String()
+}
+
+// SetCreatedAt sets the CreatedAt field's value.
+func (s *GetRelationalDatabaseMasterUserPasswordOutput) SetCreatedAt(v time.Time) *GetRelationalDatabaseMasterUserPasswordOutput {
+	s.CreatedAt = &v
+	return s
+}
+
+// SetMasterUserPassword sets the MasterUserPassword field's value.
+func (s *GetRelationalDatabaseMasterUserPasswordOutput) SetMasterUserPassword(v string) *GetRelationalDatabaseMasterUserPasswordOutput {
+	s.MasterUserPassword = &v
+	return s
+}
+
+type GetRelationalDatabaseMetricDataInput struct {
+	_ struct{} `type:"structure"`
+
+	// The end of the time interval from which to get metric data.
+	//
+	// Constraints:
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Specified in the Unix time format.
+	//
+	// For example, if you wish to use an end time of October 1, 2018, at 8 PM UTC,
+	//    then you input 1538424000 as the end time.
+	//
+	// EndTime is a required field
+	EndTime *time.Time `locationName:"endTime" type:"timestamp" required:"true"`
+
+	// The name of the metric data to return.
+	//
+	// MetricName is a required field
+	MetricName *string `locationName:"metricName" type:"string" required:"true" enum:"RelationalDatabaseMetricName"`
+
+	// The granularity, in seconds, of the returned data points.
+	//
+	// Period is a required field
+	Period *int64 `locationName:"period" min:"60" type:"integer" required:"true"`
+
+	// The name of your database from which to get metric data.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+
+	// The start of the time interval from which to get metric data.
+	//
+	// Constraints:
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Specified in the Unix time format.
+	//
+	// For example, if you wish to use a start time of October 1, 2018, at 8 PM
+	//    UTC, then you input 1538424000 as the start time.
+	//
+	// StartTime is a required field
+	StartTime *time.Time `locationName:"startTime" type:"timestamp" required:"true"`
+
+	// The array of statistics for your metric data request.
+	//
+	// Statistics is a required field
+	Statistics []*string `locationName:"statistics" type:"list" required:"true"`
+
+	// The unit for the metric data request.
+	//
+	// Unit is a required field
+	Unit *string `locationName:"unit" type:"string" required:"true" enum:"MetricUnit"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseMetricDataInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseMetricDataInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRelationalDatabaseMetricDataInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRelationalDatabaseMetricDataInput"}
+	if s.EndTime == nil {
+		invalidParams.Add(request.NewErrParamRequired("EndTime"))
+	}
+	if s.MetricName == nil {
+		invalidParams.Add(request.NewErrParamRequired("MetricName"))
+	}
+	if s.Period == nil {
+		invalidParams.Add(request.NewErrParamRequired("Period"))
+	}
+	if s.Period != nil && *s.Period < 60 {
+		invalidParams.Add(request.NewErrParamMinValue("Period", 60))
+	}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+	if s.StartTime == nil {
+		invalidParams.Add(request.NewErrParamRequired("StartTime"))
+	}
+	if s.Statistics == nil {
+		invalidParams.Add(request.NewErrParamRequired("Statistics"))
+	}
+	if s.Unit == nil {
+		invalidParams.Add(request.NewErrParamRequired("Unit"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetEndTime sets the EndTime field's value.
+func (s *GetRelationalDatabaseMetricDataInput) SetEndTime(v time.Time) *GetRelationalDatabaseMetricDataInput {
+	s.EndTime = &v
+	return s
+}
+
+// SetMetricName sets the MetricName field's value.
+func (s *GetRelationalDatabaseMetricDataInput) SetMetricName(v string) *GetRelationalDatabaseMetricDataInput {
+	s.MetricName = &v
+	return s
+}
+
+// SetPeriod sets the Period field's value.
+func (s *GetRelationalDatabaseMetricDataInput) SetPeriod(v int64) *GetRelationalDatabaseMetricDataInput {
+	s.Period = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *GetRelationalDatabaseMetricDataInput) SetRelationalDatabaseName(v string) *GetRelationalDatabaseMetricDataInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+// SetStartTime sets the StartTime field's value.
+func (s *GetRelationalDatabaseMetricDataInput) SetStartTime(v time.Time) *GetRelationalDatabaseMetricDataInput {
+	s.StartTime = &v
+	return s
+}
+
+// SetStatistics sets the Statistics field's value.
+func (s *GetRelationalDatabaseMetricDataInput) SetStatistics(v []*string) *GetRelationalDatabaseMetricDataInput {
+	s.Statistics = v
+	return s
+}
+
+// SetUnit sets the Unit field's value.
+func (s *GetRelationalDatabaseMetricDataInput) SetUnit(v string) *GetRelationalDatabaseMetricDataInput {
+	s.Unit = &v
+	return s
+}
+
+type GetRelationalDatabaseMetricDataOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your get relational database metric data
+	// request.
+	MetricData []*MetricDatapoint `locationName:"metricData" type:"list"`
+
+	// The name of the metric.
+	MetricName *string `locationName:"metricName" type:"string" enum:"RelationalDatabaseMetricName"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseMetricDataOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseMetricDataOutput) GoString() string {
+	return s.String()
+}
+
+// SetMetricData sets the MetricData field's value.
+func (s *GetRelationalDatabaseMetricDataOutput) SetMetricData(v []*MetricDatapoint) *GetRelationalDatabaseMetricDataOutput {
+	s.MetricData = v
+	return s
+}
+
+// SetMetricName sets the MetricName field's value.
+func (s *GetRelationalDatabaseMetricDataOutput) SetMetricName(v string) *GetRelationalDatabaseMetricDataOutput {
+	s.MetricName = &v
+	return s
+}
+
+type GetRelationalDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the specified database.
+	RelationalDatabase *RelationalDatabase `locationName:"relationalDatabase" type:"structure"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetRelationalDatabase sets the RelationalDatabase field's value.
+func (s *GetRelationalDatabaseOutput) SetRelationalDatabase(v *RelationalDatabase) *GetRelationalDatabaseOutput {
+	s.RelationalDatabase = v
+	return s
+}
+
+type GetRelationalDatabaseParametersInput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to a specific page of results for your get relational
+	// database parameters request.
+	PageToken *string `locationName:"pageToken" type:"string"`
+
+	// The name of your database for which to get parameters.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseParametersInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseParametersInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRelationalDatabaseParametersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRelationalDatabaseParametersInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetPageToken sets the PageToken field's value.
+func (s *GetRelationalDatabaseParametersInput) SetPageToken(v string) *GetRelationalDatabaseParametersInput {
+	s.PageToken = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *GetRelationalDatabaseParametersInput) SetRelationalDatabaseName(v string) *GetRelationalDatabaseParametersInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type GetRelationalDatabaseParametersOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to the next page of results from your get static
+	// IPs request.
+	NextPageToken *string `locationName:"nextPageToken" type:"string"`
+
+	// An object describing the result of your get relational database parameters
+	// request.
+	Parameters []*RelationalDatabaseParameter `locationName:"parameters" type:"list"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseParametersOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseParametersOutput) GoString() string {
+	return s.String()
+}
+
+// SetNextPageToken sets the NextPageToken field's value.
+func (s *GetRelationalDatabaseParametersOutput) SetNextPageToken(v string) *GetRelationalDatabaseParametersOutput {
+	s.NextPageToken = &v
+	return s
+}
+
+// SetParameters sets the Parameters field's value.
+func (s *GetRelationalDatabaseParametersOutput) SetParameters(v []*RelationalDatabaseParameter) *GetRelationalDatabaseParametersOutput {
+	s.Parameters = v
+	return s
+}
+
+type GetRelationalDatabaseSnapshotInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the database snapshot for which to get information.
+	//
+	// RelationalDatabaseSnapshotName is a required field
+	RelationalDatabaseSnapshotName *string `locationName:"relationalDatabaseSnapshotName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseSnapshotInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseSnapshotInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRelationalDatabaseSnapshotInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRelationalDatabaseSnapshotInput"}
+	if s.RelationalDatabaseSnapshotName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseSnapshotName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetRelationalDatabaseSnapshotName sets the RelationalDatabaseSnapshotName field's value.
+func (s *GetRelationalDatabaseSnapshotInput) SetRelationalDatabaseSnapshotName(v string) *GetRelationalDatabaseSnapshotInput {
+	s.RelationalDatabaseSnapshotName = &v
+	return s
+}
+
+type GetRelationalDatabaseSnapshotOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the specified database snapshot.
+	RelationalDatabaseSnapshot *RelationalDatabaseSnapshot `locationName:"relationalDatabaseSnapshot" type:"structure"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseSnapshotOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseSnapshotOutput) GoString() string {
+	return s.String()
+}
+
+// SetRelationalDatabaseSnapshot sets the RelationalDatabaseSnapshot field's value.
+func (s *GetRelationalDatabaseSnapshotOutput) SetRelationalDatabaseSnapshot(v *RelationalDatabaseSnapshot) *GetRelationalDatabaseSnapshotOutput {
+	s.RelationalDatabaseSnapshot = v
+	return s
+}
+
+type GetRelationalDatabaseSnapshotsInput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to a specific page of results for your get relational
+	// database snapshots request.
+	PageToken *string `locationName:"pageToken" type:"string"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseSnapshotsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseSnapshotsInput) GoString() string {
+	return s.String()
+}
+
+// SetPageToken sets the PageToken field's value.
+func (s *GetRelationalDatabaseSnapshotsInput) SetPageToken(v string) *GetRelationalDatabaseSnapshotsInput {
+	s.PageToken = &v
+	return s
+}
+
+type GetRelationalDatabaseSnapshotsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to the next page of results from your get relational
+	// database snapshots request.
+	NextPageToken *string `locationName:"nextPageToken" type:"string"`
+
+	// An object describing the result of your get relational database snapshots
+	// request.
+	RelationalDatabaseSnapshots []*RelationalDatabaseSnapshot `locationName:"relationalDatabaseSnapshots" type:"list"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabaseSnapshotsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabaseSnapshotsOutput) GoString() string {
+	return s.String()
+}
+
+// SetNextPageToken sets the NextPageToken field's value.
+func (s *GetRelationalDatabaseSnapshotsOutput) SetNextPageToken(v string) *GetRelationalDatabaseSnapshotsOutput {
+	s.NextPageToken = &v
+	return s
+}
+
+// SetRelationalDatabaseSnapshots sets the RelationalDatabaseSnapshots field's value.
+func (s *GetRelationalDatabaseSnapshotsOutput) SetRelationalDatabaseSnapshots(v []*RelationalDatabaseSnapshot) *GetRelationalDatabaseSnapshotsOutput {
+	s.RelationalDatabaseSnapshots = v
+	return s
+}
+
+type GetRelationalDatabasesInput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to a specific page of results for your get relational
+	// database request.
+	PageToken *string `locationName:"pageToken" type:"string"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabasesInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabasesInput) GoString() string {
+	return s.String()
+}
+
+// SetPageToken sets the PageToken field's value.
+func (s *GetRelationalDatabasesInput) SetPageToken(v string) *GetRelationalDatabasesInput {
+	s.PageToken = &v
+	return s
+}
+
+type GetRelationalDatabasesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A token used for advancing to the next page of results from your get relational
+	// databases request.
+	NextPageToken *string `locationName:"nextPageToken" type:"string"`
+
+	// An object describing the result of your get relational databases request.
+	RelationalDatabases []*RelationalDatabase `locationName:"relationalDatabases" type:"list"`
+}
+
+// String returns the string representation
+func (s GetRelationalDatabasesOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRelationalDatabasesOutput) GoString() string {
+	return s.String()
+}
+
+// SetNextPageToken sets the NextPageToken field's value.
+func (s *GetRelationalDatabasesOutput) SetNextPageToken(v string) *GetRelationalDatabasesOutput {
+	s.NextPageToken = &v
+	return s
+}
+
+// SetRelationalDatabases sets the RelationalDatabases field's value.
+func (s *GetRelationalDatabasesOutput) SetRelationalDatabases(v []*RelationalDatabase) *GetRelationalDatabasesOutput {
+	s.RelationalDatabases = v
+	return s
+}
+
 type GetStaticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12706,7 +16739,6 @@ func (s *GetStaticIpInput) SetStaticIpName(v string) *GetStaticIpInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetStaticIpResult
 type GetStaticIpOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12731,7 +16763,6 @@ func (s *GetStaticIpOutput) SetStaticIp(v *StaticIp) *GetStaticIpOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetStaticIpsRequest
 type GetStaticIpsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12756,7 +16787,6 @@ func (s *GetStaticIpsInput) SetPageToken(v string) *GetStaticIpsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/GetStaticIpsResult
 type GetStaticIpsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12791,7 +16821,6 @@ func (s *GetStaticIpsOutput) SetStaticIps(v []*StaticIp) *GetStaticIpsOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/ImportKeyPairRequest
 type ImportKeyPairInput struct {
 	_ struct{} `type:"structure"`
 
@@ -12844,7 +16873,6 @@ func (s *ImportKeyPairInput) SetPublicKeyBase64(v string) *ImportKeyPairInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/ImportKeyPairResult
 type ImportKeyPairOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -12869,7 +16897,6 @@ func (s *ImportKeyPairOutput) SetOperation(v *Operation) *ImportKeyPairOutput {
 }
 
 // Describes an instance (a virtual private server).
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/Instance
 type Instance struct {
 	_ struct{} `type:"structure"`
 
@@ -12886,7 +16913,7 @@ type Instance struct {
 	BundleId *string `locationName:"bundleId" type:"string"`
 
 	// The timestamp when the instance was created (e.g., 1479734909.17).
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// The size of the vCPU and the amount of RAM for the instance.
 	Hardware *InstanceHardware `locationName:"hardware" type:"structure"`
@@ -12898,7 +16925,7 @@ type Instance struct {
 	// to it.
 	IsStaticIp *bool `locationName:"isStaticIp" type:"boolean"`
 
-	// The region name and availability zone where the instance is located.
+	// The region name and Availability Zone where the instance is located.
 	Location *ResourceLocation `locationName:"location" type:"structure"`
 
 	// The name the user gave the instance (e.g., Amazon_Linux-1GB-Ohio-1).
@@ -13052,7 +17079,6 @@ func (s *Instance) SetUsername(v string) *Instance {
 
 // The parameters for gaining temporary access to one of your Amazon Lightsail
 // instances.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/InstanceAccessDetails
 type InstanceAccessDetails struct {
 	_ struct{} `type:"structure"`
 
@@ -13061,7 +17087,7 @@ type InstanceAccessDetails struct {
 	CertKey *string `locationName:"certKey" type:"string"`
 
 	// For SSH access, the date on which the temporary keys expire.
-	ExpiresAt *time.Time `locationName:"expiresAt" type:"timestamp" timestampFormat:"unix"`
+	ExpiresAt *time.Time `locationName:"expiresAt" type:"timestamp"`
 
 	// The name of this Amazon Lightsail instance.
 	InstanceName *string `locationName:"instanceName" type:"string"`
@@ -13165,7 +17191,6 @@ func (s *InstanceAccessDetails) SetUsername(v string) *InstanceAccessDetails {
 }
 
 // Describes the hardware for the instance.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/InstanceHardware
 type InstanceHardware struct {
 	_ struct{} `type:"structure"`
 
@@ -13208,14 +17233,59 @@ func (s *InstanceHardware) SetRamSizeInGb(v float64) *InstanceHardware {
 }
 
 // Describes information about the health of the instance.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/InstanceHealthSummary
 type InstanceHealthSummary struct {
 	_ struct{} `type:"structure"`
 
 	// Describes the overall instance health. Valid values are below.
 	InstanceHealth *string `locationName:"instanceHealth" type:"string" enum:"InstanceHealthState"`
 
-	// More information about the instance health. Valid values are below.
+	// More information about the instance health. If the instanceHealth is healthy,
+	// then an instanceHealthReason value is not provided.
+	//
+	// If instanceHealth is initial, the instanceHealthReason value can be one of
+	// the following:
+	//
+	//    * Lb.RegistrationInProgress - The target instance is in the process of
+	//    being registered with the load balancer.
+	//
+	//    * Lb.InitialHealthChecking - The Lightsail load balancer is still sending
+	//    the target instance the minimum number of health checks required to determine
+	//    its health status.
+	//
+	// If instanceHealth is unhealthy, the instanceHealthReason value can be one
+	// of the following:
+	//
+	//    * Instance.ResponseCodeMismatch - The health checks did not return an
+	//    expected HTTP code.
+	//
+	//    * Instance.Timeout - The health check requests timed out.
+	//
+	//    * Instance.FailedHealthChecks - The health checks failed because the connection
+	//    to the target instance timed out, the target instance response was malformed,
+	//    or the target instance failed the health check for an unknown reason.
+	//
+	//    * Lb.InternalError - The health checks failed due to an internal error.
+	//
+	// If instanceHealth is unused, the instanceHealthReason value can be one of
+	// the following:
+	//
+	//    * Instance.NotRegistered - The target instance is not registered with
+	//    the target group.
+	//
+	//    * Instance.NotInUse - The target group is not used by any load balancer,
+	//    or the target instance is in an Availability Zone that is not enabled
+	//    for its load balancer.
+	//
+	//    * Instance.IpUnusable - The target IP address is reserved for use by a
+	//    Lightsail load balancer.
+	//
+	//    * Instance.InvalidState - The target is in the stopped or terminated state.
+	//
+	// If instanceHealth is draining, the instanceHealthReason value can be one
+	// of the following:
+	//
+	//    * Instance.DeregistrationInProgress - The target instance is in the process
+	//    of being deregistered and the deregistration delay period has not expired.
 	InstanceHealthReason *string `locationName:"instanceHealthReason" type:"string" enum:"InstanceHealthReason"`
 
 	// The name of the Lightsail instance for which you are requesting health check
@@ -13252,7 +17322,6 @@ func (s *InstanceHealthSummary) SetInstanceName(v string) *InstanceHealthSummary
 }
 
 // Describes monthly data transfer rates and port information for an instance.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/InstanceNetworking
 type InstanceNetworking struct {
 	_ struct{} `type:"structure"`
 
@@ -13287,7 +17356,6 @@ func (s *InstanceNetworking) SetPorts(v []*InstancePortInfo) *InstanceNetworking
 }
 
 // Describes information about the instance ports.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/InstancePortInfo
 type InstancePortInfo struct {
 	_ struct{} `type:"structure"`
 
@@ -13383,7 +17451,6 @@ func (s *InstancePortInfo) SetToPort(v int64) *InstancePortInfo {
 }
 
 // Describes the port state.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/InstancePortState
 type InstancePortState struct {
 	_ struct{} `type:"structure"`
 
@@ -13452,7 +17519,6 @@ func (s *InstancePortState) SetToPort(v int64) *InstancePortState {
 }
 
 // Describes the snapshot of the virtual private server, or instance.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/InstanceSnapshot
 type InstanceSnapshot struct {
 	_ struct{} `type:"structure"`
 
@@ -13460,7 +17526,7 @@ type InstanceSnapshot struct {
 	Arn *string `locationName:"arn" type:"string"`
 
 	// The timestamp when the snapshot was created (e.g., 1479907467.024).
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// An array of disk objects containing information about all block storage disks.
 	FromAttachedDisks []*Disk `locationName:"fromAttachedDisks" type:"list"`
@@ -13480,7 +17546,7 @@ type InstanceSnapshot struct {
 	// The instance from which the snapshot was created.
 	FromInstanceName *string `locationName:"fromInstanceName" type:"string"`
 
-	// The region name and availability zone where you created the snapshot.
+	// The region name and Availability Zone where you created the snapshot.
 	Location *ResourceLocation `locationName:"location" type:"structure"`
 
 	// The name of the snapshot.
@@ -13599,7 +17665,6 @@ func (s *InstanceSnapshot) SetSupportCode(v string) *InstanceSnapshot {
 }
 
 // Describes the virtual private server (or instance) status.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/InstanceState
 type InstanceState struct {
 	_ struct{} `type:"structure"`
 
@@ -13632,7 +17697,6 @@ func (s *InstanceState) SetName(v string) *InstanceState {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/IsVpcPeeredRequest
 type IsVpcPeeredInput struct {
 	_ struct{} `type:"structure"`
 }
@@ -13647,7 +17711,6 @@ func (s IsVpcPeeredInput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/IsVpcPeeredResult
 type IsVpcPeeredOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -13672,7 +17735,6 @@ func (s *IsVpcPeeredOutput) SetIsPeered(v bool) *IsVpcPeeredOutput {
 }
 
 // Describes the SSH key pair.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/KeyPair
 type KeyPair struct {
 	_ struct{} `type:"structure"`
 
@@ -13680,7 +17742,7 @@ type KeyPair struct {
 	Arn *string `locationName:"arn" type:"string"`
 
 	// The timestamp when the key pair was created (e.g., 1479816991.349).
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// The RSA fingerprint of the key pair.
 	Fingerprint *string `locationName:"fingerprint" type:"string"`
@@ -13753,7 +17815,6 @@ func (s *KeyPair) SetSupportCode(v string) *KeyPair {
 }
 
 // Describes the Lightsail load balancer.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/LoadBalancer
 type LoadBalancer struct {
 	_ struct{} `type:"structure"`
 
@@ -13765,7 +17826,7 @@ type LoadBalancer struct {
 	ConfigurationOptions map[string]*string `locationName:"configurationOptions" type:"map"`
 
 	// The date when your load balancer was created.
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// The DNS name of your Lightsail load balancer.
 	DnsName *string `locationName:"dnsName" type:"string"`
@@ -13778,20 +17839,24 @@ type LoadBalancer struct {
 	// balancer.
 	InstanceHealthSummary []*InstanceHealthSummary `locationName:"instanceHealthSummary" type:"list"`
 
-	// The instance port where the load balancer is listening.
+	// The port where the load balancer will direct traffic to your Lightsail instances.
+	// For HTTP traffic, it's port 80. For HTTPS traffic, it's port 443.
 	InstancePort *int64 `locationName:"instancePort" type:"integer"`
 
-	// The AWS Region and Availability Zone where your load balancer was created
-	// (e.g., us-east-2a).
+	// The AWS Region where your load balancer was created (e.g., us-east-2a). Lightsail
+	// automatically creates your load balancer across Availability Zones.
 	Location *ResourceLocation `locationName:"location" type:"structure"`
 
 	// The name of the load balancer (e.g., my-load-balancer).
 	Name *string `locationName:"name" type:"string"`
 
 	// The protocol you have enabled for your load balancer. Valid values are below.
+	//
+	// You can't just have HTTP_HTTPS, but you can have just HTTP.
 	Protocol *string `locationName:"protocol" type:"string" enum:"LoadBalancerProtocol"`
 
-	// An array of public port settings for your load balancer.
+	// An array of public port settings for your load balancer. For HTTP, use port
+	// 80. For HTTPS, use port 443.
 	PublicPorts []*int64 `locationName:"publicPorts" type:"list"`
 
 	// The resource type (e.g., LoadBalancer.
@@ -13806,7 +17871,8 @@ type LoadBalancer struct {
 	SupportCode *string `locationName:"supportCode" type:"string"`
 
 	// An array of LoadBalancerTlsCertificateSummary objects that provide additional
-	// information about the TLS/SSL certificates.
+	// information about the SSL/TLS certificates. For example, if true, the certificate
+	// is attached to the load balancer.
 	TlsCertificateSummaries []*LoadBalancerTlsCertificateSummary `locationName:"tlsCertificateSummaries" type:"list"`
 }
 
@@ -13910,34 +17976,33 @@ func (s *LoadBalancer) SetTlsCertificateSummaries(v []*LoadBalancerTlsCertificat
 	return s
 }
 
-// Describes a load balancer TLS/SSL certificate.
+// Describes a load balancer SSL/TLS certificate.
 //
 // TLS is just an updated, more secure version of Secure Socket Layer (SSL).
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/LoadBalancerTlsCertificate
 type LoadBalancerTlsCertificate struct {
 	_ struct{} `type:"structure"`
 
-	// The Amazon Resource Name (ARN) of the TLS/SSL certificate.
+	// The Amazon Resource Name (ARN) of the SSL/TLS certificate.
 	Arn *string `locationName:"arn" type:"string"`
 
-	// The time when you created your TLS/SSL certificate.
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	// The time when you created your SSL/TLS certificate.
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
-	// The domain name for your TLS/SSL certificate.
+	// The domain name for your SSL/TLS certificate.
 	DomainName *string `locationName:"domainName" type:"string"`
 
 	// An array of LoadBalancerTlsCertificateDomainValidationRecord objects describing
 	// the records.
 	DomainValidationRecords []*LoadBalancerTlsCertificateDomainValidationRecord `locationName:"domainValidationRecords" type:"list"`
 
-	// The reason for the TLS/SSL certificate validation failure.
+	// The reason for the SSL/TLS certificate validation failure.
 	FailureReason *string `locationName:"failureReason" type:"string" enum:"LoadBalancerTlsCertificateFailureReason"`
 
-	// When true, the TLS/SSL certificate is attached to the Lightsail load balancer.
+	// When true, the SSL/TLS certificate is attached to the Lightsail load balancer.
 	IsAttached *bool `locationName:"isAttached" type:"boolean"`
 
-	// The time when the TLS/SSL certificate was issued.
-	IssuedAt *time.Time `locationName:"issuedAt" type:"timestamp" timestampFormat:"unix"`
+	// The time when the SSL/TLS certificate was issued.
+	IssuedAt *time.Time `locationName:"issuedAt" type:"timestamp"`
 
 	// The issuer of the certificate.
 	Issuer *string `locationName:"issuer" type:"string"`
@@ -13946,33 +18011,54 @@ type LoadBalancerTlsCertificate struct {
 	// key).
 	KeyAlgorithm *string `locationName:"keyAlgorithm" type:"string"`
 
-	// The load balancer name where your TLS/SSL certificate is attached.
+	// The load balancer name where your SSL/TLS certificate is attached.
 	LoadBalancerName *string `locationName:"loadBalancerName" type:"string"`
 
 	// The AWS Region and Availability Zone where you created your certificate.
 	Location *ResourceLocation `locationName:"location" type:"structure"`
 
-	// The name of the TLS/SSL certificate (e.g., my-certificate).
+	// The name of the SSL/TLS certificate (e.g., my-certificate).
 	Name *string `locationName:"name" type:"string"`
 
-	// The timestamp when the TLS/SSL certificate expires.
-	NotAfter *time.Time `locationName:"notAfter" type:"timestamp" timestampFormat:"unix"`
+	// The timestamp when the SSL/TLS certificate expires.
+	NotAfter *time.Time `locationName:"notAfter" type:"timestamp"`
 
-	// The timestamp when the TLS/SSL certificate is first valid.
-	NotBefore *time.Time `locationName:"notBefore" type:"timestamp" timestampFormat:"unix"`
+	// The timestamp when the SSL/TLS certificate is first valid.
+	NotBefore *time.Time `locationName:"notBefore" type:"timestamp"`
 
 	// An object containing information about the status of Lightsail's managed
 	// renewal for the certificate.
 	RenewalSummary *LoadBalancerTlsCertificateRenewalSummary `locationName:"renewalSummary" type:"structure"`
 
-	// The resource type (e.g., LoadBalancerTlsCertificate.
+	// The resource type (e.g., LoadBalancerTlsCertificate).
+	//
+	//    * Instance - A Lightsail instance (a virtual private server)
+	//
+	//    * StaticIp - A static IP address
+	//
+	//    * KeyPair - The key pair used to connect to a Lightsail instance
+	//
+	//    * InstanceSnapshot - A Lightsail instance snapshot
+	//
+	//    * Domain - A DNS zone
+	//
+	//    * PeeredVpc - A peered VPC
+	//
+	//    * LoadBalancer - A Lightsail load balancer
+	//
+	//    * LoadBalancerTlsCertificate - An SSL/TLS certificate associated with
+	//    a Lightsail load balancer
+	//
+	//    * Disk - A Lightsail block storage disk
+	//
+	//    * DiskSnapshot - A block storage disk snapshot
 	ResourceType *string `locationName:"resourceType" type:"string" enum:"ResourceType"`
 
 	// The reason the certificate was revoked. Valid values are below.
 	RevocationReason *string `locationName:"revocationReason" type:"string" enum:"LoadBalancerTlsCertificateRevocationReason"`
 
-	// The timestamp when the TLS/SSL certificate was revoked.
-	RevokedAt *time.Time `locationName:"revokedAt" type:"timestamp" timestampFormat:"unix"`
+	// The timestamp when the SSL/TLS certificate was revoked.
+	RevokedAt *time.Time `locationName:"revokedAt" type:"timestamp"`
 
 	// The serial number of the certificate.
 	Serial *string `locationName:"serial" type:"string"`
@@ -13980,22 +18066,22 @@ type LoadBalancerTlsCertificate struct {
 	// The algorithm that was used to sign the certificate.
 	SignatureAlgorithm *string `locationName:"signatureAlgorithm" type:"string"`
 
-	// The status of the TLS/SSL certificate. Valid values are below.
+	// The status of the SSL/TLS certificate. Valid values are below.
 	Status *string `locationName:"status" type:"string" enum:"LoadBalancerTlsCertificateStatus"`
 
 	// The name of the entity that is associated with the public key contained in
 	// the certificate.
 	Subject *string `locationName:"subject" type:"string"`
 
-	// One or more domain names (subject alternative names) included in the certificate.
-	// This list contains the domain names that are bound to the public key that
-	// is contained in the certificate. The subject alternative names include the
-	// canonical domain name (CN) of the certificate and additional domain names
-	// that can be used to connect to the website.
+	// One or more domains or subdomains included in the certificate. This list
+	// contains the domain names that are bound to the public key that is contained
+	// in the certificate. The subject alternative names include the canonical domain
+	// name (CNAME) of the certificate and additional domain names that can be used
+	// to connect to the website, such as example.com, www.example.com, or m.example.com.
 	SubjectAlternativeNames []*string `locationName:"subjectAlternativeNames" type:"list"`
 
 	// The support code. Include this code in your email to support when you have
-	// questions about your Lightsail load balancer or TLS/SSL certificate. This
+	// questions about your Lightsail load balancer or SSL/TLS certificate. This
 	// code enables our support team to look up your Lightsail information more
 	// easily.
 	SupportCode *string `locationName:"supportCode" type:"string"`
@@ -14155,13 +18241,12 @@ func (s *LoadBalancerTlsCertificate) SetSupportCode(v string) *LoadBalancerTlsCe
 	return s
 }
 
-// Contains information about the domain names on a TLS/SSL certificate that
+// Contains information about the domain names on an SSL/TLS certificate that
 // you will use to validate domain ownership.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/LoadBalancerTlsCertificateDomainValidationOption
 type LoadBalancerTlsCertificateDomainValidationOption struct {
 	_ struct{} `type:"structure"`
 
-	// A fully qualified domain name in the certificate request.
+	// The fully qualified domain name in the certificate request.
 	DomainName *string `locationName:"domainName" type:"string"`
 
 	// The status of the domain validation. Valid values are listed below.
@@ -14190,12 +18275,11 @@ func (s *LoadBalancerTlsCertificateDomainValidationOption) SetValidationStatus(v
 	return s
 }
 
-// Describes the validation record of each domain name in the TLS/SSL certificate.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/LoadBalancerTlsCertificateDomainValidationRecord
+// Describes the validation record of each domain name in the SSL/TLS certificate.
 type LoadBalancerTlsCertificateDomainValidationRecord struct {
 	_ struct{} `type:"structure"`
 
-	// The domain name against which your TLS/SSL certificate was validated.
+	// The domain name against which your SSL/TLS certificate was validated.
 	DomainName *string `locationName:"domainName" type:"string"`
 
 	// A fully qualified domain name in the certificate. For example, example.com.
@@ -14253,7 +18337,6 @@ func (s *LoadBalancerTlsCertificateDomainValidationRecord) SetValue(v string) *L
 
 // Contains information about the status of Lightsail's managed renewal for
 // the certificate.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/LoadBalancerTlsCertificateRenewalSummary
 type LoadBalancerTlsCertificateRenewalSummary struct {
 	_ struct{} `type:"structure"`
 
@@ -14289,15 +18372,14 @@ func (s *LoadBalancerTlsCertificateRenewalSummary) SetRenewalStatus(v string) *L
 	return s
 }
 
-// Provides a summary of TLS/SSL certificate metadata.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/LoadBalancerTlsCertificateSummary
+// Provides a summary of SSL/TLS certificate metadata.
 type LoadBalancerTlsCertificateSummary struct {
 	_ struct{} `type:"structure"`
 
-	// When true, the TLS/SSL certificate is attached to the Lightsail load balancer.
+	// When true, the SSL/TLS certificate is attached to the Lightsail load balancer.
 	IsAttached *bool `locationName:"isAttached" type:"boolean"`
 
-	// The name of the TLS/SSL certificate.
+	// The name of the SSL/TLS certificate.
 	Name *string `locationName:"name" type:"string"`
 }
 
@@ -14323,8 +18405,40 @@ func (s *LoadBalancerTlsCertificateSummary) SetName(v string) *LoadBalancerTlsCe
 	return s
 }
 
+// Describes a database log event.
+type LogEvent struct {
+	_ struct{} `type:"structure"`
+
+	// The timestamp when the database log event was created.
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
+
+	// The message of the database log event.
+	Message *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation
+func (s LogEvent) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s LogEvent) GoString() string {
+	return s.String()
+}
+
+// SetCreatedAt sets the CreatedAt field's value.
+func (s *LogEvent) SetCreatedAt(v time.Time) *LogEvent {
+	s.CreatedAt = &v
+	return s
+}
+
+// SetMessage sets the Message field's value.
+func (s *LogEvent) SetMessage(v string) *LogEvent {
+	s.Message = &v
+	return s
+}
+
 // Describes the metric data point.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/MetricDatapoint
 type MetricDatapoint struct {
 	_ struct{} `type:"structure"`
 
@@ -14344,7 +18458,7 @@ type MetricDatapoint struct {
 	Sum *float64 `locationName:"sum" type:"double"`
 
 	// The timestamp (e.g., 1479816991.349).
-	Timestamp *time.Time `locationName:"timestamp" type:"timestamp" timestampFormat:"unix"`
+	Timestamp *time.Time `locationName:"timestamp" type:"timestamp"`
 
 	// The unit.
 	Unit *string `locationName:"unit" type:"string" enum:"MetricUnit"`
@@ -14404,7 +18518,6 @@ func (s *MetricDatapoint) SetUnit(v string) *MetricDatapoint {
 
 // Describes the monthly data transfer in and out of your virtual private server
 // (or instance).
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/MonthlyTransfer
 type MonthlyTransfer struct {
 	_ struct{} `type:"structure"`
 
@@ -14428,7 +18541,6 @@ func (s *MonthlyTransfer) SetGbPerMonthAllocated(v int64) *MonthlyTransfer {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/OpenInstancePublicPortsRequest
 type OpenInstancePublicPortsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14481,7 +18593,6 @@ func (s *OpenInstancePublicPortsInput) SetPortInfo(v *PortInfo) *OpenInstancePub
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/OpenInstancePublicPortsResult
 type OpenInstancePublicPortsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -14506,12 +18617,11 @@ func (s *OpenInstancePublicPortsOutput) SetOperation(v *Operation) *OpenInstance
 }
 
 // Describes the API operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/Operation
 type Operation struct {
 	_ struct{} `type:"structure"`
 
 	// The timestamp when the operation was initialized (e.g., 1479816991.349).
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// The error code.
 	ErrorCode *string `locationName:"errorCode" type:"string"`
@@ -14544,7 +18654,7 @@ type Operation struct {
 	Status *string `locationName:"status" type:"string" enum:"OperationStatus"`
 
 	// The timestamp when the status was changed (e.g., 1479816991.349).
-	StatusChangedAt *time.Time `locationName:"statusChangedAt" type:"timestamp" timestampFormat:"unix"`
+	StatusChangedAt *time.Time `locationName:"statusChangedAt" type:"timestamp"`
 }
 
 // String returns the string representation
@@ -14631,7 +18741,6 @@ func (s *Operation) SetStatusChangedAt(v time.Time) *Operation {
 
 // The password data for the Windows Server-based instance, including the ciphertext
 // and the key pair name.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/PasswordData
 type PasswordData struct {
 	_ struct{} `type:"structure"`
 
@@ -14682,7 +18791,6 @@ func (s *PasswordData) SetKeyPairName(v string) *PasswordData {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/PeerVpcRequest
 type PeerVpcInput struct {
 	_ struct{} `type:"structure"`
 }
@@ -14697,7 +18805,6 @@ func (s PeerVpcInput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/PeerVpcResult
 type PeerVpcOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -14721,9 +18828,92 @@ func (s *PeerVpcOutput) SetOperation(v *Operation) *PeerVpcOutput {
 	return s
 }
 
+// Describes a pending database maintenance action.
+type PendingMaintenanceAction struct {
+	_ struct{} `type:"structure"`
+
+	// The type of pending database maintenance action.
+	Action *string `locationName:"action" type:"string"`
+
+	// The effective date of the pending database maintenance action.
+	CurrentApplyDate *time.Time `locationName:"currentApplyDate" type:"timestamp"`
+
+	// Additional detail about the pending database maintenance action.
+	Description *string `locationName:"description" type:"string"`
+}
+
+// String returns the string representation
+func (s PendingMaintenanceAction) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s PendingMaintenanceAction) GoString() string {
+	return s.String()
+}
+
+// SetAction sets the Action field's value.
+func (s *PendingMaintenanceAction) SetAction(v string) *PendingMaintenanceAction {
+	s.Action = &v
+	return s
+}
+
+// SetCurrentApplyDate sets the CurrentApplyDate field's value.
+func (s *PendingMaintenanceAction) SetCurrentApplyDate(v time.Time) *PendingMaintenanceAction {
+	s.CurrentApplyDate = &v
+	return s
+}
+
+// SetDescription sets the Description field's value.
+func (s *PendingMaintenanceAction) SetDescription(v string) *PendingMaintenanceAction {
+	s.Description = &v
+	return s
+}
+
+// Describes a pending database value modification.
+type PendingModifiedRelationalDatabaseValues struct {
+	_ struct{} `type:"structure"`
+
+	// A Boolean value indicating whether automated backup retention is enabled.
+	BackupRetentionEnabled *bool `locationName:"backupRetentionEnabled" type:"boolean"`
+
+	// The database engine version.
+	EngineVersion *string `locationName:"engineVersion" type:"string"`
+
+	// The password for the master user of the database.
+	MasterUserPassword *string `locationName:"masterUserPassword" type:"string"`
+}
+
+// String returns the string representation
+func (s PendingModifiedRelationalDatabaseValues) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s PendingModifiedRelationalDatabaseValues) GoString() string {
+	return s.String()
+}
+
+// SetBackupRetentionEnabled sets the BackupRetentionEnabled field's value.
+func (s *PendingModifiedRelationalDatabaseValues) SetBackupRetentionEnabled(v bool) *PendingModifiedRelationalDatabaseValues {
+	s.BackupRetentionEnabled = &v
+	return s
+}
+
+// SetEngineVersion sets the EngineVersion field's value.
+func (s *PendingModifiedRelationalDatabaseValues) SetEngineVersion(v string) *PendingModifiedRelationalDatabaseValues {
+	s.EngineVersion = &v
+	return s
+}
+
+// SetMasterUserPassword sets the MasterUserPassword field's value.
+func (s *PendingModifiedRelationalDatabaseValues) SetMasterUserPassword(v string) *PendingModifiedRelationalDatabaseValues {
+	s.MasterUserPassword = &v
+	return s
+}
+
 // Describes information about the ports on your virtual private server (or
 // instance).
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/PortInfo
 type PortInfo struct {
 	_ struct{} `type:"structure"`
 
@@ -14765,7 +18955,6 @@ func (s *PortInfo) SetToPort(v int64) *PortInfo {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/PutInstancePublicPortsRequest
 type PutInstancePublicPortsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14818,7 +19007,6 @@ func (s *PutInstancePublicPortsInput) SetPortInfos(v []*PortInfo) *PutInstancePu
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/PutInstancePublicPortsResult
 type PutInstancePublicPortsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -14842,7 +19030,6 @@ func (s *PutInstancePublicPortsOutput) SetOperation(v *Operation) *PutInstancePu
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/RebootInstanceRequest
 type RebootInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -14881,11 +19068,10 @@ func (s *RebootInstanceInput) SetInstanceName(v string) *RebootInstanceInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/RebootInstanceResult
 type RebootInstanceOutput struct {
 	_ struct{} `type:"structure"`
 
-	// An array of key-value pairs containing information about the request operation.
+	// An array of key-value pairs containing information about the request operations.
 	Operations []*Operation `locationName:"operations" type:"list"`
 }
 
@@ -14905,8 +19091,68 @@ func (s *RebootInstanceOutput) SetOperations(v []*Operation) *RebootInstanceOutp
 	return s
 }
 
+type RebootRelationalDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of your database to reboot.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s RebootRelationalDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RebootRelationalDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RebootRelationalDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RebootRelationalDatabaseInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *RebootRelationalDatabaseInput) SetRelationalDatabaseName(v string) *RebootRelationalDatabaseInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type RebootRelationalDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your reboot relational database request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s RebootRelationalDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RebootRelationalDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *RebootRelationalDatabaseOutput) SetOperations(v []*Operation) *RebootRelationalDatabaseOutput {
+	s.Operations = v
+	return s
+}
+
 // Describes the AWS Region.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/Region
 type Region struct {
 	_ struct{} `type:"structure"`
 
@@ -14925,6 +19171,9 @@ type Region struct {
 
 	// The region name (e.g., us-east-2).
 	Name *string `locationName:"name" type:"string" enum:"RegionName"`
+
+	// The Availability Zones for databases. Follows the format us-east-2a (case-sensitive).
+	RelationalDatabaseAvailabilityZones []*AvailabilityZone `locationName:"relationalDatabaseAvailabilityZones" type:"list"`
 }
 
 // String returns the string representation
@@ -14967,7 +19216,785 @@ func (s *Region) SetName(v string) *Region {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/ReleaseStaticIpRequest
+// SetRelationalDatabaseAvailabilityZones sets the RelationalDatabaseAvailabilityZones field's value.
+func (s *Region) SetRelationalDatabaseAvailabilityZones(v []*AvailabilityZone) *Region {
+	s.RelationalDatabaseAvailabilityZones = v
+	return s
+}
+
+// Describes a database.
+type RelationalDatabase struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the database.
+	Arn *string `locationName:"arn" type:"string"`
+
+	// A Boolean value indicating whether automated backup retention is enabled
+	// for the database.
+	BackupRetentionEnabled *bool `locationName:"backupRetentionEnabled" type:"boolean"`
+
+	// The timestamp when the database was created. Formatted in Unix time.
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
+
+	// The database software (for example, MySQL).
+	Engine *string `locationName:"engine" type:"string"`
+
+	// The database engine version (for example, 5.7.23).
+	EngineVersion *string `locationName:"engineVersion" type:"string"`
+
+	// Describes the hardware of the database.
+	Hardware *RelationalDatabaseHardware `locationName:"hardware" type:"structure"`
+
+	// The latest point in time to which the database can be restored. Formatted
+	// in Unix time.
+	LatestRestorableTime *time.Time `locationName:"latestRestorableTime" type:"timestamp"`
+
+	// The Region name and Availability Zone where the database is located.
+	Location *ResourceLocation `locationName:"location" type:"structure"`
+
+	// The name of the master database created when the Lightsail database resource
+	// is created.
+	MasterDatabaseName *string `locationName:"masterDatabaseName" type:"string"`
+
+	// The master endpoint for the database.
+	MasterEndpoint *RelationalDatabaseEndpoint `locationName:"masterEndpoint" type:"structure"`
+
+	// The master user name of the database.
+	MasterUsername *string `locationName:"masterUsername" type:"string"`
+
+	// The unique name of the database resource in Lightsail.
+	Name *string `locationName:"name" type:"string"`
+
+	// The status of parameter updates for the database.
+	ParameterApplyStatus *string `locationName:"parameterApplyStatus" type:"string"`
+
+	// Describes the pending maintenance actions for the database.
+	PendingMaintenanceActions []*PendingMaintenanceAction `locationName:"pendingMaintenanceActions" type:"list"`
+
+	// Describes pending database value modifications.
+	PendingModifiedValues *PendingModifiedRelationalDatabaseValues `locationName:"pendingModifiedValues" type:"structure"`
+
+	// The daily time range during which automated backups are created for the database
+	// (for example, 16:00-16:30).
+	PreferredBackupWindow *string `locationName:"preferredBackupWindow" type:"string"`
+
+	// The weekly time range during which system maintenance can occur on the database.
+	//
+	// In the format ddd:hh24:mi-ddd:hh24:mi. For example, Tue:17:00-Tue:17:30.
+	PreferredMaintenanceWindow *string `locationName:"preferredMaintenanceWindow" type:"string"`
+
+	// A Boolean value indicating whether the database is publicly accessible.
+	PubliclyAccessible *bool `locationName:"publiclyAccessible" type:"boolean"`
+
+	// The blueprint ID for the database. A blueprint describes the major engine
+	// version of a database.
+	RelationalDatabaseBlueprintId *string `locationName:"relationalDatabaseBlueprintId" type:"string"`
+
+	// The bundle ID for the database. A bundle describes the performance specifications
+	// for your database.
+	RelationalDatabaseBundleId *string `locationName:"relationalDatabaseBundleId" type:"string"`
+
+	// The Lightsail resource type for the database (for example, RelationalDatabase).
+	ResourceType *string `locationName:"resourceType" type:"string" enum:"ResourceType"`
+
+	// Describes the secondary Availability Zone of a high availability database.
+	//
+	// The secondary database is used for failover support of a high availability
+	// database.
+	SecondaryAvailabilityZone *string `locationName:"secondaryAvailabilityZone" type:"string"`
+
+	// Describes the current state of the database.
+	State *string `locationName:"state" type:"string"`
+
+	// The support code for the database. Include this code in your email to support
+	// when you have questions about a database in Lightsail. This code enables
+	// our support team to look up your Lightsail information more easily.
+	SupportCode *string `locationName:"supportCode" type:"string"`
+}
+
+// String returns the string representation
+func (s RelationalDatabase) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RelationalDatabase) GoString() string {
+	return s.String()
+}
+
+// SetArn sets the Arn field's value.
+func (s *RelationalDatabase) SetArn(v string) *RelationalDatabase {
+	s.Arn = &v
+	return s
+}
+
+// SetBackupRetentionEnabled sets the BackupRetentionEnabled field's value.
+func (s *RelationalDatabase) SetBackupRetentionEnabled(v bool) *RelationalDatabase {
+	s.BackupRetentionEnabled = &v
+	return s
+}
+
+// SetCreatedAt sets the CreatedAt field's value.
+func (s *RelationalDatabase) SetCreatedAt(v time.Time) *RelationalDatabase {
+	s.CreatedAt = &v
+	return s
+}
+
+// SetEngine sets the Engine field's value.
+func (s *RelationalDatabase) SetEngine(v string) *RelationalDatabase {
+	s.Engine = &v
+	return s
+}
+
+// SetEngineVersion sets the EngineVersion field's value.
+func (s *RelationalDatabase) SetEngineVersion(v string) *RelationalDatabase {
+	s.EngineVersion = &v
+	return s
+}
+
+// SetHardware sets the Hardware field's value.
+func (s *RelationalDatabase) SetHardware(v *RelationalDatabaseHardware) *RelationalDatabase {
+	s.Hardware = v
+	return s
+}
+
+// SetLatestRestorableTime sets the LatestRestorableTime field's value.
+func (s *RelationalDatabase) SetLatestRestorableTime(v time.Time) *RelationalDatabase {
+	s.LatestRestorableTime = &v
+	return s
+}
+
+// SetLocation sets the Location field's value.
+func (s *RelationalDatabase) SetLocation(v *ResourceLocation) *RelationalDatabase {
+	s.Location = v
+	return s
+}
+
+// SetMasterDatabaseName sets the MasterDatabaseName field's value.
+func (s *RelationalDatabase) SetMasterDatabaseName(v string) *RelationalDatabase {
+	s.MasterDatabaseName = &v
+	return s
+}
+
+// SetMasterEndpoint sets the MasterEndpoint field's value.
+func (s *RelationalDatabase) SetMasterEndpoint(v *RelationalDatabaseEndpoint) *RelationalDatabase {
+	s.MasterEndpoint = v
+	return s
+}
+
+// SetMasterUsername sets the MasterUsername field's value.
+func (s *RelationalDatabase) SetMasterUsername(v string) *RelationalDatabase {
+	s.MasterUsername = &v
+	return s
+}
+
+// SetName sets the Name field's value.
+func (s *RelationalDatabase) SetName(v string) *RelationalDatabase {
+	s.Name = &v
+	return s
+}
+
+// SetParameterApplyStatus sets the ParameterApplyStatus field's value.
+func (s *RelationalDatabase) SetParameterApplyStatus(v string) *RelationalDatabase {
+	s.ParameterApplyStatus = &v
+	return s
+}
+
+// SetPendingMaintenanceActions sets the PendingMaintenanceActions field's value.
+func (s *RelationalDatabase) SetPendingMaintenanceActions(v []*PendingMaintenanceAction) *RelationalDatabase {
+	s.PendingMaintenanceActions = v
+	return s
+}
+
+// SetPendingModifiedValues sets the PendingModifiedValues field's value.
+func (s *RelationalDatabase) SetPendingModifiedValues(v *PendingModifiedRelationalDatabaseValues) *RelationalDatabase {
+	s.PendingModifiedValues = v
+	return s
+}
+
+// SetPreferredBackupWindow sets the PreferredBackupWindow field's value.
+func (s *RelationalDatabase) SetPreferredBackupWindow(v string) *RelationalDatabase {
+	s.PreferredBackupWindow = &v
+	return s
+}
+
+// SetPreferredMaintenanceWindow sets the PreferredMaintenanceWindow field's value.
+func (s *RelationalDatabase) SetPreferredMaintenanceWindow(v string) *RelationalDatabase {
+	s.PreferredMaintenanceWindow = &v
+	return s
+}
+
+// SetPubliclyAccessible sets the PubliclyAccessible field's value.
+func (s *RelationalDatabase) SetPubliclyAccessible(v bool) *RelationalDatabase {
+	s.PubliclyAccessible = &v
+	return s
+}
+
+// SetRelationalDatabaseBlueprintId sets the RelationalDatabaseBlueprintId field's value.
+func (s *RelationalDatabase) SetRelationalDatabaseBlueprintId(v string) *RelationalDatabase {
+	s.RelationalDatabaseBlueprintId = &v
+	return s
+}
+
+// SetRelationalDatabaseBundleId sets the RelationalDatabaseBundleId field's value.
+func (s *RelationalDatabase) SetRelationalDatabaseBundleId(v string) *RelationalDatabase {
+	s.RelationalDatabaseBundleId = &v
+	return s
+}
+
+// SetResourceType sets the ResourceType field's value.
+func (s *RelationalDatabase) SetResourceType(v string) *RelationalDatabase {
+	s.ResourceType = &v
+	return s
+}
+
+// SetSecondaryAvailabilityZone sets the SecondaryAvailabilityZone field's value.
+func (s *RelationalDatabase) SetSecondaryAvailabilityZone(v string) *RelationalDatabase {
+	s.SecondaryAvailabilityZone = &v
+	return s
+}
+
+// SetState sets the State field's value.
+func (s *RelationalDatabase) SetState(v string) *RelationalDatabase {
+	s.State = &v
+	return s
+}
+
+// SetSupportCode sets the SupportCode field's value.
+func (s *RelationalDatabase) SetSupportCode(v string) *RelationalDatabase {
+	s.SupportCode = &v
+	return s
+}
+
+// Describes a database image, or blueprint. A blueprint describes the major
+// engine version of a database.
+type RelationalDatabaseBlueprint struct {
+	_ struct{} `type:"structure"`
+
+	// The ID for the database blueprint.
+	BlueprintId *string `locationName:"blueprintId" type:"string"`
+
+	// The database software of the database blueprint (for example, MySQL).
+	Engine *string `locationName:"engine" type:"string" enum:"RelationalDatabaseEngine"`
+
+	// The description of the database engine for the database blueprint.
+	EngineDescription *string `locationName:"engineDescription" type:"string"`
+
+	// The database engine version for the database blueprint (for example, 5.7.23).
+	EngineVersion *string `locationName:"engineVersion" type:"string"`
+
+	// The description of the database engine version for the database blueprint.
+	EngineVersionDescription *string `locationName:"engineVersionDescription" type:"string"`
+
+	// A Boolean value indicating whether the engine version is the default for
+	// the database blueprint.
+	IsEngineDefault *bool `locationName:"isEngineDefault" type:"boolean"`
+}
+
+// String returns the string representation
+func (s RelationalDatabaseBlueprint) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RelationalDatabaseBlueprint) GoString() string {
+	return s.String()
+}
+
+// SetBlueprintId sets the BlueprintId field's value.
+func (s *RelationalDatabaseBlueprint) SetBlueprintId(v string) *RelationalDatabaseBlueprint {
+	s.BlueprintId = &v
+	return s
+}
+
+// SetEngine sets the Engine field's value.
+func (s *RelationalDatabaseBlueprint) SetEngine(v string) *RelationalDatabaseBlueprint {
+	s.Engine = &v
+	return s
+}
+
+// SetEngineDescription sets the EngineDescription field's value.
+func (s *RelationalDatabaseBlueprint) SetEngineDescription(v string) *RelationalDatabaseBlueprint {
+	s.EngineDescription = &v
+	return s
+}
+
+// SetEngineVersion sets the EngineVersion field's value.
+func (s *RelationalDatabaseBlueprint) SetEngineVersion(v string) *RelationalDatabaseBlueprint {
+	s.EngineVersion = &v
+	return s
+}
+
+// SetEngineVersionDescription sets the EngineVersionDescription field's value.
+func (s *RelationalDatabaseBlueprint) SetEngineVersionDescription(v string) *RelationalDatabaseBlueprint {
+	s.EngineVersionDescription = &v
+	return s
+}
+
+// SetIsEngineDefault sets the IsEngineDefault field's value.
+func (s *RelationalDatabaseBlueprint) SetIsEngineDefault(v bool) *RelationalDatabaseBlueprint {
+	s.IsEngineDefault = &v
+	return s
+}
+
+// Describes a database bundle. A bundle describes the performance specifications
+// of the database.
+type RelationalDatabaseBundle struct {
+	_ struct{} `type:"structure"`
+
+	// The ID for the database bundle.
+	BundleId *string `locationName:"bundleId" type:"string"`
+
+	// The number of virtual CPUs (vCPUs) for the database bundle.
+	CpuCount *int64 `locationName:"cpuCount" type:"integer"`
+
+	// The size of the disk for the database bundle.
+	DiskSizeInGb *int64 `locationName:"diskSizeInGb" type:"integer"`
+
+	// A Boolean value indicating whether the database bundle is active.
+	IsActive *bool `locationName:"isActive" type:"boolean"`
+
+	// A Boolean value indicating whether the database bundle is encrypted.
+	IsEncrypted *bool `locationName:"isEncrypted" type:"boolean"`
+
+	// The name for the database bundle.
+	Name *string `locationName:"name" type:"string"`
+
+	// The cost of the database bundle in US currency.
+	Price *float64 `locationName:"price" type:"float"`
+
+	// The amount of RAM in GB (for example, 2.0) for the database bundle.
+	RamSizeInGb *float64 `locationName:"ramSizeInGb" type:"float"`
+
+	// The data transfer rate per month in GB for the database bundle.
+	TransferPerMonthInGb *int64 `locationName:"transferPerMonthInGb" type:"integer"`
+}
+
+// String returns the string representation
+func (s RelationalDatabaseBundle) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RelationalDatabaseBundle) GoString() string {
+	return s.String()
+}
+
+// SetBundleId sets the BundleId field's value.
+func (s *RelationalDatabaseBundle) SetBundleId(v string) *RelationalDatabaseBundle {
+	s.BundleId = &v
+	return s
+}
+
+// SetCpuCount sets the CpuCount field's value.
+func (s *RelationalDatabaseBundle) SetCpuCount(v int64) *RelationalDatabaseBundle {
+	s.CpuCount = &v
+	return s
+}
+
+// SetDiskSizeInGb sets the DiskSizeInGb field's value.
+func (s *RelationalDatabaseBundle) SetDiskSizeInGb(v int64) *RelationalDatabaseBundle {
+	s.DiskSizeInGb = &v
+	return s
+}
+
+// SetIsActive sets the IsActive field's value.
+func (s *RelationalDatabaseBundle) SetIsActive(v bool) *RelationalDatabaseBundle {
+	s.IsActive = &v
+	return s
+}
+
+// SetIsEncrypted sets the IsEncrypted field's value.
+func (s *RelationalDatabaseBundle) SetIsEncrypted(v bool) *RelationalDatabaseBundle {
+	s.IsEncrypted = &v
+	return s
+}
+
+// SetName sets the Name field's value.
+func (s *RelationalDatabaseBundle) SetName(v string) *RelationalDatabaseBundle {
+	s.Name = &v
+	return s
+}
+
+// SetPrice sets the Price field's value.
+func (s *RelationalDatabaseBundle) SetPrice(v float64) *RelationalDatabaseBundle {
+	s.Price = &v
+	return s
+}
+
+// SetRamSizeInGb sets the RamSizeInGb field's value.
+func (s *RelationalDatabaseBundle) SetRamSizeInGb(v float64) *RelationalDatabaseBundle {
+	s.RamSizeInGb = &v
+	return s
+}
+
+// SetTransferPerMonthInGb sets the TransferPerMonthInGb field's value.
+func (s *RelationalDatabaseBundle) SetTransferPerMonthInGb(v int64) *RelationalDatabaseBundle {
+	s.TransferPerMonthInGb = &v
+	return s
+}
+
+// Describes an endpoint for a database.
+type RelationalDatabaseEndpoint struct {
+	_ struct{} `type:"structure"`
+
+	// Specifies the DNS address of the database.
+	Address *string `locationName:"address" type:"string"`
+
+	// Specifies the port that the database is listening on.
+	Port *int64 `locationName:"port" type:"integer"`
+}
+
+// String returns the string representation
+func (s RelationalDatabaseEndpoint) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RelationalDatabaseEndpoint) GoString() string {
+	return s.String()
+}
+
+// SetAddress sets the Address field's value.
+func (s *RelationalDatabaseEndpoint) SetAddress(v string) *RelationalDatabaseEndpoint {
+	s.Address = &v
+	return s
+}
+
+// SetPort sets the Port field's value.
+func (s *RelationalDatabaseEndpoint) SetPort(v int64) *RelationalDatabaseEndpoint {
+	s.Port = &v
+	return s
+}
+
+// Describes an event for a database.
+type RelationalDatabaseEvent struct {
+	_ struct{} `type:"structure"`
+
+	// The timestamp when the database event was created.
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
+
+	// The category that the database event belongs to.
+	EventCategories []*string `locationName:"eventCategories" type:"list"`
+
+	// The message of the database event.
+	Message *string `locationName:"message" type:"string"`
+
+	// The database that the database event relates to.
+	Resource *string `locationName:"resource" type:"string"`
+}
+
+// String returns the string representation
+func (s RelationalDatabaseEvent) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RelationalDatabaseEvent) GoString() string {
+	return s.String()
+}
+
+// SetCreatedAt sets the CreatedAt field's value.
+func (s *RelationalDatabaseEvent) SetCreatedAt(v time.Time) *RelationalDatabaseEvent {
+	s.CreatedAt = &v
+	return s
+}
+
+// SetEventCategories sets the EventCategories field's value.
+func (s *RelationalDatabaseEvent) SetEventCategories(v []*string) *RelationalDatabaseEvent {
+	s.EventCategories = v
+	return s
+}
+
+// SetMessage sets the Message field's value.
+func (s *RelationalDatabaseEvent) SetMessage(v string) *RelationalDatabaseEvent {
+	s.Message = &v
+	return s
+}
+
+// SetResource sets the Resource field's value.
+func (s *RelationalDatabaseEvent) SetResource(v string) *RelationalDatabaseEvent {
+	s.Resource = &v
+	return s
+}
+
+// Describes the hardware of a database.
+type RelationalDatabaseHardware struct {
+	_ struct{} `type:"structure"`
+
+	// The number of vCPUs for the database.
+	CpuCount *int64 `locationName:"cpuCount" type:"integer"`
+
+	// The size of the disk for the database.
+	DiskSizeInGb *int64 `locationName:"diskSizeInGb" type:"integer"`
+
+	// The amount of RAM in GB for the database.
+	RamSizeInGb *float64 `locationName:"ramSizeInGb" type:"float"`
+}
+
+// String returns the string representation
+func (s RelationalDatabaseHardware) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RelationalDatabaseHardware) GoString() string {
+	return s.String()
+}
+
+// SetCpuCount sets the CpuCount field's value.
+func (s *RelationalDatabaseHardware) SetCpuCount(v int64) *RelationalDatabaseHardware {
+	s.CpuCount = &v
+	return s
+}
+
+// SetDiskSizeInGb sets the DiskSizeInGb field's value.
+func (s *RelationalDatabaseHardware) SetDiskSizeInGb(v int64) *RelationalDatabaseHardware {
+	s.DiskSizeInGb = &v
+	return s
+}
+
+// SetRamSizeInGb sets the RamSizeInGb field's value.
+func (s *RelationalDatabaseHardware) SetRamSizeInGb(v float64) *RelationalDatabaseHardware {
+	s.RamSizeInGb = &v
+	return s
+}
+
+// Describes the parameters of a database.
+type RelationalDatabaseParameter struct {
+	_ struct{} `type:"structure"`
+
+	// Specifies the valid range of values for the parameter.
+	AllowedValues *string `locationName:"allowedValues" type:"string"`
+
+	// Indicates when parameter updates are applied.
+	//
+	// Can be immediate or pending-reboot.
+	ApplyMethod *string `locationName:"applyMethod" type:"string"`
+
+	// Specifies the engine-specific parameter type.
+	ApplyType *string `locationName:"applyType" type:"string"`
+
+	// Specifies the valid data type for the parameter.
+	DataType *string `locationName:"dataType" type:"string"`
+
+	// Provides a description of the parameter.
+	Description *string `locationName:"description" type:"string"`
+
+	// A Boolean value indicating whether the parameter can be modified.
+	IsModifiable *bool `locationName:"isModifiable" type:"boolean"`
+
+	// Specifies the name of the parameter.
+	ParameterName *string `locationName:"parameterName" type:"string"`
+
+	// Specifies the value of the parameter.
+	ParameterValue *string `locationName:"parameterValue" type:"string"`
+}
+
+// String returns the string representation
+func (s RelationalDatabaseParameter) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RelationalDatabaseParameter) GoString() string {
+	return s.String()
+}
+
+// SetAllowedValues sets the AllowedValues field's value.
+func (s *RelationalDatabaseParameter) SetAllowedValues(v string) *RelationalDatabaseParameter {
+	s.AllowedValues = &v
+	return s
+}
+
+// SetApplyMethod sets the ApplyMethod field's value.
+func (s *RelationalDatabaseParameter) SetApplyMethod(v string) *RelationalDatabaseParameter {
+	s.ApplyMethod = &v
+	return s
+}
+
+// SetApplyType sets the ApplyType field's value.
+func (s *RelationalDatabaseParameter) SetApplyType(v string) *RelationalDatabaseParameter {
+	s.ApplyType = &v
+	return s
+}
+
+// SetDataType sets the DataType field's value.
+func (s *RelationalDatabaseParameter) SetDataType(v string) *RelationalDatabaseParameter {
+	s.DataType = &v
+	return s
+}
+
+// SetDescription sets the Description field's value.
+func (s *RelationalDatabaseParameter) SetDescription(v string) *RelationalDatabaseParameter {
+	s.Description = &v
+	return s
+}
+
+// SetIsModifiable sets the IsModifiable field's value.
+func (s *RelationalDatabaseParameter) SetIsModifiable(v bool) *RelationalDatabaseParameter {
+	s.IsModifiable = &v
+	return s
+}
+
+// SetParameterName sets the ParameterName field's value.
+func (s *RelationalDatabaseParameter) SetParameterName(v string) *RelationalDatabaseParameter {
+	s.ParameterName = &v
+	return s
+}
+
+// SetParameterValue sets the ParameterValue field's value.
+func (s *RelationalDatabaseParameter) SetParameterValue(v string) *RelationalDatabaseParameter {
+	s.ParameterValue = &v
+	return s
+}
+
+// Describes a database snapshot.
+type RelationalDatabaseSnapshot struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the database snapshot.
+	Arn *string `locationName:"arn" type:"string"`
+
+	// The timestamp when the database snapshot was created.
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
+
+	// The software of the database snapshot (for example, MySQL)
+	Engine *string `locationName:"engine" type:"string"`
+
+	// The database engine version for the database snapshot (for example, 5.7.23).
+	EngineVersion *string `locationName:"engineVersion" type:"string"`
+
+	// The Amazon Resource Name (ARN) of the database from which the database snapshot
+	// was created.
+	FromRelationalDatabaseArn *string `locationName:"fromRelationalDatabaseArn" type:"string"`
+
+	// The blueprint ID of the database from which the database snapshot was created.
+	// A blueprint describes the major engine version of a database.
+	FromRelationalDatabaseBlueprintId *string `locationName:"fromRelationalDatabaseBlueprintId" type:"string"`
+
+	// The bundle ID of the database from which the database snapshot was created.
+	FromRelationalDatabaseBundleId *string `locationName:"fromRelationalDatabaseBundleId" type:"string"`
+
+	// The name of the source database from which the database snapshot was created.
+	FromRelationalDatabaseName *string `locationName:"fromRelationalDatabaseName" type:"string"`
+
+	// The Region name and Availability Zone where the database snapshot is located.
+	Location *ResourceLocation `locationName:"location" type:"structure"`
+
+	// The name of the database snapshot.
+	Name *string `locationName:"name" type:"string"`
+
+	// The Lightsail resource type.
+	ResourceType *string `locationName:"resourceType" type:"string" enum:"ResourceType"`
+
+	// The size of the disk in GB (for example, 32) for the database snapshot.
+	SizeInGb *int64 `locationName:"sizeInGb" type:"integer"`
+
+	// The state of the database snapshot.
+	State *string `locationName:"state" type:"string"`
+
+	// The support code for the database snapshot. Include this code in your email
+	// to support when you have questions about a database snapshot in Lightsail.
+	// This code enables our support team to look up your Lightsail information
+	// more easily.
+	SupportCode *string `locationName:"supportCode" type:"string"`
+}
+
+// String returns the string representation
+func (s RelationalDatabaseSnapshot) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RelationalDatabaseSnapshot) GoString() string {
+	return s.String()
+}
+
+// SetArn sets the Arn field's value.
+func (s *RelationalDatabaseSnapshot) SetArn(v string) *RelationalDatabaseSnapshot {
+	s.Arn = &v
+	return s
+}
+
+// SetCreatedAt sets the CreatedAt field's value.
+func (s *RelationalDatabaseSnapshot) SetCreatedAt(v time.Time) *RelationalDatabaseSnapshot {
+	s.CreatedAt = &v
+	return s
+}
+
+// SetEngine sets the Engine field's value.
+func (s *RelationalDatabaseSnapshot) SetEngine(v string) *RelationalDatabaseSnapshot {
+	s.Engine = &v
+	return s
+}
+
+// SetEngineVersion sets the EngineVersion field's value.
+func (s *RelationalDatabaseSnapshot) SetEngineVersion(v string) *RelationalDatabaseSnapshot {
+	s.EngineVersion = &v
+	return s
+}
+
+// SetFromRelationalDatabaseArn sets the FromRelationalDatabaseArn field's value.
+func (s *RelationalDatabaseSnapshot) SetFromRelationalDatabaseArn(v string) *RelationalDatabaseSnapshot {
+	s.FromRelationalDatabaseArn = &v
+	return s
+}
+
+// SetFromRelationalDatabaseBlueprintId sets the FromRelationalDatabaseBlueprintId field's value.
+func (s *RelationalDatabaseSnapshot) SetFromRelationalDatabaseBlueprintId(v string) *RelationalDatabaseSnapshot {
+	s.FromRelationalDatabaseBlueprintId = &v
+	return s
+}
+
+// SetFromRelationalDatabaseBundleId sets the FromRelationalDatabaseBundleId field's value.
+func (s *RelationalDatabaseSnapshot) SetFromRelationalDatabaseBundleId(v string) *RelationalDatabaseSnapshot {
+	s.FromRelationalDatabaseBundleId = &v
+	return s
+}
+
+// SetFromRelationalDatabaseName sets the FromRelationalDatabaseName field's value.
+func (s *RelationalDatabaseSnapshot) SetFromRelationalDatabaseName(v string) *RelationalDatabaseSnapshot {
+	s.FromRelationalDatabaseName = &v
+	return s
+}
+
+// SetLocation sets the Location field's value.
+func (s *RelationalDatabaseSnapshot) SetLocation(v *ResourceLocation) *RelationalDatabaseSnapshot {
+	s.Location = v
+	return s
+}
+
+// SetName sets the Name field's value.
+func (s *RelationalDatabaseSnapshot) SetName(v string) *RelationalDatabaseSnapshot {
+	s.Name = &v
+	return s
+}
+
+// SetResourceType sets the ResourceType field's value.
+func (s *RelationalDatabaseSnapshot) SetResourceType(v string) *RelationalDatabaseSnapshot {
+	s.ResourceType = &v
+	return s
+}
+
+// SetSizeInGb sets the SizeInGb field's value.
+func (s *RelationalDatabaseSnapshot) SetSizeInGb(v int64) *RelationalDatabaseSnapshot {
+	s.SizeInGb = &v
+	return s
+}
+
+// SetState sets the State field's value.
+func (s *RelationalDatabaseSnapshot) SetState(v string) *RelationalDatabaseSnapshot {
+	s.State = &v
+	return s
+}
+
+// SetSupportCode sets the SupportCode field's value.
+func (s *RelationalDatabaseSnapshot) SetSupportCode(v string) *RelationalDatabaseSnapshot {
+	s.SupportCode = &v
+	return s
+}
+
 type ReleaseStaticIpInput struct {
 	_ struct{} `type:"structure"`
 
@@ -15006,7 +20033,6 @@ func (s *ReleaseStaticIpInput) SetStaticIpName(v string) *ReleaseStaticIpInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/ReleaseStaticIpResult
 type ReleaseStaticIpOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -15031,7 +20057,6 @@ func (s *ReleaseStaticIpOutput) SetOperations(v []*Operation) *ReleaseStaticIpOu
 }
 
 // Describes the resource location.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/ResourceLocation
 type ResourceLocation struct {
 	_ struct{} `type:"structure"`
 
@@ -15064,7 +20089,6 @@ func (s *ResourceLocation) SetRegionName(v string) *ResourceLocation {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StartInstanceRequest
 type StartInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -15103,7 +20127,6 @@ func (s *StartInstanceInput) SetInstanceName(v string) *StartInstanceInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StartInstanceResult
 type StartInstanceOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -15127,8 +20150,68 @@ func (s *StartInstanceOutput) SetOperations(v []*Operation) *StartInstanceOutput
 	return s
 }
 
+type StartRelationalDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of your database to start.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s StartRelationalDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s StartRelationalDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StartRelationalDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StartRelationalDatabaseInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *StartRelationalDatabaseInput) SetRelationalDatabaseName(v string) *StartRelationalDatabaseInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type StartRelationalDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your start relational database request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s StartRelationalDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s StartRelationalDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *StartRelationalDatabaseOutput) SetOperations(v []*Operation) *StartRelationalDatabaseOutput {
+	s.Operations = v
+	return s
+}
+
 // Describes the static IP.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StaticIp
 type StaticIp struct {
 	_ struct{} `type:"structure"`
 
@@ -15139,7 +20222,7 @@ type StaticIp struct {
 	AttachedTo *string `locationName:"attachedTo" type:"string"`
 
 	// The timestamp when the static IP was created (e.g., 1479735304.222).
-	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp"`
 
 	// The static IP address.
 	IpAddress *string `locationName:"ipAddress" type:"string"`
@@ -15226,7 +20309,6 @@ func (s *StaticIp) SetSupportCode(v string) *StaticIp {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StopInstanceRequest
 type StopInstanceInput struct {
 	_ struct{} `type:"structure"`
 
@@ -15279,7 +20361,6 @@ func (s *StopInstanceInput) SetInstanceName(v string) *StopInstanceInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/StopInstanceResult
 type StopInstanceOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -15303,7 +20384,77 @@ func (s *StopInstanceOutput) SetOperations(v []*Operation) *StopInstanceOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UnpeerVpcRequest
+type StopRelationalDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of your database to stop.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+
+	// The name of your new database snapshot to be created before stopping your
+	// database.
+	RelationalDatabaseSnapshotName *string `locationName:"relationalDatabaseSnapshotName" type:"string"`
+}
+
+// String returns the string representation
+func (s StopRelationalDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s StopRelationalDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StopRelationalDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StopRelationalDatabaseInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *StopRelationalDatabaseInput) SetRelationalDatabaseName(v string) *StopRelationalDatabaseInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+// SetRelationalDatabaseSnapshotName sets the RelationalDatabaseSnapshotName field's value.
+func (s *StopRelationalDatabaseInput) SetRelationalDatabaseSnapshotName(v string) *StopRelationalDatabaseInput {
+	s.RelationalDatabaseSnapshotName = &v
+	return s
+}
+
+type StopRelationalDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your stop relational database request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s StopRelationalDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s StopRelationalDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *StopRelationalDatabaseOutput) SetOperations(v []*Operation) *StopRelationalDatabaseOutput {
+	s.Operations = v
+	return s
+}
+
 type UnpeerVpcInput struct {
 	_ struct{} `type:"structure"`
 }
@@ -15318,7 +20469,6 @@ func (s UnpeerVpcInput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UnpeerVpcResult
 type UnpeerVpcOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -15342,7 +20492,6 @@ func (s *UnpeerVpcOutput) SetOperation(v *Operation) *UnpeerVpcOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UpdateDomainEntryRequest
 type UpdateDomainEntryInput struct {
 	_ struct{} `type:"structure"`
 
@@ -15395,7 +20544,6 @@ func (s *UpdateDomainEntryInput) SetDomainName(v string) *UpdateDomainEntryInput
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UpdateDomainEntryResult
 type UpdateDomainEntryOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -15419,7 +20567,6 @@ func (s *UpdateDomainEntryOutput) SetOperations(v []*Operation) *UpdateDomainEnt
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UpdateLoadBalancerAttributeRequest
 type UpdateLoadBalancerAttributeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -15433,7 +20580,7 @@ type UpdateLoadBalancerAttributeInput struct {
 	// AttributeValue is a required field
 	AttributeValue *string `locationName:"attributeValue" min:"1" type:"string" required:"true"`
 
-	// The name of the load balancer that you want to modify.
+	// The name of the load balancer that you want to modify (e.g., my-load-balancer.
 	//
 	// LoadBalancerName is a required field
 	LoadBalancerName *string `locationName:"loadBalancerName" type:"string" required:"true"`
@@ -15489,7 +20636,6 @@ func (s *UpdateLoadBalancerAttributeInput) SetLoadBalancerName(v string) *Update
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/lightsail-2016-11-28/UpdateLoadBalancerAttributeResult
 type UpdateLoadBalancerAttributeOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -15509,6 +20655,266 @@ func (s UpdateLoadBalancerAttributeOutput) GoString() string {
 
 // SetOperations sets the Operations field's value.
 func (s *UpdateLoadBalancerAttributeOutput) SetOperations(v []*Operation) *UpdateLoadBalancerAttributeOutput {
+	s.Operations = v
+	return s
+}
+
+type UpdateRelationalDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// When true, applies changes immediately. When false, applies changes during
+	// the preferred maintenance window. Some changes may cause an outage.
+	//
+	// Default: false
+	ApplyImmediately *bool `locationName:"applyImmediately" type:"boolean"`
+
+	// When true, disables automated backup retention for your database.
+	//
+	// Disabling backup retention deletes all automated database backups. Before
+	// disabling this, you may want to create a snapshot of your database using
+	// the create relational database snapshot operation.
+	//
+	// Updates are applied during the next maintenance window because this can result
+	// in an outage.
+	DisableBackupRetention *bool `locationName:"disableBackupRetention" type:"boolean"`
+
+	// When true, enables automated backup retention for your database.
+	//
+	// Updates are applied during the next maintenance window because this can result
+	// in an outage.
+	EnableBackupRetention *bool `locationName:"enableBackupRetention" type:"boolean"`
+
+	// The password for the master user of your database. The password can include
+	// any printable ASCII character except "/", """, or "@".
+	//
+	// Constraints: Must contain 8 to 41 characters.
+	MasterUserPassword *string `locationName:"masterUserPassword" type:"string"`
+
+	// The daily time range during which automated backups are created for your
+	// database if automated backups are enabled.
+	//
+	// Constraints:
+	//
+	//    * Must be in the hh24:mi-hh24:mi format.
+	//
+	// Example: 16:00-16:30
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Must not conflict with the preferred maintenance window.
+	//
+	//    * Must be at least 30 minutes.
+	PreferredBackupWindow *string `locationName:"preferredBackupWindow" type:"string"`
+
+	// The weekly time range during which system maintenance can occur on your database.
+	//
+	// The default is a 30-minute window selected at random from an 8-hour block
+	// of time for each AWS Region, occurring on a random day of the week.
+	//
+	// Constraints:
+	//
+	//    * Must be in the ddd:hh24:mi-ddd:hh24:mi format.
+	//
+	//    * Valid days: Mon, Tue, Wed, Thu, Fri, Sat, Sun.
+	//
+	//    * Must be at least 30 minutes.
+	//
+	//    * Specified in Universal Coordinated Time (UTC).
+	//
+	//    * Example: Tue:17:00-Tue:17:30
+	PreferredMaintenanceWindow *string `locationName:"preferredMaintenanceWindow" type:"string"`
+
+	// Specifies the accessibility options for your database. A value of true specifies
+	// a database that is available to resources outside of your Lightsail account.
+	// A value of false specifies a database that is available only to your Lightsail
+	// resources in the same region as your database.
+	PubliclyAccessible *bool `locationName:"publiclyAccessible" type:"boolean"`
+
+	// The name of your database to update.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+
+	// When true, the master user password is changed to a new strong password generated
+	// by Lightsail.
+	//
+	// Use the get relational database master user password operation to get the
+	// new password.
+	RotateMasterUserPassword *bool `locationName:"rotateMasterUserPassword" type:"boolean"`
+}
+
+// String returns the string representation
+func (s UpdateRelationalDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateRelationalDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateRelationalDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateRelationalDatabaseInput"}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetApplyImmediately sets the ApplyImmediately field's value.
+func (s *UpdateRelationalDatabaseInput) SetApplyImmediately(v bool) *UpdateRelationalDatabaseInput {
+	s.ApplyImmediately = &v
+	return s
+}
+
+// SetDisableBackupRetention sets the DisableBackupRetention field's value.
+func (s *UpdateRelationalDatabaseInput) SetDisableBackupRetention(v bool) *UpdateRelationalDatabaseInput {
+	s.DisableBackupRetention = &v
+	return s
+}
+
+// SetEnableBackupRetention sets the EnableBackupRetention field's value.
+func (s *UpdateRelationalDatabaseInput) SetEnableBackupRetention(v bool) *UpdateRelationalDatabaseInput {
+	s.EnableBackupRetention = &v
+	return s
+}
+
+// SetMasterUserPassword sets the MasterUserPassword field's value.
+func (s *UpdateRelationalDatabaseInput) SetMasterUserPassword(v string) *UpdateRelationalDatabaseInput {
+	s.MasterUserPassword = &v
+	return s
+}
+
+// SetPreferredBackupWindow sets the PreferredBackupWindow field's value.
+func (s *UpdateRelationalDatabaseInput) SetPreferredBackupWindow(v string) *UpdateRelationalDatabaseInput {
+	s.PreferredBackupWindow = &v
+	return s
+}
+
+// SetPreferredMaintenanceWindow sets the PreferredMaintenanceWindow field's value.
+func (s *UpdateRelationalDatabaseInput) SetPreferredMaintenanceWindow(v string) *UpdateRelationalDatabaseInput {
+	s.PreferredMaintenanceWindow = &v
+	return s
+}
+
+// SetPubliclyAccessible sets the PubliclyAccessible field's value.
+func (s *UpdateRelationalDatabaseInput) SetPubliclyAccessible(v bool) *UpdateRelationalDatabaseInput {
+	s.PubliclyAccessible = &v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *UpdateRelationalDatabaseInput) SetRelationalDatabaseName(v string) *UpdateRelationalDatabaseInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+// SetRotateMasterUserPassword sets the RotateMasterUserPassword field's value.
+func (s *UpdateRelationalDatabaseInput) SetRotateMasterUserPassword(v bool) *UpdateRelationalDatabaseInput {
+	s.RotateMasterUserPassword = &v
+	return s
+}
+
+type UpdateRelationalDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your update relational database request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s UpdateRelationalDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateRelationalDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *UpdateRelationalDatabaseOutput) SetOperations(v []*Operation) *UpdateRelationalDatabaseOutput {
+	s.Operations = v
+	return s
+}
+
+type UpdateRelationalDatabaseParametersInput struct {
+	_ struct{} `type:"structure"`
+
+	// The database parameters to update.
+	//
+	// Parameters is a required field
+	Parameters []*RelationalDatabaseParameter `locationName:"parameters" type:"list" required:"true"`
+
+	// The name of your database for which to update parameters.
+	//
+	// RelationalDatabaseName is a required field
+	RelationalDatabaseName *string `locationName:"relationalDatabaseName" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s UpdateRelationalDatabaseParametersInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateRelationalDatabaseParametersInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateRelationalDatabaseParametersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateRelationalDatabaseParametersInput"}
+	if s.Parameters == nil {
+		invalidParams.Add(request.NewErrParamRequired("Parameters"))
+	}
+	if s.RelationalDatabaseName == nil {
+		invalidParams.Add(request.NewErrParamRequired("RelationalDatabaseName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetParameters sets the Parameters field's value.
+func (s *UpdateRelationalDatabaseParametersInput) SetParameters(v []*RelationalDatabaseParameter) *UpdateRelationalDatabaseParametersInput {
+	s.Parameters = v
+	return s
+}
+
+// SetRelationalDatabaseName sets the RelationalDatabaseName field's value.
+func (s *UpdateRelationalDatabaseParametersInput) SetRelationalDatabaseName(v string) *UpdateRelationalDatabaseParametersInput {
+	s.RelationalDatabaseName = &v
+	return s
+}
+
+type UpdateRelationalDatabaseParametersOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An object describing the result of your update relational database parameters
+	// request.
+	Operations []*Operation `locationName:"operations" type:"list"`
+}
+
+// String returns the string representation
+func (s UpdateRelationalDatabaseParametersOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateRelationalDatabaseParametersOutput) GoString() string {
+	return s.String()
+}
+
+// SetOperations sets the Operations field's value.
+func (s *UpdateRelationalDatabaseParametersOutput) SetOperations(v []*Operation) *UpdateRelationalDatabaseParametersOutput {
 	s.Operations = v
 	return s
 }
@@ -15959,6 +21365,9 @@ const (
 
 	// OperationStatusCompleted is a OperationStatus enum value
 	OperationStatusCompleted = "Completed"
+
+	// OperationStatusSucceeded is a OperationStatus enum value
+	OperationStatusSucceeded = "Succeeded"
 )
 
 const (
@@ -16097,8 +21506,17 @@ const (
 	// RegionNameEuWest1 is a RegionName enum value
 	RegionNameEuWest1 = "eu-west-1"
 
+	// RegionNameEuWest2 is a RegionName enum value
+	RegionNameEuWest2 = "eu-west-2"
+
+	// RegionNameEuWest3 is a RegionName enum value
+	RegionNameEuWest3 = "eu-west-3"
+
 	// RegionNameEuCentral1 is a RegionName enum value
 	RegionNameEuCentral1 = "eu-central-1"
+
+	// RegionNameCaCentral1 is a RegionName enum value
+	RegionNameCaCentral1 = "ca-central-1"
 
 	// RegionNameApSouth1 is a RegionName enum value
 	RegionNameApSouth1 = "ap-south-1"
@@ -16114,6 +21532,42 @@ const (
 
 	// RegionNameApNortheast2 is a RegionName enum value
 	RegionNameApNortheast2 = "ap-northeast-2"
+)
+
+const (
+	// RelationalDatabaseEngineMysql is a RelationalDatabaseEngine enum value
+	RelationalDatabaseEngineMysql = "mysql"
+)
+
+const (
+	// RelationalDatabaseMetricNameCpuutilization is a RelationalDatabaseMetricName enum value
+	RelationalDatabaseMetricNameCpuutilization = "CPUUtilization"
+
+	// RelationalDatabaseMetricNameDatabaseConnections is a RelationalDatabaseMetricName enum value
+	RelationalDatabaseMetricNameDatabaseConnections = "DatabaseConnections"
+
+	// RelationalDatabaseMetricNameDiskQueueDepth is a RelationalDatabaseMetricName enum value
+	RelationalDatabaseMetricNameDiskQueueDepth = "DiskQueueDepth"
+
+	// RelationalDatabaseMetricNameFreeStorageSpace is a RelationalDatabaseMetricName enum value
+	RelationalDatabaseMetricNameFreeStorageSpace = "FreeStorageSpace"
+
+	// RelationalDatabaseMetricNameNetworkReceiveThroughput is a RelationalDatabaseMetricName enum value
+	RelationalDatabaseMetricNameNetworkReceiveThroughput = "NetworkReceiveThroughput"
+
+	// RelationalDatabaseMetricNameNetworkTransmitThroughput is a RelationalDatabaseMetricName enum value
+	RelationalDatabaseMetricNameNetworkTransmitThroughput = "NetworkTransmitThroughput"
+)
+
+const (
+	// RelationalDatabasePasswordVersionCurrent is a RelationalDatabasePasswordVersion enum value
+	RelationalDatabasePasswordVersionCurrent = "CURRENT"
+
+	// RelationalDatabasePasswordVersionPrevious is a RelationalDatabasePasswordVersion enum value
+	RelationalDatabasePasswordVersionPrevious = "PREVIOUS"
+
+	// RelationalDatabasePasswordVersionPending is a RelationalDatabasePasswordVersion enum value
+	RelationalDatabasePasswordVersionPending = "PENDING"
 )
 
 const (
@@ -16146,4 +21600,10 @@ const (
 
 	// ResourceTypeDiskSnapshot is a ResourceType enum value
 	ResourceTypeDiskSnapshot = "DiskSnapshot"
+
+	// ResourceTypeRelationalDatabase is a ResourceType enum value
+	ResourceTypeRelationalDatabase = "RelationalDatabase"
+
+	// ResourceTypeRelationalDatabaseSnapshot is a ResourceType enum value
+	ResourceTypeRelationalDatabaseSnapshot = "RelationalDatabaseSnapshot"
 )

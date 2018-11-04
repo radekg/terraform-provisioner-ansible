@@ -6,6 +6,7 @@
     "jsonVersion":"1.1",
     "protocol":"json",
     "serviceFullName":"Amazon Cognito Identity Provider",
+    "serviceId":"Cognito Identity Provider",
     "signatureVersion":"v4",
     "targetPrefix":"AWSCognitoIdentityProviderService",
     "uid":"cognito-idp-2016-04-18"
@@ -740,6 +741,7 @@
         {"shape":"InvalidParameterException"},
         {"shape":"NotAuthorizedException"},
         {"shape":"ResourceNotFoundException"},
+        {"shape":"LimitExceededException"},
         {"shape":"InternalErrorException"}
       ]
     },
@@ -1099,6 +1101,19 @@
         {"shape":"NotAuthorizedException"},
         {"shape":"TooManyRequestsException"},
         {"shape":"InternalErrorException"}
+      ]
+    },
+    "GetSigningCertificate":{
+      "name":"GetSigningCertificate",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"GetSigningCertificateRequest"},
+      "output":{"shape":"GetSigningCertificateResponse"},
+      "errors":[
+        {"shape":"InternalErrorException"},
+        {"shape":"ResourceNotFoundException"}
       ]
     },
     "GetUICustomization":{
@@ -2443,7 +2458,8 @@
         "REFRESH_TOKEN_AUTH",
         "REFRESH_TOKEN",
         "CUSTOM_AUTH",
-        "ADMIN_NO_SRP_AUTH"
+        "ADMIN_NO_SRP_AUTH",
+        "USER_PASSWORD_AUTH"
       ]
     },
     "AuthParametersType":{
@@ -2847,12 +2863,14 @@
       ],
       "members":{
         "Domain":{"shape":"DomainType"},
-        "UserPoolId":{"shape":"UserPoolIdType"}
+        "UserPoolId":{"shape":"UserPoolIdType"},
+        "CustomDomainConfig":{"shape":"CustomDomainConfigType"}
       }
     },
     "CreateUserPoolDomainResponse":{
       "type":"structure",
       "members":{
+        "CloudFrontDomain":{"shape":"DomainType"}
       }
     },
     "CreateUserPoolRequest":{
@@ -2897,6 +2915,13 @@
       "member":{"shape":"SchemaAttributeType"},
       "max":25,
       "min":1
+    },
+    "CustomDomainConfigType":{
+      "type":"structure",
+      "required":["CertificateArn"],
+      "members":{
+        "CertificateArn":{"shape":"ArnType"}
+      }
     },
     "DateType":{"type":"timestamp"},
     "DefaultEmailOptionType":{
@@ -3175,9 +3200,10 @@
         "AWSAccountId":{"shape":"AWSAccountIdType"},
         "Domain":{"shape":"DomainType"},
         "S3Bucket":{"shape":"S3BucketType"},
-        "CloudFrontDistribution":{"shape":"ArnType"},
+        "CloudFrontDistribution":{"shape":"StringType"},
         "Version":{"shape":"DomainVersionType"},
-        "Status":{"shape":"DomainStatusType"}
+        "Status":{"shape":"DomainStatusType"},
+        "CustomDomainConfig":{"shape":"CustomDomainConfigType"}
       }
     },
     "DomainStatusType":{
@@ -3339,7 +3365,8 @@
       "type":"string",
       "enum":[
         "ADMIN_NO_SRP_AUTH",
-        "CUSTOM_AUTH_FLOW_ONLY"
+        "CUSTOM_AUTH_FLOW_ONLY",
+        "USER_PASSWORD_AUTH"
       ]
     },
     "FeedbackValueType":{
@@ -3441,6 +3468,19 @@
       "required":["IdentityProvider"],
       "members":{
         "IdentityProvider":{"shape":"IdentityProviderType"}
+      }
+    },
+    "GetSigningCertificateRequest":{
+      "type":"structure",
+      "required":["UserPoolId"],
+      "members":{
+        "UserPoolId":{"shape":"UserPoolIdType"}
+      }
+    },
+    "GetSigningCertificateResponse":{
+      "type":"structure",
+      "members":{
+        "Certificate":{"shape":"StringType"}
       }
     },
     "GetUICustomizationRequest":{
@@ -3586,7 +3626,8 @@
         "SAML",
         "Facebook",
         "Google",
-        "LoginWithAmazon"
+        "LoginWithAmazon",
+        "OIDC"
       ]
     },
     "IdpIdentifierType":{
@@ -3703,7 +3744,8 @@
         "DefineAuthChallenge":{"shape":"ArnType"},
         "CreateAuthChallenge":{"shape":"ArnType"},
         "VerifyAuthChallengeResponse":{"shape":"ArnType"},
-        "PreTokenGeneration":{"shape":"ArnType"}
+        "PreTokenGeneration":{"shape":"ArnType"},
+        "UserMigration":{"shape":"ArnType"}
       }
     },
     "LimitExceededException":{
@@ -4990,8 +5032,10 @@
         "SmsConfigurationFailure":{"shape":"StringType"},
         "EmailConfigurationFailure":{"shape":"StringType"},
         "Domain":{"shape":"DomainType"},
+        "CustomDomain":{"shape":"DomainType"},
         "AdminCreateUserConfig":{"shape":"AdminCreateUserConfigType"},
-        "UserPoolAddOns":{"shape":"UserPoolAddOnsType"}
+        "UserPoolAddOns":{"shape":"UserPoolAddOnsType"},
+        "Arn":{"shape":"ArnType"}
       }
     },
     "UserStatusType":{

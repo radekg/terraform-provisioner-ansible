@@ -2,6 +2,7 @@
 package shared
 
 import (
+	"context"
 	"net/rpc"
 
 	"google.golang.org/grpc"
@@ -12,6 +13,7 @@ import (
 
 // Handshake is a common handshake that is shared by plugin and host.
 var Handshake = plugin.HandshakeConfig{
+	// This isn't required when using VersionedPlugins
 	ProtocolVersion:  1,
 	MagicCookieKey:   "BASIC_PLUGIN",
 	MagicCookieValue: "hello",
@@ -19,7 +21,8 @@ var Handshake = plugin.HandshakeConfig{
 
 // PluginMap is the map of plugins we can dispense.
 var PluginMap = map[string]plugin.Plugin{
-	"kv": &KVPlugin{},
+	"kv_grpc": &KVGRPCPlugin{},
+	"kv":      &KVPlugin{},
 }
 
 // KV is the interface that we're exposing as a plugin.
@@ -29,8 +32,6 @@ type KV interface {
 }
 
 // This is the implementation of plugin.Plugin so we can serve/consume this.
-// We also implement GRPCPlugin so that this plugin can be served over
-// gRPC.
 type KVPlugin struct {
 	// Concrete implementation, written in Go. This is only used for plugins
 	// that are written in Go.
@@ -45,11 +46,20 @@ func (*KVPlugin) Client(b *plugin.MuxBroker, c *rpc.Client) (interface{}, error)
 	return &RPCClient{client: c}, nil
 }
 
-func (p *KVPlugin) GRPCServer(s *grpc.Server) error {
+// This is the implementation of plugin.GRPCPlugin so we can serve/consume this.
+type KVGRPCPlugin struct {
+	// GRPCPlugin must still implement the Plugin interface
+	plugin.Plugin
+	// Concrete implementation, written in Go. This is only used for plugins
+	// that are written in Go.
+	Impl KV
+}
+
+func (p *KVGRPCPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
 	proto.RegisterKVServer(s, &GRPCServer{Impl: p.Impl})
 	return nil
 }
 
-func (p *KVPlugin) GRPCClient(c *grpc.ClientConn) (interface{}, error) {
+func (p *KVGRPCPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	return &GRPCClient{client: proto.NewKVClient(c)}, nil
 }

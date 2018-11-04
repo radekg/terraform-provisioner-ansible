@@ -53,7 +53,7 @@
     "DescribeRiskConfiguration": "<p>Describes the risk configuration.</p>",
     "DescribeUserImportJob": "<p>Describes the user import job.</p>",
     "DescribeUserPool": "<p>Returns the configuration information and metadata of the specified user pool.</p>",
-    "DescribeUserPoolClient": "<p>Client method for returning the configuration information and metadata of the specified user pool client.</p>",
+    "DescribeUserPoolClient": "<p>Client method for returning the configuration information and metadata of the specified user pool app client.</p>",
     "DescribeUserPoolDomain": "<p>Gets information about a domain.</p>",
     "ForgetDevice": "<p>Forgets the specified device.</p>",
     "ForgotPassword": "<p>Calling this API causes a message to be sent to the end user with a confirmation code that is required to change the user's password. For the <code>Username</code> parameter, you can use the username or user alias. If a verified phone number exists for the user, the confirmation code is sent to the phone number. Otherwise, if a verified email exists, the confirmation code is sent to the email. If neither a verified phone number nor a verified email exists, <code>InvalidParameterException</code> is thrown. To use the confirmation code for resetting the password, call .</p>",
@@ -61,6 +61,7 @@
     "GetDevice": "<p>Gets the device.</p>",
     "GetGroup": "<p>Gets a group.</p> <p>Requires developer credentials.</p>",
     "GetIdentityProviderByIdentifier": "<p>Gets the specified identity provider.</p>",
+    "GetSigningCertificate": "<p>This method takes a user pool ID, and returns the signing certificate.</p>",
     "GetUICustomization": "<p>Gets the UI Customization information for a particular app client's app UI, if there is something set. If nothing is set for the particular client, but there is an existing pool level customization (app <code>clientId</code> will be <code>ALL</code>), then that is returned. If nothing is present, then an empty shape is returned.</p>",
     "GetUser": "<p>Gets the user attributes and metadata for a user.</p>",
     "GetUserAttributeVerificationCode": "<p>Gets the user attribute verification code for the specified attribute name.</p>",
@@ -92,9 +93,9 @@
     "UpdateIdentityProvider": "<p>Updates identity provider information for a user pool.</p>",
     "UpdateResourceServer": "<p>Updates the name and scopes of resource server. All other fields are read-only.</p>",
     "UpdateUserAttributes": "<p>Allows a user to update a specific attribute (one at a time).</p>",
-    "UpdateUserPool": "<p>Updates the specified user pool with the specified attributes.</p>",
-    "UpdateUserPoolClient": "<p>Allows the developer to update the specified user pool client and password policy.</p>",
-    "VerifySoftwareToken": "<p>Use this API to register a user's entered TOTP code and mark the user's software token MFA status as \"verified\" if successful,</p>",
+    "UpdateUserPool": "<p>Updates the specified user pool with the specified attributes. If you don't provide a value for an attribute, it will be set to the default value. You can get a list of the current user pool settings with .</p>",
+    "UpdateUserPoolClient": "<p>Updates the specified user pool app client with the specified attributes. If you don't provide a value for an attribute, it will be set to the default value. You can get a list of the current user pool app client settings with .</p>",
+    "VerifySoftwareToken": "<p>Use this API to register a user's entered TOTP code and mark the user's software token MFA status as \"verified\" if successful. The request takes an access token or a session string, but not both.</p>",
     "VerifyUserAttribute": "<p>Verifies the specified user attributes in the user pool.</p>"
   },
   "shapes": {
@@ -443,7 +444,7 @@
         "AnalyticsConfigurationType$RoleArn": "<p>The ARN of an IAM role that authorizes Amazon Cognito to publish events to Amazon Pinpoint analytics.</p>",
         "CreateGroupRequest$RoleArn": "<p>The role ARN for the group.</p>",
         "CreateUserImportJobRequest$CloudWatchLogsRoleArn": "<p>The role ARN for the Amazon CloudWatch Logging role for the user import job.</p>",
-        "DomainDescriptionType$CloudFrontDistribution": "<p>The ARN of the CloudFront distribution.</p>",
+        "CustomDomainConfigType$CertificateArn": "<p>The Amazon Resource Name (ARN) of an AWS Certificate Manager SSL certificate. You use this certificate for the subdomain of your custom domain.</p>",
         "EmailConfigurationType$SourceArn": "<p>The Amazon Resource Name (ARN) of the email source.</p>",
         "GroupType$RoleArn": "<p>The role ARN for the group.</p>",
         "LambdaConfigType$PreSignUp": "<p>A pre-registration AWS Lambda trigger.</p>",
@@ -455,10 +456,12 @@
         "LambdaConfigType$CreateAuthChallenge": "<p>Creates an authentication challenge.</p>",
         "LambdaConfigType$VerifyAuthChallengeResponse": "<p>Verifies the authentication challenge response.</p>",
         "LambdaConfigType$PreTokenGeneration": "<p>A Lambda trigger that is invoked before token generation.</p>",
+        "LambdaConfigType$UserMigration": "<p>The user migration Lambda config type.</p>",
         "NotifyConfigurationType$SourceArn": "<p>The Amazon Resource Name (ARN) of the identity that is associated with the sending authorization policy. It permits Amazon Cognito to send for the email address specified in the <code>From</code> parameter.</p>",
         "SmsConfigurationType$SnsCallerArn": "<p>The Amazon Resource Name (ARN) of the Amazon Simple Notification Service (SNS) caller.</p>",
         "UpdateGroupRequest$RoleArn": "<p>The new role ARN for the group. This is used for setting the <code>cognito:roles</code> and <code>cognito:preferred_role</code> claims in the token.</p>",
-        "UserImportJobType$CloudWatchLogsRoleArn": "<p>The role ARN for the Amazon CloudWatch Logging role for the user import job. For more information, see \"Creating the CloudWatch Logs IAM Role\" in the Amazon Cognito Developer Guide.</p>"
+        "UserImportJobType$CloudWatchLogsRoleArn": "<p>The role ARN for the Amazon CloudWatch Logging role for the user import job. For more information, see \"Creating the CloudWatch Logs IAM Role\" in the Amazon Cognito Developer Guide.</p>",
+        "UserPoolType$Arn": "<p>The Amazon Resource Name (ARN) for the user pool.</p>"
       }
     },
     "AssociateSoftwareTokenRequest": {
@@ -552,15 +555,15 @@
     "AuthFlowType": {
       "base": null,
       "refs": {
-        "AdminInitiateAuthRequest$AuthFlow": "<p>The authentication flow for this call to execute. The API action will depend on this value. For example:</p> <ul> <li> <p> <code>REFRESH_TOKEN_AUTH</code> will take in a valid refresh token and return new tokens.</p> </li> <li> <p> <code>USER_SRP_AUTH</code> will take in <code>USERNAME</code> and <code>SRP_A</code> and return the SRP variables to be used for next challenge execution.</p> </li> </ul> <p>Valid values include:</p> <ul> <li> <p> <code>USER_SRP_AUTH</code>: Authentication flow for the Secure Remote Password (SRP) protocol.</p> </li> <li> <p> <code>REFRESH_TOKEN_AUTH</code>/<code>REFRESH_TOKEN</code>: Authentication flow for refreshing the access token and ID token by supplying a valid refresh token.</p> </li> <li> <p> <code>CUSTOM_AUTH</code>: Custom authentication flow.</p> </li> <li> <p> <code>ADMIN_NO_SRP_AUTH</code>: Non-SRP authentication flow; you can pass in the USERNAME and PASSWORD directly if the flow is enabled for calling the app client.</p> </li> </ul>",
-        "InitiateAuthRequest$AuthFlow": "<p>The authentication flow for this call to execute. The API action will depend on this value. For example: </p> <ul> <li> <p> <code>REFRESH_TOKEN_AUTH</code> will take in a valid refresh token and return new tokens.</p> </li> <li> <p> <code>USER_SRP_AUTH</code> will take in <code>USERNAME</code> and <code>SRP_A</code> and return the SRP variables to be used for next challenge execution.</p> </li> </ul> <p>Valid values include:</p> <ul> <li> <p> <code>USER_SRP_AUTH</code>: Authentication flow for the Secure Remote Password (SRP) protocol.</p> </li> <li> <p> <code>REFRESH_TOKEN_AUTH</code>/<code>REFRESH_TOKEN</code>: Authentication flow for refreshing the access token and ID token by supplying a valid refresh token.</p> </li> <li> <p> <code>CUSTOM_AUTH</code>: Custom authentication flow.</p> </li> </ul> <p> <code>ADMIN_NO_SRP_AUTH</code> is not a valid value.</p>"
+        "AdminInitiateAuthRequest$AuthFlow": "<p>The authentication flow for this call to execute. The API action will depend on this value. For example:</p> <ul> <li> <p> <code>REFRESH_TOKEN_AUTH</code> will take in a valid refresh token and return new tokens.</p> </li> <li> <p> <code>USER_SRP_AUTH</code> will take in <code>USERNAME</code> and <code>SRP_A</code> and return the SRP variables to be used for next challenge execution.</p> </li> <li> <p> <code>USER_PASSWORD_AUTH</code> will take in <code>USERNAME</code> and <code>PASSWORD</code> and return the next challenge or tokens.</p> </li> </ul> <p>Valid values include:</p> <ul> <li> <p> <code>USER_SRP_AUTH</code>: Authentication flow for the Secure Remote Password (SRP) protocol.</p> </li> <li> <p> <code>REFRESH_TOKEN_AUTH</code>/<code>REFRESH_TOKEN</code>: Authentication flow for refreshing the access token and ID token by supplying a valid refresh token.</p> </li> <li> <p> <code>CUSTOM_AUTH</code>: Custom authentication flow.</p> </li> <li> <p> <code>ADMIN_NO_SRP_AUTH</code>: Non-SRP authentication flow; you can pass in the USERNAME and PASSWORD directly if the flow is enabled for calling the app client.</p> </li> <li> <p> <code>USER_PASSWORD_AUTH</code>: Non-SRP authentication flow; USERNAME and PASSWORD are passed directly. If a user migration Lambda trigger is set, this flow will invoke the user migration Lambda if the USERNAME is not found in the user pool. </p> </li> </ul>",
+        "InitiateAuthRequest$AuthFlow": "<p>The authentication flow for this call to execute. The API action will depend on this value. For example: </p> <ul> <li> <p> <code>REFRESH_TOKEN_AUTH</code> will take in a valid refresh token and return new tokens.</p> </li> <li> <p> <code>USER_SRP_AUTH</code> will take in <code>USERNAME</code> and <code>SRP_A</code> and return the SRP variables to be used for next challenge execution.</p> </li> <li> <p> <code>USER_PASSWORD_AUTH</code> will take in <code>USERNAME</code> and <code>PASSWORD</code> and return the next challenge or tokens.</p> </li> </ul> <p>Valid values include:</p> <ul> <li> <p> <code>USER_SRP_AUTH</code>: Authentication flow for the Secure Remote Password (SRP) protocol.</p> </li> <li> <p> <code>REFRESH_TOKEN_AUTH</code>/<code>REFRESH_TOKEN</code>: Authentication flow for refreshing the access token and ID token by supplying a valid refresh token.</p> </li> <li> <p> <code>CUSTOM_AUTH</code>: Custom authentication flow.</p> </li> <li> <p> <code>USER_PASSWORD_AUTH</code>: Non-SRP authentication flow; USERNAME and PASSWORD are passed directly. If a user migration Lambda trigger is set, this flow will invoke the user migration Lambda if the USERNAME is not found in the user pool. </p> </li> </ul> <p> <code>ADMIN_NO_SRP_AUTH</code> is not a valid value.</p>"
       }
     },
     "AuthParametersType": {
       "base": null,
       "refs": {
-        "AdminInitiateAuthRequest$AuthParameters": "<p>The authentication parameters. These are inputs corresponding to the <code>AuthFlow</code> that you are invoking. The required values depend on the value of <code>AuthFlow</code>:</p> <ul> <li> <p>For <code>USER_SRP_AUTH</code>: <code>USERNAME</code> (required), <code>SRP_A</code> (required), <code>SECRET_HASH</code> (required if the app client is configured with a client secret), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>REFRESH_TOKEN_AUTH/REFRESH_TOKEN</code>: <code>USERNAME</code> (required), <code>SECRET_HASH</code> (required if the app client is configured with a client secret), <code>REFRESH_TOKEN</code> (required), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>ADMIN_NO_SRP_AUTH</code>: <code>USERNAME</code> (required), <code>SECRET_HASH</code> (if app client is configured with client secret), <code>PASSWORD</code> (required), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>CUSTOM_AUTH</code>: <code>USERNAME</code> (required), <code>SECRET_HASH</code> (if app client is configured with client secret), <code>DEVICE_KEY</code> </p> </li> </ul>",
-        "InitiateAuthRequest$AuthParameters": "<p>The authentication parameters. These are inputs corresponding to the <code>AuthFlow</code> that you are invoking. The required values depend on the value of <code>AuthFlow</code>:</p> <ul> <li> <p>For <code>USER_SRP_AUTH</code>: <code>USERNAME</code> (required), <code>SRP_A</code> (required), <code>SECRET_HASH</code> (required if the app client is configured with a client secret), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>REFRESH_TOKEN_AUTH/REFRESH_TOKEN</code>: <code>USERNAME</code> (required), <code>SECRET_HASH</code> (required if the app client is configured with a client secret), <code>REFRESH_TOKEN</code> (required), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>CUSTOM_AUTH</code>: <code>USERNAME</code> (required), <code>SECRET_HASH</code> (if app client is configured with client secret), <code>DEVICE_KEY</code> </p> </li> </ul>"
+        "AdminInitiateAuthRequest$AuthParameters": "<p>The authentication parameters. These are inputs corresponding to the <code>AuthFlow</code> that you are invoking. The required values depend on the value of <code>AuthFlow</code>:</p> <ul> <li> <p>For <code>USER_SRP_AUTH</code>: <code>USERNAME</code> (required), <code>SRP_A</code> (required), <code>SECRET_HASH</code> (required if the app client is configured with a client secret), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>REFRESH_TOKEN_AUTH/REFRESH_TOKEN</code>: <code>REFRESH_TOKEN</code> (required), <code>SECRET_HASH</code> (required if the app client is configured with a client secret), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>ADMIN_NO_SRP_AUTH</code>: <code>USERNAME</code> (required), <code>SECRET_HASH</code> (if app client is configured with client secret), <code>PASSWORD</code> (required), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>CUSTOM_AUTH</code>: <code>USERNAME</code> (required), <code>SECRET_HASH</code> (if app client is configured with client secret), <code>DEVICE_KEY</code> </p> </li> </ul>",
+        "InitiateAuthRequest$AuthParameters": "<p>The authentication parameters. These are inputs corresponding to the <code>AuthFlow</code> that you are invoking. The required values depend on the value of <code>AuthFlow</code>:</p> <ul> <li> <p>For <code>USER_SRP_AUTH</code>: <code>USERNAME</code> (required), <code>SRP_A</code> (required), <code>SECRET_HASH</code> (required if the app client is configured with a client secret), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>REFRESH_TOKEN_AUTH/REFRESH_TOKEN</code>: <code>REFRESH_TOKEN</code> (required), <code>SECRET_HASH</code> (required if the app client is configured with a client secret), <code>DEVICE_KEY</code> </p> </li> <li> <p>For <code>CUSTOM_AUTH</code>: <code>USERNAME</code> (required), <code>SECRET_HASH</code> (if app client is configured with client secret), <code>DEVICE_KEY</code> </p> </li> </ul>"
       }
     },
     "AuthenticationResultType": {
@@ -595,7 +598,7 @@
         "SMSMfaSettingsType$Enabled": "<p>Specifies whether SMS text message MFA is enabled.</p>",
         "SMSMfaSettingsType$PreferredMfa": "<p>The preferred MFA method.</p>",
         "SchemaAttributeType$DeveloperOnlyAttribute": "<p>Specifies whether the attribute type is developer only.</p>",
-        "SchemaAttributeType$Mutable": "<p>Specifies whether the attribute can be changed once it has been created.</p>",
+        "SchemaAttributeType$Mutable": "<p>Specifies whether the value of the attribute can be changed.</p>",
         "SchemaAttributeType$Required": "<p>Specifies whether a user pool attribute is required. If the attribute is required and the user does not provide a value, registration or sign-in will fail.</p>",
         "SignUpResponse$UserConfirmed": "<p>A response from the server indicating that a user registration has been confirmed.</p>",
         "SoftwareTokenMfaConfigType$Enabled": "<p>Specifies whether software token MFA is enabled.</p>",
@@ -622,9 +625,9 @@
     "CallbackURLsListType": {
       "base": null,
       "refs": {
-        "CreateUserPoolClientRequest$CallbackURLs": "<p>A list of allowed callback URLs for the identity providers.</p>",
-        "UpdateUserPoolClientRequest$CallbackURLs": "<p>A list of allowed callback URLs for the identity providers.</p>",
-        "UserPoolClientType$CallbackURLs": "<p>A list of allowed callback URLs for the identity providers.</p>"
+        "CreateUserPoolClientRequest$CallbackURLs": "<p>A list of allowed redirect (callback) URLs for the identity providers.</p> <p>A redirect URI must:</p> <ul> <li> <p>Be an absolute URI.</p> </li> <li> <p>Be registered with the authorization server.</p> </li> <li> <p>Not include a fragment component.</p> </li> </ul> <p>See <a href=\"https://tools.ietf.org/html/rfc6749#section-3.1.2\">OAuth 2.0 - Redirection Endpoint</a>.</p> <p>Amazon Cognito requires HTTPS over HTTP except for http://localhost for testing purposes only.</p> <p>App callback URLs such as myapp://example are also supported.</p>",
+        "UpdateUserPoolClientRequest$CallbackURLs": "<p>A list of allowed redirect (callback) URLs for the identity providers.</p> <p>A redirect URI must:</p> <ul> <li> <p>Be an absolute URI.</p> </li> <li> <p>Be registered with the authorization server.</p> </li> <li> <p>Not include a fragment component.</p> </li> </ul> <p>See <a href=\"https://tools.ietf.org/html/rfc6749#section-3.1.2\">OAuth 2.0 - Redirection Endpoint</a>.</p> <p>Amazon Cognito requires HTTPS over HTTP except for http://localhost for testing purposes only.</p> <p>App callback URLs such as myapp://example are also supported.</p>",
+        "UserPoolClientType$CallbackURLs": "<p>A list of allowed redirect (callback) URLs for the identity providers.</p> <p>A redirect URI must:</p> <ul> <li> <p>Be an absolute URI.</p> </li> <li> <p>Be registered with the authorization server.</p> </li> <li> <p>Not include a fragment component.</p> </li> </ul> <p>See <a href=\"https://tools.ietf.org/html/rfc6749#section-3.1.2\">OAuth 2.0 - Redirection Endpoint</a>.</p> <p>Amazon Cognito requires HTTPS over HTTP except for http://localhost for testing purposes only.</p> <p>App callback URLs such as myapp://example are also supported.</p>"
       }
     },
     "ChallengeName": {
@@ -636,7 +639,7 @@
     "ChallengeNameType": {
       "base": null,
       "refs": {
-        "AdminInitiateAuthResponse$ChallengeName": "<p>The name of the challenge which you are responding to with this call. This is returned to you in the <code>AdminInitiateAuth</code> response if you need to pass another challenge.</p> <ul> <li> <p> <code>SMS_MFA</code>: Next challenge is to supply an <code>SMS_MFA_CODE</code>, delivered via SMS.</p> </li> <li> <p> <code>PASSWORD_VERIFIER</code>: Next challenge is to supply <code>PASSWORD_CLAIM_SIGNATURE</code>, <code>PASSWORD_CLAIM_SECRET_BLOCK</code>, and <code>TIMESTAMP</code> after the client-side SRP calculations.</p> </li> <li> <p> <code>CUSTOM_CHALLENGE</code>: This is returned if your custom authentication flow determines that the user should pass another challenge before tokens are issued.</p> </li> <li> <p> <code>DEVICE_SRP_AUTH</code>: If device tracking was enabled on your user pool and the previous challenges were passed, this challenge is returned so that Amazon Cognito can start tracking this device.</p> </li> <li> <p> <code>DEVICE_PASSWORD_VERIFIER</code>: Similar to <code>PASSWORD_VERIFIER</code>, but for devices only.</p> </li> <li> <p> <code>ADMIN_NO_SRP_AUTH</code>: This is returned if you need to authenticate with <code>USERNAME</code> and <code>PASSWORD</code> directly. An app client must be enabled to use this flow.</p> </li> <li> <p> <code>NEW_PASSWORD_REQUIRED</code>: For users which are required to change their passwords after successful first login. This challenge should be passed with <code>NEW_PASSWORD</code> and any other required attributes.</p> </li> </ul>",
+        "AdminInitiateAuthResponse$ChallengeName": "<p>The name of the challenge which you are responding to with this call. This is returned to you in the <code>AdminInitiateAuth</code> response if you need to pass another challenge.</p> <ul> <li> <p> <code>MFA_SETUP</code>: If MFA is required, users who do not have at least one of the MFA methods set up are presented with an <code>MFA_SETUP</code> challenge. The user must set up at least one MFA type to continue to authenticate.</p> </li> <li> <p> <code>SELECT_MFA_TYPE</code>: Selects the MFA type. Valid MFA options are <code>SMS_MFA</code> for text SMS MFA, and <code>SOFTWARE_TOKEN_MFA</code> for TOTP software token MFA.</p> </li> <li> <p> <code>SMS_MFA</code>: Next challenge is to supply an <code>SMS_MFA_CODE</code>, delivered via SMS.</p> </li> <li> <p> <code>PASSWORD_VERIFIER</code>: Next challenge is to supply <code>PASSWORD_CLAIM_SIGNATURE</code>, <code>PASSWORD_CLAIM_SECRET_BLOCK</code>, and <code>TIMESTAMP</code> after the client-side SRP calculations.</p> </li> <li> <p> <code>CUSTOM_CHALLENGE</code>: This is returned if your custom authentication flow determines that the user should pass another challenge before tokens are issued.</p> </li> <li> <p> <code>DEVICE_SRP_AUTH</code>: If device tracking was enabled on your user pool and the previous challenges were passed, this challenge is returned so that Amazon Cognito can start tracking this device.</p> </li> <li> <p> <code>DEVICE_PASSWORD_VERIFIER</code>: Similar to <code>PASSWORD_VERIFIER</code>, but for devices only.</p> </li> <li> <p> <code>ADMIN_NO_SRP_AUTH</code>: This is returned if you need to authenticate with <code>USERNAME</code> and <code>PASSWORD</code> directly. An app client must be enabled to use this flow.</p> </li> <li> <p> <code>NEW_PASSWORD_REQUIRED</code>: For users which are required to change their passwords after successful first login. This challenge should be passed with <code>NEW_PASSWORD</code> and any other required attributes.</p> </li> </ul>",
         "AdminRespondToAuthChallengeRequest$ChallengeName": "<p>The challenge name. For more information, see .</p>",
         "AdminRespondToAuthChallengeResponse$ChallengeName": "<p>The name of the challenge. For more information, see .</p>",
         "InitiateAuthResponse$ChallengeName": "<p>The name of the challenge which you are responding to with this call. This is returned to you in the <code>AdminInitiateAuth</code> response if you need to pass another challenge.</p> <p>Valid values include the following. Note that all of these challenges require <code>USERNAME</code> and <code>SECRET_HASH</code> (if applicable) in the parameters.</p> <ul> <li> <p> <code>SMS_MFA</code>: Next challenge is to supply an <code>SMS_MFA_CODE</code>, delivered via SMS.</p> </li> <li> <p> <code>PASSWORD_VERIFIER</code>: Next challenge is to supply <code>PASSWORD_CLAIM_SIGNATURE</code>, <code>PASSWORD_CLAIM_SECRET_BLOCK</code>, and <code>TIMESTAMP</code> after the client-side SRP calculations.</p> </li> <li> <p> <code>CUSTOM_CHALLENGE</code>: This is returned if your custom authentication flow determines that the user should pass another challenge before tokens are issued.</p> </li> <li> <p> <code>DEVICE_SRP_AUTH</code>: If device tracking was enabled on your user pool and the previous challenges were passed, this challenge is returned so that Amazon Cognito can start tracking this device.</p> </li> <li> <p> <code>DEVICE_PASSWORD_VERIFIER</code>: Similar to <code>PASSWORD_VERIFIER</code>, but for devices only.</p> </li> <li> <p> <code>NEW_PASSWORD_REQUIRED</code>: For users which are required to change their passwords after successful first login. This challenge should be passed with <code>NEW_PASSWORD</code> and any other required attributes.</p> </li> </ul>",
@@ -647,7 +650,7 @@
     "ChallengeParametersType": {
       "base": null,
       "refs": {
-        "AdminInitiateAuthResponse$ChallengeParameters": "<p>The challenge parameters. These are returned to you in the <code>AdminInitiateAuth</code> response if you need to pass another challenge. The responses in this parameter should be used to compute inputs to the next call (<code>AdminRespondToAuthChallenge</code>).</p> <p>All challenges require <code>USERNAME</code> and <code>SECRET_HASH</code> (if applicable).</p> <p>The value of the <code>USER_IF_FOR_SRP</code> attribute will be the user's actual username, not an alias (such as email address or phone number), even if you specified an alias in your call to <code>AdminInitiateAuth</code>. This is because, in the <code>AdminRespondToAuthChallenge</code> API <code>ChallengeResponses</code>, the <code>USERNAME</code> attribute cannot be an alias.</p>",
+        "AdminInitiateAuthResponse$ChallengeParameters": "<p>The challenge parameters. These are returned to you in the <code>AdminInitiateAuth</code> response if you need to pass another challenge. The responses in this parameter should be used to compute inputs to the next call (<code>AdminRespondToAuthChallenge</code>).</p> <p>All challenges require <code>USERNAME</code> and <code>SECRET_HASH</code> (if applicable).</p> <p>The value of the <code>USER_ID_FOR_SRP</code> attribute will be the user's actual username, not an alias (such as email address or phone number), even if you specified an alias in your call to <code>AdminInitiateAuth</code>. This is because, in the <code>AdminRespondToAuthChallenge</code> API <code>ChallengeResponses</code>, the <code>USERNAME</code> attribute cannot be an alias.</p>",
         "AdminRespondToAuthChallengeResponse$ChallengeParameters": "<p>The challenge parameters. For more information, see .</p>",
         "InitiateAuthResponse$ChallengeParameters": "<p>The challenge parameters. These are returned to you in the <code>InitiateAuth</code> response if you need to pass another challenge. The responses in this parameter should be used to compute inputs to the next call (<code>RespondToAuthChallenge</code>). </p> <p>All challenges require <code>USERNAME</code> and <code>SECRET_HASH</code> (if applicable).</p>",
         "RespondToAuthChallengeResponse$ChallengeParameters": "<p>The challenge parameters. For more information, see .</p>"
@@ -935,6 +938,13 @@
         "AddCustomAttributesRequest$CustomAttributes": "<p>An array of custom attributes, such as Mutable and Name.</p>"
       }
     },
+    "CustomDomainConfigType": {
+      "base": "<p>The configuration for a custom domain that hosts the sign-up and sign-in webpages for your application.</p>",
+      "refs": {
+        "CreateUserPoolDomainRequest$CustomDomainConfig": "<p>The configuration for a custom domain that hosts the sign-up and sign-in webpages for your application.</p> <p>Provide this parameter only if you want to use own custom domain for your user pool. Otherwise, you can exclude this parameter and use the Amazon Cognito hosted domain instead.</p> <p>For more information about the hosted domain and custom domains, see <a href=\"http://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-assign-domain.html\">Configuring a User Pool Domain</a>.</p>",
+        "DomainDescriptionType$CustomDomainConfig": null
+      }
+    },
     "DateType": {
       "base": null,
       "refs": {
@@ -1187,10 +1197,12 @@
       "base": null,
       "refs": {
         "CreateUserPoolDomainRequest$Domain": "<p>The domain string.</p>",
+        "CreateUserPoolDomainResponse$CloudFrontDomain": "<p>The Amazon CloudFront endpoint that you use as the target of the alias that you set up with your Domain Name Service (DNS) provider.</p>",
         "DeleteUserPoolDomainRequest$Domain": "<p>The domain string.</p>",
         "DescribeUserPoolDomainRequest$Domain": "<p>The domain string.</p>",
         "DomainDescriptionType$Domain": "<p>The domain string.</p>",
-        "UserPoolType$Domain": "<p>Holds the domain prefix if the user pool has a domain associated with it.</p>"
+        "UserPoolType$Domain": "<p>Holds the domain prefix if the user pool has a domain associated with it.</p>",
+        "UserPoolType$CustomDomain": null
       }
     },
     "DomainVersionType": {
@@ -1412,6 +1424,16 @@
       "refs": {
       }
     },
+    "GetSigningCertificateRequest": {
+      "base": "<p>Request to get a signing certificate from Cognito.</p>",
+      "refs": {
+      }
+    },
+    "GetSigningCertificateResponse": {
+      "base": "<p>Response from Cognito for a signing certificate request.</p>",
+      "refs": {
+      }
+    },
     "GetUICustomizationRequest": {
       "base": null,
       "refs": {
@@ -1571,7 +1593,7 @@
     "IntegerType": {
       "base": null,
       "refs": {
-        "AuthenticationResultType$ExpiresIn": "<p>The expiration period of the authentication result.</p>",
+        "AuthenticationResultType$ExpiresIn": "<p>The expiration period of the authentication result in seconds.</p>",
         "UserPoolType$EstimatedNumberOfUsers": "<p>A number estimating the size of the user pool.</p>"
       }
     },
@@ -1623,10 +1645,10 @@
     "LambdaConfigType": {
       "base": "<p>Specifies the configuration for AWS Lambda triggers.</p>",
       "refs": {
-        "CreateUserPoolRequest$LambdaConfig": "<p>The Lambda trigger configuration information for the new user pool.</p>",
+        "CreateUserPoolRequest$LambdaConfig": "<p>The Lambda trigger configuration information for the new user pool.</p> <note> <p>In a push model, event sources (such as Amazon S3 and custom applications) need permission to invoke a function. So you will need to make an extra call to add permission for these event sources to invoke your Lambda function.</p> <p/> <p>For more information on using the Lambda API to add permission, see <a href=\"https://docs.aws.amazon.com/lambda/latest/dg/API_AddPermission.html\"> AddPermission </a>. </p> <p>For adding permission using the AWS CLI, see <a href=\"https://docs.aws.amazon.com/cli/latest/reference/lambda/add-permission.html\"> add-permission </a>.</p> </note>",
         "UpdateUserPoolRequest$LambdaConfig": "<p>The AWS Lambda configuration information from the request to update the user pool.</p>",
         "UserPoolDescriptionType$LambdaConfig": "<p>The AWS Lambda configuration information in a user pool description.</p>",
-        "UserPoolType$LambdaConfig": "<p>The AWS Lambda triggers associated with tue user pool.</p>"
+        "UserPoolType$LambdaConfig": "<p>The AWS Lambda triggers associated with the user pool.</p>"
       }
     },
     "LimitExceededException": {
@@ -2027,10 +2049,10 @@
       "base": null,
       "refs": {
         "CallbackURLsListType$member": null,
-        "CreateUserPoolClientRequest$DefaultRedirectURI": "<p>The default redirect URI. Must be in the <code>CallbackURLs</code> list.</p>",
+        "CreateUserPoolClientRequest$DefaultRedirectURI": "<p>The default redirect URI. Must be in the <code>CallbackURLs</code> list.</p> <p>A redirect URI must:</p> <ul> <li> <p>Be an absolute URI.</p> </li> <li> <p>Be registered with the authorization server.</p> </li> <li> <p>Not include a fragment component.</p> </li> </ul> <p>See <a href=\"https://tools.ietf.org/html/rfc6749#section-3.1.2\">OAuth 2.0 - Redirection Endpoint</a>.</p> <p>Amazon Cognito requires HTTPS over HTTP except for http://localhost for testing purposes only.</p> <p>App callback URLs such as myapp://example are also supported.</p>",
         "LogoutURLsListType$member": null,
-        "UpdateUserPoolClientRequest$DefaultRedirectURI": "<p>The default redirect URI. Must be in the <code>CallbackURLs</code> list.</p>",
-        "UserPoolClientType$DefaultRedirectURI": "<p>The default redirect URI. Must be in the <code>CallbackURLs</code> list.</p>"
+        "UpdateUserPoolClientRequest$DefaultRedirectURI": "<p>The default redirect URI. Must be in the <code>CallbackURLs</code> list.</p> <p>A redirect URI must:</p> <ul> <li> <p>Be an absolute URI.</p> </li> <li> <p>Be registered with the authorization server.</p> </li> <li> <p>Not include a fragment component.</p> </li> </ul> <p>See <a href=\"https://tools.ietf.org/html/rfc6749#section-3.1.2\">OAuth 2.0 - Redirection Endpoint</a>.</p> <p>Amazon Cognito requires HTTPS over HTTP except for http://localhost for testing purposes only.</p> <p>App callback URLs such as myapp://example are also supported.</p>",
+        "UserPoolClientType$DefaultRedirectURI": "<p>The default redirect URI. Must be in the <code>CallbackURLs</code> list.</p> <p>A redirect URI must:</p> <ul> <li> <p>Be an absolute URI.</p> </li> <li> <p>Be registered with the authorization server.</p> </li> <li> <p>Not include a fragment component.</p> </li> </ul> <p>See <a href=\"https://tools.ietf.org/html/rfc6749#section-3.1.2\">OAuth 2.0 - Redirection Endpoint</a>.</p> <p>Amazon Cognito requires HTTPS over HTTP except for http://localhost for testing purposes only.</p> <p>App callback URLs such as myapp://example are also supported.</p>"
       }
     },
     "RefreshTokenValidityType": {
@@ -2428,12 +2450,14 @@
         "ContextDataType$EncodedData": "<p>Encoded data containing device fingerprinting details, collected using the Amazon Cognito context data collection library.</p>",
         "DeviceSecretVerifierConfigType$PasswordVerifier": "<p>The password verifier.</p>",
         "DeviceSecretVerifierConfigType$Salt": "<p>The salt.</p>",
+        "DomainDescriptionType$CloudFrontDistribution": "<p>The ARN of the CloudFront distribution.</p>",
         "EventContextDataType$IpAddress": "<p>The user's IP address.</p>",
         "EventContextDataType$DeviceName": "<p>The user's device name.</p>",
         "EventContextDataType$Timezone": "<p>The user's time zone.</p>",
         "EventContextDataType$City": "<p>The user's city.</p>",
         "EventContextDataType$Country": "<p>The user's country.</p>",
         "EventFeedbackType$Provider": "<p>The provider.</p>",
+        "GetSigningCertificateResponse$Certificate": "<p>The signing certificate.</p>",
         "GetUserResponse$PreferredMfaSetting": "<p>The user's preferred MFA setting.</p>",
         "HttpHeader$headerName": "<p>The header name</p>",
         "HttpHeader$headerValue": "<p>The header value.</p>",
@@ -2622,7 +2646,7 @@
     "UserFilterType": {
       "base": null,
       "refs": {
-        "ListUsersRequest$Filter": "<p>A filter string of the form \"<i>AttributeName</i> <i>Filter-Type</i> \"<i>AttributeValue</i>\"\". Quotation marks within the filter string must be escaped using the backslash (\\) character. For example, \"<code>family_name</code> = \\\"Reddy\\\"\".</p> <ul> <li> <p> <i>AttributeName</i>: The name of the attribute to search for. You can only search for one attribute at a time.</p> </li> <li> <p> <i>Filter-Type</i>: For an exact match, use =, for example, \"<code>given_name</code> = \\\"Jon\\\"\". For a prefix (\"starts with\") match, use ^=, for example, \"<code>given_name</code> ^= \\\"Jon\\\"\". </p> </li> <li> <p> <i>AttributeValue</i>: The attribute value that must be matched for each user.</p> </li> </ul> <p>If the filter string is empty, <code>ListUsers</code> returns all users in the user pool.</p> <p>You can only search for the following standard attributes:</p> <ul> <li> <p> <code>username</code> (case-sensitive)</p> </li> <li> <p> <code>email</code> </p> </li> <li> <p> <code>phone_number</code> </p> </li> <li> <p> <code>name</code> </p> </li> <li> <p> <code>given_name</code> </p> </li> <li> <p> <code>family_name</code> </p> </li> <li> <p> <code>preferred_username</code> </p> </li> <li> <p> <code>cognito:user_status</code> (called <b>Enabled</b> in the Console) (case-sensitive)</p> </li> <li> <p> <code>status</code> (case-insensitive)</p> </li> <li> <p> <code>sub</code> </p> </li> </ul> <p>Custom attributes are not searchable.</p> <p>For more information, see <a href=\"http://docs.aws.amazon.com/cognito/latest/developerguide/how-to-manage-user-accounts.html#cognito-user-pools-searching-for-users-using-listusers-api\">Searching for Users Using the ListUsers API</a> and <a href=\"http://docs.aws.amazon.com/cognito/latest/developerguide/how-to-manage-user-accounts.html#cognito-user-pools-searching-for-users-listusers-api-examples\">Examples of Using the ListUsers API</a> in the <i>Amazon Cognito Developer Guide</i>.</p>"
+        "ListUsersRequest$Filter": "<p>A filter string of the form \"<i>AttributeName</i> <i>Filter-Type</i> \"<i>AttributeValue</i>\"\". Quotation marks within the filter string must be escaped using the backslash (\\) character. For example, \"<code>family_name</code> = \\\"Reddy\\\"\".</p> <ul> <li> <p> <i>AttributeName</i>: The name of the attribute to search for. You can only search for one attribute at a time.</p> </li> <li> <p> <i>Filter-Type</i>: For an exact match, use =, for example, \"<code>given_name</code> = \\\"Jon\\\"\". For a prefix (\"starts with\") match, use ^=, for example, \"<code>given_name</code> ^= \\\"Jon\\\"\". </p> </li> <li> <p> <i>AttributeValue</i>: The attribute value that must be matched for each user.</p> </li> </ul> <p>If the filter string is empty, <code>ListUsers</code> returns all users in the user pool.</p> <p>You can only search for the following standard attributes:</p> <ul> <li> <p> <code>username</code> (case-sensitive)</p> </li> <li> <p> <code>email</code> </p> </li> <li> <p> <code>phone_number</code> </p> </li> <li> <p> <code>name</code> </p> </li> <li> <p> <code>given_name</code> </p> </li> <li> <p> <code>family_name</code> </p> </li> <li> <p> <code>preferred_username</code> </p> </li> <li> <p> <code>cognito:user_status</code> (called <b>Status</b> in the Console) (case-insensitive)</p> </li> <li> <p> <code>status (called <b>Enabled</b> in the Console) (case-sensitive)</code> </p> </li> <li> <p> <code>sub</code> </p> </li> </ul> <p>Custom attributes are not searchable.</p> <p>For more information, see <a href=\"http://docs.aws.amazon.com/cognito/latest/developerguide/how-to-manage-user-accounts.html#cognito-user-pools-searching-for-users-using-listusers-api\">Searching for Users Using the ListUsers API</a> and <a href=\"http://docs.aws.amazon.com/cognito/latest/developerguide/how-to-manage-user-accounts.html#cognito-user-pools-searching-for-users-listusers-api-examples\">Examples of Using the ListUsers API</a> in the <i>Amazon Cognito Developer Guide</i>.</p>"
       }
     },
     "UserImportInProgressException": {
@@ -2779,6 +2803,7 @@
         "GetCSVHeaderResponse$UserPoolId": "<p>The user pool ID for the user pool that the users are to be imported into.</p>",
         "GetGroupRequest$UserPoolId": "<p>The user pool ID for the user pool.</p>",
         "GetIdentityProviderByIdentifierRequest$UserPoolId": "<p>The user pool ID.</p>",
+        "GetSigningCertificateRequest$UserPoolId": "<p>The user pool ID.</p>",
         "GetUICustomizationRequest$UserPoolId": "<p>The user pool ID for the user pool.</p>",
         "GetUserPoolMfaConfigRequest$UserPoolId": "<p>The user pool ID.</p>",
         "GroupType$UserPoolId": "<p>The user pool ID for the user pool.</p>",
@@ -2912,10 +2937,10 @@
         "AdminGetUserResponse$Username": "<p>The user name of the user about whom you are receiving information.</p>",
         "AdminListDevicesRequest$Username": "<p>The user name.</p>",
         "AdminListGroupsForUserRequest$Username": "<p>The username for the user.</p>",
-        "AdminListUserAuthEventsRequest$Username": "<p>The user pool username.</p>",
+        "AdminListUserAuthEventsRequest$Username": "<p>The user pool username or an alias.</p>",
         "AdminRemoveUserFromGroupRequest$Username": "<p>The username for the user.</p>",
         "AdminResetUserPasswordRequest$Username": "<p>The user name of the user whose password you wish to reset.</p>",
-        "AdminSetUserMFAPreferenceRequest$Username": "<p>The user pool username.</p>",
+        "AdminSetUserMFAPreferenceRequest$Username": "<p>The user pool username or alias.</p>",
         "AdminSetUserSettingsRequest$Username": "<p>The user name of the user for whom you wish to set user settings.</p>",
         "AdminUpdateAuthEventFeedbackRequest$Username": "<p>The user pool username.</p>",
         "AdminUpdateDeviceStatusRequest$Username": "<p>The user name.</p>",

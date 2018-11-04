@@ -15,8 +15,8 @@ const opDescribeStream = "DescribeStream"
 
 // DescribeStreamRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeStream operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -107,8 +107,8 @@ const opGetRecords = "GetRecords"
 
 // GetRecordsRequest generates a "aws/request.Request" representing the
 // client's request for the GetRecords operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -226,8 +226,8 @@ const opGetShardIterator = "GetShardIterator"
 
 // GetShardIteratorRequest generates a "aws/request.Request" representing the
 // client's request for the GetShardIterator operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -326,8 +326,8 @@ const opListStreams = "ListStreams"
 
 // ListStreamsRequest generates a "aws/request.Request" representing the
 // client's request for the ListStreams operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -409,7 +409,6 @@ func (c *DynamoDBStreams) ListStreamsWithContext(ctx aws.Context, input *ListStr
 }
 
 // Represents the input of a DescribeStream operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/DescribeStreamInput
 type DescribeStreamInput struct {
 	_ struct{} `type:"structure"`
 
@@ -477,7 +476,6 @@ func (s *DescribeStreamInput) SetStreamArn(v string) *DescribeStreamInput {
 }
 
 // Represents the output of a DescribeStream operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/DescribeStreamOutput
 type DescribeStreamOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -505,7 +503,6 @@ func (s *DescribeStreamOutput) SetStreamDescription(v *StreamDescription) *Descr
 }
 
 // Represents the input of a GetRecords operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/GetRecordsInput
 type GetRecordsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -562,7 +559,6 @@ func (s *GetRecordsInput) SetShardIterator(v string) *GetRecordsInput {
 }
 
 // Represents the output of a GetRecords operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/GetRecordsOutput
 type GetRecordsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -598,7 +594,6 @@ func (s *GetRecordsOutput) SetRecords(v []*Record) *GetRecordsOutput {
 }
 
 // Represents the input of a GetShardIterator operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/GetShardIteratorInput
 type GetShardIteratorInput struct {
 	_ struct{} `type:"structure"`
 
@@ -700,7 +695,6 @@ func (s *GetShardIteratorInput) SetStreamArn(v string) *GetShardIteratorInput {
 }
 
 // Represents the output of a GetShardIterator operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/GetShardIteratorOutput
 type GetShardIteratorOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -727,7 +721,6 @@ func (s *GetShardIteratorOutput) SetShardIterator(v string) *GetShardIteratorOut
 }
 
 // Contains details about the type of identity that made the request.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/Identity
 type Identity struct {
 	_ struct{} `type:"structure"`
 
@@ -762,7 +755,6 @@ func (s *Identity) SetType(v string) *Identity {
 }
 
 // Represents the input of a ListStreams operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/ListStreamsInput
 type ListStreamsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -827,7 +819,6 @@ func (s *ListStreamsInput) SetTableName(v string) *ListStreamsInput {
 }
 
 // Represents the output of a ListStreams operation.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/ListStreamsOutput
 type ListStreamsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -870,7 +861,6 @@ func (s *ListStreamsOutput) SetStreams(v []*Stream) *ListStreamsOutput {
 }
 
 // A description of a unique event within a stream.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/Record
 type Record struct {
 	_ struct{} `type:"structure"`
 
@@ -973,7 +963,6 @@ func (s *Record) SetUserIdentity(v *Identity) *Record {
 
 // The beginning and ending sequence numbers for the stream records contained
 // within a shard.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/SequenceNumberRange
 type SequenceNumberRange struct {
 	_ struct{} `type:"structure"`
 
@@ -1007,7 +996,6 @@ func (s *SequenceNumberRange) SetStartingSequenceNumber(v string) *SequenceNumbe
 }
 
 // A uniquely identified group of stream records within a stream.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/Shard
 type Shard struct {
 	_ struct{} `type:"structure"`
 
@@ -1050,7 +1038,6 @@ func (s *Shard) SetShardId(v string) *Shard {
 }
 
 // Represents all of the data describing a particular stream.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/Stream
 type Stream struct {
 	_ struct{} `type:"structure"`
 
@@ -1104,12 +1091,11 @@ func (s *Stream) SetTableName(v string) *Stream {
 }
 
 // Represents all of the data describing a particular stream.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/StreamDescription
 type StreamDescription struct {
 	_ struct{} `type:"structure"`
 
 	// The date and time when the request to create this stream was issued.
-	CreationRequestDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreationRequestDateTime *time.Time `type:"timestamp"`
 
 	// The key attribute(s) of the stream's DynamoDB table.
 	KeySchema []*dynamodb.KeySchemaElement `min:"1" type:"list"`
@@ -1242,13 +1228,12 @@ func (s *StreamDescription) SetTableName(v string) *StreamDescription {
 
 // A description of a single data modification that was performed on an item
 // in a DynamoDB table.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/streams-dynamodb-2012-08-10/StreamRecord
 type StreamRecord struct {
 	_ struct{} `type:"structure"`
 
 	// The approximate date and time when the stream record was created, in UNIX
 	// epoch time (http://www.epochconverter.com/) format.
-	ApproximateCreationDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ApproximateCreationDateTime *time.Time `type:"timestamp"`
 
 	// The primary key attribute(s) for the DynamoDB item that was modified.
 	Keys map[string]*dynamodb.AttributeValue `type:"map"`

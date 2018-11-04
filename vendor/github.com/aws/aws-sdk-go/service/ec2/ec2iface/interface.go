@@ -72,6 +72,10 @@ type EC2API interface {
 	AcceptVpcPeeringConnectionWithContext(aws.Context, *ec2.AcceptVpcPeeringConnectionInput, ...request.Option) (*ec2.AcceptVpcPeeringConnectionOutput, error)
 	AcceptVpcPeeringConnectionRequest(*ec2.AcceptVpcPeeringConnectionInput) (*request.Request, *ec2.AcceptVpcPeeringConnectionOutput)
 
+	AdvertiseByoipCidr(*ec2.AdvertiseByoipCidrInput) (*ec2.AdvertiseByoipCidrOutput, error)
+	AdvertiseByoipCidrWithContext(aws.Context, *ec2.AdvertiseByoipCidrInput, ...request.Option) (*ec2.AdvertiseByoipCidrOutput, error)
+	AdvertiseByoipCidrRequest(*ec2.AdvertiseByoipCidrInput) (*request.Request, *ec2.AdvertiseByoipCidrOutput)
+
 	AllocateAddress(*ec2.AllocateAddressInput) (*ec2.AllocateAddressOutput, error)
 	AllocateAddressWithContext(aws.Context, *ec2.AllocateAddressInput, ...request.Option) (*ec2.AllocateAddressOutput, error)
 	AllocateAddressRequest(*ec2.AllocateAddressInput) (*request.Request, *ec2.AllocateAddressOutput)
@@ -148,6 +152,10 @@ type EC2API interface {
 	CancelBundleTaskWithContext(aws.Context, *ec2.CancelBundleTaskInput, ...request.Option) (*ec2.CancelBundleTaskOutput, error)
 	CancelBundleTaskRequest(*ec2.CancelBundleTaskInput) (*request.Request, *ec2.CancelBundleTaskOutput)
 
+	CancelCapacityReservation(*ec2.CancelCapacityReservationInput) (*ec2.CancelCapacityReservationOutput, error)
+	CancelCapacityReservationWithContext(aws.Context, *ec2.CancelCapacityReservationInput, ...request.Option) (*ec2.CancelCapacityReservationOutput, error)
+	CancelCapacityReservationRequest(*ec2.CancelCapacityReservationInput) (*request.Request, *ec2.CancelCapacityReservationOutput)
+
 	CancelConversionTask(*ec2.CancelConversionTaskInput) (*ec2.CancelConversionTaskOutput, error)
 	CancelConversionTaskWithContext(aws.Context, *ec2.CancelConversionTaskInput, ...request.Option) (*ec2.CancelConversionTaskOutput, error)
 	CancelConversionTaskRequest(*ec2.CancelConversionTaskInput) (*request.Request, *ec2.CancelConversionTaskOutput)
@@ -188,6 +196,10 @@ type EC2API interface {
 	CopySnapshotWithContext(aws.Context, *ec2.CopySnapshotInput, ...request.Option) (*ec2.CopySnapshotOutput, error)
 	CopySnapshotRequest(*ec2.CopySnapshotInput) (*request.Request, *ec2.CopySnapshotOutput)
 
+	CreateCapacityReservation(*ec2.CreateCapacityReservationInput) (*ec2.CreateCapacityReservationOutput, error)
+	CreateCapacityReservationWithContext(aws.Context, *ec2.CreateCapacityReservationInput, ...request.Option) (*ec2.CreateCapacityReservationOutput, error)
+	CreateCapacityReservationRequest(*ec2.CreateCapacityReservationInput) (*request.Request, *ec2.CreateCapacityReservationOutput)
+
 	CreateCustomerGateway(*ec2.CreateCustomerGatewayInput) (*ec2.CreateCustomerGatewayOutput, error)
 	CreateCustomerGatewayWithContext(aws.Context, *ec2.CreateCustomerGatewayInput, ...request.Option) (*ec2.CreateCustomerGatewayOutput, error)
 	CreateCustomerGatewayRequest(*ec2.CreateCustomerGatewayInput) (*request.Request, *ec2.CreateCustomerGatewayOutput)
@@ -207,6 +219,10 @@ type EC2API interface {
 	CreateEgressOnlyInternetGateway(*ec2.CreateEgressOnlyInternetGatewayInput) (*ec2.CreateEgressOnlyInternetGatewayOutput, error)
 	CreateEgressOnlyInternetGatewayWithContext(aws.Context, *ec2.CreateEgressOnlyInternetGatewayInput, ...request.Option) (*ec2.CreateEgressOnlyInternetGatewayOutput, error)
 	CreateEgressOnlyInternetGatewayRequest(*ec2.CreateEgressOnlyInternetGatewayInput) (*request.Request, *ec2.CreateEgressOnlyInternetGatewayOutput)
+
+	CreateFleet(*ec2.CreateFleetInput) (*ec2.CreateFleetOutput, error)
+	CreateFleetWithContext(aws.Context, *ec2.CreateFleetInput, ...request.Option) (*ec2.CreateFleetOutput, error)
+	CreateFleetRequest(*ec2.CreateFleetInput) (*request.Request, *ec2.CreateFleetOutput)
 
 	CreateFlowLogs(*ec2.CreateFlowLogsInput) (*ec2.CreateFlowLogsOutput, error)
 	CreateFlowLogsWithContext(aws.Context, *ec2.CreateFlowLogsInput, ...request.Option) (*ec2.CreateFlowLogsOutput, error)
@@ -344,6 +360,10 @@ type EC2API interface {
 	DeleteEgressOnlyInternetGatewayWithContext(aws.Context, *ec2.DeleteEgressOnlyInternetGatewayInput, ...request.Option) (*ec2.DeleteEgressOnlyInternetGatewayOutput, error)
 	DeleteEgressOnlyInternetGatewayRequest(*ec2.DeleteEgressOnlyInternetGatewayInput) (*request.Request, *ec2.DeleteEgressOnlyInternetGatewayOutput)
 
+	DeleteFleets(*ec2.DeleteFleetsInput) (*ec2.DeleteFleetsOutput, error)
+	DeleteFleetsWithContext(aws.Context, *ec2.DeleteFleetsInput, ...request.Option) (*ec2.DeleteFleetsOutput, error)
+	DeleteFleetsRequest(*ec2.DeleteFleetsInput) (*request.Request, *ec2.DeleteFleetsOutput)
+
 	DeleteFlowLogs(*ec2.DeleteFlowLogsInput) (*ec2.DeleteFlowLogsOutput, error)
 	DeleteFlowLogsWithContext(aws.Context, *ec2.DeleteFlowLogsInput, ...request.Option) (*ec2.DeleteFlowLogsOutput, error)
 	DeleteFlowLogsRequest(*ec2.DeleteFlowLogsInput) (*request.Request, *ec2.DeleteFlowLogsOutput)
@@ -456,6 +476,10 @@ type EC2API interface {
 	DeleteVpnGatewayWithContext(aws.Context, *ec2.DeleteVpnGatewayInput, ...request.Option) (*ec2.DeleteVpnGatewayOutput, error)
 	DeleteVpnGatewayRequest(*ec2.DeleteVpnGatewayInput) (*request.Request, *ec2.DeleteVpnGatewayOutput)
 
+	DeprovisionByoipCidr(*ec2.DeprovisionByoipCidrInput) (*ec2.DeprovisionByoipCidrOutput, error)
+	DeprovisionByoipCidrWithContext(aws.Context, *ec2.DeprovisionByoipCidrInput, ...request.Option) (*ec2.DeprovisionByoipCidrOutput, error)
+	DeprovisionByoipCidrRequest(*ec2.DeprovisionByoipCidrInput) (*request.Request, *ec2.DeprovisionByoipCidrOutput)
+
 	DeregisterImage(*ec2.DeregisterImageInput) (*ec2.DeregisterImageOutput, error)
 	DeregisterImageWithContext(aws.Context, *ec2.DeregisterImageInput, ...request.Option) (*ec2.DeregisterImageOutput, error)
 	DeregisterImageRequest(*ec2.DeregisterImageInput) (*request.Request, *ec2.DeregisterImageOutput)
@@ -468,6 +492,10 @@ type EC2API interface {
 	DescribeAddressesWithContext(aws.Context, *ec2.DescribeAddressesInput, ...request.Option) (*ec2.DescribeAddressesOutput, error)
 	DescribeAddressesRequest(*ec2.DescribeAddressesInput) (*request.Request, *ec2.DescribeAddressesOutput)
 
+	DescribeAggregateIdFormat(*ec2.DescribeAggregateIdFormatInput) (*ec2.DescribeAggregateIdFormatOutput, error)
+	DescribeAggregateIdFormatWithContext(aws.Context, *ec2.DescribeAggregateIdFormatInput, ...request.Option) (*ec2.DescribeAggregateIdFormatOutput, error)
+	DescribeAggregateIdFormatRequest(*ec2.DescribeAggregateIdFormatInput) (*request.Request, *ec2.DescribeAggregateIdFormatOutput)
+
 	DescribeAvailabilityZones(*ec2.DescribeAvailabilityZonesInput) (*ec2.DescribeAvailabilityZonesOutput, error)
 	DescribeAvailabilityZonesWithContext(aws.Context, *ec2.DescribeAvailabilityZonesInput, ...request.Option) (*ec2.DescribeAvailabilityZonesOutput, error)
 	DescribeAvailabilityZonesRequest(*ec2.DescribeAvailabilityZonesInput) (*request.Request, *ec2.DescribeAvailabilityZonesOutput)
@@ -475,6 +503,14 @@ type EC2API interface {
 	DescribeBundleTasks(*ec2.DescribeBundleTasksInput) (*ec2.DescribeBundleTasksOutput, error)
 	DescribeBundleTasksWithContext(aws.Context, *ec2.DescribeBundleTasksInput, ...request.Option) (*ec2.DescribeBundleTasksOutput, error)
 	DescribeBundleTasksRequest(*ec2.DescribeBundleTasksInput) (*request.Request, *ec2.DescribeBundleTasksOutput)
+
+	DescribeByoipCidrs(*ec2.DescribeByoipCidrsInput) (*ec2.DescribeByoipCidrsOutput, error)
+	DescribeByoipCidrsWithContext(aws.Context, *ec2.DescribeByoipCidrsInput, ...request.Option) (*ec2.DescribeByoipCidrsOutput, error)
+	DescribeByoipCidrsRequest(*ec2.DescribeByoipCidrsInput) (*request.Request, *ec2.DescribeByoipCidrsOutput)
+
+	DescribeCapacityReservations(*ec2.DescribeCapacityReservationsInput) (*ec2.DescribeCapacityReservationsOutput, error)
+	DescribeCapacityReservationsWithContext(aws.Context, *ec2.DescribeCapacityReservationsInput, ...request.Option) (*ec2.DescribeCapacityReservationsOutput, error)
+	DescribeCapacityReservationsRequest(*ec2.DescribeCapacityReservationsInput) (*request.Request, *ec2.DescribeCapacityReservationsOutput)
 
 	DescribeClassicLinkInstances(*ec2.DescribeClassicLinkInstancesInput) (*ec2.DescribeClassicLinkInstancesOutput, error)
 	DescribeClassicLinkInstancesWithContext(aws.Context, *ec2.DescribeClassicLinkInstancesInput, ...request.Option) (*ec2.DescribeClassicLinkInstancesOutput, error)
@@ -503,6 +539,18 @@ type EC2API interface {
 	DescribeExportTasks(*ec2.DescribeExportTasksInput) (*ec2.DescribeExportTasksOutput, error)
 	DescribeExportTasksWithContext(aws.Context, *ec2.DescribeExportTasksInput, ...request.Option) (*ec2.DescribeExportTasksOutput, error)
 	DescribeExportTasksRequest(*ec2.DescribeExportTasksInput) (*request.Request, *ec2.DescribeExportTasksOutput)
+
+	DescribeFleetHistory(*ec2.DescribeFleetHistoryInput) (*ec2.DescribeFleetHistoryOutput, error)
+	DescribeFleetHistoryWithContext(aws.Context, *ec2.DescribeFleetHistoryInput, ...request.Option) (*ec2.DescribeFleetHistoryOutput, error)
+	DescribeFleetHistoryRequest(*ec2.DescribeFleetHistoryInput) (*request.Request, *ec2.DescribeFleetHistoryOutput)
+
+	DescribeFleetInstances(*ec2.DescribeFleetInstancesInput) (*ec2.DescribeFleetInstancesOutput, error)
+	DescribeFleetInstancesWithContext(aws.Context, *ec2.DescribeFleetInstancesInput, ...request.Option) (*ec2.DescribeFleetInstancesOutput, error)
+	DescribeFleetInstancesRequest(*ec2.DescribeFleetInstancesInput) (*request.Request, *ec2.DescribeFleetInstancesOutput)
+
+	DescribeFleets(*ec2.DescribeFleetsInput) (*ec2.DescribeFleetsOutput, error)
+	DescribeFleetsWithContext(aws.Context, *ec2.DescribeFleetsInput, ...request.Option) (*ec2.DescribeFleetsOutput, error)
+	DescribeFleetsRequest(*ec2.DescribeFleetsInput) (*request.Request, *ec2.DescribeFleetsOutput)
 
 	DescribeFlowLogs(*ec2.DescribeFlowLogsInput) (*ec2.DescribeFlowLogsOutput, error)
 	DescribeFlowLogsWithContext(aws.Context, *ec2.DescribeFlowLogsInput, ...request.Option) (*ec2.DescribeFlowLogsOutput, error)
@@ -621,6 +669,9 @@ type EC2API interface {
 	DescribeNetworkInterfacesWithContext(aws.Context, *ec2.DescribeNetworkInterfacesInput, ...request.Option) (*ec2.DescribeNetworkInterfacesOutput, error)
 	DescribeNetworkInterfacesRequest(*ec2.DescribeNetworkInterfacesInput) (*request.Request, *ec2.DescribeNetworkInterfacesOutput)
 
+	DescribeNetworkInterfacesPages(*ec2.DescribeNetworkInterfacesInput, func(*ec2.DescribeNetworkInterfacesOutput, bool) bool) error
+	DescribeNetworkInterfacesPagesWithContext(aws.Context, *ec2.DescribeNetworkInterfacesInput, func(*ec2.DescribeNetworkInterfacesOutput, bool) bool, ...request.Option) error
+
 	DescribePlacementGroups(*ec2.DescribePlacementGroupsInput) (*ec2.DescribePlacementGroupsOutput, error)
 	DescribePlacementGroupsWithContext(aws.Context, *ec2.DescribePlacementGroupsInput, ...request.Option) (*ec2.DescribePlacementGroupsOutput, error)
 	DescribePlacementGroupsRequest(*ec2.DescribePlacementGroupsInput) (*request.Request, *ec2.DescribePlacementGroupsOutput)
@@ -628,6 +679,14 @@ type EC2API interface {
 	DescribePrefixLists(*ec2.DescribePrefixListsInput) (*ec2.DescribePrefixListsOutput, error)
 	DescribePrefixListsWithContext(aws.Context, *ec2.DescribePrefixListsInput, ...request.Option) (*ec2.DescribePrefixListsOutput, error)
 	DescribePrefixListsRequest(*ec2.DescribePrefixListsInput) (*request.Request, *ec2.DescribePrefixListsOutput)
+
+	DescribePrincipalIdFormat(*ec2.DescribePrincipalIdFormatInput) (*ec2.DescribePrincipalIdFormatOutput, error)
+	DescribePrincipalIdFormatWithContext(aws.Context, *ec2.DescribePrincipalIdFormatInput, ...request.Option) (*ec2.DescribePrincipalIdFormatOutput, error)
+	DescribePrincipalIdFormatRequest(*ec2.DescribePrincipalIdFormatInput) (*request.Request, *ec2.DescribePrincipalIdFormatOutput)
+
+	DescribePublicIpv4Pools(*ec2.DescribePublicIpv4PoolsInput) (*ec2.DescribePublicIpv4PoolsOutput, error)
+	DescribePublicIpv4PoolsWithContext(aws.Context, *ec2.DescribePublicIpv4PoolsInput, ...request.Option) (*ec2.DescribePublicIpv4PoolsOutput, error)
+	DescribePublicIpv4PoolsRequest(*ec2.DescribePublicIpv4PoolsInput) (*request.Request, *ec2.DescribePublicIpv4PoolsOutput)
 
 	DescribeRegions(*ec2.DescribeRegionsInput) (*ec2.DescribeRegionsOutput, error)
 	DescribeRegionsWithContext(aws.Context, *ec2.DescribeRegionsInput, ...request.Option) (*ec2.DescribeRegionsOutput, error)
@@ -917,6 +976,14 @@ type EC2API interface {
 	ImportVolumeWithContext(aws.Context, *ec2.ImportVolumeInput, ...request.Option) (*ec2.ImportVolumeOutput, error)
 	ImportVolumeRequest(*ec2.ImportVolumeInput) (*request.Request, *ec2.ImportVolumeOutput)
 
+	ModifyCapacityReservation(*ec2.ModifyCapacityReservationInput) (*ec2.ModifyCapacityReservationOutput, error)
+	ModifyCapacityReservationWithContext(aws.Context, *ec2.ModifyCapacityReservationInput, ...request.Option) (*ec2.ModifyCapacityReservationOutput, error)
+	ModifyCapacityReservationRequest(*ec2.ModifyCapacityReservationInput) (*request.Request, *ec2.ModifyCapacityReservationOutput)
+
+	ModifyFleet(*ec2.ModifyFleetInput) (*ec2.ModifyFleetOutput, error)
+	ModifyFleetWithContext(aws.Context, *ec2.ModifyFleetInput, ...request.Option) (*ec2.ModifyFleetOutput, error)
+	ModifyFleetRequest(*ec2.ModifyFleetInput) (*request.Request, *ec2.ModifyFleetOutput)
+
 	ModifyFpgaImageAttribute(*ec2.ModifyFpgaImageAttributeInput) (*ec2.ModifyFpgaImageAttributeOutput, error)
 	ModifyFpgaImageAttributeWithContext(aws.Context, *ec2.ModifyFpgaImageAttributeInput, ...request.Option) (*ec2.ModifyFpgaImageAttributeOutput, error)
 	ModifyFpgaImageAttributeRequest(*ec2.ModifyFpgaImageAttributeInput) (*request.Request, *ec2.ModifyFpgaImageAttributeOutput)
@@ -940,6 +1007,10 @@ type EC2API interface {
 	ModifyInstanceAttribute(*ec2.ModifyInstanceAttributeInput) (*ec2.ModifyInstanceAttributeOutput, error)
 	ModifyInstanceAttributeWithContext(aws.Context, *ec2.ModifyInstanceAttributeInput, ...request.Option) (*ec2.ModifyInstanceAttributeOutput, error)
 	ModifyInstanceAttributeRequest(*ec2.ModifyInstanceAttributeInput) (*request.Request, *ec2.ModifyInstanceAttributeOutput)
+
+	ModifyInstanceCapacityReservationAttributes(*ec2.ModifyInstanceCapacityReservationAttributesInput) (*ec2.ModifyInstanceCapacityReservationAttributesOutput, error)
+	ModifyInstanceCapacityReservationAttributesWithContext(aws.Context, *ec2.ModifyInstanceCapacityReservationAttributesInput, ...request.Option) (*ec2.ModifyInstanceCapacityReservationAttributesOutput, error)
+	ModifyInstanceCapacityReservationAttributesRequest(*ec2.ModifyInstanceCapacityReservationAttributesInput) (*request.Request, *ec2.ModifyInstanceCapacityReservationAttributesOutput)
 
 	ModifyInstanceCreditSpecification(*ec2.ModifyInstanceCreditSpecificationInput) (*ec2.ModifyInstanceCreditSpecificationOutput, error)
 	ModifyInstanceCreditSpecificationWithContext(aws.Context, *ec2.ModifyInstanceCreditSpecificationInput, ...request.Option) (*ec2.ModifyInstanceCreditSpecificationOutput, error)
@@ -1016,6 +1087,10 @@ type EC2API interface {
 	MoveAddressToVpc(*ec2.MoveAddressToVpcInput) (*ec2.MoveAddressToVpcOutput, error)
 	MoveAddressToVpcWithContext(aws.Context, *ec2.MoveAddressToVpcInput, ...request.Option) (*ec2.MoveAddressToVpcOutput, error)
 	MoveAddressToVpcRequest(*ec2.MoveAddressToVpcInput) (*request.Request, *ec2.MoveAddressToVpcOutput)
+
+	ProvisionByoipCidr(*ec2.ProvisionByoipCidrInput) (*ec2.ProvisionByoipCidrOutput, error)
+	ProvisionByoipCidrWithContext(aws.Context, *ec2.ProvisionByoipCidrInput, ...request.Option) (*ec2.ProvisionByoipCidrOutput, error)
+	ProvisionByoipCidrRequest(*ec2.ProvisionByoipCidrInput) (*request.Request, *ec2.ProvisionByoipCidrOutput)
 
 	PurchaseHostReservation(*ec2.PurchaseHostReservationInput) (*ec2.PurchaseHostReservationOutput, error)
 	PurchaseHostReservationWithContext(aws.Context, *ec2.PurchaseHostReservationInput, ...request.Option) (*ec2.PurchaseHostReservationOutput, error)
@@ -1156,6 +1231,10 @@ type EC2API interface {
 	UpdateSecurityGroupRuleDescriptionsIngress(*ec2.UpdateSecurityGroupRuleDescriptionsIngressInput) (*ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput, error)
 	UpdateSecurityGroupRuleDescriptionsIngressWithContext(aws.Context, *ec2.UpdateSecurityGroupRuleDescriptionsIngressInput, ...request.Option) (*ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput, error)
 	UpdateSecurityGroupRuleDescriptionsIngressRequest(*ec2.UpdateSecurityGroupRuleDescriptionsIngressInput) (*request.Request, *ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput)
+
+	WithdrawByoipCidr(*ec2.WithdrawByoipCidrInput) (*ec2.WithdrawByoipCidrOutput, error)
+	WithdrawByoipCidrWithContext(aws.Context, *ec2.WithdrawByoipCidrInput, ...request.Option) (*ec2.WithdrawByoipCidrOutput, error)
+	WithdrawByoipCidrRequest(*ec2.WithdrawByoipCidrInput) (*request.Request, *ec2.WithdrawByoipCidrOutput)
 
 	WaitUntilBundleTaskComplete(*ec2.DescribeBundleTasksInput) error
 	WaitUntilBundleTaskCompleteWithContext(aws.Context, *ec2.DescribeBundleTasksInput, ...request.WaiterOption) error

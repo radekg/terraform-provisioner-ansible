@@ -15,8 +15,8 @@ const opGetMedia = "GetMedia"
 
 // GetMediaRequest generates a "aws/request.Request" representing the
 // client's request for the GetMedia operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -129,7 +129,6 @@ func (c *KinesisVideoMedia) GetMediaWithContext(ctx aws.Context, input *GetMedia
 	return out, req.Send()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/kinesis-video-media-2017-09-30/GetMediaInput
 type GetMediaInput struct {
 	_ struct{} `type:"structure"`
 
@@ -199,7 +198,6 @@ func (s *GetMediaInput) SetStreamName(v string) *GetMediaInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/kinesis-video-media-2017-09-30/GetMediaOutput
 type GetMediaOutput struct {
 	_ struct{} `type:"structure" payload:"Payload"`
 
@@ -291,7 +289,6 @@ func (s *GetMediaOutput) SetPayload(v io.ReadCloser) *GetMediaOutput {
 //    tag (AWS_KINESISVIDEO_CONTINUATION_TOKEN). If your previous GetMedia request
 //    terminated, you can use this tag value in your next GetMedia request.
 //    The API then starts returning chunks starting where the last API ended.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/kinesis-video-media-2017-09-30/StartSelector
 type StartSelector struct {
 	_ struct{} `type:"structure"`
 
@@ -329,7 +326,7 @@ type StartSelector struct {
 	// A time stamp value. This value is required if you choose the PRODUCER_TIMESTAMP
 	// or the SERVER_TIMESTAMP as the startSelectorType. The GetMedia API then starts
 	// with the chunk containing the fragment that has the specified time stamp.
-	StartTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	StartTimestamp *time.Time `type:"timestamp"`
 }
 
 // String returns the string representation
