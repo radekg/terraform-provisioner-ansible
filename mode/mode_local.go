@@ -101,7 +101,8 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 	bastion := newBastionHostFromConnectionInfo(v.connInfo)
 	target := newTargetHostFromConnectionInfo(v.connInfo)
 
-	knownHosts := make([]string, 0)
+	knownHostsTarget := make([]string, 0)
+	knownHostsBastion := make([]string, 0)
 
 	if bastion.inUse() {
 		// wait for bastion:
@@ -129,9 +130,9 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 					// <ip> ecdsa-sha2-nistp256 AAAA...
 					// <ip> ssh-rsa AAAAB...
 					// <ip> ssh-ed25519 AAAAC...
-					knownHosts = append(knownHosts, targetKnownHosts)
+					knownHostsTarget = append(knownHostsTarget, targetKnownHosts)
 				} else {
-					knownHosts = append(knownHosts, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
+					knownHostsTarget = append(knownHostsTarget, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
 				}
 			} else {
 				v.o.Output(fmt.Sprintf("bastion %s@%s:%d will use '%s' as a user known hosts file",
@@ -140,49 +141,64 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 					bastion.port(),
 					ansibleSSHSettings.UserKnownHostsFile()))
 			}
-			knownHosts = append(knownHosts, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
+
 		} else {
 			v.o.Output(fmt.Sprintf("target host StrictHostKeyChecking=no, not verifying host keys on bastion: %s@%s:%d",
 				bastion.user(),
 				bastion.host(),
 				bastion.port()))
 		}
+		knownHostsBastion = append(knownHostsBastion, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
 	} else {
-		if target.hostKey() == "" {
 
-			// fetchHostKey will issue an ssh Dial and update the hostKey() value
-			// as with bastionKeyScan, we might ask for the host key while the instance
-			// is not ready to respond to SSH, we need to retry for a number of times
-			timeoutMs := ansibleSSHSettings.SSHKeyscanSeconds() * 1000
-			timeSpentMs := 0
-			intervalMs := 5000
-			for {
-				if err := target.fetchHostKey(); err != nil {
-					v.o.Output(fmt.Sprintf("host key for '%s' not received yet; retrying...", target.host()))
-					time.Sleep(time.Duration(intervalMs) * time.Millisecond)
-					timeSpentMs = timeSpentMs + intervalMs
-					if timeSpentMs > timeoutMs {
-						v.o.Output(fmt.Sprintf("host key for '%s' not received within %d seconds",
-							target.host(),
-							ansibleSSHSettings.SSHKeyscanSeconds()))
-						return err
+		if !ansibleSSHSettings.InsecureNoStrictHostKeyChecking() {
+			if ansibleSSHSettings.UserKnownHostsFile() == "" {
+				if target.hostKey() == "" {
+					// fetchHostKey will issue an ssh Dial and update the hostKey() value
+					// as with bastionKeyScan, we might ask for the host key while the instance
+					// is not ready to respond to SSH, we need to retry for a number of times
+					timeoutMs := ansibleSSHSettings.SSHKeyscanSeconds() * 1000
+					timeSpentMs := 0
+					intervalMs := 5000
+					for {
+						if err := target.fetchHostKey(); err != nil {
+							v.o.Output(fmt.Sprintf("host key for '%s' not received yet; retrying...", target.host()))
+							time.Sleep(time.Duration(intervalMs) * time.Millisecond)
+							timeSpentMs = timeSpentMs + intervalMs
+							if timeSpentMs > timeoutMs {
+								v.o.Output(fmt.Sprintf("host key for '%s' not received within %d seconds",
+									target.host(),
+									ansibleSSHSettings.SSHKeyscanSeconds()))
+								return err
+							}
+						} else {
+							break
+						}
 					}
-				} else {
-					break
+					if target.hostKey() == "" {
+						return fmt.Errorf("expected to receive the host key for '%s', but no host key arrived", target.host())
+					}
 				}
+				knownHostsTarget = append(knownHostsTarget, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
+			} else {
+				v.o.Output(fmt.Sprintf("using '%s' as a known hosts file", ansibleSSHSettings.UserKnownHostsFile()))
 			}
-			if target.hostKey() == "" {
-				return fmt.Errorf("expected to receive the host key for '%s', but no host key arrived", target.host())
-			}
+		} else {
+			v.o.Output("target host StrictHostKeyChecking=no, not verifying host keys")
 		}
-		knownHosts = append(knownHosts, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
 	}
 
-	knownHostsFile, err := v.writeKnownHosts(knownHosts)
+	knownHostsFileBastion, err := v.writeKnownHosts(knownHostsBastion)
 	if err != nil {
 		return err
 	}
-	defer os.Remove(knownHostsFile)
+	defer os.Remove(knownHostsFileBastion)
+
+	knownHostsFileTarget, err := v.writeKnownHosts(knownHostsTarget)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(knownHostsFileTarget)
 
 	for _, play := range plays {
 
@@ -205,14 +221,15 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		// we can't pass bastion instance into this function
 		// we would end up with a circular import
 		command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
-			Username:        v.connInfo.User,
-			Port:            v.connInfo.Port,
-			PemFile:         targetPemFile,
-			KnownHostsFile:  knownHostsFile,
-			BastionHost:     bastion.host(),
-			BastionPemFile:  bastionPemFile,
-			BastionPort:     bastion.port(),
-			BastionUsername: bastion.user(),
+			Username:              v.connInfo.User,
+			Port:                  v.connInfo.Port,
+			PemFile:               targetPemFile,
+			KnownHostsFile:        knownHostsFileTarget,
+			BastionKnownHostsFile: knownHostsFileBastion,
+			BastionHost:           bastion.host(),
+			BastionPemFile:        bastionPemFile,
+			BastionPort:           bastion.port(),
+			BastionUsername:       bastion.user(),
 		}, ansibleSSHSettings)
 
 		if err != nil {
@@ -249,7 +266,7 @@ func (v *LocalMode) writeKnownHosts(knownHosts []string) (string, error) {
 
 func (v *LocalMode) writePem(pk string) (string, error) {
 	if v.connInfo.PrivateKey != "" {
-		file, err := ioutil.TempFile(os.TempDir(), "temporary-private-key.pem")
+		file, err := ioutil.TempFile(os.TempDir(), uuid.Must(uuid.NewV4()).String())
 		defer file.Close()
 		if err != nil {
 			return "", err
