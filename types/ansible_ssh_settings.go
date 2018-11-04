@@ -9,9 +9,13 @@ import (
 
 // AnsibleSSHSettings represents Ansible process SSH settings.
 type AnsibleSSHSettings struct {
-	connectTimeoutSeconds int
-	connectAttempts       int
-	sshKeyscanSeconds     int
+	connectTimeoutSeconds                  int
+	connectAttempts                        int
+	sshKeyscanSeconds                      int
+	insecureNoStrictHostKeyChecking        bool
+	insecureBastionNoStrictHostKeyChecking bool
+	userKnownHostsFile                     string
+	bastionUserKnownHostsFile              string
 }
 
 const (
@@ -20,9 +24,13 @@ const (
 	ansibleSSHDefaultConnectAttempts       = 10
 	ansibleSSHDefaultSSHKeyscanSeconds     = 60
 	// attribute names:
-	ansibleSSHAttributeConnectTimeoutSeconds = "connect_timeout_seconds"
-	ansibleSSHAttributeConnectAttempts       = "connection_attempts"
-	ansibleSSHAttributeSSHKeyscanSeconds     = "ssh_keyscan_timeout"
+	ansibleSSHAttributeConnectTimeoutSeconds                  = "connect_timeout_seconds"
+	ansibleSSHAttributeConnectAttempts                        = "connection_attempts"
+	ansibleSSHAttributeSSHKeyscanSeconds                      = "ssh_keyscan_timeout"
+	ansibleSSHAttributeInsecureNoStrictHostKeyChecking        = "insecure_no_strict_host_key_checking"
+	ansibleSSHAttributeInsecureBastionNoStrictHostKeyChecking = "insecure_bastion_no_strict_host_key_checking"
+	ansibleSSHAttributeUserKnownHostsFile                     = "user_known_hosts_file"
+	ansibleSSHAttributeBastionUserKnownHostsFile              = "bastion_user_known_hosts_file"
 	// environment variable names:
 	ansibleSSHEnvConnectTimeoutSeconds = "TF_PROVISIONER_ANSIBLE_SSH_CONNECT_TIMEOUT_SECONDS"
 	ansibleSSHEnvConnectAttempts       = "TF_PROVISIONER_ANSIBLE_SSH_CONNECTION_ATTEMPTS"
@@ -66,6 +74,26 @@ func NewAnsibleSSHSettingsSchema() *schema.Schema {
 						return ansibleSSHDefaultSSHKeyscanSeconds, nil
 					},
 				},
+				ansibleSSHAttributeInsecureNoStrictHostKeyChecking: &schema.Schema{
+					Type:     schema.TypeBool,
+					Optional: true,
+					Default:  false,
+				},
+				ansibleSSHAttributeInsecureBastionNoStrictHostKeyChecking: &schema.Schema{
+					Type:     schema.TypeBool,
+					Optional: true,
+					Default:  false,
+				},
+				ansibleSSHAttributeUserKnownHostsFile: &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
+					Default:  "",
+				},
+				ansibleSSHAttributeBastionUserKnownHostsFile: &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
+					Default:  "",
+				},
 			},
 		},
 	}
@@ -83,6 +111,10 @@ func NewAnsibleSSHSettingsFromInterface(i interface{}, ok bool) *AnsibleSSHSetti
 		v.connectTimeoutSeconds = vals[ansibleSSHAttributeConnectTimeoutSeconds].(int)
 		v.connectAttempts = vals[ansibleSSHAttributeConnectAttempts].(int)
 		v.sshKeyscanSeconds = vals[ansibleSSHAttributeSSHKeyscanSeconds].(int)
+		v.insecureNoStrictHostKeyChecking = vals[ansibleSSHAttributeInsecureNoStrictHostKeyChecking].(bool)
+		v.insecureBastionNoStrictHostKeyChecking = vals[ansibleSSHAttributeInsecureBastionNoStrictHostKeyChecking].(bool)
+		v.userKnownHostsFile = vals[ansibleSSHAttributeUserKnownHostsFile].(string)
+		v.bastionUserKnownHostsFile = vals[ansibleSSHAttributeBastionUserKnownHostsFile].(string)
 	}
 	return v
 }
@@ -100,4 +132,24 @@ func (v *AnsibleSSHSettings) ConnectAttempts() int {
 // SSHKeyscanSeconds reutrn Ansible process SSH keyscan timeout.
 func (v *AnsibleSSHSettings) SSHKeyscanSeconds() int {
 	return v.sshKeyscanSeconds
+}
+
+// InsecureNoStrictHostKeyChecking if true, SSH to the target host uses -o StrictHostKeyChecking=no.
+func (v *AnsibleSSHSettings) InsecureNoStrictHostKeyChecking() bool {
+	return v.insecureNoStrictHostKeyChecking
+}
+
+// InsecureBastionNoStrictHostKeyChecking if true, SSH to the bastion host uses -o StrictHostKeyChecking=no.
+func (v *AnsibleSSHSettings) InsecureBastionNoStrictHostKeyChecking() bool {
+	return v.insecureBastionNoStrictHostKeyChecking
+}
+
+// UserKnownHostsFile returns a path to the user known hosts file for the target host.
+func (v *AnsibleSSHSettings) UserKnownHostsFile() string {
+	return v.userKnownHostsFile
+}
+
+// BastionUserKnownHostsFile returns a path to the user known hosts file for the bastion host.
+func (v *AnsibleSSHSettings) BastionUserKnownHostsFile() string {
+	return v.bastionUserKnownHostsFile
 }

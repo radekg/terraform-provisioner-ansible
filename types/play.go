@@ -496,18 +496,33 @@ func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSe
 
 	sshExtraAgrsOptions := make([]string, 0)
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-p %d", ansibleArgs.Port))
-	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o UserKnownHostsFile=%s", ansibleArgs.KnownHostsFile))
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectTimeout=%d", ansibleSSHSettings.ConnectTimeoutSeconds()))
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectionAttempts=%d", ansibleSSHSettings.ConnectAttempts()))
+	if ansibleSSHSettings.InsecureNoStrictHostKeyChecking() {
+		sshExtraAgrsOptions = append(sshExtraAgrsOptions, "-o StrictHostKeyChecking=no")
+	} else {
+		if ansibleSSHSettings.UserKnownHostsFile() != "" {
+			sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o UserKnownHostsFile=%s", ansibleSSHSettings.UserKnownHostsFile()))
+		} else {
+			sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o UserKnownHostsFile=%s", ansibleArgs.KnownHostsFile))
+		}
+	}
 	if ansibleArgs.BastionHost != "" {
-		sshExtraAgrsOptions = append(
-			sshExtraAgrsOptions,
-			fmt.Sprintf(
-				"-o ProxyCommand=\"ssh -p %d -W %%h:%%p %s@%s -o UserKnownHostsFile=%s\"",
-				ansibleArgs.BastionPort,
-				ansibleArgs.BastionUsername,
-				ansibleArgs.BastionHost,
-				ansibleArgs.KnownHostsFile))
+		proxyCommand := "-o ProxyCommand=\"ssh"
+		proxyCommand = fmt.Sprintf("%s -p %d", proxyCommand, ansibleArgs.BastionPort)
+		proxyCommand = fmt.Sprintf("%s -W %%h:%%p %s@%s", proxyCommand, ansibleArgs.BastionUsername, ansibleArgs.BastionHost)
+		if ansibleSSHSettings.InsecureBastionNoStrictHostKeyChecking() {
+			proxyCommand = fmt.Sprintf("%s -o StrictHostKeyChecking=no", proxyCommand)
+		} else {
+			if ansibleSSHSettings.BastionUserKnownHostsFile() != "" {
+				proxyCommand = fmt.Sprintf("%s -o UserKnownHostsFile=%s", proxyCommand, ansibleSSHSettings.BastionUserKnownHostsFile())
+			} else {
+				proxyCommand = fmt.Sprintf("%s -o UserKnownHostsFile=%s", proxyCommand, ansibleArgs.KnownHostsFile)
+			}
+		}
+		proxyCommand = fmt.Sprintf("%s\"", proxyCommand)
+
+		sshExtraAgrsOptions = append(sshExtraAgrsOptions, proxyCommand)
 		if ansibleArgs.BastionPemFile == "" && os.Getenv("SSH_AUTH_SOCK") != "" {
 			sshExtraAgrsOptions = append(sshExtraAgrsOptions, "-o ForwardAgent=yes")
 		}

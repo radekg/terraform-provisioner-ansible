@@ -100,28 +100,43 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 			return err
 		}
 		defer sshClient.Close()
-		if target.hostKey() == "" {
-			v.o.Output(fmt.Sprintf("Host key not given, executing ssh-keyscan on bastion: %s@%s:%d",
+		if !ansibleSSHSettings.InsecureNoStrictHostKeyChecking() {
+			if ansibleSSHSettings.UserKnownHostsFile() == "" {
+				if target.hostKey() == "" {
+					v.o.Output(fmt.Sprintf("Host key not given, executing ssh-keyscan on bastion: %s@%s:%d",
+						bastion.user(),
+						bastion.host(),
+						bastion.port()))
+					targetKnownHosts, err := newBastionKeyScan(v.o,
+						sshClient,
+						target.host(),
+						target.port(),
+						ansibleSSHSettings.SSHKeyscanSeconds()).scan()
+					if err != nil {
+						return err
+					}
+					// ssh-keyscan gave us full lines with hosts, like this:
+					// <ip> ecdsa-sha2-nistp256 AAAA...
+					// <ip> ssh-rsa AAAAB...
+					// <ip> ssh-ed25519 AAAAC...
+					knownHosts = append(knownHosts, targetKnownHosts)
+				} else {
+					knownHosts = append(knownHosts, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
+				}
+			} else {
+				v.o.Output(fmt.Sprintf("bastion %s@%s:%d will use '%s' as a user known hosts file",
+					bastion.user(),
+					bastion.host(),
+					bastion.port(),
+					ansibleSSHSettings.UserKnownHostsFile()))
+			}
+			knownHosts = append(knownHosts, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
+		} else {
+			v.o.Output(fmt.Sprintf("target host StrictHostKeyChecking=no, not verifying host keys on bastion: %s@%s:%d",
 				bastion.user(),
 				bastion.host(),
 				bastion.port()))
-			targetKnownHosts, err := newBastionKeyScan(v.o,
-				sshClient,
-				target.host(),
-				target.port(),
-				ansibleSSHSettings.SSHKeyscanSeconds()).scan()
-			if err != nil {
-				return err
-			}
-			// ssh-keyscan gave us full lines with hosts, like this:
-			// <ip> ecdsa-sha2-nistp256 AAAA...
-			// <ip> ssh-rsa AAAAB...
-			// <ip> ssh-ed25519 AAAAC...
-			knownHosts = append(knownHosts, targetKnownHosts)
-		} else {
-			knownHosts = append(knownHosts, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
 		}
-		knownHosts = append(knownHosts, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
 	} else {
 		if target.hostKey() == "" {
 
