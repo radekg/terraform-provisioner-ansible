@@ -72,28 +72,28 @@ All examples execute a great task of installing `tree` on the bootstrapped host.
 
 After testing each of the examples, you will need to destroy the infrastructure. Examples share names but they don't share state.
 
-1. `local-no-bastion`: run local provisioning for a host without a bastion
+1. `sshagent-local-no-bastion`: run local provisioning for a host without a bastion
     
     ```
-    cd local-no-bastion
+    cd sshagent-local-no-bastion
     terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
     # ...
     terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
     ```
 
-2. `remote-no-bastion`: run remote provisioning for a host without a bastion
+2. `sshagent-remote-no-bastion`: run remote provisioning for a host without a bastion
 
     ```
-    cd remote-no-bastion
+    cd sshagent-remote-no-bastion
     terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
     # ...
     terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
     ```
 
-3. `local-with-bastion`: VPC setup, bastion, provision local over bastion
+3. `sshagent-local-with-bastion`: VPC setup, bastion, provision local over bastion
     
     ```
-    cd local-with-bastion
+    cd sshagent-local-with-bastion
     export R_NAME=terraform-provisioner-ansible
     export R_REGION=eu-central-1
     export R_VPC_CIDR_BLOCK=10.0.0.0/16
@@ -116,10 +116,10 @@ After testing each of the examples, you will need to destroy the infrastructure.
         -var "infrastructure_name=${R_NAME}-local"
     ```
 
-4. `remote-with-bastion`: VPC setup, bastion, provision remote over bastion
+4. `sshagent-remote-with-bastion`: VPC setup, bastion, provision remote over bastion
     
     ```
-    cd remote-with-bastion
+    cd sshagent-remote-with-bastion
     export R_NAME=terraform-provisioner-ansible
     export R_REGION=eu-central-1
     export R_VPC_CIDR_BLOCK=10.0.0.0/16
