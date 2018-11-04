@@ -33,6 +33,26 @@ If you find yourself in need of executing Ansible against well specified, comple
 
 ## Installation
 
+### Using Docker
+
+A [Dockerfile](Dockerfile) is included to create an image containing terraform, ansible, and the provisioner. To use the Docker image, first build it:
+
+```console
+$ docker build -t terraform-ansible .
+```
+
+Then, from the directory containing your terraform configuration, run terraform in the container:
+
+```console
+$ cd /my-terraform-project
+$ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible init
+$ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible apply
+```
+
+### Local Installation
+
+Note that although `terraform-provisioner-ansible` is in the [terraform registry](https://registry.terraform.io/modules/radekg/ansible/provisioner/2.0.0), it cannot be installed using a `module` terraform stanza, as such a configuration will not cause terraform to download the `terraform-provisioner-ansible` binary.
+
 [Prebuilt releases are available on GitHub](https://github.com/radekg/terraform-provisioner-ansible/releases). Download a release for the version you require and place it in `~/.terraform.d/plugins` directory, as [documented here](https://www.terraform.io/docs/plugins/basics.html).
 
 **Caution: you will need to rename the file to match the pattern recognized by Terraform: `terraform-provisioner-ansible_v<version>`.**
@@ -415,3 +435,5 @@ After the release is cut, build the binaries for the release:
     ./bin/build-release-binaries.sh
 
 After the binaries are built, upload the to GitHub release.
+
+Note that the version is hardcoded in the [Dockerfile](Dockerfile). You may wish to update it after release.
