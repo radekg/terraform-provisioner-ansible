@@ -454,6 +454,6 @@ After the release is cut, build the binaries for the release:
     git checkout v${RELEASE_VERSION}
     ./bin/build-release-binaries.sh
 
-After the binaries are built, upload the to GitHub release.
+After the binaries are built, upload them to the GitHub release.
 
 Note that the version is hardcoded in the [Dockerfile](Dockerfile). You may wish to update it after release.
