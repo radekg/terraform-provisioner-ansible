@@ -9,11 +9,14 @@ import (
 	"github.com/masterzen/winrm/soap"
 
 	. "gopkg.in/check.v1"
+	"net"
+	"time"
 )
 
 type Requester struct {
 	http      func(*Client, *soap.SoapMessage) (string, error)
 	transport http.RoundTripper
+	dial func(network, addr string) (net.Conn, error)
 }
 
 func (r Requester) Post(client *Client, request *soap.SoapMessage) (string, error) {
@@ -26,6 +29,7 @@ func (r Requester) Transport(endpoint *Endpoint) error {
 			InsecureSkipVerify: endpoint.Insecure,
 		},
 		ResponseHeaderTimeout: endpoint.Timeout,
+		Dial: r.dial,
 	}
 
 	if endpoint.CACert != nil && len(endpoint.CACert) > 0 {
@@ -215,4 +219,30 @@ func (s *WinRMSuite) TestReplaceTransportWithDecorator(c *C) {
 	c.Assert(err, IsNil)
 	_, ok := client.http.(*ClientAuthRequest)
 	c.Assert(ok, Equals, true)
+}
+
+
+func (s *WinRMSuite) TestReplaceDial(c *C) {
+	ts, host, port, err := runWinRMFakeServer(c, "this is the input")
+	c.Assert(err, IsNil)
+	defer ts.Close()
+
+	normalDialer := (&net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}).Dial
+
+	params := NewParameters("PT60S", "en-US", 153600)
+	usedCustomDial := false
+	params.Dial = func(network, addr string) (net.Conn, error) {
+		usedCustomDial = true
+		return normalDialer(network, addr)
+	}
+
+	endpoint := NewEndpoint(host, port, false, false, nil, nil, nil, 0)
+	client, err := NewClientWithParameters(endpoint, "Administrator", "v3r1S3cre7", params)
+	var stdout, stderr bytes.Buffer
+	_, err = client.Run("ipconfig /all", &stdout, &stderr)
+	c.Assert(err, IsNil)
+	c.Assert(usedCustomDial, Equals, true)
 }

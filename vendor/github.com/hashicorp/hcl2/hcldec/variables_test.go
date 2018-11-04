@@ -5,8 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/hcl2/hcl/hclsyntax"
 	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl2/hcl/hclsyntax"
+	"github.com/zclconf/go-cty/cty"
 )
 
 func TestVariables(t *testing.T) {
@@ -37,6 +38,37 @@ func TestVariables(t *testing.T) {
 						SrcRange: hcl.Range{
 							Start: hcl.Pos{Line: 1, Column: 5, Byte: 4},
 							End:   hcl.Pos{Line: 1, Column: 8, Byte: 7},
+						},
+					},
+				},
+			},
+		},
+		{
+			"a = foo\nb = bar\n",
+			&DefaultSpec{
+				Primary: &AttrSpec{
+					Name: "a",
+				},
+				Default: &AttrSpec{
+					Name: "b",
+				},
+			},
+			[]hcl.Traversal{
+				{
+					hcl.TraverseRoot{
+						Name: "foo",
+						SrcRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 5, Byte: 4},
+							End:   hcl.Pos{Line: 1, Column: 8, Byte: 7},
+						},
+					},
+				},
+				{
+					hcl.TraverseRoot{
+						Name: "bar",
+						SrcRange: hcl.Range{
+							Start: hcl.Pos{Line: 2, Column: 5, Byte: 12},
+							End:   hcl.Pos{Line: 2, Column: 8, Byte: 15},
 						},
 					},
 				},
@@ -80,6 +112,38 @@ b {
 						SrcRange: hcl.Range{
 							Start: hcl.Pos{Line: 3, Column: 7, Byte: 11},
 							End:   hcl.Pos{Line: 3, Column: 10, Byte: 14},
+						},
+					},
+				},
+			},
+		},
+		{
+			`
+b {
+  a = foo
+  b = bar
+}
+`,
+			&BlockAttrsSpec{
+				TypeName:    "b",
+				ElementType: cty.String,
+			},
+			[]hcl.Traversal{
+				{
+					hcl.TraverseRoot{
+						Name: "foo",
+						SrcRange: hcl.Range{
+							Start: hcl.Pos{Line: 3, Column: 7, Byte: 11},
+							End:   hcl.Pos{Line: 3, Column: 10, Byte: 14},
+						},
+					},
+				},
+				{
+					hcl.TraverseRoot{
+						Name: "bar",
+						SrcRange: hcl.Range{
+							Start: hcl.Pos{Line: 4, Column: 7, Byte: 21},
+							End:   hcl.Pos{Line: 4, Column: 10, Byte: 24},
 						},
 					},
 				},

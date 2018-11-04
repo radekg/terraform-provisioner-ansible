@@ -14,8 +14,8 @@ const opCreateEnvironmentEC2 = "CreateEnvironmentEC2"
 
 // CreateEnvironmentEC2Request generates a "aws/request.Request" representing the
 // client's request for the CreateEnvironmentEC2 operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -55,8 +55,8 @@ func (c *Cloud9) CreateEnvironmentEC2Request(input *CreateEnvironmentEC2Input) (
 // CreateEnvironmentEC2 API operation for AWS Cloud9.
 //
 // Creates an AWS Cloud9 development environment, launches an Amazon Elastic
-// Compute Cloud (Amazon EC2) instance, and then hosts the environment on the
-// instance.
+// Compute Cloud (Amazon EC2) instance, and then connects from the instance
+// to the environment.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -113,8 +113,8 @@ const opCreateEnvironmentMembership = "CreateEnvironmentMembership"
 
 // CreateEnvironmentMembershipRequest generates a "aws/request.Request" representing the
 // client's request for the CreateEnvironmentMembership operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -210,8 +210,8 @@ const opDeleteEnvironment = "DeleteEnvironment"
 
 // DeleteEnvironmentRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteEnvironment operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -250,9 +250,8 @@ func (c *Cloud9) DeleteEnvironmentRequest(input *DeleteEnvironmentInput) (req *r
 
 // DeleteEnvironment API operation for AWS Cloud9.
 //
-// Deletes an AWS Cloud9 development environment. If the environment is hosted
-// on an Amazon Elastic Compute Cloud (Amazon EC2) instance, also terminates
-// the instance.
+// Deletes an AWS Cloud9 development environment. If an Amazon EC2 instance
+// is connected to the environment, also terminates the instance.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -309,8 +308,8 @@ const opDeleteEnvironmentMembership = "DeleteEnvironmentMembership"
 
 // DeleteEnvironmentMembershipRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteEnvironmentMembership operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -406,8 +405,8 @@ const opDescribeEnvironmentMemberships = "DescribeEnvironmentMemberships"
 
 // DescribeEnvironmentMembershipsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeEnvironmentMemberships operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -560,8 +559,8 @@ const opDescribeEnvironmentStatus = "DescribeEnvironmentStatus"
 
 // DescribeEnvironmentStatusRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeEnvironmentStatus operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -657,8 +656,8 @@ const opDescribeEnvironments = "DescribeEnvironments"
 
 // DescribeEnvironmentsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeEnvironments operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -754,8 +753,8 @@ const opListEnvironments = "ListEnvironments"
 
 // ListEnvironmentsRequest generates a "aws/request.Request" representing the
 // client's request for the ListEnvironments operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -907,8 +906,8 @@ const opUpdateEnvironment = "UpdateEnvironment"
 
 // UpdateEnvironmentRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateEnvironment operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1004,8 +1003,8 @@ const opUpdateEnvironmentMembership = "UpdateEnvironmentMembership"
 
 // UpdateEnvironmentMembershipRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateEnvironmentMembership operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1098,7 +1097,6 @@ func (c *Cloud9) UpdateEnvironmentMembershipWithContext(ctx aws.Context, input *
 	return out, req.Send()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/CreateEnvironmentEC2Request
 type CreateEnvironmentEC2Input struct {
 	_ struct{} `type:"structure"`
 
@@ -1116,7 +1114,7 @@ type CreateEnvironmentEC2Input struct {
 	// The description of the environment to create.
 	Description *string `locationName:"description" type:"string"`
 
-	// The type of instance to host the environment on (for example, t2.micro).
+	// The type of instance to connect to the environment (for example, t2.micro).
 	//
 	// InstanceType is a required field
 	InstanceType *string `locationName:"instanceType" min:"5" type:"string" required:"true"`
@@ -1215,7 +1213,6 @@ func (s *CreateEnvironmentEC2Input) SetSubnetId(v string) *CreateEnvironmentEC2I
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/CreateEnvironmentEC2Result
 type CreateEnvironmentEC2Output struct {
 	_ struct{} `type:"structure"`
 
@@ -1239,7 +1236,6 @@ func (s *CreateEnvironmentEC2Output) SetEnvironmentId(v string) *CreateEnvironme
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/CreateEnvironmentMembershipRequest
 type CreateEnvironmentMembershipInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1312,7 +1308,6 @@ func (s *CreateEnvironmentMembershipInput) SetUserArn(v string) *CreateEnvironme
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/CreateEnvironmentMembershipResult
 type CreateEnvironmentMembershipOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1336,7 +1331,6 @@ func (s *CreateEnvironmentMembershipOutput) SetMembership(v *EnvironmentMember) 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DeleteEnvironmentRequest
 type DeleteEnvironmentInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1375,7 +1369,6 @@ func (s *DeleteEnvironmentInput) SetEnvironmentId(v string) *DeleteEnvironmentIn
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DeleteEnvironmentMembershipRequest
 type DeleteEnvironmentMembershipInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1429,7 +1422,6 @@ func (s *DeleteEnvironmentMembershipInput) SetUserArn(v string) *DeleteEnvironme
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DeleteEnvironmentMembershipResult
 type DeleteEnvironmentMembershipOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -1444,7 +1436,6 @@ func (s DeleteEnvironmentMembershipOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DeleteEnvironmentResult
 type DeleteEnvironmentOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -1459,7 +1450,6 @@ func (s DeleteEnvironmentOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DescribeEnvironmentMembershipsRequest
 type DescribeEnvironmentMembershipsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1535,7 +1525,6 @@ func (s *DescribeEnvironmentMembershipsInput) SetUserArn(v string) *DescribeEnvi
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DescribeEnvironmentMembershipsResult
 type DescribeEnvironmentMembershipsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1571,7 +1560,6 @@ func (s *DescribeEnvironmentMembershipsOutput) SetNextToken(v string) *DescribeE
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DescribeEnvironmentStatusRequest
 type DescribeEnvironmentStatusInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1610,7 +1598,6 @@ func (s *DescribeEnvironmentStatusInput) SetEnvironmentId(v string) *DescribeEnv
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DescribeEnvironmentStatusResult
 type DescribeEnvironmentStatusOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1657,11 +1644,10 @@ func (s *DescribeEnvironmentStatusOutput) SetStatus(v string) *DescribeEnvironme
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DescribeEnvironmentsRequest
 type DescribeEnvironmentsInput struct {
 	_ struct{} `type:"structure"`
 
-	// The IDs of invidividual environments to get information about.
+	// The IDs of individual environments to get information about.
 	//
 	// EnvironmentIds is a required field
 	EnvironmentIds []*string `locationName:"environmentIds" min:"1" type:"list" required:"true"`
@@ -1699,7 +1685,6 @@ func (s *DescribeEnvironmentsInput) SetEnvironmentIds(v []*string) *DescribeEnvi
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/DescribeEnvironmentsResult
 type DescribeEnvironmentsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1724,7 +1709,6 @@ func (s *DescribeEnvironmentsOutput) SetEnvironments(v []*Environment) *Describe
 }
 
 // Information about an AWS Cloud9 development environment.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/Environment
 type Environment struct {
 	_ struct{} `type:"structure"`
 
@@ -1745,10 +1729,10 @@ type Environment struct {
 
 	// The type of environment. Valid values include the following:
 	//
-	//    * ec2: An environment hosted on an Amazon Elastic Compute Cloud (Amazon
-	//    EC2) instance.
+	//    * ec2: An Amazon Elastic Compute Cloud (Amazon EC2) instance connects
+	//    to the environment.
 	//
-	//    * ssh: An environment hosted on your own server.
+	//    * ssh: Your own server connects to the environment.
 	Type *string `locationName:"type" type:"string" enum:"EnvironmentType"`
 }
 
@@ -1799,7 +1783,6 @@ func (s *Environment) SetType(v string) *Environment {
 }
 
 // Information about an environment member for an AWS Cloud9 development environment.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/EnvironmentMember
 type EnvironmentMember struct {
 	_ struct{} `type:"structure"`
 
@@ -1808,7 +1791,7 @@ type EnvironmentMember struct {
 
 	// The time, expressed in epoch time format, when the environment member last
 	// opened the environment.
-	LastAccess *time.Time `locationName:"lastAccess" type:"timestamp" timestampFormat:"unix"`
+	LastAccess *time.Time `locationName:"lastAccess" type:"timestamp"`
 
 	// The type of environment member permissions associated with this environment
 	// member. Available values include:
@@ -1868,7 +1851,6 @@ func (s *EnvironmentMember) SetUserId(v string) *EnvironmentMember {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/ListEnvironmentsRequest
 type ListEnvironmentsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1906,7 +1888,6 @@ func (s *ListEnvironmentsInput) SetNextToken(v string) *ListEnvironmentsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/ListEnvironmentsResult
 type ListEnvironmentsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1942,7 +1923,6 @@ func (s *ListEnvironmentsOutput) SetNextToken(v string) *ListEnvironmentsOutput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/UpdateEnvironmentRequest
 type UpdateEnvironmentInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1954,7 +1934,7 @@ type UpdateEnvironmentInput struct {
 	// EnvironmentId is a required field
 	EnvironmentId *string `locationName:"environmentId" type:"string" required:"true"`
 
-	// Any replacement name for the environment.
+	// A replacement name for the environment.
 	Name *string `locationName:"name" min:"1" type:"string"`
 }
 
@@ -2002,7 +1982,6 @@ func (s *UpdateEnvironmentInput) SetName(v string) *UpdateEnvironmentInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/UpdateEnvironmentMembershipRequest
 type UpdateEnvironmentMembershipInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2076,7 +2055,6 @@ func (s *UpdateEnvironmentMembershipInput) SetUserArn(v string) *UpdateEnvironme
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/UpdateEnvironmentMembershipResult
 type UpdateEnvironmentMembershipOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2100,7 +2078,6 @@ func (s *UpdateEnvironmentMembershipOutput) SetMembership(v *EnvironmentMember) 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/cloud9-2017-09-23/UpdateEnvironmentResult
 type UpdateEnvironmentOutput struct {
 	_ struct{} `type:"structure"`
 }

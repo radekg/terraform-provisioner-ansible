@@ -12,8 +12,8 @@ const opDescribeJobExecution = "DescribeJobExecution"
 
 // DescribeJobExecutionRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeJobExecution operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -108,8 +108,8 @@ const opGetPendingJobExecutions = "GetPendingJobExecutions"
 
 // GetPendingJobExecutionsRequest generates a "aws/request.Request" representing the
 // client's request for the GetPendingJobExecutions operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -201,8 +201,8 @@ const opStartNextPendingJobExecution = "StartNextPendingJobExecution"
 
 // StartNextPendingJobExecutionRequest generates a "aws/request.Request" representing the
 // client's request for the StartNextPendingJobExecution operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -295,8 +295,8 @@ const opUpdateJobExecution = "UpdateJobExecution"
 
 // UpdateJobExecutionRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateJobExecution operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -390,7 +390,6 @@ func (c *IoTJobsDataPlane) UpdateJobExecutionWithContext(ctx aws.Context, input 
 	return out, req.Send()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/DescribeJobExecutionRequest
 type DescribeJobExecutionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -466,7 +465,6 @@ func (s *DescribeJobExecutionInput) SetThingName(v string) *DescribeJobExecution
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/DescribeJobExecutionResponse
 type DescribeJobExecutionOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -490,7 +488,6 @@ func (s *DescribeJobExecutionOutput) SetExecution(v *JobExecution) *DescribeJobE
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/GetPendingJobExecutionsRequest
 type GetPendingJobExecutionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -532,7 +529,6 @@ func (s *GetPendingJobExecutionsInput) SetThingName(v string) *GetPendingJobExec
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/GetPendingJobExecutionsResponse
 type GetPendingJobExecutionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -566,9 +562,12 @@ func (s *GetPendingJobExecutionsOutput) SetQueuedJobs(v []*JobExecutionSummary) 
 }
 
 // Contains data about a job execution.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/JobExecution
 type JobExecution struct {
 	_ struct{} `type:"structure"`
+
+	// The estimated number of seconds that remain before the job execution status
+	// will be changed to TIMED_OUT.
+	ApproximateSecondsBeforeTimedOut *int64 `locationName:"approximateSecondsBeforeTimedOut" type:"long"`
 
 	// A number that identifies a particular job execution on a particular device.
 	// It can be used later in commands that return or update job execution information.
@@ -613,6 +612,12 @@ func (s JobExecution) String() string {
 // GoString returns the string representation
 func (s JobExecution) GoString() string {
 	return s.String()
+}
+
+// SetApproximateSecondsBeforeTimedOut sets the ApproximateSecondsBeforeTimedOut field's value.
+func (s *JobExecution) SetApproximateSecondsBeforeTimedOut(v int64) *JobExecution {
+	s.ApproximateSecondsBeforeTimedOut = &v
+	return s
 }
 
 // SetExecutionNumber sets the ExecutionNumber field's value.
@@ -676,7 +681,6 @@ func (s *JobExecution) SetVersionNumber(v int64) *JobExecution {
 }
 
 // Contains data about the state of a job execution.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/JobExecutionState
 type JobExecutionState struct {
 	_ struct{} `type:"structure"`
 
@@ -721,7 +725,6 @@ func (s *JobExecutionState) SetVersionNumber(v int64) *JobExecutionState {
 }
 
 // Contains a subset of information about a job execution.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/JobExecutionSummary
 type JobExecutionSummary struct {
 	_ struct{} `type:"structure"`
 
@@ -792,13 +795,22 @@ func (s *JobExecutionSummary) SetVersionNumber(v int64) *JobExecutionSummary {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/StartNextPendingJobExecutionRequest
 type StartNextPendingJobExecutionInput struct {
 	_ struct{} `type:"structure"`
 
 	// A collection of name/value pairs that describe the status of the job execution.
 	// If not specified, the statusDetails are unchanged.
 	StatusDetails map[string]*string `locationName:"statusDetails" type:"map"`
+
+	// Specifies the amount of time this device has to finish execution of this
+	// job. If the job execution status is not set to a terminal state before this
+	// timer expires, or before the timer is reset (by calling UpdateJobExecution,
+	// setting the status to IN_PROGRESS and specifying a new timeout value in field
+	// stepTimeoutInMinutes) the job execution status will be automatically set
+	// to TIMED_OUT. Note that setting this timeout has no effect on that job execution
+	// timeout which may have been specified when the job was created (CreateJob
+	// using field timeoutConfig).
+	StepTimeoutInMinutes *int64 `locationName:"stepTimeoutInMinutes" type:"long"`
 
 	// The name of the thing associated with the device.
 	//
@@ -838,13 +850,18 @@ func (s *StartNextPendingJobExecutionInput) SetStatusDetails(v map[string]*strin
 	return s
 }
 
+// SetStepTimeoutInMinutes sets the StepTimeoutInMinutes field's value.
+func (s *StartNextPendingJobExecutionInput) SetStepTimeoutInMinutes(v int64) *StartNextPendingJobExecutionInput {
+	s.StepTimeoutInMinutes = &v
+	return s
+}
+
 // SetThingName sets the ThingName field's value.
 func (s *StartNextPendingJobExecutionInput) SetThingName(v string) *StartNextPendingJobExecutionInput {
 	s.ThingName = &v
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/StartNextPendingJobExecutionResponse
 type StartNextPendingJobExecutionOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -868,7 +885,6 @@ func (s *StartNextPendingJobExecutionOutput) SetExecution(v *JobExecution) *Star
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/UpdateJobExecutionRequest
 type UpdateJobExecutionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -907,6 +923,16 @@ type UpdateJobExecutionInput struct {
 	// Optional. A collection of name/value pairs that describe the status of the
 	// job execution. If not specified, the statusDetails are unchanged.
 	StatusDetails map[string]*string `locationName:"statusDetails" type:"map"`
+
+	// Specifies the amount of time this device has to finish execution of this
+	// job. If the job execution status is not set to a terminal state before this
+	// timer expires, or before the timer is reset (by again calling UpdateJobExecution,
+	// setting the status to IN_PROGRESS and specifying a new timeout value in this
+	// field) the job execution status will be automatically set to TIMED_OUT. Note
+	// that setting or resetting this timeout has no effect on that job execution
+	// timeout which may have been specified when the job was created (CreateJob
+	// using field timeoutConfig).
+	StepTimeoutInMinutes *int64 `locationName:"stepTimeoutInMinutes" type:"long"`
 
 	// The name of the thing associated with the device.
 	//
@@ -991,13 +1017,18 @@ func (s *UpdateJobExecutionInput) SetStatusDetails(v map[string]*string) *Update
 	return s
 }
 
+// SetStepTimeoutInMinutes sets the StepTimeoutInMinutes field's value.
+func (s *UpdateJobExecutionInput) SetStepTimeoutInMinutes(v int64) *UpdateJobExecutionInput {
+	s.StepTimeoutInMinutes = &v
+	return s
+}
+
 // SetThingName sets the ThingName field's value.
 func (s *UpdateJobExecutionInput) SetThingName(v string) *UpdateJobExecutionInput {
 	s.ThingName = &v
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/iot-jobs-data-2017-09-29/UpdateJobExecutionResponse
 type UpdateJobExecutionOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1042,6 +1073,9 @@ const (
 
 	// JobExecutionStatusFailed is a JobExecutionStatus enum value
 	JobExecutionStatusFailed = "FAILED"
+
+	// JobExecutionStatusTimedOut is a JobExecutionStatus enum value
+	JobExecutionStatusTimedOut = "TIMED_OUT"
 
 	// JobExecutionStatusRejected is a JobExecutionStatus enum value
 	JobExecutionStatusRejected = "REJECTED"

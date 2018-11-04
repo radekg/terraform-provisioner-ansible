@@ -148,6 +148,7 @@ func main() {
 					"-D":        complete.PredictAnything,
 					"-I":        complete.PredictDirs("*"),
 					"-S":        complete.PredictNothing,
+					"-V":        complete.PredictNothing,
 					"-debug":    complete.PredictNothing,
 					"-dynlink":  complete.PredictNothing,
 					"-e":        complete.PredictNothing,
@@ -261,7 +262,57 @@ func main() {
 				},
 				Args: anyGo,
 			},
-			"link": {},
+			"link": {
+				Flags: complete.Flags{
+					"-B":              complete.PredictAnything,  // note
+					"-D":              complete.PredictAnything,  // address (default -1)
+					"-E":              complete.PredictAnything,  // entry symbol name
+					"-H":              complete.PredictAnything,  // header type
+					"-I":              complete.PredictAnything,  // linker binary
+					"-L":              complete.PredictDirs("*"), // directory
+					"-R":              complete.PredictAnything,  // quantum (default -1)
+					"-T":              complete.PredictAnything,  // address (default -1)
+					"-V":              complete.PredictNothing,
+					"-X":              complete.PredictAnything,
+					"-a":              complete.PredictAnything,
+					"-buildid":        complete.PredictAnything, // build id
+					"-buildmode":      complete.PredictAnything,
+					"-c":              complete.PredictNothing,
+					"-cpuprofile":     anyFile,
+					"-d":              complete.PredictNothing,
+					"-debugtramp":     complete.PredictAnything, // int
+					"-dumpdep":        complete.PredictNothing,
+					"-extar":          complete.PredictAnything,
+					"-extld":          complete.PredictAnything,
+					"-extldflags":     complete.PredictAnything, // flags
+					"-f":              complete.PredictNothing,
+					"-g":              complete.PredictNothing,
+					"-importcfg":      anyFile,
+					"-installsuffix":  complete.PredictAnything, // dir suffix
+					"-k":              complete.PredictAnything, // symbol
+					"-libgcc":         complete.PredictAnything, // maybe "none"
+					"-linkmode":       complete.PredictAnything, // mode
+					"-linkshared":     complete.PredictNothing,
+					"-memprofile":     anyFile,
+					"-memprofilerate": complete.PredictAnything, // rate
+					"-msan":           complete.PredictNothing,
+					"-n":              complete.PredictNothing,
+					"-o":              complete.PredictAnything,
+					"-pluginpath":     complete.PredictAnything,
+					"-r":              complete.PredictAnything, // "dir1:dir2:..."
+					"-race":           complete.PredictNothing,
+					"-s":              complete.PredictNothing,
+					"-tmpdir":         complete.PredictDirs("*"),
+					"-u":              complete.PredictNothing,
+					"-v":              complete.PredictNothing,
+					"-w":              complete.PredictNothing,
+					// "-h":           complete.PredictAnything, // halt on error
+				},
+				Args: complete.PredictOr(
+					complete.PredictFiles("*.a"),
+					complete.PredictFiles("*.o"),
+				),
+			},
 			"nm": {
 				Flags: complete.Flags{
 					"-n":    complete.PredictNothing,
@@ -274,10 +325,29 @@ func main() {
 			"objdump": {
 				Flags: complete.Flags{
 					"-s": complete.PredictAnything,
+					"-S": complete.PredictNothing,
 				},
 				Args: anyFile,
 			},
-			"pack": {},
+			"pack": {
+				/* this lacks the positional aspect of all these params */
+				Flags: complete.Flags{
+					"c":  complete.PredictNothing,
+					"p":  complete.PredictNothing,
+					"r":  complete.PredictNothing,
+					"t":  complete.PredictNothing,
+					"x":  complete.PredictNothing,
+					"cv": complete.PredictNothing,
+					"pv": complete.PredictNothing,
+					"rv": complete.PredictNothing,
+					"tv": complete.PredictNothing,
+					"xv": complete.PredictNothing,
+				},
+				Args: complete.PredictOr(
+					complete.PredictFiles("*.a"),
+					complete.PredictFiles("*.o"),
+				),
+			},
 			"pprof": {
 				Flags: complete.Flags{
 					"-callgrind":     complete.PredictNothing,
@@ -379,7 +449,7 @@ func main() {
 					"-unusedfuncs":         complete.PredictAnything,
 					"-unusedresult":        complete.PredictNothing,
 					"-unusedstringmethods": complete.PredictAnything,
-					"-v": complete.PredictNothing,
+					"-v":                   complete.PredictNothing,
 				},
 				Args: anyGo,
 			},
@@ -388,10 +458,13 @@ func main() {
 
 	clean := complete.Command{
 		Flags: complete.Flags{
-			"-i": complete.PredictNothing,
-			"-r": complete.PredictNothing,
-			"-n": complete.PredictNothing,
-			"-x": complete.PredictNothing,
+			"-i":         complete.PredictNothing,
+			"-r":         complete.PredictNothing,
+			"-n":         complete.PredictNothing,
+			"-x":         complete.PredictNothing,
+			"-cache":     complete.PredictNothing,
+			"-testcache": complete.PredictNothing,
+			"-modcache":  complete.PredictNothing,
 		},
 		Args: complete.PredictOr(anyPackage, ellipsis),
 	}
@@ -405,6 +478,121 @@ func main() {
 
 	fix := complete.Command{
 		Args: anyGo,
+	}
+
+	modDownload := complete.Command{
+		Flags: complete.Flags{
+			"-json": complete.PredictNothing,
+		},
+		Args: anyPackage,
+	}
+
+	modEdit := complete.Command{
+		Flags: complete.Flags{
+			"-fmt":    complete.PredictNothing,
+			"-module": complete.PredictNothing,
+			"-print":  complete.PredictNothing,
+
+			"-exclude":     anyPackage,
+			"-dropexclude": anyPackage,
+			"-replace":     anyPackage,
+			"-dropreplace": anyPackage,
+			"-require":     anyPackage,
+			"-droprequire": anyPackage,
+		},
+		Args: complete.PredictFiles("go.mod"),
+	}
+
+	modGraph := complete.Command{}
+
+	modInit := complete.Command{
+		Args: complete.PredictAnything,
+	}
+
+	modTidy := complete.Command{
+		Flags: complete.Flags{
+			"-v": complete.PredictNothing,
+		},
+	}
+
+	modVendor := complete.Command{
+		Flags: complete.Flags{
+			"-v": complete.PredictNothing,
+		},
+	}
+
+	modVerify := complete.Command{}
+
+	modWhy := complete.Command{
+		Flags: complete.Flags{
+			"-m":      complete.PredictNothing,
+			"-vendor": complete.PredictNothing,
+		},
+		Args: anyPackage,
+	}
+
+	modHelp := complete.Command{
+		Sub: complete.Commands{
+			"download": complete.Command{},
+			"edit":     complete.Command{},
+			"graph":    complete.Command{},
+			"init":     complete.Command{},
+			"tidy":     complete.Command{},
+			"vendor":   complete.Command{},
+			"verify":   complete.Command{},
+			"why":      complete.Command{},
+		},
+	}
+
+	mod := complete.Command{
+		Sub: complete.Commands{
+			"download": modDownload,
+			"edit":     modEdit,
+			"graph":    modGraph,
+			"init":     modInit,
+			"tidy":     modTidy,
+			"vendor":   modVendor,
+			"verify":   modVerify,
+			"why":      modWhy,
+			"help":     modHelp,
+		},
+	}
+
+	help := complete.Command{
+		Sub: complete.Commands{
+			"bug":         complete.Command{},
+			"build":       complete.Command{},
+			"clean":       complete.Command{},
+			"doc":         complete.Command{},
+			"env":         complete.Command{},
+			"fix":         complete.Command{},
+			"fmt":         complete.Command{},
+			"generate":    complete.Command{},
+			"get":         complete.Command{},
+			"install":     complete.Command{},
+			"list":        complete.Command{},
+			"mod":         modHelp,
+			"run":         complete.Command{},
+			"test":        complete.Command{},
+			"tool":        complete.Command{},
+			"version":     complete.Command{},
+			"vet":         complete.Command{},
+			"buildmode":   complete.Command{},
+			"c":           complete.Command{},
+			"cache":       complete.Command{},
+			"environment": complete.Command{},
+			"filetype":    complete.Command{},
+			"go.mod":      complete.Command{},
+			"gopath":      complete.Command{},
+			"gopath-get":  complete.Command{},
+			"goproxy":     complete.Command{},
+			"importpath":  complete.Command{},
+			"modules":     complete.Command{},
+			"module-get":  complete.Command{},
+			"packages":    complete.Command{},
+			"testflag":    complete.Command{},
+			"testfunc":    complete.Command{},
+		},
 	}
 
 	// commands that also accepts the build flags
@@ -434,6 +622,8 @@ func main() {
 			"bug":      bug,
 			"fix":      fix,
 			"version":  version,
+			"mod":      mod,
+			"help":     help,
 		},
 		GlobalFlags: complete.Flags{
 			"-h": complete.PredictNothing,

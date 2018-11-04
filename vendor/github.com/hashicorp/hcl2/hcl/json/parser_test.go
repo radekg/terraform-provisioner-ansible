@@ -2,12 +2,15 @@ package json
 
 import (
 	"math/big"
-	"reflect"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/go-test/deep"
 	"github.com/hashicorp/hcl2/hcl"
 )
+
+func init() {
+	deep.MaxDepth = 999
+}
 
 func TestParse(t *testing.T) {
 	tests := []struct {
@@ -222,8 +225,8 @@ func TestParse(t *testing.T) {
 		{
 			`{"hello": true}`,
 			&objectVal{
-				Attrs: map[string]*objectAttr{
-					"hello": {
+				Attrs: []*objectAttr{
+					{
 						Name: "hello",
 						Value: &booleanVal{
 							Value: true,
@@ -256,8 +259,8 @@ func TestParse(t *testing.T) {
 		{
 			`{"hello": true, "bye": false}`,
 			&objectVal{
-				Attrs: map[string]*objectAttr{
-					"hello": {
+				Attrs: []*objectAttr{
+					{
 						Name: "hello",
 						Value: &booleanVal{
 							Value: true,
@@ -271,7 +274,7 @@ func TestParse(t *testing.T) {
 							End:   hcl.Pos{Line: 1, Column: 9, Byte: 8},
 						},
 					},
-					"bye": {
+					{
 						Name: "bye",
 						Value: &booleanVal{
 							Value: false,
@@ -304,7 +307,7 @@ func TestParse(t *testing.T) {
 		{
 			`{}`,
 			&objectVal{
-				Attrs: map[string]*objectAttr{},
+				Attrs: []*objectAttr{},
 				SrcRange: hcl.Range{
 					Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
 					End:   hcl.Pos{Line: 1, Column: 3, Byte: 2},
@@ -355,8 +358,22 @@ func TestParse(t *testing.T) {
 		{
 			`{"hello": true, "hello": true}`,
 			&objectVal{
-				Attrs: map[string]*objectAttr{
-					"hello": {
+				Attrs: []*objectAttr{
+					{
+						Name: "hello",
+						Value: &booleanVal{
+							Value: true,
+							SrcRange: hcl.Range{
+								Start: hcl.Pos{Line: 1, Column: 11, Byte: 10},
+								End:   hcl.Pos{Line: 1, Column: 15, Byte: 14},
+							},
+						},
+						NameRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 2, Byte: 1},
+							End:   hcl.Pos{Line: 1, Column: 9, Byte: 8},
+						},
+					},
+					{
 						Name: "hello",
 						Value: &booleanVal{
 							Value: true,
@@ -384,7 +401,7 @@ func TestParse(t *testing.T) {
 					End:   hcl.Pos{Line: 1, Column: 31, Byte: 30},
 				},
 			},
-			1,
+			0,
 		},
 		{
 			`{"hello": true, "hello": true, "hello", true}`,
@@ -392,7 +409,7 @@ func TestParse(t *testing.T) {
 				Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
 				End:   hcl.Pos{Line: 1, Column: 2, Byte: 1},
 			}},
-			2,
+			1, // comma used where colon is expected
 		},
 		{
 			`{"hello", "world"}`,
@@ -590,11 +607,10 @@ func TestParse(t *testing.T) {
 				}
 			}
 
-			if !reflect.DeepEqual(got, test.Want) {
-				t.Errorf(
-					"wrong result\ninput: %s\ngot:   %s\nwant:  %s",
-					test.Input, spew.Sdump(got), spew.Sdump(test.Want),
-				)
+			if diff := deep.Equal(got, test.Want); diff != nil {
+				for _, problem := range diff {
+					t.Error(problem)
+				}
 			}
 		})
 	}

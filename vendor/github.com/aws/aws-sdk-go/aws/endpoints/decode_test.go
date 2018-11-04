@@ -116,125 +116,59 @@ func TestDecodeModelOptionsSet(t *testing.T) {
 	}
 }
 
-func TestDecode_CustFixCloudHSMv2SigningName(t *testing.T) {
-	cases := []struct {
-		Doc    string
-		Expect string
-	}{
-		{
-			Doc: `
+func TestCustFixAppAutoscalingChina(t *testing.T) {
+	const doc = `
 {
   "version": 3,
-  "partitions": [
-    {
-      "defaults": {
-        "hostname": "{service}.{region}.{dnsSuffix}",
-        "protocols": [
-          "https"
-        ],
-        "signatureVersions": [
-          "v4"
-        ]
+  "partitions": [{
+    "defaults" : {
+      "hostname" : "{service}.{region}.{dnsSuffix}",
+      "protocols" : [ "https" ],
+      "signatureVersions" : [ "v4" ]
+    },
+    "dnsSuffix" : "amazonaws.com.cn",
+    "partition" : "aws-cn",
+    "partitionName" : "AWS China",
+    "regionRegex" : "^cn\\-\\w+\\-\\d+$",
+    "regions" : {
+      "cn-north-1" : {
+        "description" : "China (Beijing)"
       },
-      "dnsSuffix": "amazonaws.com",
-      "partition": "aws",
-      "partitionName": "AWS Standard",
-      "regionRegex": "^(us|eu|ap|sa|ca)\\-\\w+\\-\\d+$",
-      "regions": {
-        "ap-northeast-1": {
-          "description": "Asia Pacific (Tokyo)"
-        },
-        "us-east-1": {
-          "description": "US East (N. Virginia)"
-        }
-      },
-      "services": {
-        "cloudhsmv2": {
-          "endpoints": {
-             "us-east-1": {}
-          }
-        },
-        "s3": {
-          "endpoints": {
-             "ap-northeast-1": {}
-          }
-        }
+      "cn-northwest-1" : {
+        "description" : "China (Ningxia)"
       }
-    }
-  ]
-}`,
-			Expect: "cloudhsm",
-		},
-		{
-			Doc: `
-{
-  "version": 3,
-  "partitions": [
-    {
-      "defaults": {
-        "hostname": "{service}.{region}.{dnsSuffix}",
-        "protocols": [
-          "https"
-        ],
-        "signatureVersions": [
-          "v4"
-        ]
-      },
-      "dnsSuffix": "amazonaws.com",
-      "partition": "aws",
-      "partitionName": "AWS Standard",
-      "regionRegex": "^(us|eu|ap|sa|ca)\\-\\w+\\-\\d+$",
-      "regions": {
-        "ap-northeast-1": {
-          "description": "Asia Pacific (Tokyo)"
-        },
-        "us-east-1": {
-          "description": "US East (N. Virginia)"
-        }
-      },
-      "services": {
-        "cloudhsmv2": {
-          "defaults": {
-             "credentialScope": {
-                 "service": "coolSigningName"
-             }
+    },
+    "services" : {
+      "application-autoscaling" : {
+        "defaults" : {
+          "credentialScope" : {
+            "service" : "application-autoscaling"
           },
-          "endpoints": {
-			  "us-east-1": {}
-          }
+          "hostname" : "autoscaling.{region}.amazonaws.com",
+          "protocols" : [ "http", "https" ]
         },
-        "s3": {
-          "endpoints": {
-             "ap-northeast-1": {}
-          }
+        "endpoints" : {
+          "cn-north-1" : { },
+          "cn-northwest-1" : { }
         }
       }
-    }
-  ]
-}`,
-			Expect: "coolSigningName",
-		},
+	}
+  }]
+}`
+
+	resolver, err := DecodeModel(strings.NewReader(doc))
+	if err != nil {
+		t.Fatalf("expect no error, got %v", err)
 	}
 
-	for i, c := range cases {
-		resolver, err := DecodeModel(strings.NewReader(c.Doc))
-		if err != nil {
-			t.Fatalf("%d, expected no error, got %v", i, err)
-		}
+	endpoint, err := resolver.EndpointFor(
+		"application-autoscaling", "cn-northwest-1",
+	)
+	if err != nil {
+		t.Fatalf("expect no error, got %v", err)
+	}
 
-		p := resolver.(partitions)[0]
-		defaults := p.Services["cloudhsmv2"].Defaults
-		if e, a := c.Expect, defaults.CredentialScope.Service; e != a {
-			t.Errorf("%d, expect %v, got %v", i, e, a)
-		}
-
-		endpoint, err := resolver.EndpointFor("cloudhsmv2", "us-east-1")
-		if err != nil {
-			t.Fatalf("%d, failed to resolve endpoint, %v", i, err)
-		}
-
-		if e, a := c.Expect, endpoint.SigningName; e != a {
-			t.Errorf("%d, expected %q go %q", i, e, a)
-		}
+	if e, a := `https://autoscaling.cn-northwest-1.amazonaws.com.cn`, endpoint.URL; e != a {
+		t.Errorf("expect %v, got %v", e, a)
 	}
 }

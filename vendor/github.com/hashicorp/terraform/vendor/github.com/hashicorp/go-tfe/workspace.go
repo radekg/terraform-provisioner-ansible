@@ -17,7 +17,7 @@ var _ Workspaces = (*workspaces)(nil)
 // TFE API docs: https://www.terraform.io/docs/enterprise/api/workspaces.html
 type Workspaces interface {
 	// List all the workspaces within an organization.
-	List(ctx context.Context, organization string, options WorkspaceListOptions) ([]*Workspace, error)
+	List(ctx context.Context, organization string, options WorkspaceListOptions) (*WorkspaceList, error)
 
 	// Create is used to create a new workspace.
 	Create(ctx context.Context, organization string, options WorkspaceCreateOptions) (*Workspace, error)
@@ -49,6 +49,12 @@ type workspaces struct {
 	client *Client
 }
 
+// WorkspaceList represents a list of workspaces.
+type WorkspaceList struct {
+	*Pagination
+	Items []*Workspace
+}
+
 // Workspace represents a Terraform Enterprise workspace.
 type Workspace struct {
 	ID                   string                `jsonapi:"primary,workspaces"`
@@ -66,6 +72,7 @@ type Workspace struct {
 	WorkingDirectory     string                `jsonapi:"attr,working-directory"`
 
 	// Relations
+	CurrentRun   *Run          `jsonapi:"relation,current-run"`
 	Organization *Organization `jsonapi:"relation,organization"`
 	SSHKey       *SSHKey       `jsonapi:"relation,ssh-key"`
 }
@@ -74,7 +81,7 @@ type Workspace struct {
 type VCSRepo struct {
 	Branch            string `json:"branch"`
 	Identifier        string `json:"identifier"`
-	IncludeSubmodules bool   `json:"ingress-submodules"`
+	IngressSubmodules bool   `json:"ingress-submodules"`
 	OAuthTokenID      string `json:"oauth-token-id"`
 }
 
@@ -97,10 +104,13 @@ type WorkspacePermissions struct {
 // WorkspaceListOptions represents the options for listing workspaces.
 type WorkspaceListOptions struct {
 	ListOptions
+
+	// A search string (partial workspace name) used to filter the results.
+	Search *string `url:"search[name],omitempty"`
 }
 
 // List all the workspaces within an organization.
-func (s *workspaces) List(ctx context.Context, organization string, options WorkspaceListOptions) ([]*Workspace, error) {
+func (s *workspaces) List(ctx context.Context, organization string, options WorkspaceListOptions) (*WorkspaceList, error) {
 	if !validStringID(&organization) {
 		return nil, errors.New("Invalid value for organization")
 	}
@@ -111,13 +121,13 @@ func (s *workspaces) List(ctx context.Context, organization string, options Work
 		return nil, err
 	}
 
-	var ws []*Workspace
-	err = s.client.do(ctx, req, &ws)
+	wl := &WorkspaceList{}
+	err = s.client.do(ctx, req, wl)
 	if err != nil {
 		return nil, err
 	}
 
-	return ws, nil
+	return wl, nil
 }
 
 // WorkspaceCreateOptions represents the options for creating a new workspace.
@@ -157,7 +167,7 @@ type WorkspaceCreateOptions struct {
 type VCSRepoOptions struct {
 	Branch            *string `json:"branch,omitempty"`
 	Identifier        *string `json:"identifier,omitempty"`
-	IncludeSubmodules *bool   `json:"ingress-submodules,omitempty"`
+	IngressSubmodules *bool   `json:"ingress-submodules,omitempty"`
 	OAuthTokenID      *string `json:"oauth-token-id,omitempty"`
 }
 

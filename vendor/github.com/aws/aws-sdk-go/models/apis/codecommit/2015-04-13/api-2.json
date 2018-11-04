@@ -7,6 +7,7 @@
     "protocol":"json",
     "serviceAbbreviation":"CodeCommit",
     "serviceFullName":"AWS CodeCommit",
+    "serviceId":"CodeCommit",
     "signatureVersion":"v4",
     "targetPrefix":"CodeCommit_20150413",
     "uid":"codecommit-2015-04-13"
@@ -147,6 +148,39 @@
         {"shape":"CommentIdRequiredException"},
         {"shape":"InvalidCommentIdException"},
         {"shape":"CommentDeletedException"}
+      ]
+    },
+    "DeleteFile":{
+      "name":"DeleteFile",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"DeleteFileInput"},
+      "output":{"shape":"DeleteFileOutput"},
+      "errors":[
+        {"shape":"RepositoryNameRequiredException"},
+        {"shape":"InvalidRepositoryNameException"},
+        {"shape":"RepositoryDoesNotExistException"},
+        {"shape":"ParentCommitIdRequiredException"},
+        {"shape":"InvalidParentCommitIdException"},
+        {"shape":"ParentCommitDoesNotExistException"},
+        {"shape":"ParentCommitIdOutdatedException"},
+        {"shape":"PathRequiredException"},
+        {"shape":"InvalidPathException"},
+        {"shape":"FileDoesNotExistException"},
+        {"shape":"BranchNameRequiredException"},
+        {"shape":"InvalidBranchNameException"},
+        {"shape":"BranchDoesNotExistException"},
+        {"shape":"BranchNameIsTagNameException"},
+        {"shape":"NameLengthExceededException"},
+        {"shape":"InvalidEmailException"},
+        {"shape":"CommitMessageLengthExceededException"},
+        {"shape":"EncryptionIntegrityChecksFailedException"},
+        {"shape":"EncryptionKeyAccessDeniedException"},
+        {"shape":"EncryptionKeyDisabledException"},
+        {"shape":"EncryptionKeyNotFoundException"},
+        {"shape":"EncryptionKeyUnavailableException"}
       ]
     },
     "DeleteRepository":{
@@ -345,6 +379,55 @@
         {"shape":"CommitDoesNotExistException"},
         {"shape":"InvalidPathException"},
         {"shape":"PathDoesNotExistException"},
+        {"shape":"EncryptionIntegrityChecksFailedException"},
+        {"shape":"EncryptionKeyAccessDeniedException"},
+        {"shape":"EncryptionKeyDisabledException"},
+        {"shape":"EncryptionKeyNotFoundException"},
+        {"shape":"EncryptionKeyUnavailableException"}
+      ]
+    },
+    "GetFile":{
+      "name":"GetFile",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"GetFileInput"},
+      "output":{"shape":"GetFileOutput"},
+      "errors":[
+        {"shape":"RepositoryNameRequiredException"},
+        {"shape":"InvalidRepositoryNameException"},
+        {"shape":"RepositoryDoesNotExistException"},
+        {"shape":"InvalidCommitException"},
+        {"shape":"CommitDoesNotExistException"},
+        {"shape":"PathRequiredException"},
+        {"shape":"InvalidPathException"},
+        {"shape":"FileDoesNotExistException"},
+        {"shape":"EncryptionIntegrityChecksFailedException"},
+        {"shape":"EncryptionKeyAccessDeniedException"},
+        {"shape":"EncryptionKeyDisabledException"},
+        {"shape":"EncryptionKeyNotFoundException"},
+        {"shape":"EncryptionKeyUnavailableException"},
+        {"shape":"FileTooLargeException"}
+      ]
+    },
+    "GetFolder":{
+      "name":"GetFolder",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"GetFolderInput"},
+      "output":{"shape":"GetFolderOutput"},
+      "errors":[
+        {"shape":"RepositoryNameRequiredException"},
+        {"shape":"InvalidRepositoryNameException"},
+        {"shape":"RepositoryDoesNotExistException"},
+        {"shape":"InvalidCommitException"},
+        {"shape":"CommitDoesNotExistException"},
+        {"shape":"PathRequiredException"},
+        {"shape":"InvalidPathException"},
+        {"shape":"FolderDoesNotExistException"},
         {"shape":"EncryptionIntegrityChecksFailedException"},
         {"shape":"EncryptionKeyAccessDeniedException"},
         {"shape":"EncryptionKeyDisabledException"},
@@ -615,6 +698,45 @@
         {"shape":"InvalidCommentIdException"}
       ],
       "idempotent":true
+    },
+    "PutFile":{
+      "name":"PutFile",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"PutFileInput"},
+      "output":{"shape":"PutFileOutput"},
+      "errors":[
+        {"shape":"RepositoryNameRequiredException"},
+        {"shape":"InvalidRepositoryNameException"},
+        {"shape":"RepositoryDoesNotExistException"},
+        {"shape":"ParentCommitIdRequiredException"},
+        {"shape":"InvalidParentCommitIdException"},
+        {"shape":"ParentCommitDoesNotExistException"},
+        {"shape":"ParentCommitIdOutdatedException"},
+        {"shape":"FileContentRequiredException"},
+        {"shape":"FileContentSizeLimitExceededException"},
+        {"shape":"PathRequiredException"},
+        {"shape":"InvalidPathException"},
+        {"shape":"BranchNameRequiredException"},
+        {"shape":"InvalidBranchNameException"},
+        {"shape":"BranchDoesNotExistException"},
+        {"shape":"BranchNameIsTagNameException"},
+        {"shape":"InvalidFileModeException"},
+        {"shape":"NameLengthExceededException"},
+        {"shape":"InvalidEmailException"},
+        {"shape":"CommitMessageLengthExceededException"},
+        {"shape":"InvalidDeletionParameterException"},
+        {"shape":"EncryptionIntegrityChecksFailedException"},
+        {"shape":"EncryptionKeyAccessDeniedException"},
+        {"shape":"EncryptionKeyDisabledException"},
+        {"shape":"EncryptionKeyNotFoundException"},
+        {"shape":"EncryptionKeyUnavailableException"},
+        {"shape":"SameFileContentException"},
+        {"shape":"FileNameConflictsWithDirectoryNameException"},
+        {"shape":"DirectoryNameConflictsWithFileNameException"}
+      ]
     },
     "PutRepositoryTriggers":{
       "name":"PutRepositoryTriggers",
@@ -888,6 +1010,12 @@
       },
       "exception":true
     },
+    "BranchNameIsTagNameException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
     "BranchNameList":{
       "type":"list",
       "member":{"shape":"BranchName"}
@@ -1033,6 +1161,12 @@
       },
       "exception":true
     },
+    "CommitMessageLengthExceededException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
     "CommitName":{"type":"string"},
     "CommitRequiredException":{
       "type":"structure",
@@ -1129,6 +1263,40 @@
         "comment":{"shape":"Comment"}
       }
     },
+    "DeleteFileInput":{
+      "type":"structure",
+      "required":[
+        "repositoryName",
+        "branchName",
+        "filePath",
+        "parentCommitId"
+      ],
+      "members":{
+        "repositoryName":{"shape":"RepositoryName"},
+        "branchName":{"shape":"BranchName"},
+        "filePath":{"shape":"Path"},
+        "parentCommitId":{"shape":"CommitId"},
+        "keepEmptyFolders":{"shape":"KeepEmptyFolders"},
+        "commitMessage":{"shape":"Message"},
+        "name":{"shape":"Name"},
+        "email":{"shape":"Email"}
+      }
+    },
+    "DeleteFileOutput":{
+      "type":"structure",
+      "required":[
+        "commitId",
+        "blobId",
+        "treeId",
+        "filePath"
+      ],
+      "members":{
+        "commitId":{"shape":"ObjectId"},
+        "blobId":{"shape":"ObjectId"},
+        "treeId":{"shape":"ObjectId"},
+        "filePath":{"shape":"Path"}
+      }
+    },
     "DeleteRepositoryInput":{
       "type":"structure",
       "required":["repositoryName"],
@@ -1177,6 +1345,12 @@
       "type":"list",
       "member":{"shape":"Difference"}
     },
+    "DirectoryNameConflictsWithFileNameException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
     "Email":{"type":"string"},
     "EncryptionIntegrityChecksFailedException":{
       "type":"structure",
@@ -1210,11 +1384,78 @@
       "exception":true
     },
     "EventDate":{"type":"timestamp"},
+    "File":{
+      "type":"structure",
+      "members":{
+        "blobId":{"shape":"ObjectId"},
+        "absolutePath":{"shape":"Path"},
+        "relativePath":{"shape":"Path"},
+        "fileMode":{"shape":"FileModeTypeEnum"}
+      }
+    },
+    "FileContent":{
+      "type":"blob",
+      "max":6291456
+    },
+    "FileContentRequiredException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
+    "FileContentSizeLimitExceededException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
+    "FileDoesNotExistException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
+    "FileList":{
+      "type":"list",
+      "member":{"shape":"File"}
+    },
+    "FileModeTypeEnum":{
+      "type":"string",
+      "enum":[
+        "EXECUTABLE",
+        "NORMAL",
+        "SYMLINK"
+      ]
+    },
+    "FileNameConflictsWithDirectoryNameException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
     "FileTooLargeException":{
       "type":"structure",
       "members":{
       },
       "exception":true
+    },
+    "Folder":{
+      "type":"structure",
+      "members":{
+        "treeId":{"shape":"ObjectId"},
+        "absolutePath":{"shape":"Path"},
+        "relativePath":{"shape":"Path"}
+      }
+    },
+    "FolderDoesNotExistException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
+    "FolderList":{
+      "type":"list",
+      "member":{"shape":"Folder"}
     },
     "GetBlobInput":{
       "type":"structure",
@@ -1339,6 +1580,65 @@
       "members":{
         "differences":{"shape":"DifferenceList"},
         "NextToken":{"shape":"NextToken"}
+      }
+    },
+    "GetFileInput":{
+      "type":"structure",
+      "required":[
+        "repositoryName",
+        "filePath"
+      ],
+      "members":{
+        "repositoryName":{"shape":"RepositoryName"},
+        "commitSpecifier":{"shape":"CommitName"},
+        "filePath":{"shape":"Path"}
+      }
+    },
+    "GetFileOutput":{
+      "type":"structure",
+      "required":[
+        "commitId",
+        "blobId",
+        "filePath",
+        "fileMode",
+        "fileSize",
+        "fileContent"
+      ],
+      "members":{
+        "commitId":{"shape":"ObjectId"},
+        "blobId":{"shape":"ObjectId"},
+        "filePath":{"shape":"Path"},
+        "fileMode":{"shape":"FileModeTypeEnum"},
+        "fileSize":{"shape":"ObjectSize"},
+        "fileContent":{"shape":"FileContent"}
+      }
+    },
+    "GetFolderInput":{
+      "type":"structure",
+      "required":[
+        "repositoryName",
+        "folderPath"
+      ],
+      "members":{
+        "repositoryName":{"shape":"RepositoryName"},
+        "commitSpecifier":{"shape":"CommitName"},
+        "folderPath":{"shape":"Path"}
+      }
+    },
+    "GetFolderOutput":{
+      "type":"structure",
+      "required":[
+        "commitId",
+        "folderPath"
+      ],
+      "members":{
+        "commitId":{"shape":"ObjectId"},
+        "folderPath":{"shape":"Path"},
+        "treeId":{"shape":"ObjectId"},
+        "subFolders":{"shape":"FolderList"},
+        "files":{"shape":"FileList"},
+        "symbolicLinks":{"shape":"SymbolicLinkList"},
+        "subModules":{"shape":"SubModuleList"}
       }
     },
     "GetMergeConflictsInput":{
@@ -1470,6 +1770,12 @@
       },
       "exception":true
     },
+    "InvalidDeletionParameterException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
     "InvalidDescriptionException":{
       "type":"structure",
       "members":{
@@ -1482,7 +1788,19 @@
       },
       "exception":true
     },
+    "InvalidEmailException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
     "InvalidFileLocationException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
+    "InvalidFileModeException":{
       "type":"structure",
       "members":{
       },
@@ -1507,6 +1825,12 @@
       "exception":true
     },
     "InvalidOrderException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
+    "InvalidParentCommitIdException":{
       "type":"structure",
       "members":{
       },
@@ -1635,6 +1959,7 @@
     "IsCommentDeleted":{"type":"boolean"},
     "IsMergeable":{"type":"boolean"},
     "IsMerged":{"type":"boolean"},
+    "KeepEmptyFolders":{"type":"boolean"},
     "LastModifiedDate":{"type":"timestamp"},
     "Limit":{
       "type":"integer",
@@ -1772,14 +2097,39 @@
       "exception":true
     },
     "Name":{"type":"string"},
+    "NameLengthExceededException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
     "NextToken":{"type":"string"},
     "ObjectId":{"type":"string"},
+    "ObjectSize":{"type":"long"},
     "OrderEnum":{
       "type":"string",
       "enum":[
         "ascending",
         "descending"
       ]
+    },
+    "ParentCommitDoesNotExistException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
+    "ParentCommitIdOutdatedException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
+    "ParentCommitIdRequiredException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
     },
     "ParentList":{
       "type":"list",
@@ -1906,6 +2256,15 @@
       },
       "exception":true
     },
+    "PullRequestCreatedEventMetadata":{
+      "type":"structure",
+      "members":{
+        "repositoryName":{"shape":"RepositoryName"},
+        "sourceCommitId":{"shape":"CommitId"},
+        "destinationCommitId":{"shape":"CommitId"},
+        "mergeBase":{"shape":"CommitId"}
+      }
+    },
     "PullRequestDoesNotExistException":{
       "type":"structure",
       "members":{
@@ -1919,6 +2278,7 @@
         "eventDate":{"shape":"EventDate"},
         "pullRequestEventType":{"shape":"PullRequestEventType"},
         "actorArn":{"shape":"Arn"},
+        "pullRequestCreatedEventMetadata":{"shape":"PullRequestCreatedEventMetadata"},
         "pullRequestStatusChangedEventMetadata":{"shape":"PullRequestStatusChangedEventMetadata"},
         "pullRequestSourceReferenceUpdatedEventMetadata":{"shape":"PullRequestSourceReferenceUpdatedEventMetadata"},
         "pullRequestMergedStateChangedEventMetadata":{"shape":"PullRequestMergedStateChangedEventMetadata"}
@@ -1961,7 +2321,8 @@
       "members":{
         "repositoryName":{"shape":"RepositoryName"},
         "beforeCommitId":{"shape":"CommitId"},
-        "afterCommitId":{"shape":"CommitId"}
+        "afterCommitId":{"shape":"CommitId"},
+        "mergeBase":{"shape":"CommitId"}
       }
     },
     "PullRequestStatusChangedEventMetadata":{
@@ -1991,12 +2352,46 @@
         "destinationReference":{"shape":"ReferenceName"},
         "destinationCommit":{"shape":"CommitId"},
         "sourceCommit":{"shape":"CommitId"},
+        "mergeBase":{"shape":"CommitId"},
         "mergeMetadata":{"shape":"MergeMetadata"}
       }
     },
     "PullRequestTargetList":{
       "type":"list",
       "member":{"shape":"PullRequestTarget"}
+    },
+    "PutFileInput":{
+      "type":"structure",
+      "required":[
+        "repositoryName",
+        "branchName",
+        "fileContent",
+        "filePath"
+      ],
+      "members":{
+        "repositoryName":{"shape":"RepositoryName"},
+        "branchName":{"shape":"BranchName"},
+        "fileContent":{"shape":"FileContent"},
+        "filePath":{"shape":"Path"},
+        "fileMode":{"shape":"FileModeTypeEnum"},
+        "parentCommitId":{"shape":"CommitId"},
+        "commitMessage":{"shape":"Message"},
+        "name":{"shape":"Name"},
+        "email":{"shape":"Email"}
+      }
+    },
+    "PutFileOutput":{
+      "type":"structure",
+      "required":[
+        "commitId",
+        "blobId",
+        "treeId"
+      ],
+      "members":{
+        "commitId":{"shape":"ObjectId"},
+        "blobId":{"shape":"ObjectId"},
+        "treeId":{"shape":"ObjectId"}
+      }
     },
     "PutRepositoryTriggersInput":{
       "type":"structure",
@@ -2207,6 +2602,12 @@
       },
       "exception":true
     },
+    "SameFileContentException":{
+      "type":"structure",
+      "members":{
+      },
+      "exception":true
+    },
     "SortByEnum":{
       "type":"string",
       "enum":[
@@ -2219,6 +2620,31 @@
       "members":{
       },
       "exception":true
+    },
+    "SubModule":{
+      "type":"structure",
+      "members":{
+        "commitId":{"shape":"ObjectId"},
+        "absolutePath":{"shape":"Path"},
+        "relativePath":{"shape":"Path"}
+      }
+    },
+    "SubModuleList":{
+      "type":"list",
+      "member":{"shape":"SubModule"}
+    },
+    "SymbolicLink":{
+      "type":"structure",
+      "members":{
+        "blobId":{"shape":"ObjectId"},
+        "absolutePath":{"shape":"Path"},
+        "relativePath":{"shape":"Path"},
+        "fileMode":{"shape":"FileModeTypeEnum"}
+      }
+    },
+    "SymbolicLinkList":{
+      "type":"list",
+      "member":{"shape":"SymbolicLink"}
     },
     "Target":{
       "type":"structure",

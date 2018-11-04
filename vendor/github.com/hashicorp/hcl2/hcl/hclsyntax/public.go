@@ -20,6 +20,12 @@ func ParseConfig(src []byte, filename string, start hcl.Pos) (*hcl.File, hcl.Dia
 	parser := &parser{peeker: peeker}
 	body, parseDiags := parser.ParseBody(TokenEOF)
 	diags = append(diags, parseDiags...)
+
+	// Panic if the parser uses incorrect stack discipline with the peeker's
+	// newlines stack, since otherwise it will produce confusing downstream
+	// errors.
+	peeker.AssertEmptyIncludeNewlinesStack()
+
 	return &hcl.File{
 		Body:  body,
 		Bytes: src,
@@ -54,6 +60,13 @@ func ParseExpression(src []byte, filename string, start hcl.Pos) (Expression, hc
 		})
 	}
 
+	parser.PopIncludeNewlines()
+
+	// Panic if the parser uses incorrect stack discipline with the peeker's
+	// newlines stack, since otherwise it will produce confusing downstream
+	// errors.
+	peeker.AssertEmptyIncludeNewlinesStack()
+
 	return expr, diags
 }
 
@@ -65,6 +78,12 @@ func ParseTemplate(src []byte, filename string, start hcl.Pos) (Expression, hcl.
 	parser := &parser{peeker: peeker}
 	expr, parseDiags := parser.ParseTemplate()
 	diags = append(diags, parseDiags...)
+
+	// Panic if the parser uses incorrect stack discipline with the peeker's
+	// newlines stack, since otherwise it will produce confusing downstream
+	// errors.
+	peeker.AssertEmptyIncludeNewlinesStack()
+
 	return expr, diags
 }
 
@@ -85,6 +104,14 @@ func ParseTraversalAbs(src []byte, filename string, start hcl.Pos) (hcl.Traversa
 
 	expr, parseDiags := parser.ParseTraversalAbs()
 	diags = append(diags, parseDiags...)
+
+	parser.PopIncludeNewlines()
+
+	// Panic if the parser uses incorrect stack discipline with the peeker's
+	// newlines stack, since otherwise it will produce confusing downstream
+	// errors.
+	peeker.AssertEmptyIncludeNewlinesStack()
+
 	return expr, diags
 }
 
@@ -127,4 +154,18 @@ func LexTemplate(src []byte, filename string, start hcl.Pos) (Tokens, hcl.Diagno
 	tokens := scanTokens(src, filename, start, scanTemplate)
 	diags := checkInvalidTokens(tokens)
 	return tokens, diags
+}
+
+// ValidIdentifier tests if the given string could be a valid identifier in
+// a native syntax expression.
+//
+// This is useful when accepting names from the user that will be used as
+// variable or attribute names in the scope, to ensure that any name chosen
+// will be traversable using the variable or attribute traversal syntax.
+func ValidIdentifier(s string) bool {
+	// This is a kinda-expensive way to do something pretty simple, but it
+	// is easiest to do with our existing scanner-related infrastructure here
+	// and nobody should be validating identifiers in a tight loop.
+	tokens := scanTokens([]byte(s), "", hcl.Pos{}, scanIdentOnly)
+	return len(tokens) == 2 && tokens[0].Type == TokenIdent && tokens[1].Type == TokenEOF
 }

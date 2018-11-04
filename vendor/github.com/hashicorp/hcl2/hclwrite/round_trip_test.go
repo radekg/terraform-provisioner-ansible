@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/hashicorp/hcl2/hcl/hclsyntax"
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/function/stdlib"
+
+	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl2/hcl/hclsyntax"
 )
 
 func TestRoundTripVerbatim(t *testing.T) {
@@ -58,7 +60,7 @@ block {
 
 			wr := &bytes.Buffer{}
 			n, err := file.WriteTo(wr)
-			if n != len(test) {
+			if n != int64(len(test)) {
 				t.Errorf("wrong number of bytes %d; want %d", n, len(test))
 			}
 			if err != nil {
@@ -68,7 +70,10 @@ block {
 			result := wr.Bytes()
 
 			if !bytes.Equal(result, src) {
-				t.Errorf("wrong result\nresult:\n%s\ninput:\n%s", result, src)
+				dmp := diffmatchpatch.New()
+				diffs := dmp.DiffMain(string(src), string(result), false)
+				//t.Errorf("wrong result\nresult:\n%s\ninput:\n%s", result, src)
+				t.Errorf("wrong result\ndiff: (red indicates missing lines, and green indicates unexpected lines)\n%s", dmp.DiffPrettyText(diffs))
 			}
 		})
 	}

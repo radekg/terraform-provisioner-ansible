@@ -6,11 +6,38 @@
     "jsonVersion":"1.1",
     "protocol":"json",
     "serviceFullName":"Alexa For Business",
+    "serviceId":"Alexa For Business",
     "signatureVersion":"v4",
     "targetPrefix":"AlexaForBusiness",
     "uid":"alexaforbusiness-2017-11-09"
   },
   "operations":{
+    "ApproveSkill":{
+      "name":"ApproveSkill",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"ApproveSkillRequest"},
+      "output":{"shape":"ApproveSkillResponse"},
+      "errors":[
+        {"shape":"LimitExceededException"},
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "AssociateContactWithAddressBook":{
+      "name":"AssociateContactWithAddressBook",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"AssociateContactWithAddressBookRequest"},
+      "output":{"shape":"AssociateContactWithAddressBookResponse"},
+      "errors":[
+        {"shape":"LimitExceededException"}
+      ]
+    },
     "AssociateDeviceWithRoom":{
       "name":"AssociateDeviceWithRoom",
       "http":{
@@ -20,7 +47,9 @@
       "input":{"shape":"AssociateDeviceWithRoomRequest"},
       "output":{"shape":"AssociateDeviceWithRoomResponse"},
       "errors":[
-        {"shape":"LimitExceededException"}
+        {"shape":"LimitExceededException"},
+        {"shape":"ConcurrentModificationException"},
+        {"shape":"DeviceNotRegisteredException"}
       ]
     },
     "AssociateSkillGroupWithRoom":{
@@ -30,7 +59,61 @@
         "requestUri":"/"
       },
       "input":{"shape":"AssociateSkillGroupWithRoomRequest"},
-      "output":{"shape":"AssociateSkillGroupWithRoomResponse"}
+      "output":{"shape":"AssociateSkillGroupWithRoomResponse"},
+      "errors":[
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "AssociateSkillWithSkillGroup":{
+      "name":"AssociateSkillWithSkillGroup",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"AssociateSkillWithSkillGroupRequest"},
+      "output":{"shape":"AssociateSkillWithSkillGroupResponse"},
+      "errors":[
+        {"shape":"ConcurrentModificationException"},
+        {"shape":"NotFoundException"}
+      ]
+    },
+    "CreateAddressBook":{
+      "name":"CreateAddressBook",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"CreateAddressBookRequest"},
+      "output":{"shape":"CreateAddressBookResponse"},
+      "errors":[
+        {"shape":"AlreadyExistsException"},
+        {"shape":"LimitExceededException"}
+      ]
+    },
+    "CreateConferenceProvider":{
+      "name":"CreateConferenceProvider",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"CreateConferenceProviderRequest"},
+      "output":{"shape":"CreateConferenceProviderResponse"},
+      "errors":[
+        {"shape":"AlreadyExistsException"}
+      ]
+    },
+    "CreateContact":{
+      "name":"CreateContact",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"CreateContactRequest"},
+      "output":{"shape":"CreateContactResponse"},
+      "errors":[
+        {"shape":"AlreadyExistsException"},
+        {"shape":"LimitExceededException"}
+      ]
     },
     "CreateProfile":{
       "name":"CreateProfile",
@@ -42,7 +125,8 @@
       "output":{"shape":"CreateProfileResponse"},
       "errors":[
         {"shape":"LimitExceededException"},
-        {"shape":"AlreadyExistsException"}
+        {"shape":"AlreadyExistsException"},
+        {"shape":"ConcurrentModificationException"}
       ]
     },
     "CreateRoom":{
@@ -68,7 +152,8 @@
       "output":{"shape":"CreateSkillGroupResponse"},
       "errors":[
         {"shape":"AlreadyExistsException"},
-        {"shape":"LimitExceededException"}
+        {"shape":"LimitExceededException"},
+        {"shape":"ConcurrentModificationException"}
       ]
     },
     "CreateUser":{
@@ -81,7 +166,60 @@
       "output":{"shape":"CreateUserResponse"},
       "errors":[
         {"shape":"ResourceInUseException"},
-        {"shape":"LimitExceededException"}
+        {"shape":"LimitExceededException"},
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "DeleteAddressBook":{
+      "name":"DeleteAddressBook",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"DeleteAddressBookRequest"},
+      "output":{"shape":"DeleteAddressBookResponse"},
+      "errors":[
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "DeleteConferenceProvider":{
+      "name":"DeleteConferenceProvider",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"DeleteConferenceProviderRequest"},
+      "output":{"shape":"DeleteConferenceProviderResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
+    },
+    "DeleteContact":{
+      "name":"DeleteContact",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"DeleteContactRequest"},
+      "output":{"shape":"DeleteContactResponse"},
+      "errors":[
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "DeleteDevice":{
+      "name":"DeleteDevice",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"DeleteDeviceRequest"},
+      "output":{"shape":"DeleteDeviceResponse"},
+      "errors":[
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"},
+        {"shape":"InvalidCertificateAuthorityException"}
       ]
     },
     "DeleteProfile":{
@@ -93,7 +231,8 @@
       "input":{"shape":"DeleteProfileRequest"},
       "output":{"shape":"DeleteProfileResponse"},
       "errors":[
-        {"shape":"NotFoundException"}
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
       ]
     },
     "DeleteRoom":{
@@ -105,7 +244,8 @@
       "input":{"shape":"DeleteRoomRequest"},
       "output":{"shape":"DeleteRoomResponse"},
       "errors":[
-        {"shape":"NotFoundException"}
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
       ]
     },
     "DeleteRoomSkillParameter":{
@@ -115,7 +255,23 @@
         "requestUri":"/"
       },
       "input":{"shape":"DeleteRoomSkillParameterRequest"},
-      "output":{"shape":"DeleteRoomSkillParameterResponse"}
+      "output":{"shape":"DeleteRoomSkillParameterResponse"},
+      "errors":[
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "DeleteSkillAuthorization":{
+      "name":"DeleteSkillAuthorization",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"DeleteSkillAuthorizationRequest"},
+      "output":{"shape":"DeleteSkillAuthorizationResponse"},
+      "errors":[
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
+      ]
     },
     "DeleteSkillGroup":{
       "name":"DeleteSkillGroup",
@@ -126,7 +282,8 @@
       "input":{"shape":"DeleteSkillGroupRequest"},
       "output":{"shape":"DeleteSkillGroupResponse"},
       "errors":[
-        {"shape":"NotFoundException"}
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
       ]
     },
     "DeleteUser":{
@@ -138,8 +295,18 @@
       "input":{"shape":"DeleteUserRequest"},
       "output":{"shape":"DeleteUserResponse"},
       "errors":[
-        {"shape":"NotFoundException"}
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
       ]
+    },
+    "DisassociateContactFromAddressBook":{
+      "name":"DisassociateContactFromAddressBook",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"DisassociateContactFromAddressBookRequest"},
+      "output":{"shape":"DisassociateContactFromAddressBookResponse"}
     },
     "DisassociateDeviceFromRoom":{
       "name":"DisassociateDeviceFromRoom",
@@ -148,7 +315,24 @@
         "requestUri":"/"
       },
       "input":{"shape":"DisassociateDeviceFromRoomRequest"},
-      "output":{"shape":"DisassociateDeviceFromRoomResponse"}
+      "output":{"shape":"DisassociateDeviceFromRoomResponse"},
+      "errors":[
+        {"shape":"ConcurrentModificationException"},
+        {"shape":"DeviceNotRegisteredException"}
+      ]
+    },
+    "DisassociateSkillFromSkillGroup":{
+      "name":"DisassociateSkillFromSkillGroup",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"DisassociateSkillFromSkillGroupRequest"},
+      "output":{"shape":"DisassociateSkillFromSkillGroupResponse"},
+      "errors":[
+        {"shape":"ConcurrentModificationException"},
+        {"shape":"NotFoundException"}
+      ]
     },
     "DisassociateSkillGroupFromRoom":{
       "name":"DisassociateSkillGroupFromRoom",
@@ -157,7 +341,70 @@
         "requestUri":"/"
       },
       "input":{"shape":"DisassociateSkillGroupFromRoomRequest"},
-      "output":{"shape":"DisassociateSkillGroupFromRoomResponse"}
+      "output":{"shape":"DisassociateSkillGroupFromRoomResponse"},
+      "errors":[
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "ForgetSmartHomeAppliances":{
+      "name":"ForgetSmartHomeAppliances",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"ForgetSmartHomeAppliancesRequest"},
+      "output":{"shape":"ForgetSmartHomeAppliancesResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
+    },
+    "GetAddressBook":{
+      "name":"GetAddressBook",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"GetAddressBookRequest"},
+      "output":{"shape":"GetAddressBookResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
+    },
+    "GetConferencePreference":{
+      "name":"GetConferencePreference",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"GetConferencePreferenceRequest"},
+      "output":{"shape":"GetConferencePreferenceResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
+    },
+    "GetConferenceProvider":{
+      "name":"GetConferenceProvider",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"GetConferenceProviderRequest"},
+      "output":{"shape":"GetConferenceProviderResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
+    },
+    "GetContact":{
+      "name":"GetContact",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"GetContactRequest"},
+      "output":{"shape":"GetContactResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
     },
     "GetDevice":{
       "name":"GetDevice",
@@ -219,6 +466,27 @@
         {"shape":"NotFoundException"}
       ]
     },
+    "ListConferenceProviders":{
+      "name":"ListConferenceProviders",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"ListConferenceProvidersRequest"},
+      "output":{"shape":"ListConferenceProvidersResponse"}
+    },
+    "ListDeviceEvents":{
+      "name":"ListDeviceEvents",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"ListDeviceEventsRequest"},
+      "output":{"shape":"ListDeviceEventsResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
+    },
     "ListSkills":{
       "name":"ListSkills",
       "http":{
@@ -227,6 +495,36 @@
       },
       "input":{"shape":"ListSkillsRequest"},
       "output":{"shape":"ListSkillsResponse"}
+    },
+    "ListSkillsStoreCategories":{
+      "name":"ListSkillsStoreCategories",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"ListSkillsStoreCategoriesRequest"},
+      "output":{"shape":"ListSkillsStoreCategoriesResponse"}
+    },
+    "ListSkillsStoreSkillsByCategory":{
+      "name":"ListSkillsStoreSkillsByCategory",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"ListSkillsStoreSkillsByCategoryRequest"},
+      "output":{"shape":"ListSkillsStoreSkillsByCategoryResponse"}
+    },
+    "ListSmartHomeAppliances":{
+      "name":"ListSmartHomeAppliances",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"ListSmartHomeAppliancesRequest"},
+      "output":{"shape":"ListSmartHomeAppliancesResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
     },
     "ListTags":{
       "name":"ListTags",
@@ -240,6 +538,18 @@
         {"shape":"NotFoundException"}
       ]
     },
+    "PutConferencePreference":{
+      "name":"PutConferencePreference",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"PutConferencePreferenceRequest"},
+      "output":{"shape":"PutConferencePreferenceResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
+    },
     "PutRoomSkillParameter":{
       "name":"PutRoomSkillParameter",
       "http":{
@@ -247,7 +557,50 @@
         "requestUri":"/"
       },
       "input":{"shape":"PutRoomSkillParameterRequest"},
-      "output":{"shape":"PutRoomSkillParameterResponse"}
+      "output":{"shape":"PutRoomSkillParameterResponse"},
+      "errors":[
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "PutSkillAuthorization":{
+      "name":"PutSkillAuthorization",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"PutSkillAuthorizationRequest"},
+      "output":{"shape":"PutSkillAuthorizationResponse"},
+      "errors":[
+        {"shape":"UnauthorizedException"},
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "RegisterAVSDevice":{
+      "name":"RegisterAVSDevice",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"RegisterAVSDeviceRequest"},
+      "output":{"shape":"RegisterAVSDeviceResponse"},
+      "errors":[
+        {"shape":"LimitExceededException"},
+        {"shape":"ConcurrentModificationException"},
+        {"shape":"InvalidDeviceException"}
+      ]
+    },
+    "RejectSkill":{
+      "name":"RejectSkill",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"RejectSkillRequest"},
+      "output":{"shape":"RejectSkillResponse"},
+      "errors":[
+        {"shape":"ConcurrentModificationException"},
+        {"shape":"NotFoundException"}
+      ]
     },
     "ResolveRoom":{
       "name":"ResolveRoom",
@@ -270,8 +623,27 @@
       "input":{"shape":"RevokeInvitationRequest"},
       "output":{"shape":"RevokeInvitationResponse"},
       "errors":[
-        {"shape":"NotFoundException"}
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
       ]
+    },
+    "SearchAddressBooks":{
+      "name":"SearchAddressBooks",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"SearchAddressBooksRequest"},
+      "output":{"shape":"SearchAddressBooksResponse"}
+    },
+    "SearchContacts":{
+      "name":"SearchContacts",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"SearchContactsRequest"},
+      "output":{"shape":"SearchContactsResponse"}
     },
     "SearchDevices":{
       "name":"SearchDevices",
@@ -328,7 +700,8 @@
       "output":{"shape":"SendInvitationResponse"},
       "errors":[
         {"shape":"NotFoundException"},
-        {"shape":"InvalidUserStatusException"}
+        {"shape":"InvalidUserStatusException"},
+        {"shape":"ConcurrentModificationException"}
       ]
     },
     "StartDeviceSync":{
@@ -338,7 +711,22 @@
         "requestUri":"/"
       },
       "input":{"shape":"StartDeviceSyncRequest"},
-      "output":{"shape":"StartDeviceSyncResponse"}
+      "output":{"shape":"StartDeviceSyncResponse"},
+      "errors":[
+        {"shape":"DeviceNotRegisteredException"}
+      ]
+    },
+    "StartSmartHomeApplianceDiscovery":{
+      "name":"StartSmartHomeApplianceDiscovery",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"StartSmartHomeApplianceDiscoveryRequest"},
+      "output":{"shape":"StartSmartHomeApplianceDiscoveryResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
     },
     "TagResource":{
       "name":"TagResource",
@@ -364,6 +752,45 @@
         {"shape":"NotFoundException"}
       ]
     },
+    "UpdateAddressBook":{
+      "name":"UpdateAddressBook",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"UpdateAddressBookRequest"},
+      "output":{"shape":"UpdateAddressBookResponse"},
+      "errors":[
+        {"shape":"NotFoundException"},
+        {"shape":"NameInUseException"},
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
+    "UpdateConferenceProvider":{
+      "name":"UpdateConferenceProvider",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"UpdateConferenceProviderRequest"},
+      "output":{"shape":"UpdateConferenceProviderResponse"},
+      "errors":[
+        {"shape":"NotFoundException"}
+      ]
+    },
+    "UpdateContact":{
+      "name":"UpdateContact",
+      "http":{
+        "method":"POST",
+        "requestUri":"/"
+      },
+      "input":{"shape":"UpdateContactRequest"},
+      "output":{"shape":"UpdateContactResponse"},
+      "errors":[
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"}
+      ]
+    },
     "UpdateDevice":{
       "name":"UpdateDevice",
       "http":{
@@ -373,7 +800,9 @@
       "input":{"shape":"UpdateDeviceRequest"},
       "output":{"shape":"UpdateDeviceResponse"},
       "errors":[
-        {"shape":"NotFoundException"}
+        {"shape":"NotFoundException"},
+        {"shape":"ConcurrentModificationException"},
+        {"shape":"DeviceNotRegisteredException"}
       ]
     },
     "UpdateProfile":{
@@ -386,7 +815,8 @@
       "output":{"shape":"UpdateProfileResponse"},
       "errors":[
         {"shape":"NotFoundException"},
-        {"shape":"NameInUseException"}
+        {"shape":"NameInUseException"},
+        {"shape":"ConcurrentModificationException"}
       ]
     },
     "UpdateRoom":{
@@ -412,7 +842,8 @@
       "output":{"shape":"UpdateSkillGroupResponse"},
       "errors":[
         {"shape":"NotFoundException"},
-        {"shape":"NameInUseException"}
+        {"shape":"NameInUseException"},
+        {"shape":"ConcurrentModificationException"}
       ]
     }
   },
@@ -422,6 +853,38 @@
       "max":500,
       "min":1
     },
+    "AddressBook":{
+      "type":"structure",
+      "members":{
+        "AddressBookArn":{"shape":"Arn"},
+        "Name":{"shape":"AddressBookName"},
+        "Description":{"shape":"AddressBookDescription"}
+      }
+    },
+    "AddressBookData":{
+      "type":"structure",
+      "members":{
+        "AddressBookArn":{"shape":"Arn"},
+        "Name":{"shape":"AddressBookName"},
+        "Description":{"shape":"AddressBookDescription"}
+      }
+    },
+    "AddressBookDataList":{
+      "type":"list",
+      "member":{"shape":"AddressBookData"}
+    },
+    "AddressBookDescription":{
+      "type":"string",
+      "max":200,
+      "min":1,
+      "pattern":"[\\u0009\\u000A\\u000D\\u0020-\\u007E\\u0085\\u00A0-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]*"
+    },
+    "AddressBookName":{
+      "type":"string",
+      "max":100,
+      "min":1,
+      "pattern":"[\\u0009\\u000A\\u000D\\u0020-\\u007E\\u0085\\u00A0-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]*"
+    },
     "AlreadyExistsException":{
       "type":"structure",
       "members":{
@@ -429,9 +892,44 @@
       },
       "exception":true
     },
+    "AmazonId":{
+      "type":"string",
+      "pattern":"[a-zA-Z0-9]{1,18}"
+    },
+    "ApplianceDescription":{"type":"string"},
+    "ApplianceFriendlyName":{"type":"string"},
+    "ApplianceManufacturerName":{"type":"string"},
+    "ApproveSkillRequest":{
+      "type":"structure",
+      "required":["SkillId"],
+      "members":{
+        "SkillId":{"shape":"SkillId"}
+      }
+    },
+    "ApproveSkillResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
     "Arn":{
       "type":"string",
       "pattern":"arn:[a-z0-9-\\.]{1,63}:[a-z0-9-\\.]{0,63}:[a-z0-9-\\.]{0,63}:[a-z0-9-\\.]{0,63}:[^/].{0,1023}"
+    },
+    "AssociateContactWithAddressBookRequest":{
+      "type":"structure",
+      "required":[
+        "ContactArn",
+        "AddressBookArn"
+      ],
+      "members":{
+        "ContactArn":{"shape":"Arn"},
+        "AddressBookArn":{"shape":"Arn"}
+      }
+    },
+    "AssociateContactWithAddressBookResponse":{
+      "type":"structure",
+      "members":{
+      }
     },
     "AssociateDeviceWithRoomRequest":{
       "type":"structure",
@@ -457,12 +955,220 @@
       "members":{
       }
     },
+    "AssociateSkillWithSkillGroupRequest":{
+      "type":"structure",
+      "required":["SkillId"],
+      "members":{
+        "SkillGroupArn":{"shape":"Arn"},
+        "SkillId":{"shape":"SkillId"}
+      }
+    },
+    "AssociateSkillWithSkillGroupResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "AuthorizationResult":{
+      "type":"map",
+      "key":{"shape":"Key"},
+      "value":{"shape":"Value"},
+      "sensitive":true
+    },
     "Boolean":{"type":"boolean"},
+    "BulletPoint":{"type":"string"},
+    "BulletPoints":{
+      "type":"list",
+      "member":{"shape":"BulletPoint"}
+    },
+    "Category":{
+      "type":"structure",
+      "members":{
+        "CategoryId":{"shape":"CategoryId"},
+        "CategoryName":{"shape":"CategoryName"}
+      }
+    },
+    "CategoryId":{
+      "type":"long",
+      "min":1
+    },
+    "CategoryList":{
+      "type":"list",
+      "member":{"shape":"Category"}
+    },
+    "CategoryName":{"type":"string"},
+    "ClientId":{
+      "type":"string",
+      "pattern":"^\\S+{1,256}$"
+    },
     "ClientRequestToken":{
       "type":"string",
       "max":150,
       "min":10,
       "pattern":"[a-zA-Z0-9][a-zA-Z0-9_-]*"
+    },
+    "CommsProtocol":{
+      "type":"string",
+      "enum":[
+        "SIP",
+        "SIPS",
+        "H323"
+      ]
+    },
+    "ConcurrentModificationException":{
+      "type":"structure",
+      "members":{
+        "Message":{"shape":"ErrorMessage"}
+      },
+      "exception":true
+    },
+    "ConferencePreference":{
+      "type":"structure",
+      "members":{
+        "DefaultConferenceProviderArn":{"shape":"Arn"}
+      }
+    },
+    "ConferenceProvider":{
+      "type":"structure",
+      "members":{
+        "Arn":{"shape":"Arn"},
+        "Name":{"shape":"ConferenceProviderName"},
+        "Type":{"shape":"ConferenceProviderType"},
+        "IPDialIn":{"shape":"IPDialIn"},
+        "PSTNDialIn":{"shape":"PSTNDialIn"},
+        "MeetingSetting":{"shape":"MeetingSetting"}
+      }
+    },
+    "ConferenceProviderName":{
+      "type":"string",
+      "max":50,
+      "min":1,
+      "pattern":"[\\u0009\\u000A\\u000D\\u0020-\\u007E\\u0085\\u00A0-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]*"
+    },
+    "ConferenceProviderType":{
+      "type":"string",
+      "enum":[
+        "CHIME",
+        "BLUEJEANS",
+        "FUZE",
+        "GOOGLE_HANGOUTS",
+        "POLYCOM",
+        "RINGCENTRAL",
+        "SKYPE_FOR_BUSINESS",
+        "WEBEX",
+        "ZOOM",
+        "CUSTOM"
+      ]
+    },
+    "ConferenceProvidersList":{
+      "type":"list",
+      "member":{"shape":"ConferenceProvider"}
+    },
+    "ConnectionStatus":{
+      "type":"string",
+      "enum":[
+        "ONLINE",
+        "OFFLINE"
+      ]
+    },
+    "Contact":{
+      "type":"structure",
+      "members":{
+        "ContactArn":{"shape":"Arn"},
+        "DisplayName":{"shape":"ContactName"},
+        "FirstName":{"shape":"ContactName"},
+        "LastName":{"shape":"ContactName"},
+        "PhoneNumber":{"shape":"E164PhoneNumber"}
+      }
+    },
+    "ContactData":{
+      "type":"structure",
+      "members":{
+        "ContactArn":{"shape":"Arn"},
+        "DisplayName":{"shape":"ContactName"},
+        "FirstName":{"shape":"ContactName"},
+        "LastName":{"shape":"ContactName"},
+        "PhoneNumber":{"shape":"E164PhoneNumber"}
+      }
+    },
+    "ContactDataList":{
+      "type":"list",
+      "member":{"shape":"ContactData"}
+    },
+    "ContactName":{
+      "type":"string",
+      "max":100,
+      "min":1,
+      "pattern":"[\\u0009\\u000A\\u000D\\u0020-\\u007E\\u0085\\u00A0-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]*"
+    },
+    "CountryCode":{
+      "type":"string",
+      "pattern":"\\d{1,3}"
+    },
+    "CreateAddressBookRequest":{
+      "type":"structure",
+      "required":["Name"],
+      "members":{
+        "Name":{"shape":"AddressBookName"},
+        "Description":{"shape":"AddressBookDescription"},
+        "ClientRequestToken":{
+          "shape":"ClientRequestToken",
+          "idempotencyToken":true
+        }
+      }
+    },
+    "CreateAddressBookResponse":{
+      "type":"structure",
+      "members":{
+        "AddressBookArn":{"shape":"Arn"}
+      }
+    },
+    "CreateConferenceProviderRequest":{
+      "type":"structure",
+      "required":[
+        "ConferenceProviderName",
+        "ConferenceProviderType",
+        "MeetingSetting"
+      ],
+      "members":{
+        "ConferenceProviderName":{"shape":"ConferenceProviderName"},
+        "ConferenceProviderType":{"shape":"ConferenceProviderType"},
+        "IPDialIn":{"shape":"IPDialIn"},
+        "PSTNDialIn":{"shape":"PSTNDialIn"},
+        "MeetingSetting":{"shape":"MeetingSetting"},
+        "ClientRequestToken":{
+          "shape":"ClientRequestToken",
+          "idempotencyToken":true
+        }
+      }
+    },
+    "CreateConferenceProviderResponse":{
+      "type":"structure",
+      "members":{
+        "ConferenceProviderArn":{"shape":"Arn"}
+      }
+    },
+    "CreateContactRequest":{
+      "type":"structure",
+      "required":[
+        "FirstName",
+        "PhoneNumber"
+      ],
+      "members":{
+        "DisplayName":{"shape":"ContactName"},
+        "FirstName":{"shape":"ContactName"},
+        "LastName":{"shape":"ContactName"},
+        "PhoneNumber":{"shape":"E164PhoneNumber"},
+        "ClientRequestToken":{
+          "shape":"ClientRequestToken",
+          "idempotencyToken":true
+        }
+      }
+    },
+    "CreateContactResponse":{
+      "type":"structure",
+      "members":{
+        "ContactArn":{"shape":"Arn"}
+      }
     },
     "CreateProfileRequest":{
       "type":"structure",
@@ -556,6 +1262,54 @@
         "UserArn":{"shape":"Arn"}
       }
     },
+    "DeleteAddressBookRequest":{
+      "type":"structure",
+      "required":["AddressBookArn"],
+      "members":{
+        "AddressBookArn":{"shape":"Arn"}
+      }
+    },
+    "DeleteAddressBookResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "DeleteConferenceProviderRequest":{
+      "type":"structure",
+      "required":["ConferenceProviderArn"],
+      "members":{
+        "ConferenceProviderArn":{"shape":"Arn"}
+      }
+    },
+    "DeleteConferenceProviderResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "DeleteContactRequest":{
+      "type":"structure",
+      "required":["ContactArn"],
+      "members":{
+        "ContactArn":{"shape":"Arn"}
+      }
+    },
+    "DeleteContactResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "DeleteDeviceRequest":{
+      "type":"structure",
+      "required":["DeviceArn"],
+      "members":{
+        "DeviceArn":{"shape":"Arn"}
+      }
+    },
+    "DeleteDeviceResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
     "DeleteProfileRequest":{
       "type":"structure",
       "members":{
@@ -595,6 +1349,19 @@
       "members":{
       }
     },
+    "DeleteSkillAuthorizationRequest":{
+      "type":"structure",
+      "required":["SkillId"],
+      "members":{
+        "SkillId":{"shape":"SkillId"},
+        "RoomArn":{"shape":"Arn"}
+      }
+    },
+    "DeleteSkillAuthorizationResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
     "DeleteSkillGroupRequest":{
       "type":"structure",
       "members":{
@@ -619,6 +1386,16 @@
       "members":{
       }
     },
+    "DeveloperInfo":{
+      "type":"structure",
+      "members":{
+        "DeveloperName":{"shape":"DeveloperName"},
+        "PrivacyPolicy":{"shape":"PrivacyPolicy"},
+        "Email":{"shape":"Email"},
+        "Url":{"shape":"Url"}
+      }
+    },
+    "DeveloperName":{"type":"string"},
     "Device":{
       "type":"structure",
       "members":{
@@ -652,22 +1429,54 @@
       "type":"list",
       "member":{"shape":"DeviceData"}
     },
+    "DeviceEvent":{
+      "type":"structure",
+      "members":{
+        "Type":{"shape":"DeviceEventType"},
+        "Value":{"shape":"DeviceEventValue"},
+        "Timestamp":{"shape":"Timestamp"}
+      }
+    },
+    "DeviceEventList":{
+      "type":"list",
+      "member":{"shape":"DeviceEvent"}
+    },
+    "DeviceEventType":{
+      "type":"string",
+      "enum":[
+        "CONNECTION_STATUS",
+        "DEVICE_STATUS"
+      ]
+    },
+    "DeviceEventValue":{"type":"string"},
     "DeviceName":{
       "type":"string",
       "max":100,
       "min":2,
       "pattern":"[\\u0009\\u000A\\u000D\\u0020-\\u007E\\u0085\\u00A0-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]*"
     },
+    "DeviceNotRegisteredException":{
+      "type":"structure",
+      "members":{
+        "Message":{"shape":"ErrorMessage"}
+      },
+      "exception":true
+    },
     "DeviceSerialNumber":{
       "type":"string",
       "pattern":"[a-zA-Z0-9]{1,200}"
+    },
+    "DeviceSerialNumberForAVS":{
+      "type":"string",
+      "pattern":"^[a-zA-Z0-9]{1,50}$"
     },
     "DeviceStatus":{
       "type":"string",
       "enum":[
         "READY",
         "PENDING",
-        "WAS_OFFLINE"
+        "WAS_OFFLINE",
+        "DEREGISTERED"
       ]
     },
     "DeviceStatusDetail":{
@@ -690,12 +1499,29 @@
     "DeviceStatusInfo":{
       "type":"structure",
       "members":{
-        "DeviceStatusDetails":{"shape":"DeviceStatusDetails"}
+        "DeviceStatusDetails":{"shape":"DeviceStatusDetails"},
+        "ConnectionStatus":{"shape":"ConnectionStatus"}
       }
     },
     "DeviceType":{
       "type":"string",
       "pattern":"[a-zA-Z0-9]{1,200}"
+    },
+    "DisassociateContactFromAddressBookRequest":{
+      "type":"structure",
+      "required":[
+        "ContactArn",
+        "AddressBookArn"
+      ],
+      "members":{
+        "ContactArn":{"shape":"Arn"},
+        "AddressBookArn":{"shape":"Arn"}
+      }
+    },
+    "DisassociateContactFromAddressBookResponse":{
+      "type":"structure",
+      "members":{
+      }
     },
     "DisassociateDeviceFromRoomRequest":{
       "type":"structure",
@@ -704,6 +1530,19 @@
       }
     },
     "DisassociateDeviceFromRoomResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "DisassociateSkillFromSkillGroupRequest":{
+      "type":"structure",
+      "required":["SkillId"],
+      "members":{
+        "SkillGroupArn":{"shape":"Arn"},
+        "SkillId":{"shape":"SkillId"}
+      }
+    },
+    "DisassociateSkillFromSkillGroupResponse":{
       "type":"structure",
       "members":{
       }
@@ -727,11 +1566,35 @@
         "IMPERIAL"
       ]
     },
+    "E164PhoneNumber":{
+      "type":"string",
+      "pattern":"^\\+\\d{8,}$"
+    },
     "Email":{
       "type":"string",
       "max":128,
       "min":1,
       "pattern":"([0-9a-zA-Z]([+-.\\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\\w]*[0-9a-zA-Z]\\.)+[a-zA-Z]{2,9})"
+    },
+    "EnablementType":{
+      "type":"string",
+      "enum":[
+        "ENABLED",
+        "PENDING"
+      ]
+    },
+    "EnablementTypeFilter":{
+      "type":"string",
+      "enum":[
+        "ENABLED",
+        "PENDING"
+      ]
+    },
+    "EndUserLicenseAgreement":{"type":"string"},
+    "Endpoint":{
+      "type":"string",
+      "max":256,
+      "min":1
     },
     "EnrollmentId":{
       "type":"string",
@@ -744,6 +1607,7 @@
         "INITIALIZED",
         "PENDING",
         "REGISTERED",
+        "DISASSOCIATING",
         "DEREGISTERING"
       ]
     },
@@ -793,6 +1657,73 @@
       "type":"list",
       "member":{"shape":"FilterValue"},
       "max":5
+    },
+    "ForgetSmartHomeAppliancesRequest":{
+      "type":"structure",
+      "required":["RoomArn"],
+      "members":{
+        "RoomArn":{"shape":"Arn"}
+      }
+    },
+    "ForgetSmartHomeAppliancesResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "GenericKeyword":{"type":"string"},
+    "GenericKeywords":{
+      "type":"list",
+      "member":{"shape":"GenericKeyword"}
+    },
+    "GetAddressBookRequest":{
+      "type":"structure",
+      "required":["AddressBookArn"],
+      "members":{
+        "AddressBookArn":{"shape":"Arn"}
+      }
+    },
+    "GetAddressBookResponse":{
+      "type":"structure",
+      "members":{
+        "AddressBook":{"shape":"AddressBook"}
+      }
+    },
+    "GetConferencePreferenceRequest":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "GetConferencePreferenceResponse":{
+      "type":"structure",
+      "members":{
+        "Preference":{"shape":"ConferencePreference"}
+      }
+    },
+    "GetConferenceProviderRequest":{
+      "type":"structure",
+      "required":["ConferenceProviderArn"],
+      "members":{
+        "ConferenceProviderArn":{"shape":"Arn"}
+      }
+    },
+    "GetConferenceProviderResponse":{
+      "type":"structure",
+      "members":{
+        "ConferenceProvider":{"shape":"ConferenceProvider"}
+      }
+    },
+    "GetContactRequest":{
+      "type":"structure",
+      "required":["ContactArn"],
+      "members":{
+        "ContactArn":{"shape":"Arn"}
+      }
+    },
+    "GetContactResponse":{
+      "type":"structure",
+      "members":{
+        "Contact":{"shape":"Contact"}
+      }
     },
     "GetDeviceRequest":{
       "type":"structure",
@@ -860,12 +1791,43 @@
         "SkillGroup":{"shape":"SkillGroup"}
       }
     },
+    "IPDialIn":{
+      "type":"structure",
+      "required":[
+        "Endpoint",
+        "CommsProtocol"
+      ],
+      "members":{
+        "Endpoint":{"shape":"Endpoint"},
+        "CommsProtocol":{"shape":"CommsProtocol"}
+      }
+    },
+    "IconUrl":{"type":"string"},
+    "InvalidCertificateAuthorityException":{
+      "type":"structure",
+      "members":{
+        "Message":{"shape":"ErrorMessage"}
+      },
+      "exception":true
+    },
+    "InvalidDeviceException":{
+      "type":"structure",
+      "members":{
+        "Message":{"shape":"ErrorMessage"}
+      },
+      "exception":true
+    },
     "InvalidUserStatusException":{
       "type":"structure",
       "members":{
         "Message":{"shape":"ErrorMessage"}
       },
       "exception":true
+    },
+    "InvocationPhrase":{"type":"string"},
+    "Key":{
+      "type":"string",
+      "min":1
     },
     "LimitExceededException":{
       "type":"structure",
@@ -874,10 +1836,43 @@
       },
       "exception":true
     },
+    "ListConferenceProvidersRequest":{
+      "type":"structure",
+      "members":{
+        "NextToken":{"shape":"NextToken"},
+        "MaxResults":{"shape":"MaxResults"}
+      }
+    },
+    "ListConferenceProvidersResponse":{
+      "type":"structure",
+      "members":{
+        "ConferenceProviders":{"shape":"ConferenceProvidersList"},
+        "NextToken":{"shape":"NextToken"}
+      }
+    },
+    "ListDeviceEventsRequest":{
+      "type":"structure",
+      "required":["DeviceArn"],
+      "members":{
+        "DeviceArn":{"shape":"Arn"},
+        "EventType":{"shape":"DeviceEventType"},
+        "NextToken":{"shape":"NextToken"},
+        "MaxResults":{"shape":"MaxResults"}
+      }
+    },
+    "ListDeviceEventsResponse":{
+      "type":"structure",
+      "members":{
+        "DeviceEvents":{"shape":"DeviceEventList"},
+        "NextToken":{"shape":"NextToken"}
+      }
+    },
     "ListSkillsRequest":{
       "type":"structure",
       "members":{
         "SkillGroupArn":{"shape":"Arn"},
+        "EnablementType":{"shape":"EnablementTypeFilter"},
+        "SkillType":{"shape":"SkillTypeFilter"},
         "NextToken":{"shape":"NextToken"},
         "MaxResults":{"shape":"SkillListMaxResults"}
       }
@@ -886,6 +1881,52 @@
       "type":"structure",
       "members":{
         "SkillSummaries":{"shape":"SkillSummaryList"},
+        "NextToken":{"shape":"NextToken"}
+      }
+    },
+    "ListSkillsStoreCategoriesRequest":{
+      "type":"structure",
+      "members":{
+        "NextToken":{"shape":"NextToken"},
+        "MaxResults":{"shape":"MaxResults"}
+      }
+    },
+    "ListSkillsStoreCategoriesResponse":{
+      "type":"structure",
+      "members":{
+        "CategoryList":{"shape":"CategoryList"},
+        "NextToken":{"shape":"NextToken"}
+      }
+    },
+    "ListSkillsStoreSkillsByCategoryRequest":{
+      "type":"structure",
+      "required":["CategoryId"],
+      "members":{
+        "CategoryId":{"shape":"CategoryId"},
+        "NextToken":{"shape":"NextToken"},
+        "MaxResults":{"shape":"SkillListMaxResults"}
+      }
+    },
+    "ListSkillsStoreSkillsByCategoryResponse":{
+      "type":"structure",
+      "members":{
+        "SkillsStoreSkills":{"shape":"SkillsStoreSkillList"},
+        "NextToken":{"shape":"NextToken"}
+      }
+    },
+    "ListSmartHomeAppliancesRequest":{
+      "type":"structure",
+      "required":["RoomArn"],
+      "members":{
+        "RoomArn":{"shape":"Arn"},
+        "MaxResults":{"shape":"MaxResults"},
+        "NextToken":{"shape":"NextToken"}
+      }
+    },
+    "ListSmartHomeAppliancesResponse":{
+      "type":"structure",
+      "members":{
+        "SmartHomeAppliances":{"shape":"SmartHomeApplianceList"},
         "NextToken":{"shape":"NextToken"}
       }
     },
@@ -912,12 +1953,23 @@
       "min":1
     },
     "MaxVolumeLimit":{"type":"integer"},
+    "MeetingSetting":{
+      "type":"structure",
+      "required":["RequirePin"],
+      "members":{
+        "RequirePin":{"shape":"RequirePin"}
+      }
+    },
     "NameInUseException":{
       "type":"structure",
       "members":{
         "Message":{"shape":"ErrorMessage"}
       },
       "exception":true
+    },
+    "NewInThisVersionBulletPoints":{
+      "type":"list",
+      "member":{"shape":"BulletPoint"}
     },
     "NextToken":{
       "type":"string",
@@ -931,11 +1983,47 @@
       },
       "exception":true
     },
+    "OneClickIdDelay":{
+      "type":"string",
+      "max":2,
+      "min":1
+    },
+    "OneClickPinDelay":{
+      "type":"string",
+      "max":2,
+      "min":1
+    },
+    "PSTNDialIn":{
+      "type":"structure",
+      "required":[
+        "CountryCode",
+        "PhoneNumber",
+        "OneClickIdDelay",
+        "OneClickPinDelay"
+      ],
+      "members":{
+        "CountryCode":{"shape":"CountryCode"},
+        "PhoneNumber":{"shape":"PhoneNumber"},
+        "OneClickIdDelay":{"shape":"OneClickIdDelay"},
+        "OneClickPinDelay":{"shape":"OneClickPinDelay"}
+      }
+    },
+    "PhoneNumber":{
+      "type":"string",
+      "pattern":"\\d{10}"
+    },
+    "PrivacyPolicy":{"type":"string"},
+    "ProductDescription":{"type":"string"},
+    "ProductId":{
+      "type":"string",
+      "pattern":"^[a-zA-Z0-9_]{1,256}$"
+    },
     "Profile":{
       "type":"structure",
       "members":{
         "ProfileArn":{"shape":"Arn"},
         "ProfileName":{"shape":"ProfileName"},
+        "IsDefault":{"shape":"Boolean"},
         "Address":{"shape":"Address"},
         "Timezone":{"shape":"Timezone"},
         "DistanceUnit":{"shape":"DistanceUnit"},
@@ -943,7 +2031,8 @@
         "WakeWord":{"shape":"WakeWord"},
         "SetupModeDisabled":{"shape":"Boolean"},
         "MaxVolumeLimit":{"shape":"MaxVolumeLimit"},
-        "PSTNEnabled":{"shape":"Boolean"}
+        "PSTNEnabled":{"shape":"Boolean"},
+        "AddressBookArn":{"shape":"Arn"}
       }
     },
     "ProfileData":{
@@ -951,6 +2040,7 @@
       "members":{
         "ProfileArn":{"shape":"Arn"},
         "ProfileName":{"shape":"ProfileName"},
+        "IsDefault":{"shape":"Boolean"},
         "Address":{"shape":"Address"},
         "Timezone":{"shape":"Timezone"},
         "DistanceUnit":{"shape":"DistanceUnit"},
@@ -973,6 +2063,18 @@
       "max":100,
       "min":0
     },
+    "PutConferencePreferenceRequest":{
+      "type":"structure",
+      "required":["ConferencePreference"],
+      "members":{
+        "ConferencePreference":{"shape":"ConferencePreference"}
+      }
+    },
+    "PutConferencePreferenceResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
     "PutRoomSkillParameterRequest":{
       "type":"structure",
       "required":[
@@ -989,6 +2091,67 @@
       "type":"structure",
       "members":{
       }
+    },
+    "PutSkillAuthorizationRequest":{
+      "type":"structure",
+      "required":[
+        "AuthorizationResult",
+        "SkillId"
+      ],
+      "members":{
+        "AuthorizationResult":{"shape":"AuthorizationResult"},
+        "SkillId":{"shape":"SkillId"},
+        "RoomArn":{"shape":"Arn"}
+      }
+    },
+    "PutSkillAuthorizationResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "RegisterAVSDeviceRequest":{
+      "type":"structure",
+      "required":[
+        "ClientId",
+        "UserCode",
+        "ProductId",
+        "DeviceSerialNumber",
+        "AmazonId"
+      ],
+      "members":{
+        "ClientId":{"shape":"ClientId"},
+        "UserCode":{"shape":"UserCode"},
+        "ProductId":{"shape":"ProductId"},
+        "DeviceSerialNumber":{"shape":"DeviceSerialNumberForAVS"},
+        "AmazonId":{"shape":"AmazonId"}
+      }
+    },
+    "RegisterAVSDeviceResponse":{
+      "type":"structure",
+      "members":{
+        "DeviceArn":{"shape":"Arn"}
+      }
+    },
+    "RejectSkillRequest":{
+      "type":"structure",
+      "required":["SkillId"],
+      "members":{
+        "SkillId":{"shape":"SkillId"}
+      }
+    },
+    "RejectSkillResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "ReleaseDate":{"type":"string"},
+    "RequirePin":{
+      "type":"string",
+      "enum":[
+        "YES",
+        "NO",
+        "OPTIONAL"
+      ]
     },
     "ResolveRoomRequest":{
       "type":"structure",
@@ -1016,6 +2179,13 @@
         "ClientRequestToken":{"shape":"ClientRequestToken"}
       },
       "exception":true
+    },
+    "ReviewKey":{"type":"string"},
+    "ReviewValue":{"type":"string"},
+    "Reviews":{
+      "type":"map",
+      "key":{"shape":"ReviewKey"},
+      "value":{"shape":"ReviewValue"}
     },
     "RevokeInvitationRequest":{
       "type":"structure",
@@ -1090,6 +2260,44 @@
     "RoomSkillParameters":{
       "type":"list",
       "member":{"shape":"RoomSkillParameter"}
+    },
+    "SampleUtterances":{
+      "type":"list",
+      "member":{"shape":"Utterance"}
+    },
+    "SearchAddressBooksRequest":{
+      "type":"structure",
+      "members":{
+        "Filters":{"shape":"FilterList"},
+        "SortCriteria":{"shape":"SortList"},
+        "NextToken":{"shape":"NextToken"},
+        "MaxResults":{"shape":"MaxResults"}
+      }
+    },
+    "SearchAddressBooksResponse":{
+      "type":"structure",
+      "members":{
+        "AddressBooks":{"shape":"AddressBookDataList"},
+        "NextToken":{"shape":"NextToken"},
+        "TotalCount":{"shape":"TotalCount"}
+      }
+    },
+    "SearchContactsRequest":{
+      "type":"structure",
+      "members":{
+        "Filters":{"shape":"FilterList"},
+        "SortCriteria":{"shape":"SortList"},
+        "NextToken":{"shape":"NextToken"},
+        "MaxResults":{"shape":"MaxResults"}
+      }
+    },
+    "SearchContactsResponse":{
+      "type":"structure",
+      "members":{
+        "Contacts":{"shape":"ContactDataList"},
+        "NextToken":{"shape":"NextToken"},
+        "TotalCount":{"shape":"TotalCount"}
+      }
     },
     "SearchDevicesRequest":{
       "type":"structure",
@@ -1187,6 +2395,22 @@
       "members":{
       }
     },
+    "ShortDescription":{"type":"string"},
+    "SkillDetails":{
+      "type":"structure",
+      "members":{
+        "ProductDescription":{"shape":"ProductDescription"},
+        "InvocationPhrase":{"shape":"InvocationPhrase"},
+        "ReleaseDate":{"shape":"ReleaseDate"},
+        "EndUserLicenseAgreement":{"shape":"EndUserLicenseAgreement"},
+        "GenericKeywords":{"shape":"GenericKeywords"},
+        "BulletPoints":{"shape":"BulletPoints"},
+        "NewInThisVersionBulletPoints":{"shape":"NewInThisVersionBulletPoints"},
+        "SkillTypes":{"shape":"SkillTypes"},
+        "Reviews":{"shape":"Reviews"},
+        "DeveloperInfo":{"shape":"DeveloperInfo"}
+      }
+    },
     "SkillGroup":{
       "type":"structure",
       "members":{
@@ -1234,17 +2458,70 @@
       "min":1,
       "pattern":"[\\u0009\\u000A\\u000D\\u0020-\\u007E\\u0085\\u00A0-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]*"
     },
+    "SkillStoreType":{"type":"string"},
     "SkillSummary":{
       "type":"structure",
       "members":{
         "SkillId":{"shape":"SkillId"},
         "SkillName":{"shape":"SkillName"},
-        "SupportsLinking":{"shape":"boolean"}
+        "SupportsLinking":{"shape":"boolean"},
+        "EnablementType":{"shape":"EnablementType"},
+        "SkillType":{"shape":"SkillType"}
       }
     },
     "SkillSummaryList":{
       "type":"list",
       "member":{"shape":"SkillSummary"}
+    },
+    "SkillType":{
+      "type":"string",
+      "enum":[
+        "PUBLIC",
+        "PRIVATE"
+      ],
+      "max":100,
+      "min":1,
+      "pattern":"[a-zA-Z0-9][a-zA-Z0-9_-]*"
+    },
+    "SkillTypeFilter":{
+      "type":"string",
+      "enum":[
+        "PUBLIC",
+        "PRIVATE",
+        "ALL"
+      ]
+    },
+    "SkillTypes":{
+      "type":"list",
+      "member":{"shape":"SkillStoreType"}
+    },
+    "SkillsStoreSkill":{
+      "type":"structure",
+      "members":{
+        "SkillId":{"shape":"SkillId"},
+        "SkillName":{"shape":"SkillName"},
+        "ShortDescription":{"shape":"ShortDescription"},
+        "IconUrl":{"shape":"IconUrl"},
+        "SampleUtterances":{"shape":"SampleUtterances"},
+        "SkillDetails":{"shape":"SkillDetails"},
+        "SupportsLinking":{"shape":"boolean"}
+      }
+    },
+    "SkillsStoreSkillList":{
+      "type":"list",
+      "member":{"shape":"SkillsStoreSkill"}
+    },
+    "SmartHomeAppliance":{
+      "type":"structure",
+      "members":{
+        "FriendlyName":{"shape":"ApplianceFriendlyName"},
+        "Description":{"shape":"ApplianceDescription"},
+        "ManufacturerName":{"shape":"ApplianceManufacturerName"}
+      }
+    },
+    "SmartHomeApplianceList":{
+      "type":"list",
+      "member":{"shape":"SmartHomeAppliance"}
     },
     "SoftwareVersion":{"type":"string"},
     "Sort":{
@@ -1289,8 +2566,24 @@
       "members":{
       }
     },
+    "StartSmartHomeApplianceDiscoveryRequest":{
+      "type":"structure",
+      "required":["RoomArn"],
+      "members":{
+        "RoomArn":{"shape":"Arn"}
+      }
+    },
+    "StartSmartHomeApplianceDiscoveryResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
     "Tag":{
       "type":"structure",
+      "required":[
+        "Key",
+        "Value"
+      ],
       "members":{
         "Key":{"shape":"TagKey"},
         "Value":{"shape":"TagValue"}
@@ -1339,12 +2632,20 @@
         "CELSIUS"
       ]
     },
+    "Timestamp":{"type":"timestamp"},
     "Timezone":{
       "type":"string",
       "max":100,
       "min":1
     },
     "TotalCount":{"type":"integer"},
+    "UnauthorizedException":{
+      "type":"structure",
+      "members":{
+        "Message":{"shape":"ErrorMessage"}
+      },
+      "exception":true
+    },
     "UntagResourceRequest":{
       "type":"structure",
       "required":[
@@ -1357,6 +2658,56 @@
       }
     },
     "UntagResourceResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "UpdateAddressBookRequest":{
+      "type":"structure",
+      "required":["AddressBookArn"],
+      "members":{
+        "AddressBookArn":{"shape":"Arn"},
+        "Name":{"shape":"AddressBookName"},
+        "Description":{"shape":"AddressBookDescription"}
+      }
+    },
+    "UpdateAddressBookResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "UpdateConferenceProviderRequest":{
+      "type":"structure",
+      "required":[
+        "ConferenceProviderArn",
+        "ConferenceProviderType",
+        "MeetingSetting"
+      ],
+      "members":{
+        "ConferenceProviderArn":{"shape":"Arn"},
+        "ConferenceProviderType":{"shape":"ConferenceProviderType"},
+        "IPDialIn":{"shape":"IPDialIn"},
+        "PSTNDialIn":{"shape":"PSTNDialIn"},
+        "MeetingSetting":{"shape":"MeetingSetting"}
+      }
+    },
+    "UpdateConferenceProviderResponse":{
+      "type":"structure",
+      "members":{
+      }
+    },
+    "UpdateContactRequest":{
+      "type":"structure",
+      "required":["ContactArn"],
+      "members":{
+        "ContactArn":{"shape":"Arn"},
+        "DisplayName":{"shape":"ContactName"},
+        "FirstName":{"shape":"ContactName"},
+        "LastName":{"shape":"ContactName"},
+        "PhoneNumber":{"shape":"E164PhoneNumber"}
+      }
+    },
+    "UpdateContactResponse":{
       "type":"structure",
       "members":{
       }
@@ -1378,6 +2729,7 @@
       "members":{
         "ProfileArn":{"shape":"Arn"},
         "ProfileName":{"shape":"ProfileName"},
+        "IsDefault":{"shape":"Boolean"},
         "Timezone":{"shape":"Timezone"},
         "Address":{"shape":"Address"},
         "DistanceUnit":{"shape":"DistanceUnit"},
@@ -1421,6 +2773,12 @@
       "members":{
       }
     },
+    "Url":{"type":"string"},
+    "UserCode":{
+      "type":"string",
+      "max":128,
+      "min":1
+    },
     "UserData":{
       "type":"structure",
       "members":{
@@ -1439,6 +2797,11 @@
     "UserId":{
       "type":"string",
       "pattern":"amzn1\\.[A-Za-z0-9+-\\/=.]{1,300}"
+    },
+    "Utterance":{"type":"string"},
+    "Value":{
+      "type":"string",
+      "min":1
     },
     "WakeWord":{
       "type":"string",

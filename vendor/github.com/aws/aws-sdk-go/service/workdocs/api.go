@@ -17,8 +17,8 @@ const opAbortDocumentVersionUpload = "AbortDocumentVersionUpload"
 
 // AbortDocumentVersionUploadRequest generates a "aws/request.Request" representing the
 // client's request for the AbortDocumentVersionUpload operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -117,8 +117,8 @@ const opActivateUser = "ActivateUser"
 
 // ActivateUserRequest generates a "aws/request.Request" representing the
 // client's request for the ActivateUser operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -210,8 +210,8 @@ const opAddResourcePermissions = "AddResourcePermissions"
 
 // AddResourcePermissionsRequest generates a "aws/request.Request" representing the
 // client's request for the AddResourcePermissions operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -301,8 +301,8 @@ const opCreateComment = "CreateComment"
 
 // CreateCommentRequest generates a "aws/request.Request" representing the
 // client's request for the CreateComment operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -401,8 +401,8 @@ const opCreateCustomMetadata = "CreateCustomMetadata"
 
 // CreateCustomMetadataRequest generates a "aws/request.Request" representing the
 // client's request for the CreateCustomMetadata operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -502,8 +502,8 @@ const opCreateFolder = "CreateFolder"
 
 // CreateFolderRequest generates a "aws/request.Request" representing the
 // client's request for the CreateFolder operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -604,8 +604,8 @@ const opCreateLabels = "CreateLabels"
 
 // CreateLabelsRequest generates a "aws/request.Request" representing the
 // client's request for the CreateLabels operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -700,8 +700,8 @@ const opCreateNotificationSubscription = "CreateNotificationSubscription"
 
 // CreateNotificationSubscriptionRequest generates a "aws/request.Request" representing the
 // client's request for the CreateNotificationSubscription operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -790,8 +790,8 @@ const opCreateUser = "CreateUser"
 
 // CreateUserRequest generates a "aws/request.Request" representing the
 // client's request for the CreateUser operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -884,8 +884,8 @@ const opDeactivateUser = "DeactivateUser"
 
 // DeactivateUserRequest generates a "aws/request.Request" representing the
 // client's request for the DeactivateUser operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -980,8 +980,8 @@ const opDeleteComment = "DeleteComment"
 
 // DeleteCommentRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteComment operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1082,8 +1082,8 @@ const opDeleteCustomMetadata = "DeleteCustomMetadata"
 
 // DeleteCustomMetadataRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteCustomMetadata operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1178,8 +1178,8 @@ const opDeleteDocument = "DeleteDocument"
 
 // DeleteDocumentRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteDocument operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1279,8 +1279,8 @@ const opDeleteFolder = "DeleteFolder"
 
 // DeleteFolderRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteFolder operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1380,8 +1380,8 @@ const opDeleteFolderContents = "DeleteFolderContents"
 
 // DeleteFolderContentsRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteFolderContents operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1475,8 +1475,8 @@ const opDeleteLabels = "DeleteLabels"
 
 // DeleteLabelsRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteLabels operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1568,8 +1568,8 @@ const opDeleteNotificationSubscription = "DeleteNotificationSubscription"
 
 // DeleteNotificationSubscriptionRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteNotificationSubscription operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1658,8 +1658,8 @@ const opDeleteUser = "DeleteUser"
 
 // DeleteUserRequest generates a "aws/request.Request" representing the
 // client's request for the DeleteUser operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1753,8 +1753,8 @@ const opDescribeActivities = "DescribeActivities"
 
 // DescribeActivitiesRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeActivities operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1846,8 +1846,8 @@ const opDescribeComments = "DescribeComments"
 
 // DescribeCommentsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeComments operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -1942,8 +1942,8 @@ const opDescribeDocumentVersions = "DescribeDocumentVersions"
 
 // DescribeDocumentVersionsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeDocumentVersions operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2099,8 +2099,8 @@ const opDescribeFolderContents = "DescribeFolderContents"
 
 // DescribeFolderContentsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeFolderContents operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2257,8 +2257,8 @@ const opDescribeGroups = "DescribeGroups"
 
 // DescribeGroupsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeGroups operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2347,8 +2347,8 @@ const opDescribeNotificationSubscriptions = "DescribeNotificationSubscriptions"
 
 // DescribeNotificationSubscriptionsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeNotificationSubscriptions operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2432,8 +2432,8 @@ const opDescribeResourcePermissions = "DescribeResourcePermissions"
 
 // DescribeResourcePermissionsRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeResourcePermissions operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2522,8 +2522,8 @@ const opDescribeRootFolders = "DescribeRootFolders"
 
 // DescribeRootFoldersRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeRootFolders operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2618,8 +2618,8 @@ const opDescribeUsers = "DescribeUsers"
 
 // DescribeUsersRequest generates a "aws/request.Request" representing the
 // client's request for the DescribeUsers operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2772,8 +2772,8 @@ const opGetCurrentUser = "GetCurrentUser"
 
 // GetCurrentUserRequest generates a "aws/request.Request" representing the
 // client's request for the GetCurrentUser operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2866,8 +2866,8 @@ const opGetDocument = "GetDocument"
 
 // GetDocumentRequest generates a "aws/request.Request" representing the
 // client's request for the GetDocument operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -2965,8 +2965,8 @@ const opGetDocumentPath = "GetDocumentPath"
 
 // GetDocumentPathRequest generates a "aws/request.Request" representing the
 // client's request for the GetDocumentPath operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3064,8 +3064,8 @@ const opGetDocumentVersion = "GetDocumentVersion"
 
 // GetDocumentVersionRequest generates a "aws/request.Request" representing the
 // client's request for the GetDocumentVersion operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3163,8 +3163,8 @@ const opGetFolder = "GetFolder"
 
 // GetFolderRequest generates a "aws/request.Request" representing the
 // client's request for the GetFolder operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3262,8 +3262,8 @@ const opGetFolderPath = "GetFolderPath"
 
 // GetFolderPathRequest generates a "aws/request.Request" representing the
 // client's request for the GetFolderPath operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3361,8 +3361,8 @@ const opInitiateDocumentVersionUpload = "InitiateDocumentVersionUpload"
 
 // InitiateDocumentVersionUploadRequest generates a "aws/request.Request" representing the
 // client's request for the InitiateDocumentVersionUpload operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3480,8 +3480,8 @@ const opRemoveAllResourcePermissions = "RemoveAllResourcePermissions"
 
 // RemoveAllResourcePermissionsRequest generates a "aws/request.Request" representing the
 // client's request for the RemoveAllResourcePermissions operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3572,8 +3572,8 @@ const opRemoveResourcePermission = "RemoveResourcePermission"
 
 // RemoveResourcePermissionRequest generates a "aws/request.Request" representing the
 // client's request for the RemoveResourcePermission operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3664,8 +3664,8 @@ const opUpdateDocument = "UpdateDocument"
 
 // UpdateDocumentRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateDocument operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3772,8 +3772,8 @@ const opUpdateDocumentVersion = "UpdateDocumentVersion"
 
 // UpdateDocumentVersionRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateDocumentVersion operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3880,8 +3880,8 @@ const opUpdateFolder = "UpdateFolder"
 
 // UpdateFolderRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateFolder operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -3988,8 +3988,8 @@ const opUpdateUser = "UpdateUser"
 
 // UpdateUserRequest generates a "aws/request.Request" representing the
 // client's request for the UpdateUser operation. The "output" return
-// value will be populated with the request's response once the request complets
-// successfuly.
+// value will be populated with the request's response once the request completes
+// successfully.
 //
 // Use "Send" method on the returned Request to send the API call to the service.
 // the "output" return value is not valid until after Send returns without error.
@@ -4087,7 +4087,6 @@ func (c *WorkDocs) UpdateUserWithContext(ctx aws.Context, input *UpdateUserInput
 	return out, req.Send()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/AbortDocumentVersionUploadRequest
 type AbortDocumentVersionUploadInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4159,7 +4158,6 @@ func (s *AbortDocumentVersionUploadInput) SetVersionId(v string) *AbortDocumentV
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/AbortDocumentVersionUploadOutput
 type AbortDocumentVersionUploadOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -4174,7 +4172,6 @@ func (s AbortDocumentVersionUploadOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/ActivateUserRequest
 type ActivateUserInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4229,7 +4226,6 @@ func (s *ActivateUserInput) SetUserId(v string) *ActivateUserInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/ActivateUserResponse
 type ActivateUserOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4254,7 +4250,6 @@ func (s *ActivateUserOutput) SetUser(v *User) *ActivateUserOutput {
 }
 
 // Describes the activity information.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/Activity
 type Activity struct {
 	_ struct{} `type:"structure"`
 
@@ -4281,7 +4276,7 @@ type Activity struct {
 	ResourceMetadata *ResourceMetadata `type:"structure"`
 
 	// The timestamp when the action was performed.
-	TimeStamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	TimeStamp *time.Time `type:"timestamp"`
 
 	// The activity type.
 	Type *string `type:"string" enum:"ActivityType"`
@@ -4345,7 +4340,6 @@ func (s *Activity) SetType(v string) *Activity {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/AddResourcePermissionsRequest
 type AddResourcePermissionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4433,7 +4427,6 @@ func (s *AddResourcePermissionsInput) SetResourceId(v string) *AddResourcePermis
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/AddResourcePermissionsResponse
 type AddResourcePermissionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4458,7 +4451,6 @@ func (s *AddResourcePermissionsOutput) SetShareResults(v []*ShareResult) *AddRes
 }
 
 // Describes a comment.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/Comment
 type Comment struct {
 	_ struct{} `type:"structure"`
 
@@ -4471,7 +4463,7 @@ type Comment struct {
 	Contributor *User `type:"structure"`
 
 	// The time that the comment was created.
-	CreatedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTimestamp *time.Time `type:"timestamp"`
 
 	// The ID of the parent comment.
 	ParentId *string `min:"1" type:"string"`
@@ -4560,7 +4552,6 @@ func (s *Comment) SetVisibility(v string) *Comment {
 }
 
 // Describes the metadata of a comment.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CommentMetadata
 type CommentMetadata struct {
 	_ struct{} `type:"structure"`
 
@@ -4574,7 +4565,7 @@ type CommentMetadata struct {
 	Contributor *User `type:"structure"`
 
 	// The timestamp that the comment was created.
-	CreatedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTimestamp *time.Time `type:"timestamp"`
 
 	// The ID of the user being replied to.
 	RecipientId *string `min:"1" type:"string"`
@@ -4620,7 +4611,6 @@ func (s *CommentMetadata) SetRecipientId(v string) *CommentMetadata {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateCommentRequest
 type CreateCommentInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4754,7 +4744,6 @@ func (s *CreateCommentInput) SetVisibility(v string) *CreateCommentInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateCommentResponse
 type CreateCommentOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4778,7 +4767,6 @@ func (s *CreateCommentOutput) SetComment(v *Comment) *CreateCommentOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateCustomMetadataRequest
 type CreateCustomMetadataInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4863,7 +4851,6 @@ func (s *CreateCustomMetadataInput) SetVersionId(v string) *CreateCustomMetadata
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateCustomMetadataResponse
 type CreateCustomMetadataOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -4878,7 +4865,6 @@ func (s CreateCustomMetadataOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateFolderRequest
 type CreateFolderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4945,7 +4931,6 @@ func (s *CreateFolderInput) SetParentFolderId(v string) *CreateFolderInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateFolderResponse
 type CreateFolderOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -4969,7 +4954,6 @@ func (s *CreateFolderOutput) SetMetadata(v *FolderMetadata) *CreateFolderOutput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateLabelsRequest
 type CreateLabelsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5038,7 +5022,6 @@ func (s *CreateLabelsInput) SetResourceId(v string) *CreateLabelsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateLabelsResponse
 type CreateLabelsOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5053,7 +5036,6 @@ func (s CreateLabelsOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateNotificationSubscriptionRequest
 type CreateNotificationSubscriptionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5142,7 +5124,6 @@ func (s *CreateNotificationSubscriptionInput) SetSubscriptionType(v string) *Cre
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateNotificationSubscriptionResponse
 type CreateNotificationSubscriptionOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -5166,7 +5147,6 @@ func (s *CreateNotificationSubscriptionOutput) SetSubscription(v *Subscription) 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateUserRequest
 type CreateUserInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5317,7 +5297,6 @@ func (s *CreateUserInput) SetUsername(v string) *CreateUserInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/CreateUserResponse
 type CreateUserOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -5341,7 +5320,6 @@ func (s *CreateUserOutput) SetUser(v *User) *CreateUserOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeactivateUserRequest
 type DeactivateUserInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5396,7 +5374,6 @@ func (s *DeactivateUserInput) SetUserId(v string) *DeactivateUserInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeactivateUserOutput
 type DeactivateUserOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5411,7 +5388,6 @@ func (s DeactivateUserOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteCommentRequest
 type DeleteCommentInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5500,7 +5476,6 @@ func (s *DeleteCommentInput) SetVersionId(v string) *DeleteCommentInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteCommentOutput
 type DeleteCommentOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5515,7 +5490,6 @@ func (s DeleteCommentOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteCustomMetadataRequest
 type DeleteCustomMetadataInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5602,7 +5576,6 @@ func (s *DeleteCustomMetadataInput) SetVersionId(v string) *DeleteCustomMetadata
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteCustomMetadataResponse
 type DeleteCustomMetadataOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5617,7 +5590,6 @@ func (s DeleteCustomMetadataOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteDocumentRequest
 type DeleteDocumentInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5672,7 +5644,6 @@ func (s *DeleteDocumentInput) SetDocumentId(v string) *DeleteDocumentInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteDocumentOutput
 type DeleteDocumentOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5687,7 +5658,6 @@ func (s DeleteDocumentOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteFolderContentsRequest
 type DeleteFolderContentsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5742,7 +5712,6 @@ func (s *DeleteFolderContentsInput) SetFolderId(v string) *DeleteFolderContentsI
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteFolderContentsOutput
 type DeleteFolderContentsOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5757,7 +5726,6 @@ func (s DeleteFolderContentsOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteFolderRequest
 type DeleteFolderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5812,7 +5780,6 @@ func (s *DeleteFolderInput) SetFolderId(v string) *DeleteFolderInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteFolderOutput
 type DeleteFolderOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5827,7 +5794,6 @@ func (s DeleteFolderOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteLabelsRequest
 type DeleteLabelsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5900,7 +5866,6 @@ func (s *DeleteLabelsInput) SetResourceId(v string) *DeleteLabelsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteLabelsResponse
 type DeleteLabelsOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5915,7 +5880,6 @@ func (s DeleteLabelsOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteNotificationSubscriptionRequest
 type DeleteNotificationSubscriptionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5974,7 +5938,6 @@ func (s *DeleteNotificationSubscriptionInput) SetSubscriptionId(v string) *Delet
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteNotificationSubscriptionOutput
 type DeleteNotificationSubscriptionOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -5989,7 +5952,6 @@ func (s DeleteNotificationSubscriptionOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteUserRequest
 type DeleteUserInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6044,7 +6006,6 @@ func (s *DeleteUserInput) SetUserId(v string) *DeleteUserInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DeleteUserOutput
 type DeleteUserOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -6059,7 +6020,6 @@ func (s DeleteUserOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeActivitiesRequest
 type DescribeActivitiesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6069,7 +6029,7 @@ type DescribeActivitiesInput struct {
 
 	// The timestamp that determines the end time of the activities. The response
 	// includes the activities performed before the specified timestamp.
-	EndTime *time.Time `location:"querystring" locationName:"endTime" type:"timestamp" timestampFormat:"unix"`
+	EndTime *time.Time `location:"querystring" locationName:"endTime" type:"timestamp"`
 
 	// The maximum number of items to return.
 	Limit *int64 `location:"querystring" locationName:"limit" min:"1" type:"integer"`
@@ -6083,7 +6043,7 @@ type DescribeActivitiesInput struct {
 
 	// The timestamp that determines the starting time of the activities. The response
 	// includes the activities performed after the specified timestamp.
-	StartTime *time.Time `location:"querystring" locationName:"startTime" type:"timestamp" timestampFormat:"unix"`
+	StartTime *time.Time `location:"querystring" locationName:"startTime" type:"timestamp"`
 
 	// The ID of the user who performed the action. The response includes activities
 	// pertaining to this user. This is an optional parameter and is only applicable
@@ -6168,7 +6128,6 @@ func (s *DescribeActivitiesInput) SetUserId(v string) *DescribeActivitiesInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeActivitiesResponse
 type DescribeActivitiesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6201,7 +6160,6 @@ func (s *DescribeActivitiesOutput) SetUserActivities(v []*Activity) *DescribeAct
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeCommentsRequest
 type DescribeCommentsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6298,7 +6256,6 @@ func (s *DescribeCommentsInput) SetVersionId(v string) *DescribeCommentsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeCommentsResponse
 type DescribeCommentsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6332,7 +6289,6 @@ func (s *DescribeCommentsOutput) SetMarker(v string) *DescribeCommentsOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeDocumentVersionsRequest
 type DescribeDocumentVersionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6438,7 +6394,6 @@ func (s *DescribeDocumentVersionsInput) SetMarker(v string) *DescribeDocumentVer
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeDocumentVersionsResponse
 type DescribeDocumentVersionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6472,7 +6427,6 @@ func (s *DescribeDocumentVersionsOutput) SetMarker(v string) *DescribeDocumentVe
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeFolderContentsRequest
 type DescribeFolderContentsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6591,7 +6545,6 @@ func (s *DescribeFolderContentsInput) SetType(v string) *DescribeFolderContentsI
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeFolderContentsResponse
 type DescribeFolderContentsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6634,7 +6587,6 @@ func (s *DescribeFolderContentsOutput) SetMarker(v string) *DescribeFolderConten
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeGroupsRequest
 type DescribeGroupsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6726,7 +6678,6 @@ func (s *DescribeGroupsInput) SetSearchQuery(v string) *DescribeGroupsInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeGroupsResponse
 type DescribeGroupsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6760,7 +6711,6 @@ func (s *DescribeGroupsOutput) SetMarker(v string) *DescribeGroupsOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeNotificationSubscriptionsRequest
 type DescribeNotificationSubscriptionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6827,7 +6777,6 @@ func (s *DescribeNotificationSubscriptionsInput) SetOrganizationId(v string) *De
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeNotificationSubscriptionsResponse
 type DescribeNotificationSubscriptionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6861,7 +6810,6 @@ func (s *DescribeNotificationSubscriptionsOutput) SetSubscriptions(v []*Subscrip
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeResourcePermissionsRequest
 type DescribeResourcePermissionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -6953,7 +6901,6 @@ func (s *DescribeResourcePermissionsInput) SetResourceId(v string) *DescribeReso
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeResourcePermissionsResponse
 type DescribeResourcePermissionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -6987,7 +6934,6 @@ func (s *DescribeResourcePermissionsOutput) SetPrincipals(v []*Principal) *Descr
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeRootFoldersRequest
 type DescribeRootFoldersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7055,7 +7001,6 @@ func (s *DescribeRootFoldersInput) SetMarker(v string) *DescribeRootFoldersInput
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeRootFoldersResponse
 type DescribeRootFoldersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7088,7 +7033,6 @@ func (s *DescribeRootFoldersOutput) SetMarker(v string) *DescribeRootFoldersOutp
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeUsersRequest
 type DescribeUsersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7227,7 +7171,6 @@ func (s *DescribeUsersInput) SetUserIds(v string) *DescribeUsersInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DescribeUsersResponse
 type DescribeUsersOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7236,6 +7179,8 @@ type DescribeUsersOutput struct {
 	Marker *string `min:"1" type:"string"`
 
 	// The total number of users included in the results.
+	//
+	// Deprecated: TotalNumberOfUsers has been deprecated
 	TotalNumberOfUsers *int64 `deprecated:"true" type:"long"`
 
 	// The users.
@@ -7271,12 +7216,11 @@ func (s *DescribeUsersOutput) SetUsers(v []*User) *DescribeUsersOutput {
 }
 
 // Describes the document.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DocumentMetadata
 type DocumentMetadata struct {
 	_ struct{} `type:"structure"`
 
 	// The time when the document was created.
-	CreatedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTimestamp *time.Time `type:"timestamp"`
 
 	// The ID of the creator.
 	CreatorId *string `min:"1" type:"string"`
@@ -7291,7 +7235,7 @@ type DocumentMetadata struct {
 	LatestVersionMetadata *DocumentVersionMetadata `type:"structure"`
 
 	// The time when the document was updated.
-	ModifiedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ModifiedTimestamp *time.Time `type:"timestamp"`
 
 	// The ID of the parent folder.
 	ParentFolderId *string `min:"1" type:"string"`
@@ -7359,21 +7303,20 @@ func (s *DocumentMetadata) SetResourceState(v string) *DocumentMetadata {
 }
 
 // Describes a version of a document.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/DocumentVersionMetadata
 type DocumentVersionMetadata struct {
 	_ struct{} `type:"structure"`
 
 	// The timestamp when the content of the document was originally created.
-	ContentCreatedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ContentCreatedTimestamp *time.Time `type:"timestamp"`
 
 	// The timestamp when the content of the document was modified.
-	ContentModifiedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ContentModifiedTimestamp *time.Time `type:"timestamp"`
 
 	// The content type of the document.
 	ContentType *string `min:"1" type:"string"`
 
 	// The timestamp when the document was first uploaded.
-	CreatedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTimestamp *time.Time `type:"timestamp"`
 
 	// The ID of the creator.
 	CreatorId *string `min:"1" type:"string"`
@@ -7382,7 +7325,7 @@ type DocumentVersionMetadata struct {
 	Id *string `min:"1" type:"string"`
 
 	// The timestamp when the document was last uploaded.
-	ModifiedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ModifiedTimestamp *time.Time `type:"timestamp"`
 
 	// The name of the version.
 	Name *string `min:"1" type:"string"`
@@ -7492,12 +7435,11 @@ func (s *DocumentVersionMetadata) SetThumbnail(v map[string]*string) *DocumentVe
 }
 
 // Describes a folder.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/FolderMetadata
 type FolderMetadata struct {
 	_ struct{} `type:"structure"`
 
 	// The time when the folder was created.
-	CreatedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTimestamp *time.Time `type:"timestamp"`
 
 	// The ID of the creator.
 	CreatorId *string `min:"1" type:"string"`
@@ -7512,7 +7454,7 @@ type FolderMetadata struct {
 	LatestVersionSize *int64 `type:"long"`
 
 	// The time when the folder was updated.
-	ModifiedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ModifiedTimestamp *time.Time `type:"timestamp"`
 
 	// The name of the folder.
 	Name *string `min:"1" type:"string"`
@@ -7606,7 +7548,6 @@ func (s *FolderMetadata) SetSize(v int64) *FolderMetadata {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetCurrentUserRequest
 type GetCurrentUserInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7649,7 +7590,6 @@ func (s *GetCurrentUserInput) SetAuthenticationToken(v string) *GetCurrentUserIn
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetCurrentUserResponse
 type GetCurrentUserOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7673,7 +7613,6 @@ func (s *GetCurrentUserOutput) SetUser(v *User) *GetCurrentUserOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetDocumentRequest
 type GetDocumentInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7737,7 +7676,6 @@ func (s *GetDocumentInput) SetIncludeCustomMetadata(v bool) *GetDocumentInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetDocumentResponse
 type GetDocumentOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7770,7 +7708,6 @@ func (s *GetDocumentOutput) SetMetadata(v *DocumentMetadata) *GetDocumentOutput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetDocumentPathRequest
 type GetDocumentPathInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7862,7 +7799,6 @@ func (s *GetDocumentPathInput) SetMarker(v string) *GetDocumentPathInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetDocumentPathResponse
 type GetDocumentPathOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -7886,7 +7822,6 @@ func (s *GetDocumentPathOutput) SetPath(v *ResourcePath) *GetDocumentPathOutput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetDocumentVersionRequest
 type GetDocumentVersionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -7980,7 +7915,6 @@ func (s *GetDocumentVersionInput) SetVersionId(v string) *GetDocumentVersionInpu
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetDocumentVersionResponse
 type GetDocumentVersionOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8013,7 +7947,6 @@ func (s *GetDocumentVersionOutput) SetMetadata(v *DocumentVersionMetadata) *GetD
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetFolderRequest
 type GetFolderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8077,7 +8010,6 @@ func (s *GetFolderInput) SetIncludeCustomMetadata(v bool) *GetFolderInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetFolderResponse
 type GetFolderOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8110,7 +8042,6 @@ func (s *GetFolderOutput) SetMetadata(v *FolderMetadata) *GetFolderOutput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetFolderPathRequest
 type GetFolderPathInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8202,7 +8133,6 @@ func (s *GetFolderPathInput) SetMarker(v string) *GetFolderPathInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GetFolderPathResponse
 type GetFolderPathOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8227,7 +8157,6 @@ func (s *GetFolderPathOutput) SetPath(v *ResourcePath) *GetFolderPathOutput {
 }
 
 // Describes the metadata of a user group.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/GroupMetadata
 type GroupMetadata struct {
 	_ struct{} `type:"structure"`
 
@@ -8260,7 +8189,6 @@ func (s *GroupMetadata) SetName(v string) *GroupMetadata {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/InitiateDocumentVersionUploadRequest
 type InitiateDocumentVersionUploadInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8269,10 +8197,10 @@ type InitiateDocumentVersionUploadInput struct {
 	AuthenticationToken *string `location:"header" locationName:"Authentication" min:"1" type:"string"`
 
 	// The timestamp when the content of the document was originally created.
-	ContentCreatedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ContentCreatedTimestamp *time.Time `type:"timestamp"`
 
 	// The timestamp when the content of the document was modified.
-	ContentModifiedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ContentModifiedTimestamp *time.Time `type:"timestamp"`
 
 	// The content type of the document.
 	ContentType *string `min:"1" type:"string"`
@@ -8378,7 +8306,6 @@ func (s *InitiateDocumentVersionUploadInput) SetParentFolderId(v string) *Initia
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/InitiateDocumentVersionUploadResponse
 type InitiateDocumentVersionUploadOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -8412,7 +8339,6 @@ func (s *InitiateDocumentVersionUploadOutput) SetUploadMetadata(v *UploadMetadat
 }
 
 // Set of options which defines notification preferences of given action.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/NotificationOptions
 type NotificationOptions struct {
 	_ struct{} `type:"structure"`
 
@@ -8446,7 +8372,6 @@ func (s *NotificationOptions) SetSendEmail(v bool) *NotificationOptions {
 }
 
 // Describes the users or user groups.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/Participants
 type Participants struct {
 	_ struct{} `type:"structure"`
 
@@ -8480,7 +8405,6 @@ func (s *Participants) SetUsers(v []*UserMetadata) *Participants {
 }
 
 // Describes the permissions.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/PermissionInfo
 type PermissionInfo struct {
 	_ struct{} `type:"structure"`
 
@@ -8514,7 +8438,6 @@ func (s *PermissionInfo) SetType(v string) *PermissionInfo {
 }
 
 // Describes a resource.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/Principal
 type Principal struct {
 	_ struct{} `type:"structure"`
 
@@ -8556,7 +8479,6 @@ func (s *Principal) SetType(v string) *Principal {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/RemoveAllResourcePermissionsRequest
 type RemoveAllResourcePermissionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8611,7 +8533,6 @@ func (s *RemoveAllResourcePermissionsInput) SetResourceId(v string) *RemoveAllRe
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/RemoveAllResourcePermissionsOutput
 type RemoveAllResourcePermissionsOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8626,7 +8547,6 @@ func (s RemoveAllResourcePermissionsOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/RemoveResourcePermissionRequest
 type RemoveResourcePermissionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -8707,7 +8627,6 @@ func (s *RemoveResourcePermissionInput) SetResourceId(v string) *RemoveResourceP
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/RemoveResourcePermissionOutput
 type RemoveResourcePermissionOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -8723,7 +8642,6 @@ func (s RemoveResourcePermissionOutput) GoString() string {
 }
 
 // Describes the metadata of a resource.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/ResourceMetadata
 type ResourceMetadata struct {
 	_ struct{} `type:"structure"`
 
@@ -8803,7 +8721,6 @@ func (s *ResourceMetadata) SetVersionId(v string) *ResourceMetadata {
 }
 
 // Describes the path information of a resource.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/ResourcePath
 type ResourcePath struct {
 	_ struct{} `type:"structure"`
 
@@ -8828,7 +8745,6 @@ func (s *ResourcePath) SetComponents(v []*ResourcePathComponent) *ResourcePath {
 }
 
 // Describes the resource path.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/ResourcePathComponent
 type ResourcePathComponent struct {
 	_ struct{} `type:"structure"`
 
@@ -8862,7 +8778,6 @@ func (s *ResourcePathComponent) SetName(v string) *ResourcePathComponent {
 }
 
 // Describes the recipient type and ID, if available.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/SharePrincipal
 type SharePrincipal struct {
 	_ struct{} `type:"structure"`
 
@@ -8933,7 +8848,6 @@ func (s *SharePrincipal) SetType(v string) *SharePrincipal {
 }
 
 // Describes the share results of a resource.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/ShareResult
 type ShareResult struct {
 	_ struct{} `type:"structure"`
 
@@ -8994,7 +8908,6 @@ func (s *ShareResult) SetStatusMessage(v string) *ShareResult {
 }
 
 // Describes the storage for a user.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/StorageRuleType
 type StorageRuleType struct {
 	_ struct{} `type:"structure"`
 
@@ -9028,7 +8941,6 @@ func (s *StorageRuleType) SetStorageType(v string) *StorageRuleType {
 }
 
 // Describes a subscription.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/Subscription
 type Subscription struct {
 	_ struct{} `type:"structure"`
 
@@ -9070,7 +8982,6 @@ func (s *Subscription) SetSubscriptionId(v string) *Subscription {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UpdateDocumentRequest
 type UpdateDocumentInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9158,7 +9069,6 @@ func (s *UpdateDocumentInput) SetResourceState(v string) *UpdateDocumentInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UpdateDocumentOutput
 type UpdateDocumentOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -9173,7 +9083,6 @@ func (s UpdateDocumentOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UpdateDocumentVersionRequest
 type UpdateDocumentVersionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9254,7 +9163,6 @@ func (s *UpdateDocumentVersionInput) SetVersionStatus(v string) *UpdateDocumentV
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UpdateDocumentVersionOutput
 type UpdateDocumentVersionOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -9269,7 +9177,6 @@ func (s UpdateDocumentVersionOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UpdateFolderRequest
 type UpdateFolderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9358,7 +9265,6 @@ func (s *UpdateFolderInput) SetResourceState(v string) *UpdateFolderInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UpdateFolderOutput
 type UpdateFolderOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -9373,7 +9279,6 @@ func (s UpdateFolderOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UpdateUserRequest
 type UpdateUserInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9500,7 +9405,6 @@ func (s *UpdateUserInput) SetUserId(v string) *UpdateUserInput {
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UpdateUserResponse
 type UpdateUserOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -9525,7 +9429,6 @@ func (s *UpdateUserOutput) SetUser(v *User) *UpdateUserOutput {
 }
 
 // Describes the upload.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UploadMetadata
 type UploadMetadata struct {
 	_ struct{} `type:"structure"`
 
@@ -9559,12 +9462,11 @@ func (s *UploadMetadata) SetUploadUrl(v string) *UploadMetadata {
 }
 
 // Describes a user.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/User
 type User struct {
 	_ struct{} `type:"structure"`
 
 	// The time when the user was created.
-	CreatedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	CreatedTimestamp *time.Time `type:"timestamp"`
 
 	// The email address of the user.
 	EmailAddress *string `min:"1" type:"string"`
@@ -9579,7 +9481,7 @@ type User struct {
 	Locale *string `type:"string" enum:"LocaleType"`
 
 	// The time when the user was modified.
-	ModifiedTimestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
+	ModifiedTimestamp *time.Time `type:"timestamp"`
 
 	// The ID of the organization.
 	OrganizationId *string `min:"1" type:"string"`
@@ -9710,7 +9612,6 @@ func (s *User) SetUsername(v string) *User {
 }
 
 // Describes the metadata of the user.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UserMetadata
 type UserMetadata struct {
 	_ struct{} `type:"structure"`
 
@@ -9771,7 +9672,6 @@ func (s *UserMetadata) SetUsername(v string) *UserMetadata {
 }
 
 // Describes the storage for a user.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/workdocs-2016-05-01/UserStorageMetadata
 type UserStorageMetadata struct {
 	_ struct{} `type:"structure"`
 
