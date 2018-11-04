@@ -365,12 +365,11 @@ func (v *Play) defaultRolePaths() []string {
 // ToCommand serializes the play to an executable Ansible command.
 func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 
-	command := ""
+	command := fmt.Sprintf("%s=true", ansibleEnvVarForceColor)
+
 	// entity to call:
 	switch entity := v.Entity().(type) {
 	case *Playbook:
-		command = fmt.Sprintf("%s=true", ansibleEnvVarForceColor)
-
 		// handling role directories:
 		rolePaths := v.defaultRolePaths()
 		for _, rp := range entity.RolesPath() {
@@ -402,7 +401,7 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 		if hostPattern == "" {
 			hostPattern = ansibleModuleDefaultHostPattern
 		}
-		command = fmt.Sprintf("ansible %s --module-name='%s'", hostPattern, entity.module)
+		command = fmt.Sprintf("%s ansible %s --module-name='%s'", command, hostPattern, entity.module)
 
 		if entity.Background() > 0 {
 			command = fmt.Sprintf("%s --background=%d", command, entity.Background())
@@ -520,7 +519,7 @@ func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSe
 			if ansibleSSHSettings.BastionUserKnownHostsFile() != "" {
 				proxyCommand = fmt.Sprintf("%s -o UserKnownHostsFile=%s", proxyCommand, ansibleSSHSettings.BastionUserKnownHostsFile())
 			} else {
-				proxyCommand = fmt.Sprintf("%s -o UserKnownHostsFile=%s", proxyCommand, ansibleArgs.KnownHostsFile)
+				proxyCommand = fmt.Sprintf("%s -o UserKnownHostsFile=%s", proxyCommand, ansibleArgs.BastionKnownHostsFile)
 			}
 		}
 		proxyCommand = fmt.Sprintf("%s\"", proxyCommand)
