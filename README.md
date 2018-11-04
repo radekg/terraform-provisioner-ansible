@@ -229,6 +229,9 @@ None of the boolean attributes can be specified in `defaults`. Neither `playbook
 - `ansible_ssh_settings.connect_timeout_seconds`: SSH `ConnectTimeout`, default `10` seconds
 - `ansible_ssh_settings.connection_attempts`: SSH `ConnectionAttempts`, default `10`
 - `ansible_ssh_settings.ssh_keyscan_timeout`: when `ssh-keyscan` is used, how long to try fetching the host key until failing, default `60` seconds
+
+Following settings apply to `local provisioning` only:
+
 - `ansible_ssh_settings.insecure_no_strict_host_key_checking`: if `true`, host key checking will be disabled when connecting to the target host, default `false`; when connecting via bastion, bastion will not execute any SSH keyscan
 - `ansible_ssh_settings.insecure_bastion_no_strict_host_key_checking`: if `true`, host key checking will be disabled when connecting to the bastion host, default `false`
 - `ansible_ssh_settings.user_known_hosts_file`: used only when `ansible_ssh_settings.insecure_no_strict_host_key_checking=false`; if set, the provided path will be used instead of an auto-generate known hosts file; when executing via bastion host, it allows the administrator to provide a known hosts file, no SSH keyscan will be executed on the bastion; default `empty string`
