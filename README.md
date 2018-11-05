@@ -35,27 +35,11 @@ If you find yourself in need of executing Ansible against well specified, comple
 
 ### Using Docker
 
-A [Dockerfile](Dockerfile) is included to create an image containing terraform, ansible, and the provisioner. To use the Docker image, first build it:
-
-```console
-$ docker build -t terraform-ansible .
-```
-
-Then, from the directory containing your terraform configuration, run terraform in the container:
-
 ```console
 $ cd /my-terraform-project
-$ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible init
-$ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible apply
+$ docker run -it --rm -v $PWD:$PWD -w $PWD radekg/terraform-ansible:latest init
+$ docker run -it --rm -v $PWD:$PWD -w $PWD radekg/terraform-ansible:latest apply
 ```
-
-To select a version of the provisioner included in the Docker image, use the `TAP_VERSION` build argument:
-
-```console
-$ docker build --build-arg TAP_VERSION=$(cat .version) -t terraform-ansible:$(cat .version) .
-```
-
-To build a Docker image from a released versiion, check out the correct tag first.
 
 ### Local Installation
 
