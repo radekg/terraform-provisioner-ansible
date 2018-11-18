@@ -10,6 +10,8 @@ The purpose of the provisioner is to provide an easy method for running Ansible 
 
 This provisioner, however, is not designed to handle all possible responsibilities of Ansible. To better understand the distinction, consider what's possible and what's not possible with this provisioner.
 
+For after provisioning, you may find the following Ansible module useful: [terraform-state-ansible-module](https://github.com/radekg/terraform-state-ansible-module).
+
 ### What's possible
 
 - `local provisioner`
