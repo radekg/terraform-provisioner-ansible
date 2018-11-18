@@ -37,29 +37,15 @@ If you find yourself in need of executing Ansible against well specified, comple
 
 ### Using Docker
 
-A [Dockerfile](Dockerfile) is included to create an image containing terraform, ansible, and the provisioner. To use the Docker image, first build it:
-
-```console
-$ docker build -t terraform-ansible .
-```
-
-Then, from the directory containing your terraform configuration, run terraform in the container:
-
 ```console
 $ cd /my-terraform-project
-$ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible init
-$ docker run -it --rm -v $PWD:$PWD -w $PWD terraform-ansible apply
-```
-
-To select a version of the provisioner included in the Docker image, use the `TAP_VERSION` build argument:
-
-```console
-$ docker build --build-arg TAP_VERSION=2.0.1 -t terraform-ansible .
+$ docker run -it --rm -v $PWD:$PWD -w $PWD radekg/terraform-ansible:latest init
+$ docker run -it --rm -v $PWD:$PWD -w $PWD radekg/terraform-ansible:latest apply
 ```
 
 ### Local Installation
 
-Note that although `terraform-provisioner-ansible` is in the [terraform registry](https://registry.terraform.io/modules/radekg/ansible/provisioner/2.0.0), it cannot be installed using a `module` terraform stanza, as such a configuration will not cause terraform to download the `terraform-provisioner-ansible` binary.
+Note that although `terraform-provisioner-ansible` is in the [terraform registry](https://registry.terraform.io/modules/radekg/ansible/provisioner/), it cannot be installed using a `module` terraform stanza, as such a configuration will not cause terraform to download the `terraform-provisioner-ansible` binary.
 
 [Prebuilt releases are available on GitHub](https://github.com/radekg/terraform-provisioner-ansible/releases). Download a release for the version you require and place it in `~/.terraform.d/plugins` directory, as [documented here](https://www.terraform.io/docs/plugins/basics.html).
 
@@ -456,6 +442,13 @@ After the release is cut, build the binaries for the release:
     git checkout v${RELEASE_VERSION}
     ./bin/build-release-binaries.sh
 
-After the binaries are built, upload the to GitHub release.
+Handle Docker image:
+
+    git checkout v${RELEASE_VERSION}
+    docker build --build-arg TAP_VERSION=$(cat .version) -t radekg/terraform-ansible:$(cat .version) .
+    docker login --username=radekg
+    docker tag radekg/terraform-ansible:$(cat .version) radekg/terraform-ansible:latest
+    docker push radekg/terraform-ansible:$(cat .version)
+    docker push radekg/terraform-ansible:latest
 
 Note that the version is hardcoded in the [Dockerfile](Dockerfile). You may wish to update it after release.
