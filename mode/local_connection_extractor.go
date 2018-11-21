@@ -1,6 +1,7 @@
 package mode
 
 import (
+	"encoding/pem"
 	"log"
 	"os"
 	"time"
@@ -90,6 +91,11 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 		connInfo.TimeoutVal = DefaultTimeout
 	}
 
+	if connInfo.PrivateKey != "" {
+
+		block, _ := pem.Decode([]byte(connInfo.PrivateKey))
+		connInfo.PrivateKey = string(pem.EncodeToMemory(block))
+	}
 	// Default all bastion config attrs to their non-bastion counterparts
 	if connInfo.BastionHost != "" {
 		// Format the bastion host if needed.
