@@ -110,6 +110,9 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 		}
 		if connInfo.BastionPrivateKey == "" {
 			connInfo.BastionPrivateKey = connInfo.PrivateKey
+		} else {
+			block, _ := pem.Decode([]byte(connInfo.BastionPrivateKey))
+			connInfo.BastionPrivateKey = string(pem.EncodeToMemory(block))
 		}
 		if connInfo.BastionPort == 0 {
 			connInfo.BastionPort = connInfo.Port
