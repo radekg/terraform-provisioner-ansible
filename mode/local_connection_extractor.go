@@ -2,6 +2,7 @@ package mode
 
 import (
 	"encoding/pem"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -92,8 +93,10 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 	}
 
 	if connInfo.PrivateKey != "" {
-
 		block, _ := pem.Decode([]byte(connInfo.PrivateKey))
+		if block == nil || block.Type != "RSA PRIVATE KEY" {
+			return nil, fmt.Errorf("Failed to decode private key")
+		}
 		connInfo.PrivateKey = string(pem.EncodeToMemory(block))
 	}
 	// Default all bastion config attrs to their non-bastion counterparts
@@ -112,6 +115,9 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 			connInfo.BastionPrivateKey = connInfo.PrivateKey
 		} else {
 			block, _ := pem.Decode([]byte(connInfo.BastionPrivateKey))
+			if block == nil || block.Type != "RSA PRIVATE KEY" {
+				return nil, fmt.Errorf("Failed to decode private key")
+			}
 			connInfo.BastionPrivateKey = string(pem.EncodeToMemory(block))
 		}
 		if connInfo.BastionPort == 0 {
