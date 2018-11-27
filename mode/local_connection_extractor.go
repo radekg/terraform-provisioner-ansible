@@ -93,11 +93,9 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 	}
 
 	if connInfo.PrivateKey != "" {
-		block, _ := pem.Decode([]byte(connInfo.PrivateKey))
-		if block == nil || block.Type != "RSA PRIVATE KEY" {
-			return nil, fmt.Errorf("Failed to decode private key")
+		if err := validatePrivateKey(&connInfo.PrivateKey); err != nil {
+			return nil, err
 		}
-		connInfo.PrivateKey = string(pem.EncodeToMemory(block))
 	}
 	// Default all bastion config attrs to their non-bastion counterparts
 	if connInfo.BastionHost != "" {
@@ -114,11 +112,9 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 		if connInfo.BastionPrivateKey == "" {
 			connInfo.BastionPrivateKey = connInfo.PrivateKey
 		} else {
-			block, _ := pem.Decode([]byte(connInfo.BastionPrivateKey))
-			if block == nil || block.Type != "RSA PRIVATE KEY" {
-				return nil, fmt.Errorf("Failed to decode private key")
+			if err := validatePrivateKey(&connInfo.BastionPrivateKey); err != nil {
+				return nil, err
 			}
-			connInfo.BastionPrivateKey = string(pem.EncodeToMemory(block))
 		}
 		if connInfo.BastionPort == 0 {
 			connInfo.BastionPort = connInfo.Port
@@ -135,4 +131,13 @@ func safeDuration(dur string, defaultDur time.Duration) time.Duration {
 		return defaultDur
 	}
 	return d
+}
+
+func validatePrivateKey(key *string) error {
+	block, _ := pem.Decode([]byte(*key))
+	if block == nil || block.Type != "RSA PRIVATE KEY" {
+		return fmt.Errorf("Failed to decode private key")
+	}
+	*key = string(pem.EncodeToMemory(block))
+	return nil
 }
