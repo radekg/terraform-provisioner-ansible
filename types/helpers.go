@@ -1,7 +1,9 @@
 package types
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -113,4 +115,12 @@ func ResolveDirectory(path string) (string, error) {
 		return filepath.Clean(expandedPath), nil
 	}
 	return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
+}
+
+func stringToTypeMap(block string, key string) map[string]interface{} {
+	var m map[string]interface{}
+	if err := json.Unmarshal([]byte(block), &m); err != nil {
+		log.Fatalf("%s: %s", playAttributeExtraVarsJSON, err.Error())
+	}
+	return m
 }

@@ -346,6 +346,82 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 	}
 }
 
+func TestConfigProvisionerParserDecoderExtraVarsJSON(t *testing.T) {
+	c := map[string]interface{}{
+		"plays": []map[string]interface{}{
+			map[string]interface{}{
+				"playbook": []map[string]interface{}{
+					map[string]interface{}{
+						"file_path": playbookFile,
+					},
+				},
+				"hosts": []interface{}{"host.to.play"},
+			},
+			map[string]interface{}{
+				"module": []map[string]interface{}{
+					map[string]interface{}{
+						"module": "some-module",
+					},
+				},
+			},
+		},
+
+		"remote": []map[string]interface{}{
+			map[string]interface{}{
+				"use_sudo":        false,
+				"skip_install":    true,
+				"skip_cleanup":    true,
+				"install_version": "2.3.0.0",
+			},
+		},
+
+		"defaults": []map[string]interface{}{
+			map[string]interface{}{
+				"hosts":         []interface{}{"localhost"},
+				"groups":        []interface{}{"group1", "group2"},
+				"become_method": "sudo",
+				"become_user":   "test",
+				"extra_vars_json": `
+				{
+					"project": "foo",
+					"nameservers": ["192.1.1.2", "192.1.1.3"],
+					"nested": {
+						"nested_string": "bar",
+						"nested_list": ["one","two"]
+					}
+				}`,
+				"forks":               10,
+				"limit":               "a=b",
+				"vault_password_file": vaultPasswordFile,
+			},
+		},
+
+		"ansible_ssh_settings": []map[string]interface{}{
+			map[string]interface{}{
+				"connect_timeout_seconds": 5,
+				"connection_attempts":     5,
+				"ssh_keyscan_timeout":     30,
+			},
+		},
+	}
+
+	warn, errs := Provisioner().Validate(testConfig(t, c))
+	if len(warn) > 0 {
+		t.Fatalf("Warnings: %+v", warn)
+	}
+	if len(errs) > 0 {
+		t.Fatalf("Errors: %+v", errs)
+	}
+
+	_, err := decodeConfig(
+		schema.TestResourceDataRaw(t, Provisioner().(*schema.Provisioner).Schema, c),
+	)
+
+	if err != nil {
+		t.Fatalf("Unexpected error while decoding the configuration: %+v", err)
+	}
+}
+
 func testConfig(t *testing.T, c map[string]interface{}) *terraform.ResourceConfig {
 	r, err := config.NewRawConfig(c)
 	if err != nil {
