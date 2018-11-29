@@ -87,23 +87,11 @@ git ls-files "*.go" | (! xargs grep "\(import \|^\s*\)\"github.com/golang/protob
 # TODO: Remove when we drop Go 1.10 support
 go list -f {{.Dir}} ./... | xargs go run test/go_vet/vet.go
 
-# - gofmt, goimports, golint (with exceptions for generated code).
+# - gofmt, goimports, golint (with exceptions for generated code), go vet.
 gofmt -s -d -l . 2>&1 | fail_on_output
 goimports -l . 2>&1 | fail_on_output
 golint ./... 2>&1 | (! grep -vE "(_mock|\.pb)\.go:")
-
-# - go vet
-# TODO: Remove from here to "END TODO" and use simply "go tool vet -all ." when
-#       context is imported directly and 1.6 support is dropped.
-# Rewrite golang.org/x/net/context -> context imports (see grpc/grpc-go#1484).
-git ls-files "*.go" | xargs sed -i 's:"golang.org/x/net/context":"context":'
-set +o pipefail # vet exits with non-zero error if issues are found
-go tool vet -all . 2>&1 | \
-    grep -vE 'clientconn.go:.*cancel (function|var)' | \
-    (! grep -vE '.*transport_test.go:.*cancel')
-set -o pipefail
-git reset --hard HEAD
-# END TODO
+go tool vet -all .
 
 # - Check that generated proto files are up to date.
 if [[ -z "${VET_SKIP_PROTO}" ]]; then
@@ -133,14 +121,16 @@ done
 
 # TODO(menghanl): fix errors in transport_test.
 staticcheck -ignore '
-internal/transport/transport_test.go:SA2002
-benchmark/benchmain/main.go:SA1019
-stats/stats_test.go:SA1019
-test/end2end_test.go:SA1019
-balancer_test.go:SA1019
 balancer.go:SA1019
+balancer_test.go:SA1019
 clientconn_test.go:SA1019
-internal/transport/handler_server_test.go:SA1019
+balancer/roundrobin/roundrobin_test.go:SA1019
+benchmark/benchmain/main.go:SA1019
 internal/transport/handler_server.go:SA1019
+internal/transport/handler_server_test.go:SA1019
+internal/transport/transport_test.go:SA2002
+stats/stats_test.go:SA1019
+test/channelz_test.go:SA1019
+test/end2end_test.go:SA1019
 ' ./...
 misspell -error .

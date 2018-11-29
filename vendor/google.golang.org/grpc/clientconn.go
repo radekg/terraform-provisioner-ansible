@@ -39,6 +39,8 @@ import (
 	"google.golang.org/grpc/internal"
 	"google.golang.org/grpc/internal/backoff"
 	"google.golang.org/grpc/internal/channelz"
+	"google.golang.org/grpc/internal/envconfig"
+	"google.golang.org/grpc/internal/grpcsync"
 	"google.golang.org/grpc/internal/transport"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
@@ -124,12 +126,13 @@ func Dial(target string, opts ...DialOption) (*ClientConn, error) {
 // e.g. to use dns resolver, a "dns:///" prefix should be applied to the target.
 func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *ClientConn, err error) {
 	cc := &ClientConn{
-		target:         target,
-		csMgr:          &connectivityStateManager{},
-		conns:          make(map[*addrConn]struct{}),
-		dopts:          defaultDialOptions(),
-		blockingpicker: newPickerWrapper(),
-		czData:         new(channelzData),
+		target:            target,
+		csMgr:             &connectivityStateManager{},
+		conns:             make(map[*addrConn]struct{}),
+		dopts:             defaultDialOptions(),
+		blockingpicker:    newPickerWrapper(),
+		czData:            new(channelzData),
+		firstResolveEvent: grpcsync.NewEvent(),
 	}
 	cc.retryThrottler.Store((*retryThrottler)(nil))
 	cc.ctx, cc.cancel = context.WithCancel(context.Background())
@@ -286,19 +289,14 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 	}
 
 	// Build the resolver.
-	cc.resolverWrapper, err = newCCResolverWrapper(cc)
+	rWrapper, err := newCCResolverWrapper(cc)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build resolver: %v", err)
 	}
-	// Start the resolver wrapper goroutine after resolverWrapper is created.
-	//
-	// If the goroutine is started before resolverWrapper is ready, the
-	// following may happen: The goroutine sends updates to cc. cc forwards
-	// those to balancer. Balancer creates new addrConn. addrConn fails to
-	// connect, and calls resolveNow(). resolveNow() tries to use the non-ready
-	// resolverWrapper.
-	cc.resolverWrapper.start()
 
+	cc.mu.Lock()
+	cc.resolverWrapper = rWrapper
+	cc.mu.Unlock()
 	// A blocking dial blocks until the clientConn is ready.
 	if cc.dopts.block {
 		for {
@@ -387,13 +385,13 @@ type ClientConn struct {
 	csMgr        *connectivityStateManager
 
 	balancerBuildOpts balancer.BuildOptions
-	resolverWrapper   *ccResolverWrapper
 	blockingpicker    *pickerWrapper
 
-	mu    sync.RWMutex
-	sc    ServiceConfig
-	scRaw string
-	conns map[*addrConn]struct{}
+	mu              sync.RWMutex
+	resolverWrapper *ccResolverWrapper
+	sc              ServiceConfig
+	scRaw           string
+	conns           map[*addrConn]struct{}
 	// Keepalive parameter can be updated if a GoAway is received.
 	mkp             keepalive.ClientParameters
 	curBalancerName string
@@ -401,6 +399,8 @@ type ClientConn struct {
 	curAddresses    []resolver.Address
 	balancerWrapper *ccBalancerWrapper
 	retryThrottler  atomic.Value
+
+	firstResolveEvent *grpcsync.Event
 
 	channelzID int64 // channelz unique identification number
 	czData     *channelzData
@@ -447,6 +447,25 @@ func (cc *ClientConn) scWatcher() {
 	}
 }
 
+// waitForResolvedAddrs blocks until the resolver has provided addresses or the
+// context expires.  Returns nil unless the context expires first; otherwise
+// returns a status error based on the context.
+func (cc *ClientConn) waitForResolvedAddrs(ctx context.Context) error {
+	// This is on the RPC path, so we use a fast path to avoid the
+	// more-expensive "select" below after the resolver has returned once.
+	if cc.firstResolveEvent.HasFired() {
+		return nil
+	}
+	select {
+	case <-cc.firstResolveEvent.Done():
+		return nil
+	case <-ctx.Done():
+		return status.FromContextError(ctx.Err()).Err()
+	case <-cc.ctx.Done():
+		return ErrClientConnClosing
+	}
+}
+
 func (cc *ClientConn) handleResolvedAddrs(addrs []resolver.Address, err error) {
 	cc.mu.Lock()
 	defer cc.mu.Unlock()
@@ -460,6 +479,7 @@ func (cc *ClientConn) handleResolvedAddrs(addrs []resolver.Address, err error) {
 	}
 
 	cc.curAddresses = addrs
+	cc.firstResolveEvent.Fire()
 
 	if cc.dopts.balancerBuilder == nil {
 		// Only look at balancer types and switch balancer if balancer dial
@@ -1108,18 +1128,14 @@ func (ac *addrConn) createTransport(backoffNum int, addr resolver.Address, copts
 		serverPrefaceReceived = true
 		if clientPrefaceWrote {
 			ac.successfulHandshake = true
-			ac.backoffDeadline = time.Time{}
-			ac.connectDeadline = time.Time{}
-			ac.addrIdx = 0
-			ac.backoffIdx = 0
 		}
 		prefaceMu.Unlock()
 
 		ac.mu.Unlock()
 	}
 
-	// Do not cancel in the success path because of this issue in Go1.6: https://github.com/golang/go/issues/15078.
 	connectCtx, cancel := context.WithDeadline(ac.ctx, connectDeadline)
+	defer cancel()
 	if channelz.IsOn() {
 		copts.ChannelzParentID = ac.channelzID
 	}
@@ -1129,12 +1145,12 @@ func (ac *addrConn) createTransport(backoffNum int, addr resolver.Address, copts
 	if err == nil {
 		prefaceMu.Lock()
 		clientPrefaceWrote = true
-		if serverPrefaceReceived {
+		if serverPrefaceReceived || ac.dopts.reqHandshake == envconfig.RequireHandshakeOff {
 			ac.successfulHandshake = true
 		}
 		prefaceMu.Unlock()
 
-		if ac.dopts.waitForHandshake {
+		if ac.dopts.reqHandshake == envconfig.RequireHandshakeOn {
 			select {
 			case <-prefaceTimer.C:
 				// We didn't get the preface in time.
@@ -1147,7 +1163,7 @@ func (ac *addrConn) createTransport(backoffNum int, addr resolver.Address, copts
 				close(allowedToReset)
 				return nil
 			}
-		} else {
+		} else if ac.dopts.reqHandshake == envconfig.RequireHandshakeHybrid {
 			go func() {
 				select {
 				case <-prefaceTimer.C:
@@ -1164,7 +1180,6 @@ func (ac *addrConn) createTransport(backoffNum int, addr resolver.Address, copts
 
 	if err != nil {
 		// newTr is either nil, or closed.
-		cancel()
 		ac.cc.blockingpicker.updateConnectionError(err)
 		ac.mu.Lock()
 		if ac.state == connectivity.Shutdown {
@@ -1290,11 +1305,14 @@ func (ac *addrConn) startHealthCheck(ctx context.Context, newTr transport.Client
 func (ac *addrConn) nextAddr() error {
 	ac.mu.Lock()
 
-	// If a handshake has been observed, we expect the counters to have manually
-	// been reset so we'll just return, since we want the next usage to start
-	// at index 0.
+	// If a handshake has been observed, we want the next usage to start at
+	// index 0 immediately.
 	if ac.successfulHandshake {
 		ac.successfulHandshake = false
+		ac.backoffDeadline = time.Time{}
+		ac.connectDeadline = time.Time{}
+		ac.addrIdx = 0
+		ac.backoffIdx = 0
 		ac.mu.Unlock()
 		return nil
 	}
