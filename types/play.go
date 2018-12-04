@@ -21,6 +21,7 @@ type Play struct {
 	becomeMethod              string
 	becomeUser                string
 	diff                      bool
+	check                     bool
 	extraVars                 map[string]interface{}
 	forks                     int
 	inventoryFile             string
@@ -56,6 +57,7 @@ const (
 	playAttributeBecomeMethod      = "become_method"
 	playAttributeBecomeUser        = "become_user"
 	playAttributeDiff              = "diff"
+	playAttributeCheck             = "check"
 	playAttributeExtraVars         = "extra_vars"
 	playAttributeForks             = "forks"
 	playAttributeInventoryFile     = "inventory_file"
@@ -109,6 +111,10 @@ func NewPlaySchema() *schema.Schema {
 					Type:     schema.TypeBool,
 					Optional: true,
 				},
+				playAttributeCheck: &schema.Schema{
+					Type:     schema.TypeBool,
+					Optional: true,
+				},
 				playAttributeExtraVars: &schema.Schema{
 					Type:     schema.TypeMap,
 					Optional: true,
@@ -159,6 +165,7 @@ func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 		becomeMethod:      vals[playAttributeBecomeMethod].(string),
 		becomeUser:        vals[playAttributeBecomeUser].(string),
 		diff:              vals[playAttributeDiff].(bool),
+		check:             vals[playAttributeCheck].(bool),
 		extraVars:         mapFromTypeMap(vals[playAttributeExtraVars]),
 		forks:             vals[playAttributeForks].(int),
 		inventoryFile:     vals[playAttributeInventoryFile].(string),
@@ -249,6 +256,11 @@ func (v *Play) BecomeUser() string {
 // Diff represents Ansible --diff flag.
 func (v *Play) Diff() bool {
 	return v.diff
+}
+
+// Check represents Ansible --check flag.
+func (v *Play) Check() bool {
+	return v.check
 }
 
 // ExtraVars represents Ansible --extra-vars flag.
@@ -441,6 +453,10 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 	// diff:
 	if v.Diff() {
 		command = fmt.Sprintf("%s --diff", command)
+	}
+	// check:
+	if v.Check() {
+		command = fmt.Sprintf("%s --check", command)
 	}
 	// extra vars:
 	if len(v.ExtraVars()) > 0 {
