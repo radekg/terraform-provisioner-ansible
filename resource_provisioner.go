@@ -38,16 +38,16 @@ func validatePlays(play map[string]interface{}, validPlaysCount *int, ws *[]stri
 	currentErrorCount := len(*es)
 
 	if p, ok := play["playbook"]; ok {
-		var vPlaybooks []interface{}
+		//schema supports multiple playbooks within same play, but only implement the first playbook
+		var firstPlaybook map[string]interface{}
 		switch p.(type) {
 		case *schema.Set:
-			vPlaybooks = p.(*schema.Set).List()
+			firstPlaybook = p.(*schema.Set).List()[0].(map[string]interface{})
+		case []map[string]interface{}:
+			firstPlaybook = p.([]map[string]interface{})[0]
 		default:
-			vPlaybooks = p.([]interface{})
+			firstPlaybook = p.([]interface{})[0].(map[string]interface{})
 		}
-
-		//schema supports multiple playbooks within same play, but only implement the first playbook
-		firstPlaybook := vPlaybooks[0].(map[string]interface{})
 
 		if rolesPath, hasRolesPath := firstPlaybook["roles_path"]; hasRolesPath {
 			for _, singlePath := range rolesPath.([]interface{}) {
@@ -75,39 +75,46 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 			es = append(es, fmt.Errorf("error while validating the provisioner, reason: %+v", r))
 		}
 	}()
-
 	validPlaysCount := 0
 	validGlobalPlaysCount := 0
 
 	if p, hasPlays := c.Get("plays"); hasPlays {
-		var plays []interface{}
 		switch p.(type) {
 		case *schema.Set:
-			plays = p.(*schema.Set).List()
+			for _, vPlay := range p.(*schema.Set).List() {
+				validatePlays(vPlay.(map[string]interface{}), &validPlaysCount, &ws, &es)
+			}
+		case []map[string]interface{}:
+			for _, vPlay := range p.([]map[string]interface{}) {
+				validatePlays(vPlay, &validPlaysCount, &ws, &es)
+			}
 		default:
-			plays = p.([]interface{})
-		}
-		for _, vPlay := range plays {
-			validatePlays(vPlay.(map[string]interface{}), &validPlaysCount, &ws, &es)
+			for _, vPlay := range p.([]interface{}) {
+				validatePlays(vPlay.(map[string]interface{}), &validPlaysCount, &ws, &es)
+			}
 		}
 	}
+
 	if p, hasPlays := c.Get("global_plays"); hasPlays {
-		var plays []interface{}
 		switch p.(type) {
 		case *schema.Set:
-			plays = p.(*schema.Set).List()
+			for _, vPlay := range p.(*schema.Set).List() {
+				validatePlays(vPlay.(map[string]interface{}), &validGlobalPlaysCount, &ws, &es)
+			}
+		case []map[string]interface{}:
+			for _, vPlay := range p.([]map[string]interface{}) {
+				validatePlays(vPlay, &validGlobalPlaysCount, &ws, &es)
+			}
 		default:
-			plays = p.([]interface{})
-		}
-		for _, vPlay := range plays {
-			validatePlays(vPlay.(map[string]interface{}), &validGlobalPlaysCount, &ws, &es)
+			for _, vPlay := range p.([]interface{}) {
+				validatePlays(vPlay.(map[string]interface{}), &validGlobalPlaysCount, &ws, &es)
+			}
 		}
 	}
 
 	if validPlaysCount == 0 && validGlobalPlaysCount == 0 {
 		ws = append(ws, "nothing to play")
 	}
-
 	return ws, es
 }
 

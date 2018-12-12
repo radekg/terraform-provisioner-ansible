@@ -32,7 +32,24 @@ type inventoryTemplateLocalData struct {
 	Groups []string
 }
 
-const inventoryTemplateLocal = `{{range . -}}
+const inventoryTemplateLocal = `{{$top := . -}}
+{{range .Hosts -}}
+{{.Alias -}}
+{{if ne .AnsibleHost "" -}}
+{{" "}}ansible_host={{.AnsibleHost -}}
+{{end -}}
+{{end}}
+{{range .Groups -}}
+[{{.}}]
+{{range $top.Hosts -}}
+{{.Alias -}}
+{{if ne .AnsibleHost "" -}}
+{{" "}}ansible_host={{.AnsibleHost -}}
+{{end -}}
+{{end}}
+{{end}}`
+
+const inventoryGlobalTemplateLocal = `{{range . -}}
 {{$top := . -}}
 {{range .Groups -}}
 [{{.}}]
@@ -398,7 +415,7 @@ func (v *LocalMode) writeGlobalInventory(plays []*types.Play) (string, error) {
 	}
 
 	v.o.Output("Generating temporary ansible inventory...")
-	t := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
+	t := template.Must(template.New("hosts").Parse(inventoryGlobalTemplateLocal))
 	var buf bytes.Buffer
 	err := t.Execute(&buf, templateData)
 	if err != nil {
