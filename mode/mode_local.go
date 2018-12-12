@@ -32,23 +32,17 @@ type inventoryTemplateLocalData struct {
 	Groups []string
 }
 
-const inventoryTemplateLocal = `{{$top := . -}}
-{{range .Hosts -}}
-{{.Alias -}}
-{{if ne .AnsibleHost "" -}}
-{{" "}}ansible_host={{.AnsibleHost -}}
-{{end -}}
-{{end}}
-
+const inventoryTemplateLocal = `{{range . -}}
+{{$top := . -}}
 {{range .Groups -}}
 [{{.}}]
 {{range $top.Hosts -}}
 {{.Alias -}}
 {{if ne .AnsibleHost "" -}}
 {{" "}}ansible_host={{.AnsibleHost -}}
+{{end}}
 {{end -}}
 {{end}}
-
 {{end}}`
 
 // NewLocalMode returns configured local mode provisioner.
@@ -65,8 +59,8 @@ func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode,
 	if err != nil {
 		return nil, err
 	}
-	if connInfo.User == "" || connInfo.Host == "" {
-		return nil, fmt.Errorf("Local mode requires a connection with username and host")
+	if connInfo.User == "" {
+		return nil, fmt.Errorf("Local mode requires a connection with username")
 	}
 
 	return &LocalMode{
@@ -76,7 +70,7 @@ func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode,
 }
 
 // Run executes local provisioning process.
-func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSSHSettings) error {
+func (v *LocalMode) Run(plays []*types.Play, globalPlays []*types.Play, ansibleSSHSettings *types.AnsibleSSHSettings) error {
 
 	bastionPemFile := ""
 	if v.connInfo.BastionPrivateKey != "" {
@@ -200,9 +194,53 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 	}
 	defer os.Remove(knownHostsFileTarget)
 
+	var inventoryFile string
+	if len(globalPlays) > 0 {
+		inventoryFile, err = v.writeGlobalInventory(globalPlays)
+
+		if err != nil {
+			v.o.Output(fmt.Sprintf("%+v", err))
+			return err
+		}
+		defer os.Remove(inventoryFile)
+	}
+
+	for _, play := range globalPlays {
+		if !play.Enabled() || play.Entity() == nil {
+			continue
+		}
+
+		// we can't pass bastion instance into this function
+		// we would end up with a circular import
+		play.SetOverrideInventoryFile(inventoryFile)
+		command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
+			Username:              v.connInfo.User,
+			Port:                  v.connInfo.Port,
+			PemFile:               targetPemFile,
+			KnownHostsFile:        knownHostsFileTarget,
+			BastionKnownHostsFile: knownHostsFileBastion,
+			BastionHost:           bastion.host(),
+			BastionPemFile:        bastionPemFile,
+			BastionPort:           bastion.port(),
+			BastionUsername:       bastion.user(),
+		}, ansibleSSHSettings)
+
+		if err != nil {
+			return err
+		}
+
+		v.o.Output(fmt.Sprintf("running local command: %s", command))
+
+		if err := v.runCommand(command); err != nil {
+			return err
+		}
+
+		break //stop after the first play or module, global runs only once
+	}
+
 	for _, play := range plays {
 
-		if !play.Enabled() {
+		if !play.Enabled() || play.Entity() == nil {
 			continue
 		}
 
@@ -217,7 +255,6 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 			play.SetOverrideInventoryFile(inventoryFile)
 			defer os.Remove(play.InventoryFile())
 		}
-
 		// we can't pass bastion instance into this function
 		// we would end up with a circular import
 		command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
@@ -338,6 +375,50 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 	}
 
 	return play.InventoryFile(), nil
+}
+
+func (v *LocalMode) writeGlobalInventory(plays []*types.Play) (string, error) {
+	if len(plays) < 1 {
+		return "", nil
+	}
+
+	templateData := []inventoryTemplateLocalData{}
+	for _, play := range plays {
+		var hosts []inventoryTemplateLocalDataHost
+		for _, host := range play.Hosts() {
+			hosts = append(hosts, inventoryTemplateLocalDataHost{
+				Alias:       host,
+				AnsibleHost: host,
+			})
+		}
+		templateData = append(templateData, inventoryTemplateLocalData{
+			Hosts:  hosts,
+			Groups: play.Groups(),
+		})
+	}
+
+	v.o.Output("Generating temporary ansible inventory...")
+	t := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
+	var buf bytes.Buffer
+	err := t.Execute(&buf, templateData)
+	if err != nil {
+		return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+	}
+
+	file, err := ioutil.TempFile(os.TempDir(), "temporary-ansible-inventory")
+	defer file.Close()
+	if err != nil {
+		return "", err
+	}
+
+	v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", file.Name()))
+	if err := ioutil.WriteFile(file.Name(), buf.Bytes(), 0644); err != nil {
+		return "", err
+	}
+
+	v.o.Output("Ansible inventory written.")
+
+	return file.Name(), nil
 }
 
 func (v *LocalMode) runCommand(command string) error {

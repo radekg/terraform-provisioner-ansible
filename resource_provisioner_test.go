@@ -280,9 +280,9 @@ func TestConfigWithInvalidValueTypeFailes(t *testing.T) {
 
 func TestConfigProvisionerParserDecoder(t *testing.T) {
 	c := map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{
 						"file_path": playbookFile,
 					},
@@ -348,9 +348,9 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 
 func TestConfigProvisionerParserDecoderExtraVarsJSON(t *testing.T) {
 	c := map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{
 						"file_path": playbookFile,
 					},
@@ -381,7 +381,7 @@ func TestConfigProvisionerParserDecoderExtraVarsJSON(t *testing.T) {
 				"groups":        []interface{}{"group1", "group2"},
 				"become_method": "sudo",
 				"become_user":   "test",
-				"extra_vars_json": `
+				"extra_vars_json": []interface{}{`
 				{
 					"project": "foo",
 					"nameservers": ["192.1.1.2", "192.1.1.3"],
@@ -389,7 +389,7 @@ func TestConfigProvisionerParserDecoderExtraVarsJSON(t *testing.T) {
 						"nested_string": "bar",
 						"nested_list": ["one","two"]
 					}
-				}`,
+				}`},
 				"forks":               10,
 				"limit":               "a=b",
 				"vault_password_file": vaultPasswordFile,

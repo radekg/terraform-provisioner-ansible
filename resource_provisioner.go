@@ -16,6 +16,7 @@ type provisioner struct {
 	plays              []*types.Play
 	ansibleSSHSettings *types.AnsibleSSHSettings
 	remote             *types.RemoteSettings
+	globalPlays        []*types.Play
 }
 
 // Provisioner describes this provisioner configuration.
@@ -26,12 +27,47 @@ func Provisioner() terraform.ResourceProvisioner {
 			"defaults":             types.NewDefaultsSchema(),
 			"remote":               types.NewRemoteSchema(),
 			"ansible_ssh_settings": types.NewAnsibleSSHSettingsSchema(),
+			"global_plays":         types.NewPlaySchema(),
 		},
 		ValidateFunc: validateFn,
 		ApplyFunc:    applyFn,
 	}
 }
 
+func validatePlays(play map[string]interface{}, validPlaysCount *int, ws *[]string, es *[]error) {
+	currentErrorCount := len(*es)
+
+	if p, ok := play["playbook"]; ok {
+		var vPlaybooks []interface{}
+		switch p.(type) {
+		case *schema.Set:
+			vPlaybooks = p.(*schema.Set).List()
+		default:
+			vPlaybooks = p.([]interface{})
+		}
+
+		//schema supports multiple playbooks within same play, but only implement the first playbook
+		firstPlaybook := vPlaybooks[0].(map[string]interface{})
+
+		if rolesPath, hasRolesPath := firstPlaybook["roles_path"]; hasRolesPath {
+			for _, singlePath := range rolesPath.([]interface{}) {
+				vws, ves := types.VfPathDirectory(singlePath, "roles_path")
+
+				for _, w := range vws {
+					*ws = append(*ws, w)
+				}
+				for _, e := range ves {
+					*es = append(*es, e)
+				}
+			}
+		}
+	}
+
+	if currentErrorCount == len(*es) {
+		*validPlaysCount++
+	}
+	return
+}
 func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
 	defer func() {
@@ -41,50 +77,34 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 	}()
 
 	validPlaysCount := 0
+	validGlobalPlaysCount := 0
 
-	if plays, hasPlays := c.Get("plays"); hasPlays {
-		for _, vPlay := range plays.([]map[string]interface{}) {
-
-			currentErrorCount := len(es)
-
-			vPlaybook, playHasPlaybook := vPlay["playbook"]
-			_, playHasModule := vPlay["module"]
-
-			if playHasPlaybook && playHasModule {
-				es = append(es, fmt.Errorf("playbook and module can't be used together"))
-			} else if !playHasPlaybook && !playHasModule {
-				es = append(es, fmt.Errorf("playbook or module must be set"))
-			} else {
-
-				if playHasPlaybook {
-					vPlaybookTyped := vPlaybook.([]map[string]interface{})
-					rolesPath, hasRolesPath := vPlaybookTyped[0]["roles_path"]
-					if hasRolesPath {
-						for _, singlePath := range rolesPath.([]interface{}) {
-							vws, ves := types.VfPathDirectory(singlePath, "roles_path")
-
-							for _, w := range vws {
-								ws = append(ws, w)
-							}
-							for _, e := range ves {
-								es = append(es, e)
-							}
-						}
-					}
-				}
-
-			}
-
-			if currentErrorCount == len(es) {
-				validPlaysCount++
-			}
+	if p, hasPlays := c.Get("plays"); hasPlays {
+		var plays []interface{}
+		switch p.(type) {
+		case *schema.Set:
+			plays = p.(*schema.Set).List()
+		default:
+			plays = p.([]interface{})
 		}
-
-		if validPlaysCount == 0 {
-			ws = append(ws, "nothing to play")
+		for _, vPlay := range plays {
+			validatePlays(vPlay.(map[string]interface{}), &validPlaysCount, &ws, &es)
 		}
+	}
+	if p, hasPlays := c.Get("global_plays"); hasPlays {
+		var plays []interface{}
+		switch p.(type) {
+		case *schema.Set:
+			plays = p.(*schema.Set).List()
+		default:
+			plays = p.([]interface{})
+		}
+		for _, vPlay := range plays {
+			validatePlays(vPlay.(map[string]interface{}), &validGlobalPlaysCount, &ws, &es)
+		}
+	}
 
-	} else {
+	if validPlaysCount == 0 && validGlobalPlaysCount == 0 {
 		ws = append(ws, "nothing to play")
 	}
 
@@ -117,7 +137,7 @@ func applyFn(ctx context.Context) error {
 		o.Output(fmt.Sprintf("%+v", err))
 		return err
 	}
-	return localMode.Run(p.plays, p.ansibleSSHSettings)
+	return localMode.Run(p.plays, p.globalPlays, p.ansibleSSHSettings)
 
 }
 
@@ -130,8 +150,18 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
 	plays := make([]*types.Play, 0)
 	if rawPlays, ok := d.GetOk("plays"); ok {
 		playSchema := types.NewPlaySchema()
-		for _, iface := range rawPlays.([]interface{}) {
+		for _, iface := range rawPlays.(*schema.Set).List() {
 			plays = append(plays, types.NewPlayFromInterface(schema.NewSet(schema.HashResource(playSchema.Elem.(*schema.Resource)), []interface{}{iface}), vDefaults))
+		}
+
+	}
+
+	globalPlays := make([]*types.Play, 0)
+
+	if rawPlays, ok := d.GetOk("global_plays"); ok {
+		playSchema := types.NewPlaySchema()
+		for _, iface := range rawPlays.(*schema.Set).List() {
+			globalPlays = append(globalPlays, types.NewPlayFromInterface(schema.NewSet(schema.HashResource(playSchema.Elem.(*schema.Resource)), []interface{}{iface}), vDefaults))
 		}
 	}
 	return &provisioner{
@@ -139,5 +169,6 @@ func decodeConfig(d *schema.ResourceData) (*provisioner, error) {
 		remote:             vRemoteSettings,
 		ansibleSSHSettings: vAnsibleSSHSettings,
 		plays:              plays,
+		globalPlays:        globalPlays,
 	}, nil
 }

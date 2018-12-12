@@ -68,6 +68,22 @@ func mapFromTypeMap(v interface{}) map[string]interface{} {
 	}
 }
 
+func listOfMapFromTypeMap(v interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0)
+
+	switch v := v.(type) {
+	case nil:
+		//do nothing
+	case map[string]interface{}:
+		if len(v) > 0 {
+			result = append(result, mapFromTypeMap(v))
+		}
+	default:
+		panic(fmt.Sprintf("Unsupported type: %T", v))
+	}
+	return result
+}
+
 func mapFromTypeSet(i interface{}) map[string]interface{} {
 	return i.(map[string]interface{})
 }
@@ -117,10 +133,18 @@ func ResolveDirectory(path string) (string, error) {
 	return "", fmt.Errorf("Ansible module not found at path: [%s]", path)
 }
 
-func stringToTypeMap(block string, key string) map[string]interface{} {
+func stringToTypeMap(block string) map[string]interface{} {
 	var m map[string]interface{}
 	if err := json.Unmarshal([]byte(block), &m); err != nil {
 		log.Fatalf("%s: %s", playAttributeExtraVarsJSON, err.Error())
 	}
 	return m
+}
+
+func listOfStringToListOfMap(blocks []interface{}) []map[string]interface{} {
+	output := make([]map[string]interface{}, 0)
+	for _, block := range blocks {
+		output = append(output, stringToTypeMap(block.(string)))
+	}
+	return output
 }

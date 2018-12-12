@@ -10,7 +10,7 @@ type Defaults struct {
 	groups            []string
 	becomeMethod      string
 	becomeUser        string
-	extraVars         map[string]interface{}
+	extraVars         []map[string]interface{}
 	forks             int
 	inventoryFile     string
 	limit             string
@@ -71,14 +71,13 @@ func NewDefaultsSchema() *schema.Schema {
 					Optional: true,
 				},
 				defaultsAttributeExtraVars: &schema.Schema{
-					Type:          schema.TypeMap,
-					Optional:      true,
-					ConflictsWith: []string{"defaults." + defaultsAttributeExtraVarsJSON},
+					Type:     schema.TypeMap,
+					Optional: true,
 				},
 				defaultsAttributeExtraVarsJSON: &schema.Schema{
-					Type:          schema.TypeString,
-					Optional:      true,
-					ConflictsWith: []string{"defaults." + defaultsAttributeExtraVars},
+					Type:     schema.TypeList,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+					Optional: true,
 				},
 				defaultsAttributeForks: &schema.Schema{
 					Type:     schema.TypeInt,
@@ -132,9 +131,10 @@ func NewDefaultsFromInterface(i interface{}, ok bool) *Defaults {
 			v.becomeUserIsSet = v.becomeUser != ""
 		}
 		if val, ok := vals[defaultsAttributeExtraVars]; ok && len(val.(map[string]interface{})) > 0 {
-			v.extraVars = mapFromTypeMap(val)
-		} else if val, ok := vals[defaultsAttributeExtraVarsJSON]; ok && len(val.(string)) > 0 {
-			v.extraVars = stringToTypeMap(val.(string), defaultsAttributeExtraVarsJSON)
+			v.extraVars = append(v.extraVars, mapFromTypeMap(val))
+		}
+		if val, ok := vals[defaultsAttributeExtraVarsJSON]; ok && len(val.([]interface{})) > 0 {
+			v.extraVars = append(v.extraVars, listOfStringToListOfMap(val.([]interface{}))...)
 		}
 		v.extraVarsIsSet = len(v.extraVars) > 0
 		if val, ok := vals[defaultsAttributeForks]; ok {
