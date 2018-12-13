@@ -246,12 +246,19 @@ func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
 		},
 	})
 
-	warn, errs := Provisioner().Validate(c)
-	if len(warn) != 1 {
-		t.Fatalf("Should have 1 warning.")
+	_, errs := Provisioner().Validate(c)
+	if len(errs) == 0 {
+		t.Fatalf("Should have an error.")
 	}
-	if len(errs) != 1 {
-		t.Fatalf("Should have 1 error.")
+	foundExpectedErrMsg := false
+	for _, err := range errs {
+		if err.Error() == "\"plays.0.module\": conflicts with plays.0.playbook" ||
+			err.Error() == "\"plays.0.playbook\": conflicts with plays.0.module" {
+			foundExpectedErrMsg = true
+		}
+	}
+	if !foundExpectedErrMsg {
+		t.Fatalf("Unexpected error message.")
 	}
 }
 

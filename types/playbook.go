@@ -32,7 +32,7 @@ func NewPlaybookSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:          schema.TypeSet,
 		Optional:      true,
-		ConflictsWith: []string{"plays.module"},
+		ConflictsWith: []string{"plays.0.module"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				// Ansible parameters:
