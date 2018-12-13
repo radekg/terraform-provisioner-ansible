@@ -122,12 +122,21 @@ resource "aws_instance" "test_box" {
       become_method = "sudo"
       become_user = "root"
       extra_vars = {
-        extra = {
-          variables = {
-            to = "pass"
-          }
-        }
+        "debian_mirror" = "10.10.100.1"
       }
+      extra_vars_json =  [
+    <<EOF
+  {
+      "ansible_user": "ubuntu",
+      "dns_nameservers": ["1.1.1.1","8.8.8.8"],
+      "extra": {
+        "variables": {
+          "to":  "pass"
+        }
+      }      
+  }
+EOF
+      ,"${jsonencode(data.external.generate-something.result)}"]
       forks = 5
       inventory_file = "/optional/inventory/file/path"
       limit = "limit"
@@ -187,13 +196,18 @@ Each `plays` must contain exactly one `playbook` or `module`. Define multiple `p
 - `plays.become_method`: `ansible[-playbook] --become-method`, string, default `sudo`, only takes effect when `become = true`
 - `plays.become_user`: `ansible[-playbook] --become-user`, string, default `root`, only takes effect when `become = true`
 - `plays.diff`: `ansible[-playbook] --diff`, boolean, default `false` (not applied)
-- `plays.extra_vars`: `ansible[-playbook] --extra-vars`, map, default `empty map` (not applied); will be serialized to a JSON string, supports values of different types, including lists and maps
+- `plays.extra_vars`: `ansible[-playbook] --extra-vars`, map, default `empty map` (not applied); will be serialized to a JSON string, supports only maps to strings
+- `plays.extra_vars_json`: just like `extra_vars` except it inputs a raw JSON string that can accept complex variables like lists and maps.  It can be combined with `extra_vars` in which case they each produce their own `--extra-vars` parameter.  It is a list so each iteration generates its own `--extra-vars` parameter.
 - `plays.forks`: `ansible[-playbook] --forks`, int, default `5`
 - `plays.inventory_file`: full path to an inventory file, `ansible[-playbook] --inventory-file`, string, default `empty string`; if `inventory_file` attribute is not given or empty, a temporary inventory using `hosts` and `groups` will be generated; when specified, `hosts` and `groups` are not in use
 - `plays.limit`: `ansible[-playbook] --limit`, string, default `empty string` (not applied)
 - `plays.vault_id`: `ansible[-playbook] --vault-id`, list of full paths to vault password files; *remote provisioning*: files will be uploaded to the server, string list, default `empty list` (not applied); takes precedence over `plays.vault_password_file`
 - `plays.vault_password_file`: `ansible[-playbook] --vault-password-file`, full path to the vault password file; *remote provisioning*:  file will be uploaded to the server, string, default `empty string` (not applied)
 - `plays.verbose`: `ansible[-playbook] --verbose`, boolean, default `false` (not applied)
+
+#### Global Plays
+
+Same attributes as `plays` except every instance of `global_plays` is combined into a single `ansible[-playbook]` execution.  This allows for a more complex inventory where instead of inserting the provisioner inline with the compute resource, the provisioner is declared within a `null_resource` which allows `plays.hosts` to be any combination of compute resources.
 
 #### Defaults
 
