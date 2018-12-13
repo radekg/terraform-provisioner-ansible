@@ -37,7 +37,11 @@ func Provisioner() terraform.ResourceProvisioner {
 func validatePlays(play map[string]interface{}, validPlaysCount *int, ws *[]string, es *[]error) {
 	currentErrorCount := len(*es)
 
+	_, hasModule := play["module"]
 	if p, ok := play["playbook"]; ok {
+		if hasModule {
+			*es = append(*es, fmt.Errorf("a play cannot have both a playbook and module"))
+		}
 		//schema supports multiple playbooks within same play, but only implement the first playbook
 		var firstPlaybook map[string]interface{}
 		switch p.(type) {
@@ -95,7 +99,7 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 		}
 	}
 
-	if p, hasPlays := c.Get("global_plays"); hasPlays {
+	if p, hasGlobalPlays := c.Get("global_plays"); hasGlobalPlays {
 		switch p.(type) {
 		case *schema.Set:
 			for _, vPlay := range p.(*schema.Set).List() {

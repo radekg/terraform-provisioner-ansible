@@ -28,9 +28,8 @@ type Module struct {
 // NewModuleSchema return a new Ansible module schema.
 func NewModuleSchema() *schema.Schema {
 	return &schema.Schema{
-		Type:          schema.TypeSet,
-		Optional:      true,
-		ConflictsWith: []string{"plays.0.playbook"},
+		Type:     schema.TypeSet,
+		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				// Ansible parameters:

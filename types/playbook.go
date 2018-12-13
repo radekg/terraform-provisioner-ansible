@@ -30,9 +30,8 @@ type Playbook struct {
 // NewPlaybookSchema returns a new Ansible playbook schema.
 func NewPlaybookSchema() *schema.Schema {
 	return &schema.Schema{
-		Type:          schema.TypeSet,
-		Optional:      true,
-		ConflictsWith: []string{"plays.0.module"},
+		Type:     schema.TypeSet,
+		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				// Ansible parameters:

@@ -228,7 +228,7 @@ func TestConfigWithoutPlaysFails(t *testing.T) {
 }
 
 func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
-	// no plays gives a warning:
+	// gives a warning:
 	c := testConfig(t, map[string]interface{}{
 		"plays": []map[string]interface{}{
 			map[string]interface{}{
@@ -252,8 +252,7 @@ func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
 	}
 	foundExpectedErrMsg := false
 	for _, err := range errs {
-		if err.Error() == "\"plays.0.module\": conflicts with plays.0.playbook" ||
-			err.Error() == "\"plays.0.playbook\": conflicts with plays.0.module" {
+		if err.Error() == "a play cannot have both a playbook and module" {
 			foundExpectedErrMsg = true
 		}
 	}
