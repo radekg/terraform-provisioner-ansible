@@ -21,7 +21,8 @@ type Play struct {
 	becomeMethod              string
 	becomeUser                string
 	diff                      bool
-	extraVars                 []map[string]interface{}
+	check                     bool
+	extraVars                 map[string]interface{}
 	forks                     int
 	inventoryFile             string
 	limit                     string
@@ -56,6 +57,7 @@ const (
 	playAttributeBecomeMethod      = "become_method"
 	playAttributeBecomeUser        = "become_user"
 	playAttributeDiff              = "diff"
+	playAttributeCheck             = "check"
 	playAttributeExtraVars         = "extra_vars"
 	playAttributeExtraVarsJSON     = "extra_vars_json"
 	playAttributeForks             = "forks"
@@ -106,6 +108,10 @@ func NewPlaySchema() *schema.Schema {
 					Default:  playDefaultBecomeUser,
 				},
 				playAttributeDiff: &schema.Schema{
+					Type:     schema.TypeBool,
+					Optional: true,
+				},
+				playAttributeCheck: &schema.Schema{
 					Type:     schema.TypeBool,
 					Optional: true,
 				},
@@ -163,7 +169,8 @@ func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 		becomeMethod:      vals[playAttributeBecomeMethod].(string),
 		becomeUser:        vals[playAttributeBecomeUser].(string),
 		diff:              vals[playAttributeDiff].(bool),
-		extraVars:         listOfMapFromTypeMap(vals[playAttributeExtraVars]),
+		check:             vals[playAttributeCheck].(bool),
+		extraVars:         mapFromTypeMap(vals[playAttributeExtraVars]),
 		forks:             vals[playAttributeForks].(int),
 		inventoryFile:     vals[playAttributeInventoryFile].(string),
 		limit:             vals[playAttributeLimit].(string),
@@ -256,6 +263,11 @@ func (v *Play) BecomeUser() string {
 // Diff represents Ansible --diff flag.
 func (v *Play) Diff() bool {
 	return v.diff
+}
+
+// Check represents Ansible --check flag.
+func (v *Play) Check() bool {
+	return v.check
 }
 
 // ExtraVars represents Ansible --extra-vars flag.
@@ -448,6 +460,10 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 	// diff:
 	if v.Diff() {
 		command = fmt.Sprintf("%s --diff", command)
+	}
+	// check:
+	if v.Check() {
+		command = fmt.Sprintf("%s --check", command)
 	}
 	// extra vars:
 	for _, ev := range v.ExtraVars() {
