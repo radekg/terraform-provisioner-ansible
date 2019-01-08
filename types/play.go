@@ -22,7 +22,7 @@ type Play struct {
 	becomeUser                string
 	diff                      bool
 	check                     bool
-	extraVars                 map[string]interface{}
+	extraVars                 []map[string]interface{}
 	forks                     int
 	inventoryFile             string
 	limit                     string
@@ -170,7 +170,7 @@ func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 		becomeUser:        vals[playAttributeBecomeUser].(string),
 		diff:              vals[playAttributeDiff].(bool),
 		check:             vals[playAttributeCheck].(bool),
-		extraVars:         mapFromTypeMap(vals[playAttributeExtraVars]),
+		extraVars:         listOfMapFromTypeMap(vals[playAttributeExtraVars]),
 		forks:             vals[playAttributeForks].(int),
 		inventoryFile:     vals[playAttributeInventoryFile].(string),
 		limit:             vals[playAttributeLimit].(string),
