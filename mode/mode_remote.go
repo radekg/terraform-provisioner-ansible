@@ -23,7 +23,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const installerProgramTemplate = `#!/usr/bin/env sh
+const installerProgramTemplate = `#!/usr/bin/env bash
 if [ -z "$(which ansible-playbook)" ]; then
   
   # only check the cloud boot finished if the directory exists
