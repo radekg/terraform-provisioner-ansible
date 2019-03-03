@@ -371,7 +371,7 @@ func (v *Play) defaultRolePaths() []string {
 	if val, ok := os.LookupEnv(ansibleEnvVarDefaultRolesPath); ok {
 		return strings.Split(val, ":")
 	}
-	return defaultRolesPath
+	return []string{}
 }
 
 // ToCommand serializes the play to an executable Ansible command.
@@ -388,7 +388,11 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 			rolePaths = append(rolePaths, filepath.Clean(rp))
 		}
 
-		command = fmt.Sprintf("%s %s=%s", command, ansibleEnvVarRolesPath, strings.Join(rolePaths, ":"))
+		// Only set ANSIBLE_ROLES_PATH when not empty.
+		if len(rolePaths) > 0 {
+			command = fmt.Sprintf("%s %s=%s", command, ansibleEnvVarRolesPath, strings.Join(rolePaths, ":"))
+		}
+
 		command = fmt.Sprintf("%s ansible-playbook %s", command, entity.FilePath())
 
 		// force handlers:
