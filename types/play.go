@@ -34,10 +34,6 @@ type Play struct {
 	overrideVaultPasswordFile string
 }
 
-var (
-	defaultRolesPath = []string{"~/.ansible/roles", "/usr/share/ansible/roles", "/etc/ansible/roles"}
-)
-
 const (
 	// default values:
 	playDefaultBecomeMethod = "sudo"
