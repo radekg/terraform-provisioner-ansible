@@ -4,7 +4,7 @@ Core `cty` is primarily concerned with types and values, with behavior
 delegated to the calling application. However, writing functions that operate
 on `cty.Value` is expected to be a common enough case for it to be worth
 factoring out into a shared package, so
-[the `function` package](https://godoc.org/github.com/apparentlymart/go-cty/cty/function)
+[the `function` package](https://godoc.org/github.com/zclconf/go-cty/cty/function)
 serves that need.
 
 The shared function abstraction is intended to help applications provide the
@@ -30,7 +30,7 @@ parameter has its own separate specification, while the variadic arguments
 together share a single parameter specification, meaning that they must
 all be of the same type.
 
-[`Parameter`](https://godoc.org/github.com/apparentlymart/go-cty/cty/function#Parameter)
+[`Parameter`](https://godoc.org/github.com/zclconf/go-cty/cty/function#Parameter)
 represents the description of a parameter. The `Params` member of
 `FunctionSpec` is a slice of positional parameters, while `VarParam` is
 a pointer to the description of the variadic arguments, if supported.
@@ -128,7 +128,7 @@ the basic operators of a simple expression language, but there are several
 higher-level operations that can be implemented in terms of `cty` values,
 such as string manipulations, standard mathematical functions, etc.
 
-[The standard library](https://godoc.org/github.com/apparentlymart/go-cty/cty/function/stdlib)
+[The standard library](https://godoc.org/github.com/zclconf/go-cty/cty/function/stdlib)
 contains a set of `cty` functions that are intended to be generally useful.
 For the convenience of calling applications, each function is provided both
 as a first-class Go function _and_ as a `Function` instance; the former

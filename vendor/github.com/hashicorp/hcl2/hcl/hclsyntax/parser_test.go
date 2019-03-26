@@ -286,6 +286,59 @@ func TestParseConfig(t *testing.T) {
 			},
 		},
 		{
+			"block \"invalid ${not_allowed_here} foo\" {}\n",
+			1, // Invalid string literal; Template sequences are not allowed in this string.
+			&Body{
+				Attributes: Attributes{},
+				Blocks: Blocks{
+					&Block{
+						Type:   "block",
+						Labels: []string{"invalid ${ ... } foo"}, // invalid interpolation gets replaced with a placeholder here
+						Body: &Body{
+							Attributes: Attributes{},
+							Blocks:     Blocks{},
+
+							SrcRange: hcl.Range{
+								Start: hcl.Pos{Line: 1, Column: 41, Byte: 40},
+								End:   hcl.Pos{Line: 1, Column: 43, Byte: 42},
+							},
+							EndRange: hcl.Range{
+								Start: hcl.Pos{Line: 1, Column: 43, Byte: 42},
+								End:   hcl.Pos{Line: 1, Column: 43, Byte: 42},
+							},
+						},
+
+						TypeRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+							End:   hcl.Pos{Line: 1, Column: 6, Byte: 5},
+						},
+						LabelRanges: []hcl.Range{
+							{
+								Start: hcl.Pos{Line: 1, Column: 7, Byte: 6},
+								End:   hcl.Pos{Line: 1, Column: 40, Byte: 39},
+							},
+						},
+						OpenBraceRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 41, Byte: 40},
+							End:   hcl.Pos{Line: 1, Column: 42, Byte: 41},
+						},
+						CloseBraceRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 42, Byte: 41},
+							End:   hcl.Pos{Line: 1, Column: 43, Byte: 42},
+						},
+					},
+				},
+				SrcRange: hcl.Range{
+					Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+					End:   hcl.Pos{Line: 2, Column: 1, Byte: 43},
+				},
+				EndRange: hcl.Range{
+					Start: hcl.Pos{Line: 2, Column: 1, Byte: 43},
+					End:   hcl.Pos{Line: 2, Column: 1, Byte: 43},
+				},
+			},
+		},
+		{
 			`
 block "invalid" 1.2 {}
 block "valid" {}
@@ -391,7 +444,19 @@ block "valid" {}
 					&Block{
 						Type:   "block",
 						Labels: []string{"fo"},
-						Body:   nil,
+						Body: &Body{
+							Attributes: map[string]*Attribute{},
+							Blocks:     []*Block{},
+
+							SrcRange: hcl.Range{
+								Start: hcl.Pos{Line: 1, Column: 13, Byte: 12},
+								End:   hcl.Pos{Line: 1, Column: 15, Byte: 14},
+							},
+							EndRange: hcl.Range{
+								Start: hcl.Pos{Line: 1, Column: 15, Byte: 14},
+								End:   hcl.Pos{Line: 1, Column: 15, Byte: 14},
+							},
+						},
 
 						TypeRange: hcl.Range{
 							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
@@ -404,12 +469,12 @@ block "valid" {}
 							},
 						},
 						OpenBraceRange: hcl.Range{
-							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
-							End:   hcl.Pos{Line: 1, Column: 6, Byte: 5},
+							Start: hcl.Pos{Line: 1, Column: 13, Byte: 12},
+							End:   hcl.Pos{Line: 1, Column: 14, Byte: 13},
 						},
 						CloseBraceRange: hcl.Range{
-							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
-							End:   hcl.Pos{Line: 1, Column: 6, Byte: 5},
+							Start: hcl.Pos{Line: 1, Column: 14, Byte: 13},
+							End:   hcl.Pos{Line: 1, Column: 15, Byte: 14},
 						},
 					},
 				},
@@ -1962,6 +2027,123 @@ block "valid" {}
 				EndRange: hcl.Range{
 					Start: hcl.Pos{Line: 1, Column: 2, Byte: 1},
 					End:   hcl.Pos{Line: 1, Column: 2, Byte: 1},
+				},
+			},
+		},
+		{
+			"a = 1,",
+			1,
+			&Body{
+				Attributes: Attributes{
+					"a": {
+						Name: "a",
+						Expr: &LiteralValueExpr{
+							Val: cty.NumberIntVal(1),
+
+							SrcRange: hcl.Range{
+								Start: hcl.Pos{Line: 1, Column: 5, Byte: 4},
+								End:   hcl.Pos{Line: 1, Column: 6, Byte: 5},
+							},
+						},
+
+						SrcRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+							End:   hcl.Pos{Line: 1, Column: 6, Byte: 5},
+						},
+						NameRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+							End:   hcl.Pos{Line: 1, Column: 2, Byte: 1},
+						},
+						EqualsRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 3, Byte: 2},
+							End:   hcl.Pos{Line: 1, Column: 4, Byte: 3},
+						},
+					},
+				},
+				Blocks: Blocks{},
+				SrcRange: hcl.Range{
+					Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+					End:   hcl.Pos{Line: 1, Column: 7, Byte: 6},
+				},
+				EndRange: hcl.Range{
+					Start: hcl.Pos{Line: 1, Column: 7, Byte: 6},
+					End:   hcl.Pos{Line: 1, Column: 7, Byte: 6},
+				},
+			},
+		},
+		{
+			"a = `str`",
+			2, // Invalid character and expression
+			&Body{
+				Attributes: Attributes{
+					"a": {
+						Name: "a",
+						Expr: &LiteralValueExpr{
+							SrcRange: hcl.Range{
+								Start: hcl.Pos{Line: 1, Column: 5, Byte: 4},
+								End:   hcl.Pos{Line: 1, Column: 6, Byte: 5},
+							},
+						},
+						NameRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+							End:   hcl.Pos{Line: 1, Column: 2, Byte: 1},
+						},
+						EqualsRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 3, Byte: 2},
+							End:   hcl.Pos{Line: 1, Column: 4, Byte: 3},
+						},
+						SrcRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+							End:   hcl.Pos{Line: 1, Column: 4, Byte: 3},
+						},
+					},
+				},
+				Blocks: Blocks{},
+				SrcRange: hcl.Range{
+					Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+					End:   hcl.Pos{Line: 1, Column: 10, Byte: 9},
+				},
+				EndRange: hcl.Range{
+					Start: hcl.Pos{Line: 1, Column: 10, Byte: 9},
+					End:   hcl.Pos{Line: 1, Column: 10, Byte: 9},
+				},
+			},
+		},
+		{
+			`a = 'str'`,
+			2, // Invalid character and expression
+			&Body{
+				Attributes: Attributes{
+					"a": {
+						Name: "a",
+						Expr: &LiteralValueExpr{
+							SrcRange: hcl.Range{
+								Start: hcl.Pos{Line: 1, Column: 5, Byte: 4},
+								End:   hcl.Pos{Line: 1, Column: 6, Byte: 5},
+							},
+						},
+						NameRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+							End:   hcl.Pos{Line: 1, Column: 2, Byte: 1},
+						},
+						EqualsRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 3, Byte: 2},
+							End:   hcl.Pos{Line: 1, Column: 4, Byte: 3},
+						},
+						SrcRange: hcl.Range{
+							Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+							End:   hcl.Pos{Line: 1, Column: 4, Byte: 3},
+						},
+					},
+				},
+				Blocks: Blocks{},
+				SrcRange: hcl.Range{
+					Start: hcl.Pos{Line: 1, Column: 1, Byte: 0},
+					End:   hcl.Pos{Line: 1, Column: 10, Byte: 9},
+				},
+				EndRange: hcl.Range{
+					Start: hcl.Pos{Line: 1, Column: 10, Byte: 9},
+					End:   hcl.Pos{Line: 1, Column: 10, Byte: 9},
 				},
 			},
 		},

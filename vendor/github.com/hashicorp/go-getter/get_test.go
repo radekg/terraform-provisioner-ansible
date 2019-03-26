@@ -63,7 +63,7 @@ func TestGet_filePercent2F(t *testing.T) {
 
 func TestGet_fileDetect(t *testing.T) {
 	dst := tempDir(t)
-	u := filepath.Join("./test-fixtures", "basic")
+	u := filepath.Join(".", "test-fixtures", "basic")
 	pwd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("err: %s", err)
@@ -76,13 +76,17 @@ func TestGet_fileDetect(t *testing.T) {
 		Dir: true,
 	}
 
+	if err := client.Configure(); err != nil {
+		t.Fatalf("configure: %s", err)
+	}
+
 	if err := client.Get(); err != nil {
-		t.Fatalf("err: %s", err)
+		t.Fatalf("get: %s", err)
 	}
 
 	mainPath := filepath.Join(dst, "main.tf")
 	if _, err := os.Stat(mainPath); err != nil {
-		t.Fatalf("err: %s", err)
+		t.Fatalf("stat: %s", err)
 	}
 }
 
@@ -220,7 +224,8 @@ func TestGetAny_dir(t *testing.T) {
 }
 
 func TestGetFile(t *testing.T) {
-	dst := tempFile(t)
+	dst := tempTestFile(t)
+	defer os.RemoveAll(filepath.Dir(dst))
 	u := testModule("basic-file/foo.txt")
 
 	if err := GetFile(dst, u); err != nil {
@@ -232,7 +237,8 @@ func TestGetFile(t *testing.T) {
 }
 
 func TestGetFile_archive(t *testing.T) {
-	dst := tempFile(t)
+	dst := tempTestFile(t)
+	defer os.RemoveAll(filepath.Dir(dst))
 	u := testModule("basic-file-archive/archive.tar.gz")
 
 	if err := GetFile(dst, u); err != nil {
@@ -244,7 +250,8 @@ func TestGetFile_archive(t *testing.T) {
 }
 
 func TestGetFile_archiveChecksum(t *testing.T) {
-	dst := tempFile(t)
+	dst := tempTestFile(t)
+	defer os.RemoveAll(filepath.Dir(dst))
 	u := testModule(
 		"basic-file-archive/archive.tar.gz?checksum=md5:fbd90037dacc4b1ab40811d610dde2f0")
 
@@ -257,7 +264,8 @@ func TestGetFile_archiveChecksum(t *testing.T) {
 }
 
 func TestGetFile_archiveNoUnarchive(t *testing.T) {
-	dst := tempFile(t)
+	dst := tempTestFile(t)
+	defer os.RemoveAll(filepath.Dir(dst))
 	u := testModule("basic-file-archive/archive.tar.gz")
 	u += "?archive=false"
 
@@ -285,6 +293,10 @@ func TestGetFile_checksum(t *testing.T) {
 
 		// MD5
 		{
+			"?checksum=09f7e02f1290be211da707a266f153b3",
+			false,
+		},
+		{
 			"?checksum=md5:09f7e02f1290be211da707a266f153b3",
 			false,
 		},
@@ -294,6 +306,10 @@ func TestGetFile_checksum(t *testing.T) {
 		},
 
 		// SHA1
+		{
+			"?checksum=1d229271928d3f9e2bb0375bd6ce5db6c6d348d9",
+			false,
+		},
 		{
 			"?checksum=sha1:1d229271928d3f9e2bb0375bd6ce5db6c6d348d9",
 			false,
@@ -305,6 +321,10 @@ func TestGetFile_checksum(t *testing.T) {
 
 		// SHA256
 		{
+			"?checksum=66a045b452102c59d840ec097d59d9467e13a3f34f6494e539ffd32c1bb35f18",
+			false,
+		},
+		{
 			"?checksum=sha256:66a045b452102c59d840ec097d59d9467e13a3f34f6494e539ffd32c1bb35f18",
 			false,
 		},
@@ -314,6 +334,10 @@ func TestGetFile_checksum(t *testing.T) {
 		},
 
 		// SHA512
+		{
+			"?checksum=c2bad2223811194582af4d1508ac02cd69eeeeedeeb98d54fcae4dcefb13cc882e7640328206603d3fb9cd5f949a9be0db054dd34fbfa190c498a5fe09750cef",
+			false,
+		},
 		{
 			"?checksum=sha512:c2bad2223811194582af4d1508ac02cd69eeeeedeeb98d54fcae4dcefb13cc882e7640328206603d3fb9cd5f949a9be0db054dd34fbfa190c498a5fe09750cef",
 			false,
@@ -328,8 +352,8 @@ func TestGetFile_checksum(t *testing.T) {
 		u := testModule("basic-file/foo.txt") + tc.Append
 
 		func() {
-			dst := tempFile(t)
-			defer os.Remove(dst)
+			dst := tempTestFile(t)
+			defer os.RemoveAll(filepath.Dir(dst))
 			if err := GetFile(dst, u); (err != nil) != tc.Err {
 				t.Fatalf("append: %s\n\nerr: %s", tc.Append, err)
 			}
@@ -340,8 +364,91 @@ func TestGetFile_checksum(t *testing.T) {
 	}
 }
 
+func TestGetFile_checksum_from_file(t *testing.T) {
+	checksums := testModule("checksum-file")
+	httpChecksums := httpTestModule("checksum-file")
+	defer httpChecksums.Close()
+
+	cases := []struct {
+		Append       string
+		WantTransfer bool
+		WantErr      bool
+	}{
+		{
+			"",
+			true,
+			false,
+		},
+
+		// md5
+		{
+			"?checksum=file:" + checksums + "/md5-p.sum",
+			true,
+			false,
+		},
+		{
+			"?checksum=file:" + httpChecksums.URL + "/md5-bsd.sum",
+			true,
+			false,
+		},
+		{
+			"?checksum=file:" + checksums + "/md5-bsd-bad.sum",
+			false,
+			true,
+		},
+		{
+			"?checksum=file:" + httpChecksums.URL + "/md5-bsd-wrong.sum",
+			true,
+			true,
+		},
+
+		// sha1
+		{
+			"?checksum=file:" + checksums + "/sha1-p.sum",
+			true,
+			false,
+		},
+		{
+			"?checksum=file:" + httpChecksums.URL + "/sha1.sum",
+			true,
+			false,
+		},
+
+		// sha256
+		{
+			"?checksum=file:" + checksums + "/sha256-p.sum",
+			true,
+			false,
+		},
+
+		// sha512
+		{
+			"?checksum=file:" + httpChecksums.URL + "/sha512-p.sum",
+			true,
+			false,
+		},
+	}
+
+	for _, tc := range cases {
+		u := checksums + "/content.txt" + tc.Append
+		t.Run(tc.Append, func(t *testing.T) {
+			dst := tempTestFile(t)
+			defer os.RemoveAll(filepath.Dir(dst))
+			if err := GetFile(dst, u); (err != nil) != tc.WantErr {
+				t.Fatalf("append: %s\n\nerr: %s", tc.Append, err)
+			}
+
+			if tc.WantTransfer {
+				// Verify the main file exists
+				assertContents(t, dst, "I am a file with some content\n")
+			}
+		})
+	}
+}
+
 func TestGetFile_checksumURL(t *testing.T) {
-	dst := tempFile(t)
+	dst := tempTestFile(t)
+	defer os.RemoveAll(filepath.Dir(dst))
 	u := testModule("basic-file/foo.txt") + "?checksum=md5:09f7e02f1290be211da707a266f153b3"
 
 	getter := &MockGetter{Proxy: new(FileGetter)}
@@ -376,5 +483,42 @@ func TestGetFile_filename(t *testing.T) {
 	mainPath := filepath.Join(dst, "bar.txt")
 	if _, err := os.Stat(mainPath); err != nil {
 		t.Fatalf("err: %s", err)
+	}
+}
+
+func TestGetFile_checksumSkip(t *testing.T) {
+	dst := tempTestFile(t)
+	defer os.RemoveAll(filepath.Dir(dst))
+	u := testModule("basic-file/foo.txt") + "?checksum=md5:09f7e02f1290be211da707a266f153b3"
+
+	getter := &MockGetter{Proxy: new(FileGetter)}
+	client := &Client{
+		Src: u,
+		Dst: dst,
+		Dir: false,
+		Getters: map[string]Getter{
+			"file": getter,
+		},
+	}
+
+	// get the file
+	if err := client.Get(); err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if v := getter.GetFileURL.Query().Get("checksum"); v != "" {
+		t.Fatalf("bad: %s", v)
+	}
+
+	// remove proxy file getter and reset GetFileCalled so that we can re-test.
+	getter.Proxy = nil
+	getter.GetFileCalled = false
+
+	if err := client.Get(); err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if getter.GetFileCalled {
+		t.Fatalf("get should not have been called")
 	}
 }

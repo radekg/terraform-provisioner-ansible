@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/antchfx/xquery/xml"
-	"github.com/satori/go.uuid"
+	xmlquery "github.com/antchfx/xquery/xml"
+	uuid "github.com/satori/go.uuid"
 )
 
 func Test_creating_a_shell(t *testing.T) {
@@ -94,7 +94,7 @@ func Test_executing_a_regex_command(t *testing.T) {
 				<a:Action mustUnderstand="true">http://schemas.xmlsoap.org/ws/2004/09/shell/Command</a:Action>
 			</env:Header>
 			<env:Body>
-				<rsp:CommandLine><rsp:Command>"echo %d >> C:\file.cmd"</rsp:Command></rsp:CommandLine>
+				<rsp:CommandLine><rsp:Command>"echo %s >> C:\file.cmd"</rsp:Command></rsp:CommandLine>
 			</env:Body>
 		</env:Envelope>`, uuid.NewV4().String())))
 

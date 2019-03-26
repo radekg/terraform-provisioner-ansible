@@ -35,6 +35,9 @@ type Organizations interface {
 	// Capacity shows the current run capacity of an organization.
 	Capacity(ctx context.Context, organization string) (*Capacity, error)
 
+	// Entitlements shows the entitlements of an organization.
+	Entitlements(ctx context.Context, organization string) (*Entitlements, error)
+
 	// RunQueue shows the current run queue of an organization.
 	RunQueue(ctx context.Context, organization string, options RunQueueOptions) (*RunQueue, error)
 }
@@ -77,7 +80,7 @@ type Organization struct {
 	CreatedAt              time.Time                `jsonapi:"attr,created-at,iso8601"`
 	Email                  string                   `jsonapi:"attr,email"`
 	EnterprisePlan         EnterprisePlanType       `jsonapi:"attr,enterprise-plan"`
-	OwnersTeamSamlRoleID   string                   `jsonapi:"attr,owners-team-saml-role-id"`
+	OwnersTeamSAMLRoleID   string                   `jsonapi:"attr,owners-team-saml-role-id"`
 	Permissions            *OrganizationPermissions `jsonapi:"attr,permissions"`
 	SAMLEnabled            bool                     `jsonapi:"attr,saml-enabled"`
 	SessionRemember        int                      `jsonapi:"attr,session-remember"`
@@ -91,6 +94,17 @@ type Capacity struct {
 	Organization string `jsonapi:"primary,organization-capacity"`
 	Pending      int    `jsonapi:"attr,pending"`
 	Running      int    `jsonapi:"attr,running"`
+}
+
+// Entitlements represents the entitlements of an organization.
+type Entitlements struct {
+	ID                    string `jsonapi:"primary,entitlement-sets"`
+	Operations            bool   `jsonapi:"attr,operations"`
+	PrivateModuleRegistry bool   `jsonapi:"attr,private-module-registry"`
+	Sentinel              bool   `jsonapi:"attr,sentinel"`
+	StateStorage          bool   `jsonapi:"attr,state-storage"`
+	Teams                 bool   `jsonapi:"attr,teams"`
+	VCSIntegrations       bool   `jsonapi:"attr,vcs-integrations"`
 }
 
 // RunQueue represents the current run queue of an organization.
@@ -143,17 +157,29 @@ type OrganizationCreateOptions struct {
 
 	// Admin email address.
 	Email *string `jsonapi:"attr,email"`
+
+	// Session expiration (minutes).
+	SessionRemember *int `jsonapi:"attr,session-remember,omitempty"`
+
+	// Session timeout after inactivity (minutes).
+	SessionTimeout *int `jsonapi:"attr,session-timeout,omitempty"`
+
+	// Authentication policy.
+	CollaboratorAuthPolicy *AuthPolicyType `jsonapi:"attr,collaborator-auth-policy,omitempty"`
+
+	// The name of the "owners" team
+	OwnersTeamSAMLRoleID *string `jsonapi:"attr,owners-team-saml-role-id,omitempty"`
 }
 
 func (o OrganizationCreateOptions) valid() error {
 	if !validString(o.Name) {
-		return errors.New("Name is required")
+		return errors.New("name is required")
 	}
 	if !validStringID(o.Name) {
-		return errors.New("Invalid value for name")
+		return errors.New("invalid value for name")
 	}
 	if !validString(o.Email) {
-		return errors.New("Email is required")
+		return errors.New("email is required")
 	}
 	return nil
 }
@@ -184,7 +210,7 @@ func (s *organizations) Create(ctx context.Context, options OrganizationCreateOp
 // Read an organization by its name.
 func (s *organizations) Read(ctx context.Context, organization string) (*Organization, error) {
 	if !validStringID(&organization) {
-		return nil, errors.New("Invalid value for organization")
+		return nil, errors.New("invalid value for organization")
 	}
 
 	u := fmt.Sprintf("organizations/%s", url.QueryEscape(organization))
@@ -221,12 +247,15 @@ type OrganizationUpdateOptions struct {
 
 	// Authentication policy.
 	CollaboratorAuthPolicy *AuthPolicyType `jsonapi:"attr,collaborator-auth-policy,omitempty"`
+
+	// The name of the "owners" team
+	OwnersTeamSAMLRoleID *string `jsonapi:"attr,owners-team-saml-role-id,omitempty"`
 }
 
 // Update attributes of an existing organization.
 func (s *organizations) Update(ctx context.Context, organization string, options OrganizationUpdateOptions) (*Organization, error) {
 	if !validStringID(&organization) {
-		return nil, errors.New("Invalid value for organization")
+		return nil, errors.New("invalid value for organization")
 	}
 
 	// Make sure we don't send a user provided ID.
@@ -250,7 +279,7 @@ func (s *organizations) Update(ctx context.Context, organization string, options
 // Delete an organization by its name.
 func (s *organizations) Delete(ctx context.Context, organization string) error {
 	if !validStringID(&organization) {
-		return errors.New("Invalid value for organization")
+		return errors.New("invalid value for organization")
 	}
 
 	u := fmt.Sprintf("organizations/%s", url.QueryEscape(organization))
@@ -265,7 +294,7 @@ func (s *organizations) Delete(ctx context.Context, organization string) error {
 // Capacity shows the currently used capacity of an organization.
 func (s *organizations) Capacity(ctx context.Context, organization string) (*Capacity, error) {
 	if !validStringID(&organization) {
-		return nil, errors.New("Invalid value for organization")
+		return nil, errors.New("invalid value for organization")
 	}
 
 	u := fmt.Sprintf("organizations/%s/capacity", url.QueryEscape(organization))
@@ -283,6 +312,27 @@ func (s *organizations) Capacity(ctx context.Context, organization string) (*Cap
 	return c, nil
 }
 
+// Entitlements shows the entitlements of an organization.
+func (s *organizations) Entitlements(ctx context.Context, organization string) (*Entitlements, error) {
+	if !validStringID(&organization) {
+		return nil, errors.New("invalid value for organization")
+	}
+
+	u := fmt.Sprintf("organizations/%s/entitlement-set", url.QueryEscape(organization))
+	req, err := s.client.newRequest("GET", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	e := &Entitlements{}
+	err = s.client.do(ctx, req, e)
+	if err != nil {
+		return nil, err
+	}
+
+	return e, nil
+}
+
 // RunQueueOptions represents the options for showing the queue.
 type RunQueueOptions struct {
 	ListOptions
@@ -291,7 +341,7 @@ type RunQueueOptions struct {
 // RunQueue shows the current run queue of an organization.
 func (s *organizations) RunQueue(ctx context.Context, organization string, options RunQueueOptions) (*RunQueue, error) {
 	if !validStringID(&organization) {
-		return nil, errors.New("Invalid value for organization")
+		return nil, errors.New("invalid value for organization")
 	}
 
 	u := fmt.Sprintf("organizations/%s/runs/queue", url.QueryEscape(organization))

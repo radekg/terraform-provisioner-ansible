@@ -20,7 +20,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type UserMessage struct {
 	Name                 *string  `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
@@ -360,7 +360,6 @@ func init() {
 	proto.RegisterExtension(E_Announcement_LoudExt)
 	proto.RegisterType((*Announcement)(nil), "extension_user.Announcement")
 	proto.RegisterExtension(E_OldStyleParcel_MessageSetExtension)
-	proto.RegisterMessageSetType((*OldStyleParcel)(nil), 2001, "extension_user.OldStyleParcel")
 	proto.RegisterType((*OldStyleParcel)(nil), "extension_user.OldStyleParcel")
 	proto.RegisterExtension(E_UserMessage)
 	proto.RegisterExtension(E_ExtraMessage)

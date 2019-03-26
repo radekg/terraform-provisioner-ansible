@@ -128,6 +128,11 @@ func TestTypeTestConformance(t *testing.T) {
 			Conforms: true,
 		},
 		{
+			Receiver: Object(map[string]Type{"name": String}),
+			Given:    Object(map[string]Type{"gnome": String}),
+			Conforms: false,
+		},
+		{
 			Receiver: Object(map[string]Type{"name": Number}),
 			Given:    Object(map[string]Type{"name": String}),
 			Conforms: false,

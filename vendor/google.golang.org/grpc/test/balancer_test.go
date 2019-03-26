@@ -19,18 +19,16 @@
 package test
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
 
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
-	"google.golang.org/grpc/internal/leakcheck"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/resolver"
 	testpb "google.golang.org/grpc/test/grpc_testing"
 	"google.golang.org/grpc/testdata"
@@ -104,20 +102,19 @@ type picker struct {
 }
 
 func (p *picker) Pick(ctx context.Context, opts balancer.PickOptions) (balancer.SubConn, func(balancer.DoneInfo), error) {
-	p.bal.pickOptions = append(p.bal.pickOptions, opts)
 	if p.err != nil {
 		return nil, nil, p.err
 	}
+	p.bal.pickOptions = append(p.bal.pickOptions, opts)
 	return p.sc, func(d balancer.DoneInfo) { p.bal.doneInfo = append(p.bal.doneInfo, d) }, nil
 }
 
-func TestCredsBundleFromBalancer(t *testing.T) {
+func (s) TestCredsBundleFromBalancer(t *testing.T) {
 	balancer.Register(&testBalancer{
 		newSubConnOptions: balancer.NewSubConnOptions{
 			CredsBundle: &testCredsBundle{},
 		},
 	})
-	defer leakcheck.Check(t)
 	te := newTest(t, env{name: "creds-bundle", network: "tcp", balancer: ""})
 	te.tapHandle = authHandle
 	te.customDialOptions = []grpc.DialOption{
@@ -140,14 +137,13 @@ func TestCredsBundleFromBalancer(t *testing.T) {
 	}
 }
 
-func TestPickAndDone(t *testing.T) {
-	defer leakcheck.Check(t)
+func (s) TestDoneInfo(t *testing.T) {
 	for _, e := range listTestEnv() {
-		testPickAndDone(t, e)
+		testDoneInfo(t, e)
 	}
 }
 
-func testPickAndDone(t *testing.T, e env) {
+func testDoneInfo(t *testing.T, e env) {
 	te := newTest(t, e)
 	b := &testBalancer{}
 	balancer.Register(b)
@@ -167,18 +163,8 @@ func testPickAndDone(t *testing.T, e env) {
 	if _, err := tc.EmptyCall(ctx, &testpb.Empty{}); !reflect.DeepEqual(err, wantErr) {
 		t.Fatalf("TestService/EmptyCall(_, _) = _, %v, want _, %v", err, wantErr)
 	}
-	md := metadata.Pairs("testMDKey", "testMDVal")
-	ctx = metadata.NewOutgoingContext(ctx, md)
 	if _, err := tc.UnaryCall(ctx, &testpb.SimpleRequest{}); err != nil {
 		t.Fatalf("TestService.UnaryCall(%v, _, _, _) = _, %v; want _, <nil>", ctx, err)
-	}
-
-	poWant := []balancer.PickOptions{
-		{FullMethodName: "/grpc.testing.TestService/EmptyCall"},
-		{FullMethodName: "/grpc.testing.TestService/UnaryCall", Header: md},
-	}
-	if !reflect.DeepEqual(b.pickOptions, poWant) {
-		t.Fatalf("b.pickOptions = %v; want %v", b.pickOptions, poWant)
 	}
 
 	if len(b.doneInfo) < 1 || !reflect.DeepEqual(b.doneInfo[0].Err, wantErr) {
@@ -186,5 +172,25 @@ func testPickAndDone(t *testing.T, e env) {
 	}
 	if len(b.doneInfo) < 2 || !reflect.DeepEqual(b.doneInfo[1].Trailer, testTrailerMetadata) {
 		t.Fatalf("b.doneInfo = %v; want b.doneInfo[1].Trailer = %v", b.doneInfo, testTrailerMetadata)
+	}
+	if len(b.pickOptions) != len(b.doneInfo) {
+		t.Fatalf("Got %d picks, but %d doneInfo, want equal amount", len(b.pickOptions), len(b.doneInfo))
+	}
+	// To test done() is always called, even if it's returned with a non-Ready
+	// SubConn.
+	//
+	// Stop server and at the same time send RPCs. There are chances that picker
+	// is not updated in time, causing a non-Ready SubConn to be returned.
+	finished := make(chan struct{})
+	go func() {
+		for i := 0; i < 20; i++ {
+			tc.UnaryCall(ctx, &testpb.SimpleRequest{})
+		}
+		close(finished)
+	}()
+	te.srv.Stop()
+	<-finished
+	if len(b.pickOptions) != len(b.doneInfo) {
+		t.Fatalf("Got %d picks, %d doneInfo, want equal amount", len(b.pickOptions), len(b.doneInfo))
 	}
 }

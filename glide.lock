@@ -1,8 +1,18 @@
-hash: 5d29465fac10233a61d5cdae97e366363a7546d388ff3a94d27f649b58c205b9
-updated: 2018-11-04T16:03:43.377086+01:00
+hash: 1f04dceedaf5f08e4413120c0afa1282420dad42049d61d92a14f09fccd03501
+updated: 2019-03-27T00:11:50.232081+01:00
 imports:
+- name: cloud.google.com/go
+  version: 16bf007f472b38edd9456aae993a7d55a45cd614
+  subpackages:
+  - compute/metadata
+  - iam
+  - internal
+  - internal/optional
+  - internal/trace
+  - internal/version
+  - storage
 - name: github.com/agext/levenshtein
-  version: 5f10fee965225ac1eecdc234c09daf5cd9e7f7b6
+  version: 0ded9c86537917af2ff89bc9c78de6bd58477894
 - name: github.com/apparentlymart/go-cidr
   version: 1755c023625ec3a84979b90841a1ab067ed6c071
   subpackages:
@@ -12,11 +22,11 @@ imports:
   subpackages:
   - textseg
 - name: github.com/armon/circbuf
-  version: bbbad097214e2918d8543d5201d12bfd7bca254d
+  version: 5111143e8da2e98b4ea6a8f32b9065ea1821c191
 - name: github.com/armon/go-radix
   version: 1a2de0c21c94309923825da3df33a4381872c795
 - name: github.com/aws/aws-sdk-go
-  version: 43cb5e9998123fb04bb1768ce27de117b2e3844b
+  version: fa9217848bf00ff03c3c097e9c109cbe833ea130
   subpackages:
   - aws
   - aws/awserr
@@ -80,44 +90,58 @@ imports:
 - name: github.com/dylanmei/iso8601
   version: 2075bf119b58e5576c6ed9f867b8f3d17f2e54d4
 - name: github.com/dylanmei/winrmtest
-  version: c2fbb09e6c084fe3ebe95fce0f1cc5297c152026
+  version: 99b7fe2fddf13e83d546a045b094acb6a892a72e
 - name: github.com/fatih/color
   version: 3f9d52f7176a6927daacff70a3e8d1dc2025c53e
+- name: github.com/gofrs/uuid
+  version: 2593f3d8aa45b432942fe24758a279312d0f8719
 - name: github.com/golang/protobuf
-  version: 1918e1ff6ffd2be7bed0553df8650672c3bfe80d
+  version: d3c38a4eb4970272b87a425ae00ccc4548e2f9bb
   subpackages:
   - proto
+  - protoc-gen-go/descriptor
   - ptypes
   - ptypes/any
   - ptypes/duration
   - ptypes/timestamp
 - name: github.com/google/go-cmp
-  version: 745b8ec8378318d64f3f04949d010ee8d2fc71e2
+  version: 6f77996f0c42f7b84e5a2b252227263f93432e9b
   subpackages:
   - cmp
   - cmp/internal/diff
+  - cmp/internal/flags
   - cmp/internal/function
   - cmp/internal/value
+- name: github.com/googleapis/gax-go
+  version: beaecbbdd8af86aa3acf14180d53828ce69400b2
+  subpackages:
+  - v2
 - name: github.com/hashicorp/errwrap
   version: 8a6fb523712970c966eefc6b39ed2c5e74880354
 - name: github.com/hashicorp/go-cleanhttp
-  version: e8ab9daed8d1ddd2d3c4efba338fe2eeae2e4f18
+  version: eda1e5db218aad1db63ca4642c8906b26bcf2744
 - name: github.com/hashicorp/go-getter
-  version: 4bda8fa99001c61db3cad96b421d4c12a81f256d
+  version: 69dec094fde6ac8d2659bff743fc0b2096ccb54f
   subpackages:
   - helper/url
 - name: github.com/hashicorp/go-hclog
-  version: 61d530d6c27f994fb6c83b80f99a69c54125ec8a
+  version: 6907afbebd2eef854f0be9194eb79b0ba75d7b29
 - name: github.com/hashicorp/go-multierror
   version: 886a7fbe3eb1c874d46f623bfa70af45f425b3d1
 - name: github.com/hashicorp/go-plugin
-  version: 54b6ff97d8180dbbd93d2010dd4a92c86f604bb8
+  version: 52e1c4730856c1438ced7597c9b5c585a7bd06a2
+  subpackages:
+  - internal/plugin
 - name: github.com/hashicorp/go-safetemp
   version: c9a55de4fe06c920a71964b53cfe3dd293a3c743
 - name: github.com/hashicorp/go-uuid
-  version: de160f5c59f693fed329e73e291bb751fe4ea4dc
+  version: 4f571afc59f3043a65f8fe6bf46d887b10a01d43
 - name: github.com/hashicorp/go-version
-  version: b5a281d3160aa11950a6182bd9a9dc2cb1e02d50
+  version: d40cf49b3a77bba84a7afdbd7f1dc295d114efb1
+- name: github.com/hashicorp/golang-lru
+  version: 7087cb70de9f7a8bc0a10c375cb0d2280a8edf9c
+  subpackages:
+  - simplelru
 - name: github.com/hashicorp/hcl
   version: 65a6292f0157eff210d03ed1bf6c59b190b8b906
   subpackages:
@@ -130,7 +154,7 @@ imports:
   - json/scanner
   - json/token
 - name: github.com/hashicorp/hcl2
-  version: 917fbe66e76dffa8e62448fbda375b230657897f
+  version: f9f92da699d801c8beee28dbbb7c09e3dce2ae66
   subpackages:
   - gohcl
   - hcl
@@ -140,13 +164,13 @@ imports:
   - hclparse
   - hclwrite
 - name: github.com/hashicorp/hil
-  version: fa9f258a92500514cc8e9c67020487709df92432
+  version: 97b3a9cdfa9349086cfad7ea2fe3165bfe3cbf63
   subpackages:
   - ast
   - parser
   - scanner
 - name: github.com/hashicorp/terraform
-  version: 17850e9a55d33c43d7c31fd6ac122ba97a51d899
+  version: d48069534832fdb09919a5fe46500755540cbf0a
   subpackages:
   - builtin/provisioners/local-exec
   - communicator
@@ -180,31 +204,26 @@ imports:
   version: 2f1d1f20f75d5404f53b9edf6b53ed5505508675
 - name: github.com/jmespath/go-jmespath
   version: c2b33e8439af944379acbdd9c3a5fe0bc44bd8a5
-- name: github.com/masterzen/azure-sdk-for-go
-  version: ee4f0065d00cd12b542f18f5bc45799e88163b12
-  subpackages:
-  - core/http
-  - core/tls
 - name: github.com/masterzen/simplexml
   version: 4572e39b1ab9fe03ee513ce6fc7e289e98482190
   subpackages:
   - dom
 - name: github.com/masterzen/winrm
-  version: 58761a495ca409c3941183d0c63c51dfabc31806
+  version: 1d17eaf15943ca3554cdebb3b1b10aaa543a0b7e
   subpackages:
   - soap
 - name: github.com/mattn/go-colorable
-  version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
+  version: 3a70a971f94a22f2fa562ffcc7a0eb45f5daf045
 - name: github.com/mattn/go-isatty
-  version: 3fb116b820352b7f0c281308a4d6250c22d94e27
+  version: c2a7a6ca930a4cd0bc33a3f298eb71960732a3a7
 - name: github.com/mitchellh/cli
   version: 3d22a244be8aa6fb16ac24af0e195c08b7d973aa
 - name: github.com/mitchellh/copystructure
   version: 9a1b6f44e8da0e0e374624fb0a825a231b00c537
 - name: github.com/mitchellh/go-homedir
-  version: ae18d6b8b3205b561c79e8e5f69bff09736185f4
+  version: af06845cf3004701891bf4fdb884bfe4920b3727
 - name: github.com/mitchellh/go-linereader
-  version: 07bab5fdd9580500aea6ada0e09df4aa28e68abd
+  version: 1b945b3263eb070718f0a0742000234b5c8cab86
 - name: github.com/mitchellh/go-testing-interface
   version: 6d0b8010fcc857872e42fc6c931227569016843c
 - name: github.com/mitchellh/go-wordwrap
@@ -224,7 +243,7 @@ imports:
   subpackages:
   - winrmcp
 - name: github.com/posener/complete
-  version: 3ef9b31a6a0613ae832e7ecf208374027c3b2343
+  version: af07aa5181b38e3fa57d053328e44aaa27da5999
   subpackages:
   - cmd
   - cmd/install
@@ -232,15 +251,15 @@ imports:
 - name: github.com/satori/go.uuid
   version: b2ce2384e17bbe0c6d34077efa39dbab3e09123b
 - name: github.com/ulikunitz/xz
-  version: 590df8077fbcb06ad62d7714da06c00e5dd2316d
+  version: 6f934d456d51e742b4eeab20d925a827ef22320a
   subpackages:
   - internal/hash
   - internal/xlog
   - lzma
 - name: github.com/xanzy/ssh-agent
-  version: 640f0ab560aeb89d523bb6ac322b1244d5c3796c
+  version: 6a3e2ff9e7c564f36873c2e36413f634534f1c44
 - name: github.com/zclconf/go-cty
-  version: 01c5aba823a6c91fe3bc287fd6e493ca717a64b8
+  version: fd76348b9329dc6f3bd4b87a45ae9e5fb72bffbc
   subpackages:
   - cty
   - cty/convert
@@ -249,8 +268,25 @@ imports:
   - cty/gocty
   - cty/json
   - cty/set
+- name: go.opencensus.io
+  version: 5ae9166f90ff989c557e45fcb9592ac59afa0fa0
+  subpackages:
+  - internal
+  - internal/tagencoding
+  - metric/metricdata
+  - plugin/ochttp
+  - plugin/ochttp/propagation/b3
+  - resource
+  - stats
+  - stats/internal
+  - stats/view
+  - tag
+  - trace
+  - trace/internal
+  - trace/propagation
+  - trace/tracestate
 - name: golang.org/x/crypto
-  version: 4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06
+  version: a5d413f7728c81fb97d96a2b722368945f651e78
   subpackages:
   - bcrypt
   - blowfish
@@ -272,9 +308,10 @@ imports:
   - ssh/agent
   - ssh/knownhosts
 - name: golang.org/x/net
-  version: c10e9556a7bc0e7c942242b606f0acf024ad5d6a
+  version: 15845e8f865bdabdefb6e7da65b4d9e8de5e94ef
   subpackages:
   - context
+  - context/ctxhttp
   - html
   - html/atom
   - html/charset
@@ -284,12 +321,20 @@ imports:
   - idna
   - internal/timeseries
   - trace
-- name: golang.org/x/sys
-  version: 9b800f95dbbc54abff0acf7ee32d88ba4e328c89
+- name: golang.org/x/oauth2
+  version: c85d3e98c914e3a33234ad863dcbff5dbc425bb8
   subpackages:
+  - google
+  - internal
+  - jws
+  - jwt
+- name: golang.org/x/sys
+  version: f49334f85ddcf0f08d7fb6dd7363e9e6d6b777eb
+  subpackages:
+  - cpu
   - unix
 - name: golang.org/x/text
-  version: 6f44c5a2ea40ee3593d98cdcc905cc1fdaa660e2
+  version: fe223c5a2583471b2791ca99e716c65b4a76117e
   subpackages:
   - encoding
   - encoding/charmap
@@ -311,12 +356,40 @@ imports:
   - transform
   - unicode/bidi
   - unicode/norm
-- name: google.golang.org/genproto
-  version: c830210a61dfaa790e1920f8d0470fc27bc2efbe
+- name: google.golang.org/api
+  version: bce707a4d0ea3488942724b3bcc1c8338f38f991
   subpackages:
+  - gensupport
+  - googleapi
+  - googleapi/internal/uritemplates
+  - googleapi/transport
+  - internal
+  - iterator
+  - option
+  - storage/v1
+  - transport/http
+  - transport/http/internal/propagation
+- name: google.golang.org/appengine
+  version: 54a98f90d1c46b7731eb8fb305d2a321c30ef610
+  subpackages:
+  - internal
+  - internal/app_identity
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/modules
+  - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
+- name: google.golang.org/genproto
+  version: e79c0c59cdb5e117ef82a6f885294df3d74065d5
+  subpackages:
+  - googleapis/api/annotations
+  - googleapis/iam/v1
+  - googleapis/rpc/code
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 8f2842d4f02a3169c4ff997f95854c35175f20ba
+  version: ed10349f451e96cf671d270545c99ff0041fea7c
   subpackages:
   - balancer
   - balancer/base
@@ -325,6 +398,7 @@ imports:
   - codes
   - connectivity
   - credentials
+  - credentials/internal
   - encoding
   - encoding/proto
   - grpclog
@@ -336,6 +410,8 @@ imports:
   - internal/channelz
   - internal/envconfig
   - internal/grpcrand
+  - internal/grpcsync
+  - internal/syscall
   - internal/transport
   - keepalive
   - metadata

@@ -93,7 +93,7 @@ a building block for the `function` package and for JSON serialization.
 
 The primary way a application works with `cty` values is via the API exposed
 by the `cty` go package. The full details of this package are in
-[its reference documentation](https://godoc.org/github.com/apparentlymart/go-cty/cty),
+[its reference documentation](https://godoc.org/github.com/zclconf/go-cty/cty),
 so this section will just cover the basic usage patterns.
 
 The main features of the `cty` package are the Go types `cty.Type` and `cty.Value`,

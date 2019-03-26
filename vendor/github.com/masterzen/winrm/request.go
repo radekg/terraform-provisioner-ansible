@@ -3,12 +3,12 @@ package winrm
 import (
 	"encoding/base64"
 
+	"github.com/gofrs/uuid"
 	"github.com/masterzen/winrm/soap"
-	"github.com/nu7hatch/gouuid"
 )
 
 func genUUID() string {
-	id, _ := uuid.NewV4()
+	id := uuid.Must(uuid.NewV4())
 	return "uuid:" + id.String()
 }
 

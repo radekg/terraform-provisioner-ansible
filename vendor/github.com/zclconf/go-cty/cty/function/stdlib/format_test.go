@@ -481,6 +481,12 @@ func TestFormat(t *testing.T) {
 			`not enough arguments for "%[3]s" at 0: need index 3 but have 2 total`,
 		},
 		{
+			cty.StringVal("%[0]s is not valid because args are 1-based"),
+			[]cty.Value{cty.True, cty.True},
+			cty.NilVal,
+			`unrecognized format character '0' at offset 2`,
+		},
+		{
 			cty.StringVal("%v %v %v"),
 			[]cty.Value{cty.True, cty.True},
 			cty.NilVal,
@@ -521,6 +527,18 @@ func TestFormat(t *testing.T) {
 			[]cty.Value{cty.NumberIntVal(10)},
 			cty.NilVal,
 			`argument must not be null`,
+		},
+		{
+			cty.StringVal("no format verbs at all"),
+			[]cty.Value{cty.NumberIntVal(10)},
+			cty.NilVal,
+			`too many arguments; no verbs in format string`,
+		},
+		{
+			cty.StringVal("only one verb %d"),
+			[]cty.Value{cty.NumberIntVal(10), cty.NumberIntVal(11)},
+			cty.NilVal,
+			`too many arguments; only 1 used by format string`,
 		},
 	}
 

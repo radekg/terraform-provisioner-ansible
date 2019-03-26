@@ -1,6 +1,6 @@
 # JSON serialization of `cty` values
 
-[The `json` package](https://godoc.org/github.com/apparentlymart/go-cty/cty/json)
+[The `json` package](https://godoc.org/github.com/zclconf/go-cty/cty/json)
 allows `cty` values to be serialized as JSON and decoded back into `cty` values.
 
 Since the `cty` type system is a superset of the JSON type system, two modes
