@@ -8,6 +8,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/go-test/deep"
 	"github.com/hashicorp/hcl2/hcl"
+	"github.com/zclconf/go-cty/cty"
 )
 
 func TestBodyPartialContent(t *testing.T) {
@@ -300,6 +301,48 @@ func TestBodyPartialContent(t *testing.T) {
 				},
 			},
 			1,
+		},
+		{
+			`{"resource": null}`,
+			&hcl.BodySchema{
+				Blocks: []hcl.BlockHeaderSchema{
+					{
+						Type: "resource",
+					},
+				},
+			},
+			&hcl.BodyContent{
+				Attributes: map[string]*hcl.Attribute{},
+				// We don't find any blocks if the value is json null.
+				Blocks: nil,
+				MissingItemRange: hcl.Range{
+					Filename: "test.json",
+					Start:    hcl.Pos{Line: 1, Column: 18, Byte: 17},
+					End:      hcl.Pos{Line: 1, Column: 19, Byte: 18},
+				},
+			},
+			0,
+		},
+		{
+			`{"resource": { "nested": null }}`,
+			&hcl.BodySchema{
+				Blocks: []hcl.BlockHeaderSchema{
+					{
+						Type:       "resource",
+						LabelNames: []string{"name"},
+					},
+				},
+			},
+			&hcl.BodyContent{
+				Attributes: map[string]*hcl.Attribute{},
+				Blocks:     nil,
+				MissingItemRange: hcl.Range{
+					Filename: "test.json",
+					Start:    hcl.Pos{Line: 1, Column: 32, Byte: 31},
+					End:      hcl.Pos{Line: 1, Column: 33, Byte: 32},
+				},
+			},
+			0,
 		},
 		{
 			`{"resource":{}}`,
@@ -1190,6 +1233,95 @@ func TestJustAttributes(t *testing.T) {
 	}
 }
 
+func TestExpressionVariables(t *testing.T) {
+	tests := []struct {
+		Src  string
+		Want []hcl.Traversal
+	}{
+		{
+			`{"a":true}`,
+			nil,
+		},
+		{
+			`{"a":"${foo}"}`,
+			[]hcl.Traversal{
+				{
+					hcl.TraverseRoot{
+						Name: "foo",
+						SrcRange: hcl.Range{
+							Filename: "test.json",
+							Start:    hcl.Pos{Line: 1, Column: 9, Byte: 8},
+							End:      hcl.Pos{Line: 1, Column: 12, Byte: 11},
+						},
+					},
+				},
+			},
+		},
+		{
+			`{"a":["${foo}"]}`,
+			[]hcl.Traversal{
+				{
+					hcl.TraverseRoot{
+						Name: "foo",
+						SrcRange: hcl.Range{
+							Filename: "test.json",
+							Start:    hcl.Pos{Line: 1, Column: 10, Byte: 9},
+							End:      hcl.Pos{Line: 1, Column: 13, Byte: 12},
+						},
+					},
+				},
+			},
+		},
+		{
+			`{"a":{"b":"${foo}"}}`,
+			[]hcl.Traversal{
+				{
+					hcl.TraverseRoot{
+						Name: "foo",
+						SrcRange: hcl.Range{
+							Filename: "test.json",
+							Start:    hcl.Pos{Line: 1, Column: 14, Byte: 13},
+							End:      hcl.Pos{Line: 1, Column: 17, Byte: 16},
+						},
+					},
+				},
+			},
+		},
+		{
+			`{"a":{"${foo}":"b"}}`,
+			[]hcl.Traversal{
+				{
+					hcl.TraverseRoot{
+						Name: "foo",
+						SrcRange: hcl.Range{
+							Filename: "test.json",
+							Start:    hcl.Pos{Line: 1, Column: 10, Byte: 9},
+							End:      hcl.Pos{Line: 1, Column: 13, Byte: 12},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.Src, func(t *testing.T) {
+			file, diags := Parse([]byte(test.Src), "test.json")
+			if len(diags) != 0 {
+				t.Fatalf("Parse produced diagnostics: %s", diags)
+			}
+			attrs, diags := file.Body.JustAttributes()
+			if len(diags) != 0 {
+				t.Fatalf("JustAttributes produced diagnostics: %s", diags)
+			}
+			got := attrs["a"].Expr.Variables()
+			if !reflect.DeepEqual(got, test.Want) {
+				t.Errorf("wrong result\ngot:  %s\nwant: %s", spew.Sdump(got), spew.Sdump(test.Want))
+			}
+		})
+	}
+}
+
 func TestExpressionAsTraversal(t *testing.T) {
 	e := &expression{
 		src: &stringVal{
@@ -1219,4 +1351,63 @@ func TestStaticExpressionList(t *testing.T) {
 	if exprs[0].(*expression).src != e.src.(*arrayVal).Values[0] {
 		t.Fatalf("wrong first expression node")
 	}
+}
+
+func TestExpression_Value(t *testing.T) {
+	src := `{
+  "string": "string_val",
+  "number": 5,
+  "bool_true": true,
+  "bool_false": false,
+  "array": ["a"],
+  "object": {"key": "value"},
+  "null": null
+}`
+	expected := map[string]cty.Value{
+		"string":     cty.StringVal("string_val"),
+		"number":     cty.NumberIntVal(5),
+		"bool_true":  cty.BoolVal(true),
+		"bool_false": cty.BoolVal(false),
+		"array":      cty.TupleVal([]cty.Value{cty.StringVal("a")}),
+		"object": cty.ObjectVal(map[string]cty.Value{
+			"key": cty.StringVal("value"),
+		}),
+		"null": cty.NullVal(cty.DynamicPseudoType),
+	}
+
+	file, diags := Parse([]byte(src), "")
+	if len(diags) != 0 {
+		t.Errorf("got %d diagnostics on parse; want 0", len(diags))
+		for _, diag := range diags {
+			t.Logf("- %s", diag.Error())
+		}
+	}
+	if file == nil {
+		t.Errorf("got nil File; want actual file")
+	}
+	if file.Body == nil {
+		t.Fatalf("got nil Body; want actual body")
+	}
+	attrs, diags := file.Body.JustAttributes()
+	if len(diags) != 0 {
+		t.Errorf("got %d diagnostics on decode; want 0", len(diags))
+		for _, diag := range diags {
+			t.Logf("- %s", diag.Error())
+		}
+	}
+
+	for ek, ev := range expected {
+		val, diags := attrs[ek].Expr.Value(&hcl.EvalContext{})
+		if len(diags) != 0 {
+			t.Errorf("got %d diagnostics on eval; want 0", len(diags))
+			for _, diag := range diags {
+				t.Logf("- %s", diag.Error())
+			}
+		}
+
+		if !val.RawEquals(ev) {
+			t.Errorf("wrong result %#v; want %#v", val, ev)
+		}
+	}
+
 }

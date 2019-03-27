@@ -154,6 +154,11 @@ func NewPlaySchema() *schema.Schema {
 // NewPlayFromInterface reads Play configuration from Terraform schema.
 func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 	vals := mapFromTypeSetList(i.(*schema.Set).List())
+	return NewPlayFromMapInterface(vals, defaults)
+}
+
+// NewPlayFromMapInterface reads Play configuration from a map.
+func NewPlayFromMapInterface(vals map[string]interface{}, defaults *Defaults) *Play {
 	v := &Play{
 		defaults:          defaults,
 		enabled:           vals[playAttributeEnabled].(bool),

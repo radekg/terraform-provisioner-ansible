@@ -15,7 +15,7 @@ import (
 	"time"
 
 	hclog "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-plugin/test/grpc"
+	grpctest "github.com/hashicorp/go-plugin/test/grpc"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -351,7 +351,7 @@ func (impl *testGRPCClient) Stream(start, stop int32) ([]int32, error) {
 
 	var resp []int32
 	for i := start; i < stop; i++ {
-		if err := streamClient.Send(&grpctest.TestRequest{i}); err != nil {
+		if err := streamClient.Send(&grpctest.TestRequest{Input: i}); err != nil {
 			return resp, err
 		}
 
@@ -455,6 +455,7 @@ func TestHelperProcess(*testing.T) {
 		fmt.Printf("%d|%d|tcp|:1234\n", CoreProtocolVersion, testHandshake.ProtocolVersion)
 		os.Stderr.WriteString("[\"HELLO\"]\n")
 		os.Stderr.WriteString("12345\n")
+		os.Stderr.WriteString("{\"a\":1}\n")
 	case "stdin":
 		fmt.Printf("%d|%d|tcp|:1234\n", CoreProtocolVersion, testHandshake.ProtocolVersion)
 		data := make([]byte, 5)
@@ -548,6 +549,17 @@ func TestHelperProcess(*testing.T) {
 
 		// Shouldn't reach here but make sure we exit anyways
 		os.Exit(0)
+
+	case "test-interface-mtls":
+		// Serve!
+		Serve(&ServeConfig{
+			HandshakeConfig: testVersionedHandshake,
+			Plugins:         testPluginMap,
+		})
+
+		// Shouldn't reach here but make sure we exit anyways
+		os.Exit(0)
+
 	case "test-versioned-plugins":
 		// Serve!
 		Serve(&ServeConfig{
@@ -588,6 +600,20 @@ func TestHelperProcess(*testing.T) {
 			Plugins:     testGRPCPluginMap,
 			GRPCServer:  DefaultGRPCServer,
 			TLSProvider: helperTLSProvider,
+		})
+
+		// Shouldn't reach here but make sure we exit anyways
+		os.Exit(0)
+	case "test-mtls":
+		// Serve 2 plugins over different protocols
+		Serve(&ServeConfig{
+			HandshakeConfig: HandshakeConfig{
+				ProtocolVersion:  2,
+				MagicCookieKey:   "TEST_MAGIC_COOKIE",
+				MagicCookieValue: "test",
+			},
+			Plugins:    testGRPCPluginMap,
+			GRPCServer: DefaultGRPCServer,
 		})
 
 		// Shouldn't reach here but make sure we exit anyways

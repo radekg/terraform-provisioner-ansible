@@ -511,10 +511,14 @@ func (c *Communicator) scpSession(scpCommand string, f func(io.Writer, *bufio.Re
 // successfully. If it did not complete successfully, an error will
 // be returned.
 func checkSCPStatus(r *bufio.Reader) error {
+
+	log.Println("[DEBUG] Waiting for the byte...")
 	code, err := r.ReadByte()
 	if err != nil {
 		return err
 	}
+
+	log.Println("[DEBUG] Read the byte...")
 
 	if code != 0 {
 		// Treat any non-zero (really 1 and 2) as fatal errors

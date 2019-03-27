@@ -113,10 +113,9 @@ func TestOptionPanic(t *testing.T) {
 		args:      []interface{}{"/*", func(int) bool { return true }},
 		wantPanic: "invalid name",
 	}, {
-		label:     "Transformer",
-		fnc:       Transformer,
-		args:      []interface{}{"_", func(int) bool { return true }},
-		wantPanic: "invalid name",
+		label: "Transformer",
+		fnc:   Transformer,
+		args:  []interface{}{"_", func(int) bool { return true }},
 	}, {
 		label:     "FilterPath",
 		fnc:       FilterPath,
@@ -129,7 +128,7 @@ func TestOptionPanic(t *testing.T) {
 	}, {
 		label:     "FilterPath",
 		fnc:       FilterPath,
-		args:      []interface{}{func(Path) bool { return true }, &defaultReporter{}},
+		args:      []interface{}{func(Path) bool { return true }, Reporter(&defaultReporter{})},
 		wantPanic: "invalid option type",
 	}, {
 		label: "FilterPath",
@@ -138,7 +137,7 @@ func TestOptionPanic(t *testing.T) {
 	}, {
 		label:     "FilterPath",
 		fnc:       FilterPath,
-		args:      []interface{}{func(Path) bool { return true }, Options{Ignore(), &defaultReporter{}}},
+		args:      []interface{}{func(Path) bool { return true }, Options{Ignore(), Reporter(&defaultReporter{})}},
 		wantPanic: "invalid option type",
 	}, {
 		label:     "FilterValues",
@@ -171,7 +170,7 @@ func TestOptionPanic(t *testing.T) {
 	}, {
 		label:     "FilterValues",
 		fnc:       FilterValues,
-		args:      []interface{}{func(int, int) bool { return true }, &defaultReporter{}},
+		args:      []interface{}{func(int, int) bool { return true }, Reporter(&defaultReporter{})},
 		wantPanic: "invalid option type",
 	}, {
 		label: "FilterValues",
@@ -180,7 +179,7 @@ func TestOptionPanic(t *testing.T) {
 	}, {
 		label:     "FilterValues",
 		fnc:       FilterValues,
-		args:      []interface{}{func(int, int) bool { return true }, Options{Ignore(), &defaultReporter{}}},
+		args:      []interface{}{func(int, int) bool { return true }, Options{Ignore(), Reporter(&defaultReporter{})}},
 		wantPanic: "invalid option type",
 	}}
 

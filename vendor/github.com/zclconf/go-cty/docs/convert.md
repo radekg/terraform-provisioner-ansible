@@ -1,6 +1,6 @@
 # Converting between `cty` types
 
-[The `convert` package](https://godoc.org/github.com/apparentlymart/go-cty/cty/convert)
+[The `convert` package](https://godoc.org/github.com/zclconf/go-cty/cty/convert)
 provides a standard set of type conversion routines for moving between
 types in the `cty` type system.
 

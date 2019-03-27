@@ -9,3 +9,5 @@ import:
 - package: github.com/dylanmei/winrmtest
 - package: github.com/mitchellh/go-homedir
 - package: github.com/satori/go.uuid
+- package: github.com/pkg/sftp
+  version: v1.10.0

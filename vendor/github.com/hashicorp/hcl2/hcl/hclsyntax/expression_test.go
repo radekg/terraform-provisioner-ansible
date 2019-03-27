@@ -404,6 +404,46 @@ upper(
 			0,
 		},
 		{
+			`{[]: "yes"}`,
+			nil,
+			cty.DynamicVal,
+			1, // Incorrect key type; Can't use this value as a key: string required
+		},
+		{
+			`{"centos_7.2_ap-south-1" = "ami-abc123"}`,
+			nil,
+			cty.ObjectVal(map[string]cty.Value{
+				"centos_7.2_ap-south-1": cty.StringVal("ami-abc123"),
+			}),
+			0,
+		},
+		{
+			// This is syntactically valid (it's similar to foo["bar"])
+			// but is rejected during evaluation to force the user to be explicit
+			// about which of the following interpretations they mean:
+			// -{(foo.bar) = "baz"}
+			// -{"foo.bar" = "baz"}
+			// naked traversals as keys are allowed when analyzing an expression
+			// statically so an application can define object-syntax-based
+			// language constructs with looser requirements, but we reject
+			// this during normal expression evaluation.
+			`{foo.bar = "ami-abc123"}`,
+			nil,
+			cty.DynamicVal,
+			1, // Ambiguous attribute key; If this expression is intended to be a reference, wrap it in parentheses. If it's instead intended as a literal name containing periods, wrap it in quotes to create a string literal.
+		},
+		{
+			// This is a weird variant of the above where a period is followed
+			// by a digit, causing the parser to interpret it as an index
+			// operator using the legacy HIL/Terraform index syntax.
+			// This one _does_ fail parsing, causing it to be subject to
+			// parser recovery behavior.
+			`{centos_7.2_ap-south-1 = "ami-abc123"}`,
+			nil,
+			cty.EmptyObjectVal, // (due to parser recovery behavior)
+			1,                  // Missing key/value separator; Expected an equals sign ("=") to mark the beginning of the attribute value. If you intended to given an attribute name containing periods or spaces, write the name in quotes to create a string literal.
+		},
+		{
 			`{"hello" = "world", "goodbye" = "cruel world"}`,
 			nil,
 			cty.ObjectVal(map[string]cty.Value{
@@ -459,6 +499,28 @@ upper(
 			0,
 		},
 
+		{
+			"{\n  for k, v in {hello: \"world\"}:\nk => v\n}",
+			nil,
+			cty.ObjectVal(map[string]cty.Value{
+				"hello": cty.StringVal("world"),
+			}),
+			0,
+		},
+		{
+			// This one is different than the previous because the extra level of
+			// object constructor causes the inner for expression to begin parsing
+			// in newline-sensitive mode, which it must then properly disable in
+			// order to peek the "for" keyword.
+			"{\n  a = {\n  for k, v in {hello: \"world\"}:\nk => v\n  }\n}",
+			nil,
+			cty.ObjectVal(map[string]cty.Value{
+				"a": cty.ObjectVal(map[string]cty.Value{
+					"hello": cty.StringVal("world"),
+				}),
+			}),
+			0,
+		},
 		{
 			`{for k, v in {hello: "world"}: k => v if k == "hello"}`,
 			nil,
@@ -734,6 +796,14 @@ upper(
 			0,
 		},
 		{
+			`{name: "Steve"}[*].name`,
+			nil,
+			cty.TupleVal([]cty.Value{
+				cty.StringVal("Steve"),
+			}),
+			0,
+		},
+		{
 			`set.*.name`,
 			&hcl.EvalContext{
 				Variables: map[string]cty.Value{
@@ -744,10 +814,99 @@ upper(
 					}),
 				},
 			},
-			cty.TupleVal([]cty.Value{
+			cty.ListVal([]cty.Value{
 				cty.StringVal("Steve"),
 			}),
 			0,
+		},
+		{
+			`unkstr.*.name`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"unkstr": cty.UnknownVal(cty.String),
+				},
+			},
+			cty.UnknownVal(cty.Tuple([]cty.Type{cty.DynamicPseudoType})),
+			1, // a string has no attribute "name"
+		},
+		{
+			`dyn.*.name`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"dyn": cty.DynamicVal,
+				},
+			},
+			cty.DynamicVal,
+			0,
+		},
+		{
+			`unkobj.*.name`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"unkobj": cty.UnknownVal(cty.Object(map[string]cty.Type{
+						"name": cty.String,
+					})),
+				},
+			},
+			cty.TupleVal([]cty.Value{
+				cty.UnknownVal(cty.String),
+			}),
+			0,
+		},
+		{
+			`unklistobj.*.name`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"unklistobj": cty.UnknownVal(cty.List(cty.Object(map[string]cty.Type{
+						"name": cty.String,
+					}))),
+				},
+			},
+			cty.UnknownVal(cty.List(cty.String)),
+			0,
+		},
+		{
+			`unktupleobj.*.name`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"unktupleobj": cty.UnknownVal(
+						cty.Tuple([]cty.Type{
+							cty.Object(map[string]cty.Type{
+								"name": cty.String,
+							}),
+							cty.Object(map[string]cty.Type{
+								"name": cty.Bool,
+							}),
+						}),
+					),
+				},
+			},
+			cty.UnknownVal(cty.Tuple([]cty.Type{cty.String, cty.Bool})),
+			0,
+		},
+		{
+			`nullobj.*.name`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"nullobj": cty.NullVal(cty.Object(map[string]cty.Type{
+						"name": cty.String,
+					})),
+				},
+			},
+			cty.TupleVal([]cty.Value{}),
+			0,
+		},
+		{
+			`nulllist.*.name`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"nulllist": cty.NullVal(cty.List(cty.Object(map[string]cty.Type{
+						"name": cty.String,
+					}))),
+				},
+			},
+			cty.DynamicVal,
+			1, // splat cannot be applied to null sequence
 		},
 		{
 			`["hello", "goodbye"].*`,
@@ -800,6 +959,31 @@ upper(
 			`[{name: "Steve"}, {name: "Ermintrude"}].*.name[0]`,
 			nil,
 			cty.StringVal("Steve"),
+			0,
+		},
+		{
+			// For a "full" splat, an index operator is consumed as part
+			// of the splat's traversal.
+			`[{names: ["Steve"]}, {names: ["Ermintrude"]}][*].names[0]`,
+			nil,
+			cty.TupleVal([]cty.Value{cty.StringVal("Steve"), cty.StringVal("Ermintrude")}),
+			0,
+		},
+		{
+			// Another "full" splat, this time with the index first.
+			`[[{name: "Steve"}], [{name: "Ermintrude"}]][*][0].name`,
+			nil,
+			cty.TupleVal([]cty.Value{cty.StringVal("Steve"), cty.StringVal("Ermintrude")}),
+			0,
+		},
+		{
+			// Full splats can nest, which produces nested tuples.
+			`[[{name: "Steve"}], [{name: "Ermintrude"}]][*][*].name`,
+			nil,
+			cty.TupleVal([]cty.Value{
+				cty.TupleVal([]cty.Value{cty.StringVal("Steve")}),
+				cty.TupleVal([]cty.Value{cty.StringVal("Ermintrude")}),
+			}),
 			0,
 		},
 		{
@@ -867,6 +1051,16 @@ upper(
 			nil,
 			cty.StringVal("hello"),
 			0,
+		},
+		{
+			`["boop"].foo[index]`, // index is a variable to force IndexExpr instead of traversal
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"index": cty.NumberIntVal(0),
+				},
+			},
+			cty.DynamicVal,
+			1, // expression ["boop"] does not have attributes
 		},
 
 		{
@@ -945,6 +1139,125 @@ upper(
 			cty.StringVal("hello"),
 			0,
 		},
+
+		{
+			`
+<<EOT
+Foo
+Bar
+Baz
+EOT
+`,
+			nil,
+			cty.StringVal("Foo\nBar\nBaz\n"),
+			0,
+		},
+		{
+			`
+<<EOT
+Foo
+${bar}
+Baz
+EOT
+`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"bar": cty.StringVal("Bar"),
+				},
+			},
+			cty.StringVal("Foo\nBar\nBaz\n"),
+			0,
+		},
+		{
+			`
+<<EOT
+Foo
+%{for x in bars}${x}%{endfor}
+Baz
+EOT
+`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"bars": cty.ListVal([]cty.Value{
+						cty.StringVal("Bar"),
+						cty.StringVal("Bar"),
+						cty.StringVal("Bar"),
+					}),
+				},
+			},
+			cty.StringVal("Foo\nBarBarBar\nBaz\n"),
+			0,
+		},
+		{
+			`[
+  <<EOT
+  Foo
+  Bar
+  Baz
+  EOT
+]
+`,
+			nil,
+			cty.TupleVal([]cty.Value{cty.StringVal("  Foo\n  Bar\n  Baz\n")}),
+			0,
+		},
+		{
+			`[
+  <<-EOT
+  Foo
+  Bar
+  Baz
+  EOT
+]
+`,
+			nil,
+			cty.TupleVal([]cty.Value{cty.StringVal("Foo\nBar\nBaz\n")}),
+			0,
+		},
+		{
+			`[
+  <<-EOT
+  Foo
+    Bar
+    Baz
+  EOT
+]
+`,
+			nil,
+			cty.TupleVal([]cty.Value{cty.StringVal("Foo\n  Bar\n  Baz\n")}),
+			0,
+		},
+		{
+			`[
+  <<-EOT
+    Foo
+  Bar
+    Baz
+  EOT
+]
+`,
+			nil,
+			cty.TupleVal([]cty.Value{cty.StringVal("  Foo\nBar\n  Baz\n")}),
+			0,
+		},
+		{
+			`[
+  <<-EOT
+    Foo
+  ${bar}
+    Baz
+    EOT
+]
+`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"bar": cty.StringVal("  Bar"), // Spaces in the interpolation result don't affect the outcome
+				},
+			},
+			cty.TupleVal([]cty.Value{cty.StringVal("  Foo\n  Bar\n  Baz\n")}),
+			0,
+		},
+
 		{
 			`unk["baz"]`,
 			&hcl.EvalContext{
@@ -973,6 +1286,57 @@ upper(
 				},
 			},
 			cty.DynamicVal, // don't know what it is yet
+			0,
+		},
+		{
+			`nullstr == "foo"`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"nullstr": cty.NullVal(cty.String),
+				},
+			},
+			cty.False,
+			0,
+		},
+		{
+			`nullstr == nullstr`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"nullstr": cty.NullVal(cty.String),
+				},
+			},
+			cty.True,
+			0,
+		},
+		{
+			`nullstr == null`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"nullstr": cty.NullVal(cty.String),
+				},
+			},
+			cty.True,
+			0,
+		},
+		{
+			`nullstr == nullnum`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"nullstr": cty.NullVal(cty.String),
+					"nullnum": cty.NullVal(cty.Number),
+				},
+			},
+			cty.True,
+			0,
+		},
+		{
+			`"" == nulldyn`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"nulldyn": cty.NullVal(cty.DynamicPseudoType),
+				},
+			},
+			cty.False,
 			0,
 		},
 	}

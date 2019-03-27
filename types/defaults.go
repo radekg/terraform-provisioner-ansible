@@ -106,9 +106,17 @@ func NewDefaultsSchema() *schema.Schema {
 
 // NewDefaultsFromInterface reads Defaults configuration from Terraform schema.
 func NewDefaultsFromInterface(i interface{}, ok bool) *Defaults {
-	v := &Defaults{}
 	if ok {
 		vals := mapFromTypeSetList(i.(*schema.Set).List())
+		return NewDefaultsFromMapInterface(vals, ok)
+	}
+	return &Defaults{}
+}
+
+// NewDefaultsFromMapInterface reads Defaults configuration from a map.
+func NewDefaultsFromMapInterface(vals map[string]interface{}, ok bool) *Defaults {
+	v := &Defaults{}
+	if ok {
 		if val, ok := vals[defaultsAttributeHosts]; ok {
 			v.hosts = listOfInterfaceToListOfString(val.([]interface{}))
 			v.hostsIsSet = len(v.hosts) > 0

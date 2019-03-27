@@ -18,6 +18,8 @@ _Note_: this library doesn't support domain users (it doesn't support GSSAPI nor
 ## Getting Started
 WinRM is available on Windows Server 2008 and up. This project natively supports basic authentication for local accounts, see the steps in the next section on how to prepare the remote Windows machine for this scenario. The authentication model is pluggable, see below for an example on using Negotiate/NTLM authentication (e.g. for connecting to vanilla Azure VMs).
 
+_Note_: This library only supports Golang 1.7+
+
 ### Preparing the remote Windows machine for Basic authentication
 This project supports only basic authentication for local accounts (domain users are not supported). The remote windows system must be prepared for winrm:
 

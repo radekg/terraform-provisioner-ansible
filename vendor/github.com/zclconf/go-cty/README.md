@@ -35,7 +35,7 @@ For more details, see the following documentation:
 
 * [Concepts](./docs/concepts.md)
 * [Full Description of the `cty` Types](./docs/types.md)
-* [API Reference](https://godoc.org/github.com/apparentlymart/go-cty/cty) (godoc)
+* [API Reference](https://godoc.org/github.com/zclconf/go-cty/cty) (godoc)
 * [Conversion between `cty` types](./docs/convert.md)
 * [Conversion to and from native Go values](./docs/gocty.md)
 * [JSON serialization](./docs/json.md)

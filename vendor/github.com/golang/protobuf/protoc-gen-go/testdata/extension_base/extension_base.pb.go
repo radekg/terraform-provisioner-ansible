@@ -18,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type BaseMessage struct {
 	Height                       *int32   `protobuf:"varint,1,opt,name=height" json:"height,omitempty"`
@@ -82,13 +82,6 @@ func (m *OldStyleMessage) String() string { return proto.CompactTextString(m) }
 func (*OldStyleMessage) ProtoMessage()    {}
 func (*OldStyleMessage) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2fbd53bac0b7ca8a, []int{1}
-}
-
-func (m *OldStyleMessage) MarshalJSON() ([]byte, error) {
-	return proto.MarshalMessageSetJSON(&m.XXX_InternalExtensions)
-}
-func (m *OldStyleMessage) UnmarshalJSON(buf []byte) error {
-	return proto.UnmarshalMessageSetJSON(buf, &m.XXX_InternalExtensions)
 }
 
 var extRange_OldStyleMessage = []proto.ExtensionRange{

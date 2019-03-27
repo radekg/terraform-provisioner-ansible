@@ -2045,10 +2045,10 @@ func TestEvalInternal(t *testing.T) {
 				t.Fatalf("Error: %s\nInput: %s", err, tc.Input)
 			}
 			if tc.ResultType != ast.TypeInvalid && outType != tc.ResultType {
-				t.Fatalf("Wrong result type\nInput: %s\nGot:   %#s\nWant:  %s", tc.Input, outType, tc.ResultType)
+				t.Fatalf("Wrong result type\nInput: %s\nGot:   %#v\nWant:  %s", tc.Input, outType, tc.ResultType)
 			}
 			if !reflect.DeepEqual(out, tc.Result) {
-				t.Fatalf("Wrong result value\nInput: %s\nGot:   %#s\nWant:  %s", tc.Input, out, tc.Result)
+				t.Fatalf("Wrong result value\nInput: %s\nGot:   %#v\nWant:  %s", tc.Input, out, tc.Result)
 			}
 		})
 	}
