@@ -40,8 +40,10 @@ build-release:
 
 .PHONY: test
 test:
+	go clean -testcache
 	go test
 
 .PHONY: test-verbose
 test-verbose:
+	go clean -testcache
 	go test -v ./...
