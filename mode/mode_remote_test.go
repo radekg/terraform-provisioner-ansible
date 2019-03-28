@@ -3,6 +3,8 @@ package mode
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -51,7 +53,7 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 				"type":        "ssh",
 				"user":        "integration-test",
 				"host":        "127.0.0.1",
-				"port":        "22022",
+				"port":        "0", // will be set later
 				"private_key": test.TestSSHUserKeyPrivate,
 				"host_key":    test.TestSSHHostKeyPublic,
 			},
@@ -80,6 +82,26 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Fatal("Expected the TestingSSHServer to be running.")
 	}
+
+	// we need to update the instance info with the address the SSH server is bound on:
+	h, p, err := sshServer.ListeningHostPort()
+	if err != nil {
+		t.Fatal("Expected the SSH server to return an address it is bound on but got an error", err)
+	}
+	instanceState.Ephemeral.ConnInfo["host"] = h
+	instanceState.Ephemeral.ConnInfo["port"] = p
+
+	tempVaultIDFile, err := ioutil.TempFile("", ".temp-vault-id")
+	if err != nil {
+		t.Fatal("Expected a temp vault id file to be crated", err)
+	}
+	defer os.Remove(tempVaultIDFile.Name())
+	tempVaultIDFileToWrite, err := os.OpenFile(tempVaultIDFile.Name(), os.O_RDWR, 0644)
+	if err != nil {
+		t.Fatal("Expected a temp vault id file to be writable", err)
+	}
+	tempVaultIDFileToWrite.WriteString("test-password")
+	tempVaultIDFileToWrite.Close()
 
 	remoteSettings := map[string]interface{}{
 		"skip_install":               false,
@@ -120,7 +142,7 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 		"forks":               5,
 		"inventory_file":      "",
 		"limit":               "",
-		"vault_id":            []interface{}{}, // TODO: add testing with vault id
+		"vault_id":            []interface{}{tempVaultIDFile.Name()},
 		"vault_password_file": "",
 		"verbose":             false,
 		"extra_vars": map[string]interface{}{
@@ -150,6 +172,8 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 
 	// upload ansible data:
 	testForCommand(t, sshServer, fmt.Sprintf("mkdir -p \"%s", bootstrapDirectory))
+	testForCommand(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
+	// upload vault ID:
 	testForCommand(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
 	// upload installer:
 	testForCommand(t, sshServer, fmt.Sprintf("mkdir -p \"%s", remoteTempDirectory))

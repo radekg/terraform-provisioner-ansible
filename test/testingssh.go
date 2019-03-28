@@ -136,6 +136,16 @@ func (s *TestingSSHServer) Notifications() <-chan interface{} {
 	return s.chanNotifications
 }
 
+// ListeningHostPort returns the host port of an address underlying listener is bound on, or error if server is not started.
+func (s *TestingSSHServer) ListeningHostPort() (host, port string, err error) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	if s.running {
+		return net.SplitHostPort(s.listener.Addr().String())
+	}
+	return "", "", fmt.Errorf("The server is not started")
+}
+
 func (s *TestingSSHServer) createConnectionServer(listener net.Listener, config *ssh.ServerConfig) {
 	go s.serveConnection(listener, config)
 }
