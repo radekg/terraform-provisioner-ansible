@@ -7,7 +7,7 @@ notifications:
   email: false
 
 before_script:
-  - pip install ansible
+  - pip install --user ansible
 
 script:
   - make lint
