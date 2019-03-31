@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"os/exec"
 	"strings"
 	"sync"
 	"syscall"
@@ -32,6 +33,7 @@ type TestingSSHServerConfig struct {
 	Listeners          int
 	Output             terraform.UIOutput
 	LogPrintln         bool
+	LocalMode          bool
 }
 
 // TestingSSHServer represents an instancde of the testing SFTP server.
@@ -213,24 +215,62 @@ func (s *TestingSSHServer) serveConnection(listener net.Listener, config *ssh.Se
 					s.logInfo("[%s] pty-req: size: %d@%d, env=%s", s.config.ServerID, w, h, termEnv)
 					ok = true
 				case "exec":
+
+					ok = true
 					command := string(req.Payload[4:])
 					s.logInfo("[%s] exec %s", s.config.ServerID, command)
 					msg := exitStatusMsg{
 						Status: 0,
 					}
-					// handle SCP commands:
-					if strings.HasPrefix(command, "scp -vt") || strings.HasPrefix(command, "scp -rvt") {
-						channel.Write([]byte{0})
-						time.Sleep(time.Second * 1)
-						channel.Write([]byte{0})
-						replyAndClose = true
+
+					if !s.config.LocalMode {
+						// handle SCP commands:
+						if strings.HasPrefix(command, "scp -vt") || strings.HasPrefix(command, "scp -rvt") {
+							channel.Write([]byte{0})
+							time.Sleep(time.Second * 1)
+							channel.Write([]byte{0})
+							replyAndClose = true
+						}
+						channel.SendRequest("exit-status", false, ssh.Marshal(msg))
 					}
-					channel.SendRequest("exit-status", false, ssh.Marshal(msg))
+
+					if s.config.LocalMode {
+
+						localCommand := command
+						if strings.HasPrefix(command, "/bin/sh -c '") {
+							localCommand = localCommand[12 : len(localCommand)-1]
+						}
+						s.logInfo("[%s] Executing local command: /bin/sh -c '%s'...", s.config.ServerID, localCommand)
+						cmd := exec.Command("/bin/sh", []string{"-c", localCommand}...)
+						cmd.Stdout = channel
+						cmd.Stderr = channel
+						cmd.Stdin = channel
+						err := cmd.Start()
+
+						if err != nil {
+							s.logInfo("[%s] failed to start command: %v...", s.config.ServerID, err)
+							continue
+						}
+
+						// teardown session
+						go func() {
+							_, err := cmd.Process.Wait()
+							if err != nil {
+								s.logInfo("[%s] failed to execute command: %v...", s.config.ServerID, err)
+							}
+							channel.SendRequest("exit-status", false, ssh.Marshal(msg))
+							channel.Close()
+							s.logInfo("[%s] command channel closed", s.config.ServerID)
+						}()
+
+					}
+
 					go func() {
 						s.chanNotifications <- NotificationCommandExecuted{
 							Command: command,
 						}
 					}()
+
 					ok = true
 				case "shell":
 					// We don't accept any commands (Payload), default shell only.
