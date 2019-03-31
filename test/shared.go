@@ -1,5 +1,14 @@
 package test
 
+import (
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+)
+
 var (
 	TestSSHHostKeyPrivate = `-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAACFwAAAAdzc2gtcn
@@ -103,3 +112,49 @@ yERRbfK/j0cAAAAOcmFkQG5vYW4ubG9jYWwBAgMEBQ==
 -----END OPENSSH PRIVATE KEY-----`
 	TestSSHUserKeyPublic = `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4xdZRtDIqh/TYbB2U4ZzyIiDoBBd0f9BIE39EB43AD1mlkrex9afxQKpfBNoR3Bvd6j89Ucb3Clklnj1KdEgxsC0kN1mewABkdAt6+5xpOnOl9ZgnUE3Ib959/puMlG8d1G/evWBo2DzVgk6uP/2A7+cjUsTvVM5t/DXeOniebJHDlUZse9FHoltPvL1Ro/ug2o4tZWXucf2PDqD2+aDfzXWRAZiIluXOo8j/by3/8K+DLODwhAPKZ9h9es0wSNWkC9UhOc6/2iY32PaKn9PIz3cEKfl/YHp6GA8gdJnR5KLLxYra6vxGoVSrvqr32Y1K+ktYVmv7V/TrpkwoXqFx540gO1t71PuYxAsyzENZny/L7MxK8cS+9ND4xYQOE8ImIcwk+52Jy5/H7g0M4To0Xjla6FcnCjvgDsXiEH/JRPfGCuyDCZPqVOUv9B0lLJTeKEipsysIAZsAN4kM5Nomv/9DQpaEOIbX9PihEm0RYzVvqvyRBOtvshn5rnLGJKZGyJw2Hr4wSJPgpaYTPnsjTAZ8ZKOiUAAvqF8qB/7mZ8p4mXFGJJMw/lk8NK+2/vH88OpnmWGiOs9rA9BnyWbc4rmpMj/XZBt7oaxyLWmeVfYzeKc6VadjrN21Yv2qSysngvX5BodDZ+Ql6T8Dvd8KeNnoezJL/xOM3cGm74uGwQ== rad@noan.local`
 )
+
+// CommandTest tests an SSH server output channel for a command.
+func CommandTest(t *testing.T, sshServer *TestingSSHServer, commandPrefix string) {
+	select {
+	case event := <-sshServer.Notifications():
+		switch tevent := event.(type) {
+		case NotificationCommandExecuted:
+			if !strings.HasPrefix(tevent.Command, commandPrefix) {
+				t.Fatalf("Expected a command starting with '%s' received: '%s'", commandPrefix, tevent.Command)
+			}
+		default:
+			t.Fatal("Expected a command execution but received", tevent)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Excepted a notification from the SSH server.")
+	}
+}
+
+// CreateTempAnsibleDataDirectory creates a temp Ansible data directory.
+func CreateTempAnsibleDataDirectory(t *testing.T) string {
+	tempAnsibleDataDir, err := ioutil.TempDir("", ".temp-ansible-data")
+	if err != nil {
+		t.Fatal("Expected a temp playbook dir to be created", err)
+	}
+	return tempAnsibleDataDir
+}
+
+// WriteTempPlaybookFile writes a temp playbook file.
+func WriteTempPlaybookFile(t *testing.T, dirpath string) string {
+	playbookFileContents := `---
+  - hosts: all
+    become: yes
+    roles:
+      - tree`
+	playbookFilePath := filepath.Join(dirpath, "playbooks", "install-tree.yml")
+	if err := os.MkdirAll(filepath.Join(dirpath, "playbooks"), os.ModePerm); err != nil {
+		t.Fatal("Expected the playbooks directory to be created under temp directory", err)
+	}
+	playbookFile, err := os.Create(playbookFilePath)
+	if err != nil {
+		t.Fatal("Expected a temp playbook file to be created", err)
+	}
+	playbookFile.WriteString(playbookFileContents)
+	playbookFile.Close()
+	return playbookFilePath
+}

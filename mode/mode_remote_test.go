@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -108,12 +107,9 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 	tempVaultIDFileToWrite.Close()
 
 	// temp playbook:
-	tempAnsibleDataDir, err := ioutil.TempDir("", ".temp-ansible-data")
-	if err != nil {
-		t.Fatal("Expected a temp playbook dir to be created", err)
-	}
+	tempAnsibleDataDir := test.CreateTempAnsibleDataDirectory(t)
 	defer os.RemoveAll(tempAnsibleDataDir)
-	playbookFilePath := writeTempPlaybookFile(t, tempAnsibleDataDir)
+	playbookFilePath := test.WriteTempPlaybookFile(t, tempAnsibleDataDir)
 
 	remoteSettings := map[string]interface{}{
 		"skip_install":               false,
@@ -217,68 +213,34 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 	}()
 
 	// upload ansible data for th first play:
-	testForCommand(t, sshServer, fmt.Sprintf("mkdir -p \"%s", bootstrapDirectory))
-	testForCommand(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
+	test.CommandTest(t, sshServer, fmt.Sprintf("mkdir -p \"%s", bootstrapDirectory))
+	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
 	// upload vault ID for the first play:
-	testForCommand(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
+	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
 
 	// upload ansible data for the second play:
-	testForCommand(t, sshServer, fmt.Sprintf("mkdir -p \"%s", bootstrapDirectory))
-	testForCommand(t, sshServer, "/bin/sh -c 'if [ -d") // playbook always checks if we have the source playbook dir uploaded
-	testForCommand(t, sshServer, fmt.Sprintf("scp -rvt %s", bootstrapDirectory))
-	testForCommand(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory)) // an inventory is written
+	test.CommandTest(t, sshServer, fmt.Sprintf("mkdir -p \"%s", bootstrapDirectory))
+	test.CommandTest(t, sshServer, "/bin/sh -c 'if [ -d") // playbook always checks if we have the source playbook dir uploaded
+	test.CommandTest(t, sshServer, fmt.Sprintf("scp -rvt %s", bootstrapDirectory))
+	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory)) // an inventory is written
 	// upload vault ID for the second play:
-	testForCommand(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
+	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
 
 	// upload installer:
-	testForCommand(t, sshServer, fmt.Sprintf("mkdir -p \"%s", remoteTempDirectory))
-	testForCommand(t, sshServer, fmt.Sprintf("scp -vt %s", remoteTempDirectory))
-
+	test.CommandTest(t, sshServer, fmt.Sprintf("mkdir -p \"%s", remoteTempDirectory))
+	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", remoteTempDirectory))
 	// make the installer executable:
-	testForCommand(t, sshServer, "chmod 0777")
+	test.CommandTest(t, sshServer, "chmod 0777")
 	// run and cleanup ansible installer:
-	testForCommand(t, sshServer, "sudo /bin/sh -c")
+	test.CommandTest(t, sshServer, "sudo /bin/sh -c")
+
 	// run ansible module:
-	testForCommand(t, sshServer, fmt.Sprintf("sudo ANSIBLE_FORCE_COLOR=true ansible all --module-name='%s'", testModuleName))
-	testForCommand(t, sshServer, "sudo ANSIBLE_FORCE_COLOR=true ansible-playbook")
+	test.CommandTest(t, sshServer, fmt.Sprintf("sudo ANSIBLE_FORCE_COLOR=true ansible all --module-name='%s'", testModuleName))
+	test.CommandTest(t, sshServer, "sudo ANSIBLE_FORCE_COLOR=true ansible-playbook")
+
 	// cleanup ansible data:
-	testForCommand(t, sshServer, fmt.Sprintf("rm -rf \"%s", bootstrapDirectory))
+	test.CommandTest(t, sshServer, fmt.Sprintf("rm -rf \"%s", bootstrapDirectory))
 
 	wg.Wait()
 
-}
-
-func testForCommand(t *testing.T, sshServer *test.TestingSSHServer, commandPrefix string) {
-	select {
-	case event := <-sshServer.Notifications():
-		switch tevent := event.(type) {
-		case test.NotificationCommandExecuted:
-			if !strings.HasPrefix(tevent.Command, commandPrefix) {
-				t.Fatalf("Expected a command starting with '%s' received: '%s'", commandPrefix, tevent.Command)
-			}
-		default:
-			t.Fatal("Expected a command execution but received", tevent)
-		}
-	case <-time.After(5 * time.Second):
-		t.Fatal("Excepted a notification from the SSH server.")
-	}
-}
-
-func writeTempPlaybookFile(t *testing.T, dirpath string) string {
-	playbookFileContents := `---
-  - hosts: all
-    become: yes
-    roles:
-      - tree`
-	playbookFilePath := filepath.Join(dirpath, "playbooks", "install-tree.yml")
-	if err := os.MkdirAll(filepath.Join(dirpath, "playbooks"), os.ModePerm); err != nil {
-		t.Fatal("Expected the playbooks directory to be created under temp directory", err)
-	}
-	playbookFile, err := os.Create(playbookFilePath)
-	if err != nil {
-		t.Fatal("Expected a temp playbook file to be created", err)
-	}
-	playbookFile.WriteString(playbookFileContents)
-	playbookFile.Close()
-	return playbookFilePath
 }
