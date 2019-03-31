@@ -219,7 +219,7 @@ func (s *TestingSSHServer) serveConnection(listener net.Listener, config *ssh.Se
 						Status: 0,
 					}
 					// handle SCP commands:
-					if strings.HasPrefix(command, "scp -vt") {
+					if strings.HasPrefix(command, "scp -vt") || strings.HasPrefix(command, "scp -rvt") {
 						channel.Write([]byte{0})
 						time.Sleep(time.Second * 1)
 						channel.Write([]byte{0})
