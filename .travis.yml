@@ -6,6 +6,9 @@ go:
 notifications:
   email: false
 
+before_script:
+  - pip install ansible
+
 script:
   - make lint
   - make test-verbose
