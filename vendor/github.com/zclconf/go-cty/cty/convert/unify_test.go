@@ -54,12 +54,127 @@ func TestUnify(t *testing.T) {
 			cty.NilType,
 			nil,
 		},
+		{
+			[]cty.Type{
+				cty.Object(map[string]cty.Type{"foo": cty.String}),
+				cty.Object(map[string]cty.Type{"foo": cty.String}),
+			},
+			cty.Object(map[string]cty.Type{"foo": cty.String}),
+			[]bool{false, false},
+		},
+		{
+			[]cty.Type{
+				cty.Object(map[string]cty.Type{"foo": cty.String}),
+				cty.Object(map[string]cty.Type{"foo": cty.Number}),
+			},
+			cty.Object(map[string]cty.Type{"foo": cty.String}),
+			[]bool{false, true},
+		},
+		{
+			[]cty.Type{
+				cty.Object(map[string]cty.Type{"foo": cty.String}),
+				cty.Object(map[string]cty.Type{"bar": cty.Number}),
+			},
+			cty.Map(cty.String),
+			[]bool{true, true},
+		},
+		{
+			[]cty.Type{
+				cty.Object(map[string]cty.Type{"foo": cty.String}),
+				cty.EmptyObject,
+			},
+			cty.Map(cty.String),
+			[]bool{true, true},
+		},
+		{
+			[]cty.Type{
+				cty.Object(map[string]cty.Type{"foo": cty.Bool}),
+				cty.Object(map[string]cty.Type{"bar": cty.Number}),
+			},
+			cty.NilType,
+			nil,
+		},
+		{
+			[]cty.Type{
+				cty.Object(map[string]cty.Type{"foo": cty.Bool}),
+				cty.Object(map[string]cty.Type{"foo": cty.Number}),
+			},
+			cty.NilType,
+			nil,
+		},
+		{
+			[]cty.Type{
+				cty.Tuple([]cty.Type{cty.String}),
+				cty.Tuple([]cty.Type{cty.String}),
+			},
+			cty.Tuple([]cty.Type{cty.String}),
+			[]bool{false, false},
+		},
+		{
+			[]cty.Type{
+				cty.Tuple([]cty.Type{cty.String}),
+				cty.Tuple([]cty.Type{cty.Number}),
+			},
+			cty.Tuple([]cty.Type{cty.String}),
+			[]bool{false, true},
+		},
+		{
+			[]cty.Type{
+				cty.Tuple([]cty.Type{cty.String}),
+				cty.Tuple([]cty.Type{cty.String, cty.Number}),
+			},
+			cty.List(cty.String),
+			[]bool{true, true},
+		},
+		{
+			[]cty.Type{
+				cty.Tuple([]cty.Type{cty.String}),
+				cty.EmptyTuple,
+			},
+			cty.List(cty.String),
+			[]bool{true, true},
+		},
+		{
+			[]cty.Type{
+				cty.Tuple([]cty.Type{cty.Bool}),
+				cty.Tuple([]cty.Type{cty.Number}),
+			},
+			cty.NilType,
+			nil,
+		},
+		{
+			[]cty.Type{
+				cty.DynamicPseudoType,
+				cty.Tuple([]cty.Type{cty.Number}),
+			},
+			cty.DynamicPseudoType,
+			[]bool{true, true},
+		},
+		{
+			[]cty.Type{
+				cty.DynamicPseudoType,
+				cty.Object(map[string]cty.Type{"num": cty.Number}),
+			},
+			cty.DynamicPseudoType,
+			[]bool{true, true},
+		},
+		{
+			[]cty.Type{
+				cty.Tuple([]cty.Type{cty.Number}),
+				cty.DynamicPseudoType,
+				cty.Object(map[string]cty.Type{"num": cty.Number}),
+			},
+			cty.NilType,
+			nil,
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("%#v", test.Input), func(t *testing.T) {
 			gotType, gotConvs := Unify(test.Input)
-			if gotType != test.WantType {
+			if gotType == cty.NilType && test.WantType == cty.NilType {
+				// okay!
+			} else if ((gotType == cty.NilType) != (test.WantType == cty.NilType)) || !test.WantType.Equals(gotType) {
 				t.Errorf("wrong result type\ngot:  %#v\nwant: %#v", gotType, test.WantType)
 			}
 

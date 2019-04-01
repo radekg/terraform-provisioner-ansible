@@ -573,6 +573,66 @@ func TestValueEquals(t *testing.T) {
 			}),
 			UnknownVal(Bool),
 		},
+		{
+			NullVal(String),
+			NullVal(DynamicPseudoType),
+			True,
+		},
+		{
+			NullVal(String),
+			NullVal(String),
+			True,
+		},
+		{
+			UnknownVal(String),
+			UnknownVal(Number),
+			UnknownVal(Bool),
+		},
+		{
+			StringVal(""),
+			NullVal(DynamicPseudoType),
+			False,
+		},
+		{
+			StringVal(""),
+			NullVal(String),
+			False,
+		},
+		{
+			StringVal(""),
+			UnknownVal(String),
+			UnknownVal(Bool),
+		},
+		{
+			NullVal(DynamicPseudoType),
+			NullVal(DynamicPseudoType),
+			True,
+		},
+		{
+			NullVal(String),
+			UnknownVal(Number),
+			UnknownVal(Bool), // because second operand might eventually be null
+		},
+		{
+			UnknownVal(String),
+			NullVal(Number),
+			UnknownVal(Bool), // because first operand might eventually be null
+		},
+		{
+			UnknownVal(String),
+			UnknownVal(Number),
+			UnknownVal(Bool), // because both operands might eventually be null
+		},
+		{
+			StringVal("hello"),
+			UnknownVal(Number),
+			False, // because no number value -- even null -- can be equal to a non-null string
+		},
+		{
+			UnknownVal(String),
+			NumberIntVal(1),
+			False, // because no string value -- even null -- can be equal to a non-null number
+		},
 	}
 
 	for _, test := range tests {

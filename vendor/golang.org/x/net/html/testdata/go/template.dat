@@ -35,3 +35,40 @@
 |         <math mo>
 |           <template>
 |             content
+
+#data
+<svg><template><desc><t><svg></template>
+#errors
+#document
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       <svg template>
+|         <svg desc>
+|           <t>
+|             <svg svg>
+
+#data
+<math><template><mn><b></template>
+#errors
+#document
+| <html>
+|   <head>
+|   <body>
+|     <math math>
+|       <math template>
+|         <math mn>
+|           <b>
+
+#data
+<html><head></head><body><tag1><tag2 /><p></p></tag1><div></div></body></html>
+#errors
+#document
+| <html>
+|   <head>
+|   <body>
+|     <tag1>
+|       <tag2>
+|         <p>
+|     <div>

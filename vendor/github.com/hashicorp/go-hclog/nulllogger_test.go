@@ -2,6 +2,7 @@ package hclog
 
 import (
 	"testing"
+
 	"github.com/stretchr/testify/assert"
 )
 

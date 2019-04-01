@@ -84,12 +84,22 @@ func NewRemoteSchema() *schema.Schema {
 
 // NewRemoteSettingsFromInterface reads Remote configuration from Terraform schema.
 func NewRemoteSettingsFromInterface(i interface{}, ok bool) *RemoteSettings {
+	if ok {
+		return NewRemoteSettingsFromMapInterface(mapFromTypeSetList(i.(*schema.Set).List()), ok)
+	}
+	return &RemoteSettings{
+		isRemoteInUse: false,
+		useSudo:       remoteDefaultUseSudo,
+	}
+}
+
+// NewRemoteSettingsFromMapInterface reads Remote configuration from a map.
+func NewRemoteSettingsFromMapInterface(vals map[string]interface{}, ok bool) *RemoteSettings {
 	v := &RemoteSettings{
 		isRemoteInUse: false,
 		useSudo:       remoteDefaultUseSudo,
 	}
 	if ok {
-		vals := mapFromTypeSetList(i.(*schema.Set).List())
 		v.isRemoteInUse = true
 		v.useSudo = vals[remoteAttributeUseSudo].(bool)
 		v.skipInstall = vals[remoteAttributeSkipInstall].(bool)

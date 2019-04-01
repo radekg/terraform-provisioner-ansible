@@ -43,6 +43,7 @@ const (
 	ansibleEnvVarForceColor       = "ANSIBLE_FORCE_COLOR"
 	ansibleEnvVarRolesPath        = "ANSIBLE_ROLES_PATH"
 	ansibleEnvVarDefaultRolesPath = "DEFAULT_ROLES_PATH"
+	ansibleEnvVarRemoteTmp        = "ANSIBLE_REMOTE_TMP"
 	// attribute names:
 	playAttributeEnabled           = "enabled"
 	playAttributePlaybook          = "playbook"
@@ -154,6 +155,11 @@ func NewPlaySchema() *schema.Schema {
 // NewPlayFromInterface reads Play configuration from Terraform schema.
 func NewPlayFromInterface(i interface{}, defaults *Defaults) *Play {
 	vals := mapFromTypeSetList(i.(*schema.Set).List())
+	return NewPlayFromMapInterface(vals, defaults)
+}
+
+// NewPlayFromMapInterface reads Play configuration from a map.
+func NewPlayFromMapInterface(vals map[string]interface{}, defaults *Defaults) *Play {
 	v := &Play{
 		defaults:          defaults,
 		enabled:           vals[playAttributeEnabled].(bool),
@@ -374,6 +380,10 @@ func (v *Play) defaultRolePaths() []string {
 func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 
 	command := fmt.Sprintf("%s=true", ansibleEnvVarForceColor)
+
+	if envVarVal, ok := os.LookupEnv(ansibleEnvVarRemoteTmp); ok {
+		command = fmt.Sprintf("%s %s=\"%s\"", command, ansibleEnvVarRemoteTmp, envVarVal)
+	}
 
 	// entity to call:
 	switch entity := v.Entity().(type) {

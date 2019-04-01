@@ -20,7 +20,7 @@ The following methods apply to all values:
 * `IsNull` returns `true` if the receiver is a null value, or `false`
   otherwise.
 
-All values except capsule-typed values can be seralized with the builtin
+All values except capsule-typed values can be serialized with the builtin
 Go package `encoding/gob`. Values can also be used with the `%#v` pattern
 in the `fmt` package to print out a Go-oriented serialization of the
 value.
@@ -97,13 +97,13 @@ Go `string` representation of a known string, after normalization.
 
 ### `cty.Bool`
 
-The bool type represents boolean (true of false) values.
+The bool type represents boolean (true or false) values.
 
 The following additional operations are supported on bool values:
 
 * `And` computes the logical AND operation for two boolean values.
 * `Not` returns the boolean opposite of the receiver.
-* `Or` computes the ligical OR operation for two boolean values.
+* `Or` computes the logical OR operation for two boolean values.
 
 Calling applications may either work directly with the predefined `cty.True`
 and `cty.False` variables, or dynamically create a boolean value using
@@ -209,7 +209,7 @@ they _can_ be seen in the set's length and by iterating over its members.
 `cty` has two different kinds of structural type. They have in common that
 they combine a number of values of arbitrary types together into a single
 value, but differ in how those values are internally organized and in which
-operations are used to retreive them.
+operations are used to retrieve them.
 
 ### `cty.Object` types
 

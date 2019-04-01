@@ -2,15 +2,20 @@ package msgpack
 
 import (
 	"fmt"
-	"math/big"
 	"testing"
 
 	"github.com/zclconf/go-cty/cty"
 )
 
 func TestRoundTrip(t *testing.T) {
-	bigNumber := &big.Float{}
-	bigNumber.Parse("9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", 10)
+	bigNumberVal, err := cty.ParseNumberVal("9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999")
+	if err != nil {
+		t.Fatal(err)
+	}
+	awkwardFractionVal, err := cty.ParseNumberVal("0.8") // awkward because it can't be represented exactly in binary
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	tests := []struct {
 		Value cty.Value
@@ -60,7 +65,11 @@ func TestRoundTrip(t *testing.T) {
 			cty.Number,
 		},
 		{
-			cty.NumberVal(bigNumber),
+			bigNumberVal,
+			cty.Number,
+		},
+		{
+			awkwardFractionVal,
 			cty.Number,
 		},
 		{

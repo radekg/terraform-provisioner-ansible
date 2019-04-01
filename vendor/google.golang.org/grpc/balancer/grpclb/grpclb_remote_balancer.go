@@ -19,6 +19,7 @@
 package grpclb
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -26,7 +27,6 @@ import (
 	"time"
 
 	timestamppb "github.com/golang/protobuf/ptypes/timestamp"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer"
 	lbpb "google.golang.org/grpc/balancer/grpclb/grpc_lb_v1"
@@ -41,7 +41,9 @@ import (
 // processServerList updates balaner's internal state, create/remove SubConns
 // and regenerates picker using the received serverList.
 func (lb *lbBalancer) processServerList(l *lbpb.ServerList) {
-	grpclog.Infof("lbBalancer: processing server list: %+v", l)
+	if grpclog.V(2) {
+		grpclog.Infof("lbBalancer: processing server list: %+v", l)
+	}
 	lb.mu.Lock()
 	defer lb.mu.Unlock()
 
@@ -51,7 +53,9 @@ func (lb *lbBalancer) processServerList(l *lbpb.ServerList) {
 
 	// If the new server list == old server list, do nothing.
 	if reflect.DeepEqual(lb.fullServerList, l.Servers) {
-		grpclog.Infof("lbBalancer: new serverlist same as the previous one, ignoring")
+		if grpclog.V(2) {
+			grpclog.Infof("lbBalancer: new serverlist same as the previous one, ignoring")
+		}
 		return
 	}
 	lb.fullServerList = l.Servers
@@ -74,8 +78,10 @@ func (lb *lbBalancer) processServerList(l *lbpb.ServerList) {
 			Addr:     fmt.Sprintf("%s:%d", ipStr, s.Port),
 			Metadata: &md,
 		}
-		grpclog.Infof("lbBalancer: server list entry[%d]: ipStr:|%s|, port:|%d|, load balancer token:|%v|",
-			i, ipStr, s.Port, s.LoadBalanceToken)
+		if grpclog.V(2) {
+			grpclog.Infof("lbBalancer: server list entry[%d]: ipStr:|%s|, port:|%d|, load balancer token:|%v|",
+				i, ipStr, s.Port, s.LoadBalanceToken)
+		}
 		backendAddrs = append(backendAddrs, addr)
 	}
 
@@ -88,7 +94,7 @@ func (lb *lbBalancer) processServerList(l *lbpb.ServerList) {
 	//
 	// Now with cache, even if SubConn was newed/removed, there might be no
 	// state changes.
-	lb.regeneratePicker()
+	lb.regeneratePicker(true)
 	lb.cc.UpdateBalancerState(lb.state, lb.picker)
 }
 
@@ -96,14 +102,36 @@ func (lb *lbBalancer) processServerList(l *lbpb.ServerList) {
 // indicating whether the backendAddrs are different from the cached
 // backendAddrs (whether any SubConn was newed/removed).
 // Caller must hold lb.mu.
-func (lb *lbBalancer) refreshSubConns(backendAddrs []resolver.Address, fromGRPCLBServer bool) bool {
+func (lb *lbBalancer) refreshSubConns(backendAddrs []resolver.Address, fromGRPCLBServer bool) {
 	opts := balancer.NewSubConnOptions{}
 	if fromGRPCLBServer {
 		opts.CredsBundle = lb.grpclbBackendCreds
 	}
 
 	lb.backendAddrs = nil
-	var backendsUpdated bool
+
+	if lb.usePickFirst {
+		var sc balancer.SubConn
+		for _, sc = range lb.subConns {
+			break
+		}
+		if sc != nil {
+			sc.UpdateAddresses(backendAddrs)
+			sc.Connect()
+			return
+		}
+		// This bypasses the cc wrapper with SubConn cache.
+		sc, err := lb.cc.cc.NewSubConn(backendAddrs, opts)
+		if err != nil {
+			grpclog.Warningf("grpclb: failed to create new SubConn: %v", err)
+			return
+		}
+		sc.Connect()
+		lb.subConns[backendAddrs[0]] = sc
+		lb.scStates[sc] = connectivity.Idle
+		return
+	}
+
 	// addrsSet is the set converted from backendAddrs, it's used to quick
 	// lookup for an address.
 	addrsSet := make(map[resolver.Address]struct{})
@@ -115,12 +143,10 @@ func (lb *lbBalancer) refreshSubConns(backendAddrs []resolver.Address, fromGRPCL
 		lb.backendAddrs = append(lb.backendAddrs, addrWithoutMD)
 
 		if _, ok := lb.subConns[addrWithoutMD]; !ok {
-			backendsUpdated = true
-
 			// Use addrWithMD to create the SubConn.
 			sc, err := lb.cc.NewSubConn([]resolver.Address{addr}, opts)
 			if err != nil {
-				grpclog.Warningf("roundrobinBalancer: failed to create new SubConn: %v", err)
+				grpclog.Warningf("grpclb: failed to create new SubConn: %v", err)
 				continue
 			}
 			lb.subConns[addrWithoutMD] = sc // Use the addr without MD as key for the map.
@@ -136,16 +162,12 @@ func (lb *lbBalancer) refreshSubConns(backendAddrs []resolver.Address, fromGRPCL
 	for a, sc := range lb.subConns {
 		// a was removed by resolver.
 		if _, ok := addrsSet[a]; !ok {
-			backendsUpdated = true
-
 			lb.cc.RemoveSubConn(sc)
 			delete(lb.subConns, a)
 			// Keep the state of this sc in b.scStates until sc's state becomes Shutdown.
 			// The entry will be deleted in HandleSubConnStateChange.
 		}
 	}
-
-	return backendsUpdated
 }
 
 func (lb *lbBalancer) readServerList(s *balanceLoadClientStream) error {
@@ -192,7 +214,7 @@ func (lb *lbBalancer) callRemoteBalancer() (backoff bool, _ error) {
 	lbClient := &loadBalancerClient{cc: lb.ccRemoteLB}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	stream, err := lbClient.BalanceLoad(ctx, grpc.FailFast(false))
+	stream, err := lbClient.BalanceLoad(ctx, grpc.WaitForReady(true))
 	if err != nil {
 		return true, fmt.Errorf("grpclb: failed to perform RPC to the remote balancer %v", err)
 	}
@@ -245,6 +267,8 @@ func (lb *lbBalancer) watchRemoteBalancer() {
 				}
 			}
 		}
+		// Trigger a re-resolve when the stream errors.
+		lb.cc.cc.ResolveNow(resolver.ResolveNowOption{})
 
 		if !doBackoff {
 			retryCount = 0
@@ -277,10 +301,7 @@ func (lb *lbBalancer) dialRemoteLB(remoteLBName string) {
 		dopts = append(dopts, grpc.WithInsecure())
 	}
 	if lb.opt.Dialer != nil {
-		// WithDialer takes a different type of function, so we instead use a
-		// special DialOption here.
-		wcd := internal.WithContextDialer.(func(func(context.Context, string) (net.Conn, error)) grpc.DialOption)
-		dopts = append(dopts, wcd(lb.opt.Dialer))
+		dopts = append(dopts, grpc.WithContextDialer(lb.opt.Dialer))
 	}
 	// Explicitly set pickfirst as the balancer.
 	dopts = append(dopts, grpc.WithBalancerName(grpc.PickFirstBalancerName))

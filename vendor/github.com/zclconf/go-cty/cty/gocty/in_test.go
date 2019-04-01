@@ -421,6 +421,18 @@ func TestIn(t *testing.T) {
 			Type:    cty.Map(cty.DynamicPseudoType),
 			Want:    cty.MapVal(map[string]cty.Value{"number": cty.NumberIntVal(2)}),
 		},
+
+		// Passthrough
+		{
+			GoValue: cty.NumberIntVal(2),
+			Type:    cty.Number,
+			Want:    cty.NumberIntVal(2),
+		},
+		{
+			GoValue: cty.StringVal("hi"),
+			Type:    cty.String,
+			Want:    cty.StringVal("hi"),
+		},
 	}
 
 	for _, test := range tests {

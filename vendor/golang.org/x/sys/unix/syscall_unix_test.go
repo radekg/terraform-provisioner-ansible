@@ -98,6 +98,27 @@ func TestErrnoSignalName(t *testing.T) {
 	}
 }
 
+func TestSignalNum(t *testing.T) {
+	testSignals := []struct {
+		name string
+		want syscall.Signal
+	}{
+		{"SIGHUP", syscall.SIGHUP},
+		{"SIGPIPE", syscall.SIGPIPE},
+		{"SIGSEGV", syscall.SIGSEGV},
+		{"NONEXISTS", 0},
+	}
+	for _, ts := range testSignals {
+		t.Run(fmt.Sprintf("%s/%d", ts.name, ts.want), func(t *testing.T) {
+			got := unix.SignalNum(ts.name)
+			if got != ts.want {
+				t.Errorf("SignalNum(%s) returned %d, want %d", ts.name, got, ts.want)
+			}
+		})
+
+	}
+}
+
 func TestFcntlInt(t *testing.T) {
 	t.Parallel()
 	file, err := ioutil.TempFile("", "TestFnctlInt")
@@ -337,6 +358,12 @@ func TestRlimit(t *testing.T) {
 	}
 	set := rlimit
 	set.Cur = set.Max - 1
+	if runtime.GOOS == "darwin" && set.Cur > 10240 {
+		// The max file limit is 10240, even though
+		// the max returned by Getrlimit is 1<<63-1.
+		// This is OPEN_MAX in sys/syslimits.h.
+		set.Cur = 10240
+	}
 	err = unix.Setrlimit(unix.RLIMIT_NOFILE, &set)
 	if err != nil {
 		t.Fatalf("Setrlimit: set failed: %#v %v", set, err)
@@ -390,14 +417,24 @@ func TestDup(t *testing.T) {
 		t.Fatalf("Dup: %v", err)
 	}
 
-	err = unix.Dup2(newFd, newFd+1)
+	// Create and reserve a file descriptor.
+	// Dup2 automatically closes it before reusing it.
+	nullFile, err := os.Open("/dev/null")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dupFd := int(file.Fd())
+	err = unix.Dup2(newFd, dupFd)
 	if err != nil {
 		t.Fatalf("Dup2: %v", err)
 	}
+	// Keep the dummy file open long enough to not be closed in
+	// its finalizer.
+	runtime.KeepAlive(nullFile)
 
 	b1 := []byte("Test123")
 	b2 := make([]byte, 7)
-	_, err = unix.Write(newFd+1, b1)
+	_, err = unix.Write(dupFd, b1)
 	if err != nil {
 		t.Fatalf("Write to dup2 fd failed: %v", err)
 	}
@@ -420,6 +457,7 @@ func TestPoll(t *testing.T) {
 		t.Skip("mkfifo syscall is not available on android and iOS, skipping test")
 	}
 
+	defer chtmpdir(t)()
 	f, cleanup := mktmpfifo(t)
 	defer cleanup()
 
@@ -453,9 +491,9 @@ func TestGetwd(t *testing.T) {
 		t.Fatalf("Open .: %s", err)
 	}
 	defer fd.Close()
-	// These are chosen carefully not to be symlinks on a Mac
-	// (unlike, say, /var, /etc)
-	dirs := []string{"/", "/usr/bin"}
+	// Directory list for test. Do not worry if any are symlinks or do not
+	// exist on some common unix desktop environments. That will be checked.
+	dirs := []string{"/", "/usr/bin", "/etc", "/var", "/opt"}
 	switch runtime.GOOS {
 	case "android":
 		dirs = []string{"/", "/system/bin"}
@@ -475,6 +513,17 @@ func TestGetwd(t *testing.T) {
 	}
 	oldwd := os.Getenv("PWD")
 	for _, d := range dirs {
+		// Check whether d exists, is a dir and that d's path does not contain a symlink
+		fi, err := os.Stat(d)
+		if err != nil || !fi.IsDir() {
+			t.Logf("Test dir %s stat error (%v) or not a directory, skipping", d, err)
+			continue
+		}
+		check, err := filepath.EvalSymlinks(d)
+		if err != nil || check != d {
+			t.Logf("Test dir %s (%s) is symlink or other error (%v), skipping", d, check, err)
+			continue
+		}
 		err = os.Chdir(d)
 		if err != nil {
 			t.Fatalf("Chdir: %v", err)
@@ -603,6 +652,29 @@ func TestMkdev(t *testing.T) {
 	}
 	if unix.Minor(dev) != minor {
 		t.Errorf("Minor(%#x) == %d, want %d", dev, unix.Minor(dev), minor)
+	}
+}
+
+func TestRenameat(t *testing.T) {
+	defer chtmpdir(t)()
+
+	from, to := "renamefrom", "renameto"
+
+	touch(t, from)
+
+	err := unix.Renameat(unix.AT_FDCWD, from, unix.AT_FDCWD, to)
+	if err != nil {
+		t.Fatalf("Renameat: unexpected error: %v", err)
+	}
+
+	_, err = os.Stat(to)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = os.Stat(from)
+	if err == nil {
+		t.Errorf("Renameat: stat of renamed file %q unexpectedly succeeded", from)
 	}
 }
 

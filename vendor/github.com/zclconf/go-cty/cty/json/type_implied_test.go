@@ -69,6 +69,28 @@ func TestImpliedType(t *testing.T) {
 			"[true, 1.2, null]",
 			cty.Tuple([]cty.Type{cty.Bool, cty.Number, cty.DynamicPseudoType}),
 		},
+		{
+			`[[true], [1.2], [null]]`,
+			cty.Tuple([]cty.Type{
+				cty.Tuple([]cty.Type{cty.Bool}),
+				cty.Tuple([]cty.Type{cty.Number}),
+				cty.Tuple([]cty.Type{cty.DynamicPseudoType}),
+			}),
+		},
+		{
+			`[{"true": true}, {"name": "Ermintrude"}, {"null": null}]`,
+			cty.Tuple([]cty.Type{
+				cty.Object(map[string]cty.Type{
+					"true": cty.Bool,
+				}),
+				cty.Object(map[string]cty.Type{
+					"name": cty.String,
+				}),
+				cty.Object(map[string]cty.Type{
+					"null": cty.DynamicPseudoType,
+				}),
+			}),
+		},
 	}
 
 	for _, test := range tests {

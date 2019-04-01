@@ -1,14 +1,13 @@
 package winrm
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/http"
 	"strings"
 	"time"
-
-	"github.com/masterzen/azure-sdk-for-go/core/http"
-	"github.com/masterzen/azure-sdk-for-go/core/tls"
 
 	"github.com/masterzen/winrm/soap"
 )

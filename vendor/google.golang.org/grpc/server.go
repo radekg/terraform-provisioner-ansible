@@ -19,6 +19,7 @@
 package grpc
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -32,7 +33,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"golang.org/x/net/context"
 	"golang.org/x/net/trace"
 
 	"google.golang.org/grpc/codes"
@@ -182,6 +182,11 @@ func InitialConnWindowSize(s int32) ServerOption {
 
 // KeepaliveParams returns a ServerOption that sets keepalive and max-age parameters for the server.
 func KeepaliveParams(kp keepalive.ServerParameters) ServerOption {
+	if kp.Time > 0 && kp.Time < time.Second {
+		grpclog.Warning("Adjusting keepalive ping interval to minimum period of 1s")
+		kp.Time = time.Second
+	}
+
 	return func(o *options) {
 		o.keepaliveParams = kp
 	}
@@ -244,7 +249,7 @@ func MaxRecvMsgSize(m int) ServerOption {
 }
 
 // MaxSendMsgSize returns a ServerOption to set the max message size in bytes the server can send.
-// If this is not set, gRPC uses the default 4MB.
+// If this is not set, gRPC uses the default `math.MaxInt32`.
 func MaxSendMsgSize(m int) ServerOption {
 	return func(o *options) {
 		o.maxSendMessageSize = m
@@ -609,12 +614,13 @@ func (s *Server) handleRawConn(rawConn net.Conn) {
 	rawConn.SetDeadline(time.Now().Add(s.opts.connectionTimeout))
 	conn, authInfo, err := s.useTransportAuthenticator(rawConn)
 	if err != nil {
-		s.mu.Lock()
-		s.errorf("ServerHandshake(%q) failed: %v", rawConn.RemoteAddr(), err)
-		s.mu.Unlock()
-		grpclog.Warningf("grpc: Server.Serve failed to complete security handshake from %q: %v", rawConn.RemoteAddr(), err)
-		// If serverHandshake returns ErrConnDispatched, keep rawConn open.
+		// ErrConnDispatched means that the connection was dispatched away from
+		// gRPC; those connections should be left open.
 		if err != credentials.ErrConnDispatched {
+			s.mu.Lock()
+			s.errorf("ServerHandshake(%q) failed: %v", rawConn.RemoteAddr(), err)
+			s.mu.Unlock()
+			grpclog.Warningf("grpc: Server.Serve failed to complete security handshake from %q: %v", rawConn.RemoteAddr(), err)
 			rawConn.Close()
 		}
 		rawConn.SetDeadline(time.Time{})
@@ -748,7 +754,7 @@ func (s *Server) traceInfo(st transport.ServerTransport, stream *transport.Strea
 	trInfo.firstLine.remoteAddr = st.RemoteAddr()
 
 	if dl, ok := stream.Context().Deadline(); ok {
-		trInfo.firstLine.deadline = dl.Sub(time.Now())
+		trInfo.firstLine.deadline = time.Until(dl)
 	}
 	return trInfo
 }
@@ -874,7 +880,7 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 			PeerAddr:   nil,
 		}
 		if deadline, ok := ctx.Deadline(); ok {
-			logEntry.Timeout = deadline.Sub(time.Now())
+			logEntry.Timeout = time.Until(deadline)
 			if logEntry.Timeout < 0 {
 				logEntry.Timeout = 0
 			}
@@ -1106,7 +1112,7 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 			PeerAddr:   nil,
 		}
 		if deadline, ok := ctx.Deadline(); ok {
-			logEntry.Timeout = deadline.Sub(time.Now())
+			logEntry.Timeout = time.Until(deadline)
 			if logEntry.Timeout < 0 {
 				logEntry.Timeout = 0
 			}

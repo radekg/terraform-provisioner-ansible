@@ -19,17 +19,15 @@
 package grpc
 
 import (
+	"context"
 	"net"
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 
-	"golang.org/x/net/context"
 	"golang.org/x/net/http2"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/connectivity"
-	"google.golang.org/grpc/internal/leakcheck"
 	"google.golang.org/grpc/internal/testutils"
 	"google.golang.org/grpc/resolver"
 	"google.golang.org/grpc/resolver/manual"
@@ -37,23 +35,16 @@ import (
 
 const stateRecordingBalancerName = "state_recoding_balancer"
 
-var testBalancer = &stateRecordingBalancer{}
+var testBalancerBuilder = newStateRecordingBalancerBuilder()
 
 func init() {
-	balancer.Register(testBalancer)
+	balancer.Register(testBalancerBuilder)
 }
 
-// These tests use a pipeListener. This listener is similar to net.Listener except that it is unbuffered, so each read
-// and write will wait for the other side's corresponding write or read.
-func TestStateTransitions_SingleAddress(t *testing.T) {
-	defer leakcheck.Check(t)
-
-	mctBkp := getMinConnectTimeout()
-	defer func() {
-		atomic.StoreInt64((*int64)(&mutableMinConnectTimeout), int64(mctBkp))
-	}()
-	atomic.StoreInt64((*int64)(&mutableMinConnectTimeout), int64(time.Millisecond)*100)
-
+// These tests use a pipeListener. This listener is similar to net.Listener
+// except that it is unbuffered, so each read and write will wait for the other
+// side's corresponding write or read.
+func (s) TestStateTransitions_SingleAddress(t *testing.T) {
 	for _, test := range []struct {
 		desc   string
 		want   []connectivity.State
@@ -150,11 +141,6 @@ client enters TRANSIENT FAILURE.`,
 }
 
 func testStateTransitionSingleAddress(t *testing.T, want []connectivity.State, server func(net.Listener) net.Conn) {
-	defer leakcheck.Check(t)
-
-	stateNotifications := make(chan connectivity.State, len(want))
-	testBalancer.ResetNotifier(stateNotifications)
-
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -170,12 +156,20 @@ func testStateTransitionSingleAddress(t *testing.T, want []connectivity.State, s
 		connMu.Unlock()
 	}()
 
-	client, err := DialContext(ctx, "", WithWaitForHandshake(), WithInsecure(),
-		WithBalancerName(stateRecordingBalancerName), WithDialer(pl.Dialer()), withBackoff(noBackoff{}))
+	client, err := DialContext(ctx,
+		"",
+		WithWaitForHandshake(),
+		WithInsecure(),
+		WithBalancerName(stateRecordingBalancerName),
+		WithDialer(pl.Dialer()),
+		withBackoff(noBackoff{}),
+		withMinConnectDeadline(func() time.Duration { return time.Millisecond * 100 }))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer client.Close()
+
+	stateNotifications := testBalancerBuilder.nextStateNotifier()
 
 	timeout := time.After(5 * time.Second)
 
@@ -201,18 +195,13 @@ func testStateTransitionSingleAddress(t *testing.T, want []connectivity.State, s
 }
 
 // When a READY connection is closed, the client enters TRANSIENT FAILURE before CONNECTING.
-func TestStateTransition_ReadyToTransientFailure(t *testing.T) {
-	defer leakcheck.Check(t)
-
+func (s) TestStateTransitions_ReadyToTransientFailure(t *testing.T) {
 	want := []connectivity.State{
 		connectivity.Connecting,
 		connectivity.Ready,
 		connectivity.TransientFailure,
 		connectivity.Connecting,
 	}
-
-	stateNotifications := make(chan connectivity.State, len(want))
-	testBalancer.ResetNotifier(stateNotifications)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -253,6 +242,8 @@ func TestStateTransition_ReadyToTransientFailure(t *testing.T) {
 	}
 	defer client.Close()
 
+	stateNotifications := testBalancerBuilder.nextStateNotifier()
+
 	timeout := time.After(5 * time.Second)
 
 	for i := 0; i < len(want); i++ {
@@ -270,18 +261,13 @@ func TestStateTransition_ReadyToTransientFailure(t *testing.T) {
 	}
 }
 
-// When the first connection is closed, the client enters stays in CONNECTING until it tries the second
-// address (which succeeds, and then it enters READY).
-func TestStateTransitions_TriesAllAddrsBeforeTransientFailure(t *testing.T) {
-	defer leakcheck.Check(t)
-
+// When the first connection is closed, the client enters stays in CONNECTING
+// until it tries the second address (which succeeds, and then it enters READY).
+func (s) TestStateTransitions_TriesAllAddrsBeforeTransientFailure(t *testing.T) {
 	want := []connectivity.State{
 		connectivity.Connecting,
 		connectivity.Ready,
 	}
-
-	stateNotifications := make(chan connectivity.State, len(want))
-	testBalancer.ResetNotifier(stateNotifications)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -332,15 +318,17 @@ func TestStateTransitions_TriesAllAddrsBeforeTransientFailure(t *testing.T) {
 	}()
 
 	rb := manual.NewBuilderWithScheme("whatever")
-	rb.InitialAddrs([]resolver.Address{
+	rb.InitialState(resolver.State{Addresses: []resolver.Address{
 		{Addr: lis1.Addr().String()},
 		{Addr: lis2.Addr().String()},
-	})
+	}})
 	client, err := DialContext(ctx, "this-gets-overwritten", WithInsecure(), WithWaitForHandshake(), WithBalancerName(stateRecordingBalancerName), withResolverBuilder(rb))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer client.Close()
+
+	stateNotifications := testBalancerBuilder.nextStateNotifier()
 
 	timeout := time.After(5 * time.Second)
 
@@ -366,20 +354,16 @@ func TestStateTransitions_TriesAllAddrsBeforeTransientFailure(t *testing.T) {
 	}
 }
 
-// When there are multiple addresses, and we enter READY on one of them, a later closure should cause
-// the client to enter TRANSIENT FAILURE before it re-enters CONNECTING.
-func TestStateTransitions_MultipleAddrsEntersReady(t *testing.T) {
-	defer leakcheck.Check(t)
-
+// When there are multiple addresses, and we enter READY on one of them, a
+// later closure should cause the client to enter TRANSIENT FAILURE before it
+// re-enters CONNECTING.
+func (s) TestStateTransitions_MultipleAddrsEntersReady(t *testing.T) {
 	want := []connectivity.State{
 		connectivity.Connecting,
 		connectivity.Ready,
 		connectivity.TransientFailure,
 		connectivity.Connecting,
 	}
-
-	stateNotifications := make(chan connectivity.State, len(want))
-	testBalancer.ResetNotifier(stateNotifications)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -430,15 +414,17 @@ func TestStateTransitions_MultipleAddrsEntersReady(t *testing.T) {
 	}()
 
 	rb := manual.NewBuilderWithScheme("whatever")
-	rb.InitialAddrs([]resolver.Address{
+	rb.InitialState(resolver.State{Addresses: []resolver.Address{
 		{Addr: lis1.Addr().String()},
 		{Addr: lis2.Addr().String()},
-	})
+	}})
 	client, err := DialContext(ctx, "this-gets-overwritten", WithInsecure(), WithWaitForHandshake(), WithBalancerName(stateRecordingBalancerName), withResolverBuilder(rb))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer client.Close()
+
+	stateNotifications := testBalancerBuilder.nextStateNotifier()
 
 	timeout := time.After(2 * time.Second)
 
@@ -463,51 +449,63 @@ func TestStateTransitions_MultipleAddrsEntersReady(t *testing.T) {
 }
 
 type stateRecordingBalancer struct {
-	mu       sync.Mutex
 	notifier chan<- connectivity.State
-
 	balancer.Balancer
 }
 
 func (b *stateRecordingBalancer) HandleSubConnStateChange(sc balancer.SubConn, s connectivity.State) {
-	b.mu.Lock()
 	b.notifier <- s
-	b.mu.Unlock()
-
 	b.Balancer.HandleSubConnStateChange(sc, s)
 }
 
 func (b *stateRecordingBalancer) ResetNotifier(r chan<- connectivity.State) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
 	b.notifier = r
 }
 
 func (b *stateRecordingBalancer) Close() {
-	b.mu.Lock()
-	u := b.Balancer
-	b.mu.Unlock()
-	u.Close()
+	b.Balancer.Close()
 }
 
-func (b *stateRecordingBalancer) Name() string {
+type stateRecordingBalancerBuilder struct {
+	mu       sync.Mutex
+	notifier chan connectivity.State // The notifier used in the last Balancer.
+}
+
+func newStateRecordingBalancerBuilder() *stateRecordingBalancerBuilder {
+	return &stateRecordingBalancerBuilder{}
+}
+
+func (b *stateRecordingBalancerBuilder) Name() string {
 	return stateRecordingBalancerName
 }
 
-func (b *stateRecordingBalancer) Build(cc balancer.ClientConn, opts balancer.BuildOptions) balancer.Balancer {
+func (b *stateRecordingBalancerBuilder) Build(cc balancer.ClientConn, opts balancer.BuildOptions) balancer.Balancer {
+	stateNotifications := make(chan connectivity.State, 10)
 	b.mu.Lock()
-	b.Balancer = balancer.Get(PickFirstBalancerName).Build(cc, opts)
+	b.notifier = stateNotifications
 	b.mu.Unlock()
-	return b
+	return &stateRecordingBalancer{
+		notifier: stateNotifications,
+		Balancer: balancer.Get(PickFirstBalancerName).Build(cc, opts),
+	}
+}
+
+func (b *stateRecordingBalancerBuilder) nextStateNotifier() <-chan connectivity.State {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	ret := b.notifier
+	b.notifier = nil
+	return ret
 }
 
 type noBackoff struct{}
 
 func (b noBackoff) Backoff(int) time.Duration { return time.Duration(0) }
 
-// Keep reading until something causes the connection to die (EOF, server closed, etc). Useful
-// as a tool for mindlessly keeping the connection healthy, since the client will error if
-// things like client prefaces are not accepted in a timely fashion.
+// Keep reading until something causes the connection to die (EOF, server
+// closed, etc). Useful as a tool for mindlessly keeping the connection
+// healthy, since the client will error if things like client prefaces are not
+// accepted in a timely fashion.
 func keepReading(conn net.Conn) {
 	buf := make([]byte, 1024)
 	for _, err := conn.Read(buf); err == nil; _, err = conn.Read(buf) {

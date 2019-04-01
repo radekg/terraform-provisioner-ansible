@@ -4,7 +4,7 @@ While `cty` provides a representation of values within its own type system,
 a calling application will inevitably need to eventually pass values
 to a native Go API, using native Go types.
 
-[The `gocty` package](https://godoc.org/github.com/apparentlymart/go-cty/cty/gocty)
+[The `gocty` package](https://godoc.org/github.com/zclconf/go-cty/cty/gocty)
 aims to make conversions between `cty` values and Go values as convenient as
 possible, using an approach similar to that used by `encoding/json` where
 the `reflect` package is used to define the desired structure using Go
@@ -92,7 +92,7 @@ type Example struct {
 ```
 
 For the mapping to be valid, there must be a one-to-one correspondence between
-object attributes and tagged struct fields. The presence or absense of attribute
+object attributes and tagged struct fields. The presence or absence of attribute
 tags in the struct is used to define which attributes are valid, and so error
 messages will be generated for any extraneous or missing attributes. Additional
 fields may be present without tags, but all fields with tags must be public.

@@ -130,43 +130,49 @@ func TestTransport(t *testing.T) {
 	tr := &Transport{TLSClientConfig: tlsConfigInsecure}
 	defer tr.CloseIdleConnections()
 
-	req, err := http.NewRequest("GET", st.ts.URL, nil)
+	u, err := url.Parse(st.ts.URL)
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := tr.RoundTrip(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer res.Body.Close()
+	for i, m := range []string{"GET", ""} {
+		req := &http.Request{
+			Method: m,
+			URL:    u,
+		}
+		res, err := tr.RoundTrip(req)
+		if err != nil {
+			t.Fatalf("%d: %s", i, err)
+		}
 
-	t.Logf("Got res: %+v", res)
-	if g, w := res.StatusCode, 200; g != w {
-		t.Errorf("StatusCode = %v; want %v", g, w)
-	}
-	if g, w := res.Status, "200 OK"; g != w {
-		t.Errorf("Status = %q; want %q", g, w)
-	}
-	wantHeader := http.Header{
-		"Content-Length": []string{"3"},
-		"Content-Type":   []string{"text/plain; charset=utf-8"},
-		"Date":           []string{"XXX"}, // see cleanDate
-	}
-	cleanDate(res)
-	if !reflect.DeepEqual(res.Header, wantHeader) {
-		t.Errorf("res Header = %v; want %v", res.Header, wantHeader)
-	}
-	if res.Request != req {
-		t.Errorf("Response.Request = %p; want %p", res.Request, req)
-	}
-	if res.TLS == nil {
-		t.Error("Response.TLS = nil; want non-nil")
-	}
-	slurp, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		t.Errorf("Body read: %v", err)
-	} else if string(slurp) != body {
-		t.Errorf("Body = %q; want %q", slurp, body)
+		t.Logf("%d: Got res: %+v", i, res)
+		if g, w := res.StatusCode, 200; g != w {
+			t.Errorf("%d: StatusCode = %v; want %v", i, g, w)
+		}
+		if g, w := res.Status, "200 OK"; g != w {
+			t.Errorf("%d: Status = %q; want %q", i, g, w)
+		}
+		wantHeader := http.Header{
+			"Content-Length": []string{"3"},
+			"Content-Type":   []string{"text/plain; charset=utf-8"},
+			"Date":           []string{"XXX"}, // see cleanDate
+		}
+		cleanDate(res)
+		if !reflect.DeepEqual(res.Header, wantHeader) {
+			t.Errorf("%d: res Header = %v; want %v", i, res.Header, wantHeader)
+		}
+		if res.Request != req {
+			t.Errorf("%d: Response.Request = %p; want %p", i, res.Request, req)
+		}
+		if res.TLS == nil {
+			t.Errorf("%d: Response.TLS = nil; want non-nil", i)
+		}
+		slurp, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("%d: Body read: %v", i, err)
+		} else if string(slurp) != body {
+			t.Errorf("%d: Body = %q; want %q", i, slurp, body)
+		}
+		res.Body.Close()
 	}
 }
 
@@ -3529,6 +3535,8 @@ func TestTransportResponseDataBeforeHeaders(t *testing.T) {
 	}
 	ct.run()
 }
+
+// tests Transport.StrictMaxConcurrentStreams
 func TestTransportRequestsStallAtServerLimit(t *testing.T) {
 	const maxConcurrent = 2
 
@@ -3582,6 +3590,7 @@ func TestTransportRequestsStallAtServerLimit(t *testing.T) {
 	}()
 
 	ct := newClientTester(t)
+	ct.tr.StrictMaxConcurrentStreams = true
 	ct.client = func() error {
 		var wg sync.WaitGroup
 		defer func() {
@@ -4180,3 +4189,99 @@ func TestNoDialH2RoundTripperType(t *testing.T) {
 		t.Fatalf("wrong kind %T; want *Transport", v.Interface())
 	}
 }
+
+type errReader struct {
+	body []byte
+	err  error
+}
+
+func (r *errReader) Read(p []byte) (int, error) {
+	if len(r.body) > 0 {
+		n := copy(p, r.body)
+		r.body = r.body[n:]
+		return n, nil
+	}
+	return 0, r.err
+}
+
+func testTransportBodyReadError(t *testing.T, body []byte) {
+	clientDone := make(chan struct{})
+	ct := newClientTester(t)
+	ct.client = func() error {
+		defer ct.cc.(*net.TCPConn).CloseWrite()
+		defer close(clientDone)
+
+		checkNoStreams := func() error {
+			cp, ok := ct.tr.connPool().(*clientConnPool)
+			if !ok {
+				return fmt.Errorf("conn pool is %T; want *clientConnPool", ct.tr.connPool())
+			}
+			cp.mu.Lock()
+			defer cp.mu.Unlock()
+			conns, ok := cp.conns["dummy.tld:443"]
+			if !ok {
+				return fmt.Errorf("missing connection")
+			}
+			if len(conns) != 1 {
+				return fmt.Errorf("conn pool size: %v; expect 1", len(conns))
+			}
+			if activeStreams(conns[0]) != 0 {
+				return fmt.Errorf("active streams count: %v; want 0", activeStreams(conns[0]))
+			}
+			return nil
+		}
+		bodyReadError := errors.New("body read error")
+		body := &errReader{body, bodyReadError}
+		req, err := http.NewRequest("PUT", "https://dummy.tld/", body)
+		if err != nil {
+			return err
+		}
+		_, err = ct.tr.RoundTrip(req)
+		if err != bodyReadError {
+			return fmt.Errorf("err = %v; want %v", err, bodyReadError)
+		}
+		if err = checkNoStreams(); err != nil {
+			return err
+		}
+		return nil
+	}
+	ct.server = func() error {
+		ct.greet()
+		var receivedBody []byte
+		var resetCount int
+		for {
+			f, err := ct.fr.ReadFrame()
+			if err != nil {
+				select {
+				case <-clientDone:
+					// If the client's done, it
+					// will have reported any
+					// errors on its side.
+					if bytes.Compare(receivedBody, body) != 0 {
+						return fmt.Errorf("body: %v; expected %v", receivedBody, body)
+					}
+					if resetCount != 1 {
+						return fmt.Errorf("stream reset count: %v; expected: 1", resetCount)
+					}
+					return nil
+				default:
+					return err
+				}
+			}
+			switch f := f.(type) {
+			case *WindowUpdateFrame, *SettingsFrame:
+			case *HeadersFrame:
+			case *DataFrame:
+				receivedBody = append(receivedBody, f.Data()...)
+			case *RSTStreamFrame:
+				resetCount++
+			default:
+				return fmt.Errorf("Unexpected client frame %v", f)
+			}
+		}
+	}
+	ct.run()
+}
+
+func TestTransportBodyReadError_Immediately(t *testing.T) { testTransportBodyReadError(t, nil) }
+func TestTransportBodyReadError_Some(t *testing.T)        { testTransportBodyReadError(t, []byte("123")) }

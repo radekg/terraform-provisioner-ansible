@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"testing"
@@ -15,6 +16,23 @@ import (
 )
 
 func TestLogger(t *testing.T) {
+	t.Run("uses default output if none is given", func(t *testing.T) {
+		var buf bytes.Buffer
+		DefaultOutput = &buf
+
+		logger := New(&LoggerOptions{
+			Name: "test",
+		})
+
+		logger.Info("this is test", "who", "programmer", "why", "testing")
+
+		str := buf.String()
+		dataIdx := strings.IndexByte(str, ' ')
+		rest := str[dataIdx+1:]
+
+		assert.Equal(t, "[INFO]  test: this is test: who=programmer why=testing\n", rest)
+	})
+
 	t.Run("formats log entries", func(t *testing.T) {
 		var buf bytes.Buffer
 
@@ -26,10 +44,7 @@ func TestLogger(t *testing.T) {
 		logger.Info("this is test", "who", "programmer", "why", "testing")
 
 		str := buf.String()
-
 		dataIdx := strings.IndexByte(str, ' ')
-
-		// ts := str[:dataIdx]
 		rest := str[dataIdx+1:]
 
 		assert.Equal(t, "[INFO]  test: this is test: who=programmer why=testing\n", rest)
@@ -46,10 +61,7 @@ func TestLogger(t *testing.T) {
 		logger.Info("this is test", "who", "programmer", "why", "testing is fun")
 
 		str := buf.String()
-
 		dataIdx := strings.IndexByte(str, ' ')
-
-		// ts := str[:dataIdx]
 		rest := str[dataIdx+1:]
 
 		assert.Equal(t, "[INFO]  test: this is test: who=programmer why=\"testing is fun\"\n", rest)
@@ -66,10 +78,7 @@ func TestLogger(t *testing.T) {
 		logger.Info("this is test", "who", "programmer", "why", []interface{}{"testing", "dev", 1, uint64(5), []int{3, 4}})
 
 		str := buf.String()
-
 		dataIdx := strings.IndexByte(str, ' ')
-
-		// ts := str[:dataIdx]
 		rest := str[dataIdx+1:]
 
 		assert.Equal(t, "[INFO]  test: this is test: who=programmer why=[testing, dev, 1, 5, \"[3 4]\"]\n", rest)
@@ -86,10 +95,7 @@ func TestLogger(t *testing.T) {
 		logger.Info("this is test", "who", "programmer", "why", []string{"testing & qa", "dev"})
 
 		str := buf.String()
-
 		dataIdx := strings.IndexByte(str, ' ')
-
-		// ts := str[:dataIdx]
 		rest := str[dataIdx+1:]
 
 		assert.Equal(t, "[INFO]  test: this is test: who=programmer why=[\"testing & qa\", dev]\n", rest)
@@ -106,7 +112,6 @@ func TestLogger(t *testing.T) {
 		logger.Info("who", "programmer", "why", "testing", Stacktrace())
 
 		lines := strings.Split(buf.String(), "\n")
-
 		require.True(t, len(lines) > 1)
 
 		assert.Equal(t, "github.com/hashicorp/go-hclog.Stacktrace", lines[1])
@@ -123,7 +128,6 @@ func TestLogger(t *testing.T) {
 		logger.Info("who", "programmer", "why", "testing", "foo", Stacktrace())
 
 		lines := strings.Split(buf.String(), "\n")
-
 		require.True(t, len(lines) > 1)
 
 		assert.Equal(t, "github.com/hashicorp/go-hclog.Stacktrace", lines[1])
@@ -141,14 +145,11 @@ func TestLogger(t *testing.T) {
 		logger.Info("this is test", "who", "programmer", "why", "testing is fun")
 
 		str := buf.String()
-
 		dataIdx := strings.IndexByte(str, ' ')
-
-		// ts := str[:dataIdx]
 		rest := str[dataIdx+1:]
 
 		// This test will break if you move this around, it's line dependent, just fyi
-		assert.Equal(t, "[INFO]  go-hclog/logger_test.go:141: test: this is test: who=programmer why=\"testing is fun\"\n", rest)
+		assert.Equal(t, "[INFO]  go-hclog/logger_test.go:145: test: this is test: who=programmer why=\"testing is fun\"\n", rest)
 	})
 
 	t.Run("prefixes the name", func(t *testing.T) {
@@ -187,7 +188,6 @@ func TestLogger(t *testing.T) {
 		logger.Info("this is test", "who", "programmer", "why", "testing is fun")
 
 		str := buf.String()
-
 		dataIdx := strings.IndexByte(str, ' ')
 
 		assert.Equal(t, str[:dataIdx], time.Now().Format(time.Kitchen))
@@ -329,13 +329,72 @@ func TestLogger(t *testing.T) {
 		logger.Info("this is test", "production", Fmt("%d beans/day", 12))
 
 		str := buf.String()
-
 		dataIdx := strings.IndexByte(str, ' ')
-
-		// ts := str[:dataIdx]
 		rest := str[dataIdx+1:]
 
 		assert.Equal(t, "[INFO]  test: this is test: production=\"12 beans/day\"\n", rest)
+	})
+}
+
+func TestLogger_leveledWriter(t *testing.T) {
+	t.Run("writes errors to stderr", func(t *testing.T) {
+		var stderr bytes.Buffer
+		var stdout bytes.Buffer
+
+		logger := New(&LoggerOptions{
+			Name:   "test",
+			Output: NewLeveledWriter(&stdout, map[Level]io.Writer{Error: &stderr}),
+		})
+
+		logger.Error("this is an error", "who", "programmer", "why", "testing")
+
+		errStr := stderr.String()
+		errDataIdx := strings.IndexByte(errStr, ' ')
+		errRest := errStr[errDataIdx+1:]
+
+		assert.Equal(t, "[ERROR] test: this is an error: who=programmer why=testing\n", errRest)
+	})
+
+	t.Run("writes non-errors to stdout", func(t *testing.T) {
+		var stderr bytes.Buffer
+		var stdout bytes.Buffer
+
+		logger := New(&LoggerOptions{
+			Name:   "test",
+			Output: NewLeveledWriter(&stdout, map[Level]io.Writer{Error: &stderr}),
+		})
+
+		logger.Info("this is test", "who", "programmer", "why", "testing")
+
+		outStr := stdout.String()
+		outDataIdx := strings.IndexByte(outStr, ' ')
+		outRest := outStr[outDataIdx+1:]
+
+		assert.Equal(t, "[INFO]  test: this is test: who=programmer why=testing\n", outRest)
+	})
+
+	t.Run("writes errors and non-errors correctly", func(t *testing.T) {
+		var stderr bytes.Buffer
+		var stdout bytes.Buffer
+
+		logger := New(&LoggerOptions{
+			Name:   "test",
+			Output: NewLeveledWriter(&stdout, map[Level]io.Writer{Error: &stderr}),
+		})
+
+		logger.Info("this is test", "who", "programmer", "why", "testing")
+		logger.Error("this is an error", "who", "programmer", "why", "testing")
+
+		errStr := stderr.String()
+		errDataIdx := strings.IndexByte(errStr, ' ')
+		errRest := errStr[errDataIdx+1:]
+
+		outStr := stdout.String()
+		outDataIdx := strings.IndexByte(outStr, ' ')
+		outRest := outStr[outDataIdx+1:]
+
+		assert.Equal(t, "[ERROR] test: this is an error: who=programmer why=testing\n", errRest)
+		assert.Equal(t, "[INFO]  test: this is test: who=programmer why=testing\n", outRest)
 	})
 }
 

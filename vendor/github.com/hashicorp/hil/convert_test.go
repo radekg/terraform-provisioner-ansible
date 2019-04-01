@@ -8,13 +8,60 @@ import (
 )
 
 func TestInterfaceToVariable_variableInput(t *testing.T) {
-	_, err := InterfaceToVariable(ast.Variable{
-		Type:  ast.TypeString,
-		Value: "Hello world",
-	})
+	testCases := []struct {
+		name     string
+		input    interface{}
+		expected ast.Variable
+	}{
+		{
+			name: "string variable",
+			input: ast.Variable{
+				Type:  ast.TypeString,
+				Value: "Hello world",
+			},
+			expected: ast.Variable{
+				Type:  ast.TypeString,
+				Value: "Hello world",
+			},
+		},
+		{
+			// This is just to maintain backward compatibility
+			// after https://github.com/mitchellh/mapstructure/pull/98
+			name: "slice of variables",
+			input: []ast.Variable{
+				{Type: ast.TypeString, Value: "Hello world"},
+			},
+			expected: ast.Variable{
+				Type: ast.TypeList,
+				Value: []ast.Variable{
+					{Type: ast.TypeString, Value: "Hello world"},
+				},
+			},
+		},
+		{
+			// This is just to maintain backward compatibility
+			// after https://github.com/mitchellh/mapstructure/pull/98
+			name: "map with variables",
+			input: map[string]ast.Variable{
+				"k": {Type: ast.TypeString, Value: "Hello world"},
+			},
+			expected: ast.Variable{
+				Type: ast.TypeMap,
+				Value: map[string]ast.Variable{
+					"k": {Type: ast.TypeString, Value: "Hello world"},
+				},
+			},
+		},
+	}
 
-	if err != nil {
-		t.Fatalf("Bad: %s", err)
+	for _, tc := range testCases {
+		output, err := InterfaceToVariable(tc.input)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(output, tc.expected) {
+			t.Fatalf("%s:\nExpected: %s\n     Got: %s\n", tc.name, tc.expected, output)
+		}
 	}
 }
 
