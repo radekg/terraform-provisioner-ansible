@@ -28,6 +28,7 @@ Currently the following endpoints are supported:
 - [x] [Organizations](https://www.terraform.io/docs/enterprise/api/organizations.html)
 - [x] [Organization Tokens](https://www.terraform.io/docs/enterprise/api/organization-tokens.html)
 - [x] [Policies](https://www.terraform.io/docs/enterprise/api/policies.html)
+- [x] [Policy Sets](https://www.terraform.io/docs/enterprise/api/policy-sets.html)
 - [x] [Policy Checks](https://www.terraform.io/docs/enterprise/api/policy-checks.html)
 - [ ] [Registry Modules](https://www.terraform.io/docs/enterprise/api/modules.html)
 - [x] [Runs](https://www.terraform.io/docs/enterprise/api/run.html)
@@ -123,6 +124,28 @@ func main() {
 		log.Fatal(err)
 	}
 }
+```
+
+## Running tests
+
+Tests are run against an actual backend so they require a valid backend address
+and token. In addition it also needs a Github token for running the OAuth Client
+tests:
+
+```sh
+$ export TFE_ADDRESS=https://tfe.local
+$ export TFE_TOKEN=xxxxxxxxxxxxxxxxxxx
+$ export GITHUB_TOKEN=xxxxxxxxxxxxxxxx
+```
+
+In order for the tests relating to queuing and capacity to pass, FRQ should be
+enabled with a limit of 2 concurrent runs per organization.
+
+As running the tests takes about ~10 minutes, make sure to add a timeout to your
+command (as the default timeout is 10m):
+
+```sh
+$ go test ./... -timeout=15m
 ```
 
 ## Issues and Contributing
