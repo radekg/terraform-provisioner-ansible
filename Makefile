@@ -41,9 +41,9 @@ build-release:
 .PHONY: test
 test:
 	go clean -testcache
-	go test
+	go test -cover
 
 .PHONY: test-verbose
 test-verbose:
 	go clean -testcache
-	go test -v ./...
+	go test -cover -v ./...
