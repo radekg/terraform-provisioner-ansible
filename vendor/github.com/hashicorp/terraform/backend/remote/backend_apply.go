@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"strings"
 
@@ -12,16 +13,12 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func (b *Remote) opApply(stopCtx, cancelCtx context.Context, op *backend.Operation) (*tfe.Run, error) {
+func (b *Remote) opApply(stopCtx, cancelCtx context.Context, op *backend.Operation, w *tfe.Workspace) (*tfe.Run, error) {
 	log.Printf("[INFO] backend/remote: starting Apply operation")
 
-	// Retrieve the workspace used to run this operation in.
-	w, err := b.client.Workspaces.Read(stopCtx, b.organization, op.Workspace)
-	if err != nil {
-		return nil, generalError("error retrieving workspace", err)
-	}
-
-	if !w.Permissions.CanUpdate {
+	// We should remove the `CanUpdate` part of this test, but for now
+	// (to remain compatible with tfe.v2.1) we'll leave it in here.
+	if !w.Permissions.CanUpdate && !w.Permissions.CanQueueApply {
 		return nil, fmt.Errorf(strings.TrimSpace(applyErrNoUpdateRights))
 	}
 
@@ -63,7 +60,7 @@ func (b *Remote) opApply(stopCtx, cancelCtx context.Context, op *backend.Operati
 	// This check is also performed in the plan method to determine if
 	// the policies should be checked, but we need to check the values
 	// here again to determine if we are done and should return.
-	if !r.HasChanges || r.Status == tfe.RunErrored {
+	if !r.HasChanges || r.Status == tfe.RunCanceled || r.Status == tfe.RunErrored {
 		return r, nil
 	}
 
@@ -113,14 +110,16 @@ func (b *Remote) opApply(stopCtx, cancelCtx context.Context, op *backend.Operati
 					"Only 'yes' will be accepted to approve."
 			}
 
-			if err = b.confirm(stopCtx, op, opts, r, "yes"); err != nil {
+			err = b.confirm(stopCtx, op, opts, r, "yes")
+			if err != nil && err != errRunApproved {
 				return r, err
 			}
 		}
 
-		err = b.client.Runs.Apply(stopCtx, r.ID, tfe.RunApplyOptions{})
-		if err != nil {
-			return r, generalError("error approving the apply command", err)
+		if err != errRunApproved {
+			if err = b.client.Runs.Apply(stopCtx, r.ID, tfe.RunApplyOptions{}); err != nil {
+				return r, generalError("error approving the apply command", err)
+			}
 		}
 	}
 
@@ -141,21 +140,34 @@ func (b *Remote) opApply(stopCtx, cancelCtx context.Context, op *backend.Operati
 	if err != nil {
 		return r, generalError("error retrieving logs", err)
 	}
-	scanner := bufio.NewScanner(logs)
+	reader := bufio.NewReaderSize(logs, 64*1024)
 
-	skip := 0
-	for scanner.Scan() {
-		// Skip the first 3 lines to prevent duplicate output.
-		if skip < 3 {
-			skip++
-			continue
+	if b.CLI != nil {
+		skip := 0
+		for next := true; next; {
+			var l, line []byte
+
+			for isPrefix := true; isPrefix; {
+				l, isPrefix, err = reader.ReadLine()
+				if err != nil {
+					if err != io.EOF {
+						return r, generalError("error reading logs", err)
+					}
+					next = false
+				}
+				line = append(line, l...)
+			}
+
+			// Skip the first 3 lines to prevent duplicate output.
+			if skip < 3 {
+				skip++
+				continue
+			}
+
+			if next || len(line) > 0 {
+				b.CLI.Output(b.Colorize().Color(string(line)))
+			}
 		}
-		if b.CLI != nil {
-			b.CLI.Output(b.Colorize().Color(scanner.Text()))
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return r, generalError("error reading logs", err)
 	}
 
 	return r, nil
@@ -237,7 +249,7 @@ https://%s/app/%s/%s/runs[reset]
 const applyDefaultHeader = `
 [reset][yellow]Running apply in the remote backend. Output will stream here. Pressing Ctrl-C
 will cancel the remote apply if its still pending. If the apply started it
-will stop streaming the logs, but will not stop the apply running remotely.
-To view this run in a browser, visit:
-https://%s/app/%s/%s/runs/%s[reset]
+will stop streaming the logs, but will not stop the apply running remotely.[reset]
+
+Preparing the remote apply...
 `

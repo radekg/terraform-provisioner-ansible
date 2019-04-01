@@ -1,3 +1,52 @@
+## 0.11.13 (March 11, 2019)
+
+BUG FIXES:
+
+* backend/remote: Fix a backend initialization bug ([#20638](https://github.com/hashicorp/terraform/issues/20638))
+
+## 0.11.12 (March 8, 2019)
+
+IMPROVEMENTS:
+
+* The `filemd5`, `filesha1`, etc functions from Terraform v0.12 are backported primarily to allow writing
+  modules that can work in both Terraform 0.11 and 0.12, since the `sha1(file("..."))` pattern in 0.12
+  works only for files containing valid UTF-8 text; `sha1file("...")` must be used instead.  Both
+  forms are equivalent in Terraform 0.11.
+* backend/remote: Retry calls when the remote backend responds with a server error ([#20589](https://github.com/hashicorp/terraform/issues/20589))
+* backend/remote: Check for external updates while waiting for user input ([#20622](https://github.com/hashicorp/terraform/issues/20622))
+
+BUG FIXES:
+
+* backend/remote: Fix "token too long" errors when streaming remote operation logs ([#20241](https://github.com/hashicorp/terraform/issues/20241))
+* backend/remote: Use the `can-queue-apply` permission to detect if apply is allowed ([#20462](https://github.com/hashicorp/terraform/issues/20462))
+* backend/remote: Exit with 1 when a remote run is canceled ([#20482](https://github.com/hashicorp/terraform/issues/20482))
+* core: Use slashes in the module manifest to prevent Windows/Linux compatibility issues ([#20246](https://github.com/hashicorp/terraform/issues/20246))
+
+## 0.11.12-beta1 (January 28, 2019)
+
+IMPROVEMENTS:
+
+* command/state: Use locking when updating states ([#19939](https://github.com/hashicorp/terraform/issues/19939))
+* backend/remote: Add support for remote state only organizations ([#20007](https://github.com/hashicorp/terraform/issues/20007))
+* backend/remote: Make sure the correct error is shown when having version incompatibilities ([#20086](https://github.com/hashicorp/terraform/issues/20086))
+
+BUG FIXES:
+
+* backend/remote: Fix an error that prevents checking version constraints ([#19668](https://github.com/hashicorp/terraform/issues/19668))
+* backend/remote: Compare versions without the prerelease ([#19705](https://github.com/hashicorp/terraform/issues/19705))
+
+## 0.11.11 (December 14, 2018)
+
+IMPROVEMENTS:
+
+* backend/remote: Return detailed version (in)compatibility information ([#19660](https://github.com/hashicorp/terraform/issues/19660))
+* core: Enhance service discovery error handling and messaging ([#19660](https://github.com/hashicorp/terraform/issues/19660))
+* core: Add support to retrieve version constraints to service discovery ([#19660](https://github.com/hashicorp/terraform/issues/19660))
+
+BUG FIXES:
+
+* backend/remote: Fix symlink issues and Windows support when uploading configurations ([#19573](https://github.com/hashicorp/terraform/issues/19573))
+
 ## 0.11.10 (October 23, 2018)
 
 BUG FIXES:
