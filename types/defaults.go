@@ -165,3 +165,13 @@ func NewDefaultsFromMapInterface(vals map[string]interface{}, ok bool) *Defaults
 func (v *Defaults) Hosts() []string {
 	return v.hosts
 }
+
+// BecomeMethod returns become method.
+func (v *Defaults) BecomeMethod() string {
+	return v.becomeMethod
+}
+
+// BecomeUser returns become user.
+func (v *Defaults) BecomeUser() string {
+	return v.becomeUser
+}

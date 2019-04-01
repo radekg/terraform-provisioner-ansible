@@ -3,13 +3,11 @@ package mode
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
 	"testing"
 	"text/template"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -43,75 +41,10 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 
 	remoteTempDirectory := "/remote-temp"
 	bootstrapDirectory := "/bootstrap"
-	testModuleName := "module-name"
+	sshUsername := "integration-test"
+	testModuleName := "ping"
 
-	output := new(terraform.MockUIOutput)
-
-	instanceState := &terraform.InstanceState{
-		Ephemeral: terraform.EphemeralState{
-			ConnInfo: map[string]string{
-				"type":        "ssh",
-				"user":        "integration-test",
-				"host":        "127.0.0.1",
-				"port":        "0", // will be set later
-				"private_key": test.TestSSHUserKeyPrivate,
-				"host_key":    test.TestSSHHostKeyPublic,
-			},
-		},
-	}
-
-	authUser := &test.TestingSSHUser{
-		Username:  instanceState.Ephemeral.ConnInfo["user"],
-		PublicKey: test.TestSSHUserKeyPublic,
-	}
-	sshConfig := &test.TestingSSHServerConfig{
-		ServerID:           "remote-provisioning",
-		HostKey:            test.TestSSHHostKeyPrivate,
-		HostPort:           fmt.Sprintf("%s:%s", instanceState.Ephemeral.ConnInfo["host"], instanceState.Ephemeral.ConnInfo["port"]),
-		AuthenticatedUsers: []*test.TestingSSHUser{authUser},
-		Listeners:          5,
-		Output:             output,
-		LogPrintln:         true,
-	}
-	sshServer := test.NewTestingSSHServer(t, sshConfig)
-	go sshServer.Start()
-	defer sshServer.Stop()
-
-	select {
-	case <-sshServer.ReadyNotify():
-	case <-time.After(5 * time.Second):
-		t.Fatal("Expected the TestingSSHServer to be running.")
-	}
-
-	// we need to update the instance info with the address the SSH server is bound on:
-	h, p, err := sshServer.ListeningHostPort()
-	if err != nil {
-		t.Fatal("Expected the SSH server to return an address it is bound on but got an error", err)
-	}
-
-	// set connection details based on where the SSH server is bound:
-	instanceState.Ephemeral.ConnInfo["host"] = h
-	instanceState.Ephemeral.ConnInfo["port"] = p
-
-	// temp vault-id:
-	tempVaultIDFile, err := ioutil.TempFile("", ".temp-vault-id")
-	if err != nil {
-		t.Fatal("Expected a temp vault id file to be crated", err)
-	}
-	defer os.Remove(tempVaultIDFile.Name())
-	tempVaultIDFileToWrite, err := os.OpenFile(tempVaultIDFile.Name(), os.O_RDWR, 0644)
-	if err != nil {
-		t.Fatal("Expected a temp vault id file to be writable", err)
-	}
-	tempVaultIDFileToWrite.WriteString("test-password")
-	tempVaultIDFileToWrite.Close()
-
-	// temp playbook:
-	tempAnsibleDataDir := test.CreateTempAnsibleDataDirectory(t)
-	defer os.RemoveAll(tempAnsibleDataDir)
-	playbookFilePath := test.WriteTempPlaybookFile(t, tempAnsibleDataDir)
-
-	remoteSettings := map[string]interface{}{
+	remoteSettingsRaw := map[string]interface{}{
 		"skip_install":               false,
 		"use_sudo":                   true,
 		"skip_cleanup":               false,
@@ -121,48 +54,38 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 		"bootstrap_directory":        bootstrapDirectory,
 	}
 
-	defaultSettings := map[string]interface{}{
-		"become_method": "sudo",
-		"become_user":   "test-user",
-	}
+	output := new(terraform.MockUIOutput)
+	user := test.GetCurrentUser(t)
 
-	playModuleEntity := map[string]interface{}{
-		"module": []map[string]interface{}{
-			map[string]interface{}{
-				"module": testModuleName,
-			},
-		},
-		"playbook": []map[string]interface{}{},
-	}
+	instanceState := test.GetNewSSHInstanceState(t, sshUsername)
+	sshServer := test.GetConfiguredAndRunningSSHServer(t, "remote-provisioning", false, instanceState, output)
+	defer sshServer.Stop()
 
-	playPlaybookEntity := map[string]interface{}{
-		"playbook": []map[string]interface{}{
-			map[string]interface{}{
-				"file_path": playbookFilePath,
-			},
-		},
-		"module": []map[string]interface{}{},
-	}
+	// temp vault-id:
+	tempVaultIDFilePath := test.WriteTempVaultIDFile(t, "test-password")
+	defer os.Remove(tempVaultIDFilePath)
 
-	playEntitySchemas := map[string]*schema.Schema{
-		"module":   types.NewModuleSchema(),
-		"playbook": types.NewPlaybookSchema(),
-	}
+	// temp playbook:
+	tempAnsibleDataDir := test.CreateTempAnsibleDataDirectory(t)
+	defer os.RemoveAll(tempAnsibleDataDir)
+	playbookFilePath := test.WriteTempPlaybook(t, tempAnsibleDataDir)
 
-	playModuleRawConfigs := schema.TestResourceDataRaw(t, playEntitySchemas, playModuleEntity)
-	playPlaybookRawConfigs := schema.TestResourceDataRaw(t, playEntitySchemas, playPlaybookEntity)
+	remoteSettings := test.GetNewRemoteSettings(t, remoteSettingsRaw)
+	defaultSettings := test.GetDefaultSettingsForUser(t, user)
+	playModuleRawConfigs := test.GetPlayModuleSchema(t, testModuleName)
+	playPlaybookRawConfigs := test.GetPlayPlaybookSchema(t, playbookFilePath)
 
 	playModule := map[string]interface{}{
 		"enabled":             true,
 		"become":              true,
-		"become_method":       "sudo",
-		"become_user":         "test-user",
+		"become_method":       defaultSettings.BecomeMethod(),
+		"become_user":         defaultSettings.BecomeUser(),
 		"diff":                false,
 		"check":               false,
 		"forks":               5,
 		"inventory_file":      "",
 		"limit":               "",
-		"vault_id":            []interface{}{tempVaultIDFile.Name()},
+		"vault_id":            []interface{}{tempVaultIDFilePath},
 		"vault_password_file": "",
 		"verbose":             false,
 		"extra_vars": map[string]interface{}{
@@ -176,14 +99,14 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 	playPlaybook := map[string]interface{}{
 		"enabled":             true,
 		"become":              true,
-		"become_method":       "sudo",
-		"become_user":         "test-user",
+		"become_method":       defaultSettings.BecomeMethod(),
+		"become_user":         defaultSettings.BecomeUser(),
 		"diff":                false,
 		"check":               false,
 		"forks":               5,
 		"inventory_file":      "",
 		"limit":               "",
-		"vault_id":            []interface{}{tempVaultIDFile.Name()},
+		"vault_id":            []interface{}{tempVaultIDFilePath},
 		"vault_password_file": "",
 		"verbose":             false,
 		"extra_vars": map[string]interface{}{
@@ -194,7 +117,7 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 		"playbook": playPlaybookRawConfigs.Get("playbook").(*schema.Set),
 	}
 
-	modeRemote, err := NewRemoteMode(output, instanceState, types.NewRemoteSettingsFromMapInterface(remoteSettings, true))
+	modeRemote, err := NewRemoteMode(output, instanceState, remoteSettings)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -204,8 +127,8 @@ func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		runErr := modeRemote.Run([]*types.Play{
-			types.NewPlayFromMapInterface(playModule, types.NewDefaultsFromMapInterface(defaultSettings, true)),
-			types.NewPlayFromMapInterface(playPlaybook, types.NewDefaultsFromMapInterface(defaultSettings, true)),
+			types.NewPlayFromMapInterface(playModule, defaultSettings),
+			types.NewPlayFromMapInterface(playPlaybook, defaultSettings),
 		})
 		if runErr != nil {
 			t.Fatalf("Unexpected error: %v", runErr)

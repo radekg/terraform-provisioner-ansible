@@ -43,6 +43,7 @@ const (
 	ansibleEnvVarForceColor       = "ANSIBLE_FORCE_COLOR"
 	ansibleEnvVarRolesPath        = "ANSIBLE_ROLES_PATH"
 	ansibleEnvVarDefaultRolesPath = "DEFAULT_ROLES_PATH"
+	ansibleEnvVarRemoteTmp        = "ANSIBLE_REMOTE_TMP"
 	// attribute names:
 	playAttributeEnabled           = "enabled"
 	playAttributePlaybook          = "playbook"
@@ -379,6 +380,10 @@ func (v *Play) defaultRolePaths() []string {
 func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 
 	command := fmt.Sprintf("%s=true", ansibleEnvVarForceColor)
+
+	if envVarVal, ok := os.LookupEnv(ansibleEnvVarRemoteTmp); ok {
+		command = fmt.Sprintf("%s %s=\"%s\"", command, ansibleEnvVarRemoteTmp, envVarVal)
+	}
 
 	// entity to call:
 	switch entity := v.Entity().(type) {

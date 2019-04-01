@@ -289,7 +289,14 @@ func (s *TestingSSHServer) serveConnection(listener net.Listener, config *ssh.Se
 			}
 		}(requests)
 
-		server := sftp.NewRequestServer(channel, NewTestingSFTPFS(s.t, s.config, s.chanNotifications))
+		server, err := sftp.NewServer(
+			channel,
+		)
+		if err != nil {
+			s.logInfo("[%s] sftp server could not be started: %v.", s.config.ServerID, err)
+			continue
+		}
+		//server := sftp.NewRequestServer(channel, NewTestingSFTPFS(s.t, s.config, s.chanNotifications))
 		if err := server.Serve(); err == io.EOF {
 			server.Close()
 			s.logInfo("[%s] sftp client exited session.", s.config.ServerID)

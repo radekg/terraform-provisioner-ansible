@@ -3,13 +3,11 @@ package mode
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
 	"testing"
 	"text/template"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
@@ -76,120 +74,47 @@ func TestLocalInventoryTemplateGeneratesWithoutAlias(t *testing.T) {
 
 func TestIntegrationLocalModeProvisioning(t *testing.T) {
 
-	remoteTempDirectory := "/remote-temp"
-	bootstrapDirectory := "/bootstrap"
 	testModuleName := "ping"
-
+	sshUsername := "integration-test"
 	output := new(terraform.MockUIOutput)
+	user := test.GetCurrentUser(t)
 
-	instanceState := &terraform.InstanceState{
-		Ephemeral: terraform.EphemeralState{
-			ConnInfo: map[string]string{
-				"type":        "ssh",
-				"user":        "integration-test",
-				"host":        "127.0.0.1",
-				"port":        "0", // will be set later
-				"private_key": test.TestSSHUserKeyPrivate,
-				"host_key":    test.TestSSHHostKeyPublic,
-			},
-		},
-	}
-
-	authUser := &test.TestingSSHUser{
-		Username:  instanceState.Ephemeral.ConnInfo["user"],
-		PublicKey: test.TestSSHUserKeyPublic,
-	}
-	sshConfig := &test.TestingSSHServerConfig{
-		ServerID:           "local-provisioning",
-		HostKey:            test.TestSSHHostKeyPrivate,
-		HostPort:           fmt.Sprintf("%s:%s", instanceState.Ephemeral.ConnInfo["host"], instanceState.Ephemeral.ConnInfo["port"]),
-		AuthenticatedUsers: []*test.TestingSSHUser{authUser},
-		Listeners:          5,
-		Output:             output,
-		LogPrintln:         true,
-		LocalMode:          true,
-	}
-	sshServer := test.NewTestingSSHServer(t, sshConfig)
-	go sshServer.Start()
+	instanceState := test.GetNewSSHInstanceState(t, sshUsername)
+	sshServer := test.GetConfiguredAndRunningSSHServer(t, "local-provisioning", true, instanceState, output)
 	defer sshServer.Stop()
 
-	select {
-	case <-sshServer.ReadyNotify():
-	case <-time.After(5 * time.Second):
-		t.Fatal("Expected the TestingSSHServer to be running.")
-	}
-
-	// we need to update the instance info with the address the SSH server is bound on:
-	h, p, err := sshServer.ListeningHostPort()
-	if err != nil {
-		t.Fatal("Expected the SSH server to return an address it is bound on but got an error", err)
-	}
-
-	// set connection details based on where the SSH server is bound:
-	instanceState.Ephemeral.ConnInfo["host"] = h
-	instanceState.Ephemeral.ConnInfo["port"] = p
-
 	// temp vault-id:
-	tempVaultIDFile, err := ioutil.TempFile("", ".temp-vault-id")
-	if err != nil {
-		t.Fatal("Expected a temp vault id file to be crated", err)
-	}
-	defer os.Remove(tempVaultIDFile.Name())
-	tempVaultIDFileToWrite, err := os.OpenFile(tempVaultIDFile.Name(), os.O_RDWR, 0644)
-	if err != nil {
-		t.Fatal("Expected a temp vault id file to be writable", err)
-	}
-	tempVaultIDFileToWrite.WriteString("test-password")
-	tempVaultIDFileToWrite.Close()
+	tempVaultIDFilePath := test.WriteTempVaultIDFile(t, "test-password")
+	defer os.Remove(tempVaultIDFilePath)
 
 	// temp playbook:
 	tempAnsibleDataDir := test.CreateTempAnsibleDataDirectory(t)
 	defer os.RemoveAll(tempAnsibleDataDir)
-	playbookFilePath := test.WriteTempPlaybookFile(t, tempAnsibleDataDir)
 
-	defaultSettings := map[string]interface{}{
-		"become_method": "sudo",
-		"become_user":   "test-user",
-	}
+	playbookFilePath := test.WriteTempPlaybook(t, tempAnsibleDataDir)
 
-	playModuleEntity := map[string]interface{}{
-		"module": []map[string]interface{}{
-			map[string]interface{}{
-				"module": testModuleName,
-			},
-		},
-		"playbook": []map[string]interface{}{},
-	}
+	// temp remote_tmp:
+	tempRemoteTmp := test.CreateTempAnsibleRemoteTmpDir(t)
+	defer os.RemoveAll(tempRemoteTmp)
+	os.Setenv("ANSIBLE_REMOTE_TMP", tempRemoteTmp)
+	defer os.Unsetenv("ANSIBLE_REMOTE_TMP")
 
-	playPlaybookEntity := map[string]interface{}{
-		"playbook": []map[string]interface{}{
-			map[string]interface{}{
-				"file_path": playbookFilePath,
-			},
-		},
-		"module": []map[string]interface{}{},
-	}
-
-	playEntitySchemas := map[string]*schema.Schema{
-		"module":   types.NewModuleSchema(),
-		"playbook": types.NewPlaybookSchema(),
-	}
-
-	playModuleRawConfigs := schema.TestResourceDataRaw(t, playEntitySchemas, playModuleEntity)
-	playPlaybookRawConfigs := schema.TestResourceDataRaw(t, playEntitySchemas, playPlaybookEntity)
+	defaultSettings := test.GetDefaultSettingsForUser(t, user)
+	playModuleRawConfigs := test.GetPlayModuleSchema(t, testModuleName)
+	playPlaybookRawConfigs := test.GetPlayPlaybookSchema(t, playbookFilePath)
 
 	playModule := map[string]interface{}{
 		"hosts":               []interface{}{"integrationTest"},
 		"enabled":             true,
-		"become":              true,
-		"become_method":       "sudo",
-		"become_user":         "test-user",
+		"become":              false,
+		"become_method":       defaultSettings.BecomeMethod(),
+		"become_user":         defaultSettings.BecomeUser(),
 		"diff":                false,
 		"check":               false,
 		"forks":               5,
 		"inventory_file":      "",
 		"limit":               "",
-		"vault_id":            []interface{}{tempVaultIDFile.Name()},
+		"vault_id":            []interface{}{tempVaultIDFilePath},
 		"vault_password_file": "",
 		"verbose":             true,
 		"extra_vars": map[string]interface{}{
@@ -203,15 +128,15 @@ func TestIntegrationLocalModeProvisioning(t *testing.T) {
 	playPlaybook := map[string]interface{}{
 		"hosts":               []interface{}{"integrationTest"},
 		"enabled":             true,
-		"become":              true,
-		"become_method":       "sudo",
-		"become_user":         "test-user",
+		"become":              false,
+		"become_method":       defaultSettings.BecomeMethod(),
+		"become_user":         defaultSettings.BecomeUser(),
 		"diff":                false,
 		"check":               false,
 		"forks":               5,
 		"inventory_file":      "",
 		"limit":               "",
-		"vault_id":            []interface{}{tempVaultIDFile.Name()},
+		"vault_id":            []interface{}{tempVaultIDFilePath},
 		"vault_password_file": "",
 		"verbose":             false,
 		"extra_vars": map[string]interface{}{
@@ -232,49 +157,34 @@ func TestIntegrationLocalModeProvisioning(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		runErr := modeLocal.Run([]*types.Play{
-			types.NewPlayFromMapInterface(playModule, types.NewDefaultsFromMapInterface(defaultSettings, true)),
-			types.NewPlayFromMapInterface(playPlaybook, types.NewDefaultsFromMapInterface(defaultSettings, true)),
+			test.GetNewPlay(t, playModule, defaultSettings),
+			test.GetNewPlay(t, playPlaybook, defaultSettings),
 		}, types.NewAnsibleSSHSettingsFromInterface("", false /* just take defaults */))
 		if runErr != nil {
 			t.Fatalf("Unexpected error: %v", runErr)
 		}
 	}()
 
-	// Ansible starts with a handshake:
-	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'echo ~%s && sleep 0'", instanceState.Ephemeral.ConnInfo["user"]))
-	// then it creates a temp directory:
-	test.CommandTest(t, sshServer, "/bin/sh -c '( umask 77 && mkdir -p \"` echo /var/tmp/ansible-tmp-")
-	// Ansible writes a module file:
-	test.CommandTest(t, sshServer, "scp -t /var/tmp/ansible-tmp-")
+	// We can only test the workflow with ANSIBLE_REMOTE_TMP set and without become:
 
-	// upload ansible data for th first play:
-	test.CommandTest(t, sshServer, fmt.Sprintf("mkdir -p \"%s", bootstrapDirectory))
-	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
-	// upload vault ID for the first play:
-	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
+	// Module:
+	// Ansible creates a directory in ANSIBLE_REMOTE_TMP dirctory:
+	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '( umask 77 && mkdir -p \"` echo %s", tempRemoteTmp))
+	// ... then it chmod u+x it ...
+	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'chmod u+x %s", tempRemoteTmp))
+	// ... the module is executed:
+	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '/usr/bin/python %s", tempRemoteTmp))
+	// ... and Ansible cleans up after module execution.
+	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'rm -f -r %s", tempRemoteTmp))
 
-	// upload ansible data for the second play:
-	test.CommandTest(t, sshServer, fmt.Sprintf("mkdir -p \"%s", bootstrapDirectory))
-	test.CommandTest(t, sshServer, "/bin/sh -c 'if [ -d") // playbook always checks if we have the source playbook dir uploaded
-	test.CommandTest(t, sshServer, fmt.Sprintf("scp -rvt %s", bootstrapDirectory))
-	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory)) // an inventory is written
-	// upload vault ID for the second play:
-	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", bootstrapDirectory))
-
-	// upload installer:
-	test.CommandTest(t, sshServer, fmt.Sprintf("mkdir -p \"%s", remoteTempDirectory))
-	test.CommandTest(t, sshServer, fmt.Sprintf("scp -vt %s", remoteTempDirectory))
-	// make the installer executable:
-	test.CommandTest(t, sshServer, "chmod 0777")
-	// run and cleanup ansible installer:
-	test.CommandTest(t, sshServer, "sudo /bin/sh -c")
-
-	// run ansible module:
-	test.CommandTest(t, sshServer, fmt.Sprintf("sudo ANSIBLE_FORCE_COLOR=true ansible all --module-name='%s'", testModuleName))
-	test.CommandTest(t, sshServer, "sudo ANSIBLE_FORCE_COLOR=true ansible-playbook")
-
-	// cleanup ansible data:
-	test.CommandTest(t, sshServer, fmt.Sprintf("rm -rf \"%s", bootstrapDirectory))
+	// Playbook:
+	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '( umask 77 && mkdir -p \"` echo %s", tempRemoteTmp))
+	// ... then it chmod u+x on the setup.py ...
+	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'chmod u+x %s", tempRemoteTmp))
+	// ... the setup.py is executed ...
+	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '/usr/bin/python %s", tempRemoteTmp))
+	// ... and Ansible cleans up after playbook execution.
+	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'rm -f -r %s", tempRemoteTmp))
 
 	wg.Wait()
 

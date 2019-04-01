@@ -1,12 +1,18 @@
 package test
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/terraform"
+	"github.com/radekg/terraform-provisioner-ansible/types"
 )
 
 var (
@@ -113,13 +119,6 @@ yERRbfK/j0cAAAAOcmFkQG5vYW4ubG9jYWwBAgMEBQ==
 	TestSSHUserKeyPublic = `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4xdZRtDIqh/TYbB2U4ZzyIiDoBBd0f9BIE39EB43AD1mlkrex9afxQKpfBNoR3Bvd6j89Ucb3Clklnj1KdEgxsC0kN1mewABkdAt6+5xpOnOl9ZgnUE3Ib959/puMlG8d1G/evWBo2DzVgk6uP/2A7+cjUsTvVM5t/DXeOniebJHDlUZse9FHoltPvL1Ro/ug2o4tZWXucf2PDqD2+aDfzXWRAZiIluXOo8j/by3/8K+DLODwhAPKZ9h9es0wSNWkC9UhOc6/2iY32PaKn9PIz3cEKfl/YHp6GA8gdJnR5KLLxYra6vxGoVSrvqr32Y1K+ktYVmv7V/TrpkwoXqFx540gO1t71PuYxAsyzENZny/L7MxK8cS+9ND4xYQOE8ImIcwk+52Jy5/H7g0M4To0Xjla6FcnCjvgDsXiEH/JRPfGCuyDCZPqVOUv9B0lLJTeKEipsysIAZsAN4kM5Nomv/9DQpaEOIbX9PihEm0RYzVvqvyRBOtvshn5rnLGJKZGyJw2Hr4wSJPgpaYTPnsjTAZ8ZKOiUAAvqF8qB/7mZ8p4mXFGJJMw/lk8NK+2/vH88OpnmWGiOs9rA9BnyWbc4rmpMj/XZBt7oaxyLWmeVfYzeKc6VadjrN21Yv2qSysngvX5BodDZ+Ql6T8Dvd8KeNnoezJL/xOM3cGm74uGwQ== rad@noan.local`
 )
 
-func selectCommandOutputTimeout() time.Duration {
-	if _, ok := os.LookupEnv("TRAVIS"); ok {
-		return time.Duration(30) * time.Second
-	}
-	return time.Duration(5) * time.Second
-}
-
 // CommandTest tests an SSH server output channel for a command.
 func CommandTest(t *testing.T, sshServer *TestingSSHServer, commandPrefix string) {
 	select {
@@ -132,7 +131,7 @@ func CommandTest(t *testing.T, sshServer *TestingSSHServer, commandPrefix string
 		default:
 			t.Fatal("Expected a command execution but received", tevent)
 		}
-	case <-time.After(selectCommandOutputTimeout()):
+	case <-time.After(time.Duration(5) * time.Second):
 		t.Fatal("Excepted a notification from the SSH server.")
 	}
 }
@@ -141,27 +140,192 @@ func CommandTest(t *testing.T, sshServer *TestingSSHServer, commandPrefix string
 func CreateTempAnsibleDataDirectory(t *testing.T) string {
 	tempAnsibleDataDir, err := ioutil.TempDir("", ".temp-ansible-data")
 	if err != nil {
-		t.Fatal("Expected a temp playbook dir to be created", err)
+		t.Fatal("Expected a temp data dir to be created", err)
 	}
 	return tempAnsibleDataDir
 }
 
-// WriteTempPlaybookFile writes a temp playbook file.
-func WriteTempPlaybookFile(t *testing.T, dirpath string) string {
+// CreateTempAnsibleRemoteTmpDir creates a temp Ansible remote_tmp directory.
+func CreateTempAnsibleRemoteTmpDir(t *testing.T) string {
+	tmp, err := ioutil.TempDir("", ".temp-remote-tmp")
+	if err != nil {
+		t.Fatal("Expected a temp remote_tmp dir to be created", err)
+	}
+	return tmp
+}
+
+// GetConfiguredAndRunningSSHServer returns a running instance of a *TestingSSHServer.
+func GetConfiguredAndRunningSSHServer(t *testing.T, serverID string, localMode bool, instanceState *terraform.InstanceState, output terraform.UIOutput) *TestingSSHServer {
+	authUser := &TestingSSHUser{
+		Username:  instanceState.Ephemeral.ConnInfo["user"],
+		PublicKey: TestSSHUserKeyPublic,
+	}
+	sshConfig := &TestingSSHServerConfig{
+		ServerID:           serverID,
+		HostKey:            TestSSHHostKeyPrivate,
+		HostPort:           fmt.Sprintf("%s:%s", instanceState.Ephemeral.ConnInfo["host"], instanceState.Ephemeral.ConnInfo["port"]),
+		AuthenticatedUsers: []*TestingSSHUser{authUser},
+		Listeners:          5,
+		Output:             output,
+		LogPrintln:         true,
+		LocalMode:          localMode,
+	}
+	sshServer := NewTestingSSHServer(t, sshConfig)
+	go sshServer.Start()
+
+	select {
+	case <-sshServer.ReadyNotify():
+	case <-time.After(5 * time.Second):
+		t.Fatal("Expected the TestingSSHServer to be running.")
+	}
+
+	// we need to update the instance info with the address the SSH server is bound on:
+	h, p, err := sshServer.ListeningHostPort()
+	if err != nil {
+		t.Fatal("Expected the SSH server to return an address it is bound on but got an error", err)
+	}
+
+	// set connection details based on where the SSH server is bound:
+	instanceState.Ephemeral.ConnInfo["host"] = h
+	instanceState.Ephemeral.ConnInfo["port"] = p
+
+	return sshServer
+}
+
+// GetCurrentUser returns current user.
+func GetCurrentUser(t *testing.T) *user.User {
+	user, err := user.Current()
+	if err != nil {
+		t.Fatal("Expectd to fetch the current user but received an error", err)
+	}
+	return user
+}
+
+// GetDefaultSettingsForUser returns default settings in the context of a given user.
+func GetDefaultSettingsForUser(t *testing.T, user *user.User) *types.Defaults {
+	defaultSettings := map[string]interface{}{
+		"become_method": "sudo",
+		"become_user":   user.Username,
+	}
+	return types.NewDefaultsFromMapInterface(defaultSettings, true)
+}
+
+// GetNewPlay returns *types.Play from a raw map using th default settings.
+func GetNewPlay(t *testing.T, raw map[string]interface{}, defaultSettings *types.Defaults) *types.Play {
+	return types.NewPlayFromMapInterface(raw, defaultSettings)
+}
+
+// GetNewRemoteSettings returns *types.RemoteSettings from a raw map.
+func GetNewRemoteSettings(t *testing.T, raw map[string]interface{}) *types.RemoteSettings {
+	return types.NewRemoteSettingsFromMapInterface(raw, true)
+}
+
+// GetNewSSHInstanceState returns a new instance of *teraform.InstanceState for a given SSH username.
+func GetNewSSHInstanceState(t *testing.T, sshUsername string) *terraform.InstanceState {
+	return &terraform.InstanceState{
+		Ephemeral: terraform.EphemeralState{
+			ConnInfo: map[string]string{
+				"type":        "ssh",
+				"user":        sshUsername,
+				"host":        "127.0.0.1",
+				"port":        "0", // will be set later
+				"private_key": TestSSHUserKeyPrivate,
+				"host_key":    TestSSHHostKeyPublic,
+			},
+		},
+	}
+}
+
+// GetPlayModuleSchema returns a Terraform *schema.ResourceData for a given module name.
+func GetPlayModuleSchema(t *testing.T, moduleName string) *schema.ResourceData {
+	playModuleEntity := map[string]interface{}{
+		"module": []map[string]interface{}{
+			map[string]interface{}{
+				"module": moduleName,
+			},
+		},
+		"playbook": []map[string]interface{}{},
+	}
+	playEntitySchemas := map[string]*schema.Schema{
+		"module":   types.NewModuleSchema(),
+		"playbook": types.NewPlaybookSchema(),
+	}
+	return schema.TestResourceDataRaw(t, playEntitySchemas, playModuleEntity)
+}
+
+// GetPlayPlaybookSchema returns a Terraform *schema.ResourceData for a given playbook file path.
+func GetPlayPlaybookSchema(t *testing.T, playbookFilePath string) *schema.ResourceData {
+	playPlaybookEntity := map[string]interface{}{
+		"playbook": []map[string]interface{}{
+			map[string]interface{}{
+				"file_path": playbookFilePath,
+			},
+		},
+		"module": []map[string]interface{}{},
+	}
+	playEntitySchemas := map[string]*schema.Schema{
+		"module":   types.NewModuleSchema(),
+		"playbook": types.NewPlaybookSchema(),
+	}
+	return schema.TestResourceDataRaw(t, playEntitySchemas, playPlaybookEntity)
+}
+
+// WriteTempVaultIDFile creates and writes a temporrary Vault ID password file.
+func WriteTempVaultIDFile(t *testing.T, password string) string {
+	tempVaultIDFile, err := ioutil.TempFile("", ".temp-vault-id")
+	if err != nil {
+		t.Fatal("Expected a temp vault id file to be crated", err)
+	}
+	tempVaultIDFileToWrite, err := os.OpenFile(tempVaultIDFile.Name(), os.O_RDWR, 0644)
+	if err != nil {
+		t.Fatal("Expected a temp vault id file to be writable", err)
+	}
+	tempVaultIDFileToWrite.WriteString(password)
+	tempVaultIDFileToWrite.Close()
+	return tempVaultIDFile.Name()
+}
+
+// WriteTempPlaybook writes a temp playbook.
+func WriteTempPlaybook(t *testing.T, dirpath string) string {
+
+	playbooksDir := filepath.Join(dirpath, "playbooks")
+	playbookFilePath := filepath.Join(playbooksDir, "playbook-integration-test.yml")
+
+	roleTasksDir := filepath.Join(playbooksDir, "roles", "integration_test", "tasks")
+	roleTasksMainFilePath := filepath.Join(roleTasksDir, "main.yml")
+
 	playbookFileContents := `---
-  - hosts: all
-    become: yes
-    roles:
-      - tree`
-	playbookFilePath := filepath.Join(dirpath, "playbooks", "install-tree.yml")
-	if err := os.MkdirAll(filepath.Join(dirpath, "playbooks"), os.ModePerm); err != nil {
+- hosts: all
+  become: no
+  roles:
+    - integration_test
+`
+
+	roleTasksFileContents := `- name: test task
+  command: echo test-task
+`
+
+	if err := os.MkdirAll(playbooksDir, os.ModePerm); err != nil {
 		t.Fatal("Expected the playbooks directory to be created under temp directory", err)
 	}
+
 	playbookFile, err := os.Create(playbookFilePath)
 	if err != nil {
 		t.Fatal("Expected a temp playbook file to be created", err)
 	}
 	playbookFile.WriteString(playbookFileContents)
 	playbookFile.Close()
+
+	if err := os.MkdirAll(roleTasksDir, os.ModePerm); err != nil {
+		t.Fatal("Expected the integration_test directory to be created under temp playbooks directory", err)
+	}
+
+	tasksFile, err := os.Create(roleTasksMainFilePath)
+	if err != nil {
+		t.Fatal("Expected a temp tasks file to be created", err)
+	}
+	tasksFile.WriteString(roleTasksFileContents)
+	tasksFile.Close()
+
 	return playbookFilePath
 }
