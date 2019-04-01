@@ -6,7 +6,7 @@ jobs:
     docker:
       # specify the version
       - image: radekg/terraform-provisioner-ansible-ci:ansible-2.6.5-go-1.11.6
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    working_directory: /go/src/github.com/radekg/terraform-provisioner-ansible
     steps:
       - checkout
       - run: make lint
