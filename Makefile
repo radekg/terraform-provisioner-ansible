@@ -1,6 +1,10 @@
 BINARY_NAME=terraform-provisioner-ansible
 PLUGINS_DIR=~/.terraform.d/plugins
 
+CI_ANSIBLE_VERSION=2.6.5
+CI_GOLANG_VERSION=1.11.6
+CI_PROJECT_PATH=/go/src/github.com/radekg/terraform-provisioner-ansible
+
 .PHONY: plugins-dir
 plugins-dir:
 	mkdir -p ${PLUGINS_DIR}
@@ -18,6 +22,20 @@ update-dependencies:
 .PHONY: check-golang-version
 check-golang-version:
 	./bin/check-golang-version.sh
+
+.PHONY: ci-build-image
+ci-build-image:
+	docker build --build-arg ANSIBLE_VERSION=${CI_ANSIBLE_VERSION} \
+		--force-rm \
+		--no-cache \
+		-t radekg/terraform-provisioner-ansible-ci:ansible-${CI_ANSIBLE_VERSION}-go-${CI_GOLANG_VERSION} -f .circleci/Dockerfile .circleci/
+
+.PHONY: ci-run-tests
+ci-run-tests:
+	docker run --rm \
+		-v $(shell pwd):${CI_PROJECT_PATH} \
+		-ti radekg/terraform-provisioner-ansible-ci:ansible-${CI_ANSIBLE_VERSION}-go-${CI_GOLANG_VERSION} \
+		/bin/sh -c 'cd ${CI_PROJECT_PATH} && make lint && make test-verbose'
 
 .PHONY: build-linux
 build-linux: check-golang-version plugins-dir
