@@ -1,6 +1,6 @@
 # Ansible provisioner for Terraform
 
-[![Build Status](https://travis-ci.org/radekg/terraform-provisioner-ansible.svg?branch=master)](https://travis-ci.org/radekg/terraform-provisioner-ansible)
+[![CircleCI](https://circleci.com/gh/radekg/terraform-provisioner-ansible.svg?style=svg)](https://circleci.com/gh/radekg/terraform-provisioner-ansible)
 
 Ansible with Terraform - `remote` and `local` provisioners.
 
