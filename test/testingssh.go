@@ -11,6 +11,7 @@ import (
 	"sync"
 	"syscall"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/pkg/sftp"
@@ -262,6 +263,7 @@ func (s *TestingSSHServer) serveConnection(listener net.Listener, config *ssh.Se
 					if !s.config.LocalMode {
 						s.logInfo("[%s] Emulating remote command: %s %s...", s.config.ServerID, execCommand, strings.Join(execCommandArgs, " "))
 						if isScpCommand {
+							benchStart := time.Now()
 							var wg sync.WaitGroup
 							wg.Add(1)
 							go func() {
@@ -273,7 +275,8 @@ func (s *TestingSSHServer) serveConnection(listener net.Listener, config *ssh.Se
 									return
 								}
 								scpData := buf[0:read]
-								s.logInfo("[%s] SCP DATA:\n==================================\n%s\n==================================\n", s.config.ServerID, string(scpData))
+								benchDiff := time.Now().Sub(benchStart)
+								s.logInfo("[%s] SCP DATA (arrived after %s):\n==================================\n%s\n==================================\n", s.config.ServerID, benchDiff.String(), string(scpData))
 							}()
 							req.Reply(true, nil)
 							channel.Write([]byte{0})

@@ -125,6 +125,7 @@ yERRbfK/j0cAAAAOcmFkQG5vYW4ubG9jYWwBAgMEBQ==
 	TestSSHUserKeyPublic = `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4xdZRtDIqh/TYbB2U4ZzyIiDoBBd0f9BIE39EB43AD1mlkrex9afxQKpfBNoR3Bvd6j89Ucb3Clklnj1KdEgxsC0kN1mewABkdAt6+5xpOnOl9ZgnUE3Ib959/puMlG8d1G/evWBo2DzVgk6uP/2A7+cjUsTvVM5t/DXeOniebJHDlUZse9FHoltPvL1Ro/ug2o4tZWXucf2PDqD2+aDfzXWRAZiIluXOo8j/by3/8K+DLODwhAPKZ9h9es0wSNWkC9UhOc6/2iY32PaKn9PIz3cEKfl/YHp6GA8gdJnR5KLLxYra6vxGoVSrvqr32Y1K+ktYVmv7V/TrpkwoXqFx540gO1t71PuYxAsyzENZny/L7MxK8cS+9ND4xYQOE8ImIcwk+52Jy5/H7g0M4To0Xjla6FcnCjvgDsXiEH/JRPfGCuyDCZPqVOUv9B0lLJTeKEipsysIAZsAN4kM5Nomv/9DQpaEOIbX9PihEm0RYzVvqvyRBOtvshn5rnLGJKZGyJw2Hr4wSJPgpaYTPnsjTAZ8ZKOiUAAvqF8qB/7mZ8p4mXFGJJMw/lk8NK+2/vH88OpnmWGiOs9rA9BnyWbc4rmpMj/XZBt7oaxyLWmeVfYzeKc6VadjrN21Yv2qSysngvX5BodDZ+Ql6T8Dvd8KeNnoezJL/xOM3cGm74uGwQ== rad@noan.local`
 
 	// CommandWaitTimeoutDuration specifies how long the test awaits for a notification from the SSH server.
+	// External CI (Travis, CircleCI) requires long timeouts, locally these will always be much faster.
 	CommandWaitTimeoutDuration = time.Duration(60) * time.Second
 
 	// ServerWaitTimeoutDuration specifies how long the test awaits for the SSH server to start.
