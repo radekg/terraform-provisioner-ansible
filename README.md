@@ -404,6 +404,14 @@ A remark regardng remote provisioning. Remote provisioner must upload referenced
 
 For the roles path, the complete directory as referenced in `roles_path` will be uploaded to the remote server. Same deduplication method applies but the MD5 hash is the `roles_path` itself.
 
+## Tests
+
+Integration tests require `ansible` and `ansible-playbook` on the `$PATH`. To run tests:
+
+```sh
+make test-verbose
+```
+
 ## Changes from 1.0.0
 
 ### Fixed

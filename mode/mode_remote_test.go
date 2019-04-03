@@ -39,8 +39,10 @@ func TestRemoteInventTemplateGenerates(t *testing.T) {
 
 func TestIntegrationRemoteModeProvisioning(t *testing.T) {
 
-	remoteTempDirectory := "/remote-temp"
-	bootstrapDirectory := "/bootstrap"
+	remoteTempDirectory := test.CreateTempAnsibleRemoteTmpDir(t)
+	defer os.RemoveAll(remoteTempDirectory)
+	bootstrapDirectory := test.CreateTempAnsibleBootstrapDir(t)
+	defer os.RemoveAll(bootstrapDirectory)
 	sshUsername := "integration-test"
 	testModuleName := "ping"
 
