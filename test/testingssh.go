@@ -11,7 +11,6 @@ import (
 	"sync"
 	"syscall"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/pkg/sftp"
@@ -217,42 +216,37 @@ func (s *TestingSSHServer) serveConnection(listener net.Listener, config *ssh.Se
 				case "exec":
 
 					ok = true
+
 					command := string(req.Payload[4:])
 					s.logInfo("[%s] exec %s", s.config.ServerID, command)
 					msg := exitStatusMsg{
 						Status: 0,
 					}
 
-					if !s.config.LocalMode {
-						// handle SCP commands:
-						if strings.HasPrefix(command, "scp -vt") || strings.HasPrefix(command, "scp -rvt") {
-							channel.Write([]byte{0})
-							time.Sleep(time.Second * 1)
-							channel.Write([]byte{0})
-							replyAndClose = true
-						}
-						channel.SendRequest("exit-status", false, ssh.Marshal(msg))
+					localCommand := command
+					if strings.HasPrefix(command, "/bin/sh -c '") {
+						localCommand = localCommand[12 : len(localCommand)-1]
 					}
+
+					execCommand := "/bin/sh"
+					execCommandArgs := []string{"-c", localCommand}
+
+					isScpCommand := strings.HasPrefix(localCommand, "scp -")
 
 					if s.config.LocalMode {
 
-						localCommand := command
-						if strings.HasPrefix(command, "/bin/sh -c '") {
-							localCommand = localCommand[12 : len(localCommand)-1]
-						}
-						s.logInfo("[%s] Executing local command: /bin/sh -c '%s'...", s.config.ServerID, localCommand)
-						cmd := exec.Command("/bin/sh", []string{"-c", localCommand}...)
+						cmd := exec.Command(execCommand, execCommandArgs...)
 						cmd.Stdout = channel
 						cmd.Stderr = channel
 						cmd.Stdin = channel
-						err := cmd.Start()
 
+						s.logInfo("[%s] Executing local command: %s %s...", s.config.ServerID, execCommand, strings.Join(execCommandArgs, " "))
+						err := cmd.Start()
 						if err != nil {
 							s.logInfo("[%s] failed to start command: %v...", s.config.ServerID, err)
 							continue
 						}
 
-						// teardown session
 						go func() {
 							_, err := cmd.Process.Wait()
 							if err != nil {
@@ -263,6 +257,31 @@ func (s *TestingSSHServer) serveConnection(listener net.Listener, config *ssh.Se
 							s.logInfo("[%s] command channel closed", s.config.ServerID)
 						}()
 
+					}
+
+					if !s.config.LocalMode {
+						s.logInfo("[%s] Emulating remote command: %s %s...", s.config.ServerID, execCommand, strings.Join(execCommandArgs, " "))
+						if isScpCommand {
+							var wg sync.WaitGroup
+							wg.Add(1)
+							go func() {
+								defer wg.Done()
+								buf := make([]byte, 8192)
+								read, err := channel.Read(buf)
+								if err != nil {
+									s.logInfo("[%s] Reading SCP data failed: %v", s.config.ServerID, err)
+									return
+								}
+								scpData := buf[0:read]
+								s.logInfo("[%s] SCP DATA:\n==================================\n%s\n==================================\n", s.config.ServerID, string(scpData))
+							}()
+							req.Reply(true, nil)
+							channel.Write([]byte{0})
+							wg.Wait()
+							channel.Write([]byte{0})
+							replyAndClose = true
+						}
+						channel.SendRequest("exit-status", false, ssh.Marshal(msg))
 					}
 
 					go func() {

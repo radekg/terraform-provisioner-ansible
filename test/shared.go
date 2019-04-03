@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	// TestSSHHostKeyPrivate is an integration test host private key.
 	TestSSHHostKeyPrivate = `-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAACFwAAAAdzc2gtcn
 NhAAAAAwEAAQAAAgEAyD7WW7tbpNQR64DqVQFtKUUYTCSm731GZCK9ZGibrnqNXyEwtuWP
@@ -65,8 +66,11 @@ GLlldAzZhsF0KHTsIT6SmO3Vh6qq8Mew9PnSRRmH/7vwK7GlhCPokugtoEXQREw2/E3wLy
 J65+euj1VTdZmMojcObiNEdjofW3aobbBmeZ4FyXMfwvAIEMqq7aLX1hEv4Ge0B5R6QGs5
 HglAkbnyRt0AAAAOcmFkQG5vYW4ubG9jYWwBAgMEBQ==
 -----END OPENSSH PRIVATE KEY-----`
+
+	// TestSSHHostKeyPublic is an integration test host public key.
 	TestSSHHostKeyPublic = `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDIPtZbu1uk1BHrgOpVAW0pRRhMJKbvfUZkIr1kaJuueo1fITC25Y/77WihlmyPTJryIMcGSBGmH+9Yp4PzS9fy4+BbWBPVHom7aBatG7xj/jXSXwCGq2kg5AdpqSiON4ftzXGgdtdr7i7pV9JRZdmNsB+kYvswmE2cHcGy62oAmo32jNxEsBtasQbKZVGGLwhyhv0APSWrmLo4CWGVXzVdskcg10EjBfEzvD2duSQhsfwQFnjhCVuT2rTZLYIm61p1v47AlKSnaogSmI5BjiEVbXTS7N58eH6Fv0XmS1nFfFaACy4++1RjX1ezrM2UvBqxgEH/l4846DLnPKoxfK/ORDFaeza0SXECJvWu9DCP3xwH2enqD10RdVaZ6WWiwbi3sV/j21oleM0+6zCvSUM5EnCz5IJCxqZ+fiKMd9NbIAHjh5QrHvx9LXfEOMczJ7m9U1w+/OEjBlqXgJcs0uNWgFqo5e4K272C0zUaADaxehRpgw3STzOnSCTgCt8I/wGy9jGMka5ygV4+IAcuNmv9GeB8ZEkFTYPvx74JK1DQvNBhlQkmSg4PGqnFdQ0P90+a96Et3vMNhqCL6UgkwMOHrzrOVBh1KL64lABiv3bgoQbOjhllqUlt36IXqHvXMYToR5jZSNutZP57bgrFAusorbcOS5iUg3Ye2iliIVQzjw== rad@noan.local`
 
+	// TestSSHUserKeyPrivate is an integration test user private key.
 	TestSSHUserKeyPrivate = `-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAACFwAAAAdzc2gtcn
 NhAAAAAwEAAQAAAgEAuMXWUbQyKof02GwdlOGc8iIg6AQXdH/QSBN/RAeNwA9ZpZK3sfWn
@@ -116,9 +120,15 @@ i7R1WmTYwPRbmcjjQ4Dy49y1juk1Aj5BnI9I3RWoj50vT/X5xnWuKVpDkSyMcNanV9EP7t
 28TTPH/O/XHQL+NYT17ylXOItTuwIQtVTTN/Yjry+ELhKbpH/PiSZCbH4VMkMc/f5Hsf8T
 yERRbfK/j0cAAAAOcmFkQG5vYW4ubG9jYWwBAgMEBQ==
 -----END OPENSSH PRIVATE KEY-----`
-	TestSSHUserKeyPublic       = `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4xdZRtDIqh/TYbB2U4ZzyIiDoBBd0f9BIE39EB43AD1mlkrex9afxQKpfBNoR3Bvd6j89Ucb3Clklnj1KdEgxsC0kN1mewABkdAt6+5xpOnOl9ZgnUE3Ib959/puMlG8d1G/evWBo2DzVgk6uP/2A7+cjUsTvVM5t/DXeOniebJHDlUZse9FHoltPvL1Ro/ug2o4tZWXucf2PDqD2+aDfzXWRAZiIluXOo8j/by3/8K+DLODwhAPKZ9h9es0wSNWkC9UhOc6/2iY32PaKn9PIz3cEKfl/YHp6GA8gdJnR5KLLxYra6vxGoVSrvqr32Y1K+ktYVmv7V/TrpkwoXqFx540gO1t71PuYxAsyzENZny/L7MxK8cS+9ND4xYQOE8ImIcwk+52Jy5/H7g0M4To0Xjla6FcnCjvgDsXiEH/JRPfGCuyDCZPqVOUv9B0lLJTeKEipsysIAZsAN4kM5Nomv/9DQpaEOIbX9PihEm0RYzVvqvyRBOtvshn5rnLGJKZGyJw2Hr4wSJPgpaYTPnsjTAZ8ZKOiUAAvqF8qB/7mZ8p4mXFGJJMw/lk8NK+2/vH88OpnmWGiOs9rA9BnyWbc4rmpMj/XZBt7oaxyLWmeVfYzeKc6VadjrN21Yv2qSysngvX5BodDZ+Ql6T8Dvd8KeNnoezJL/xOM3cGm74uGwQ== rad@noan.local`
+
+	// TestSSHUserKeyPublic is an integration test user public key.
+	TestSSHUserKeyPublic = `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4xdZRtDIqh/TYbB2U4ZzyIiDoBBd0f9BIE39EB43AD1mlkrex9afxQKpfBNoR3Bvd6j89Ucb3Clklnj1KdEgxsC0kN1mewABkdAt6+5xpOnOl9ZgnUE3Ib959/puMlG8d1G/evWBo2DzVgk6uP/2A7+cjUsTvVM5t/DXeOniebJHDlUZse9FHoltPvL1Ro/ug2o4tZWXucf2PDqD2+aDfzXWRAZiIluXOo8j/by3/8K+DLODwhAPKZ9h9es0wSNWkC9UhOc6/2iY32PaKn9PIz3cEKfl/YHp6GA8gdJnR5KLLxYra6vxGoVSrvqr32Y1K+ktYVmv7V/TrpkwoXqFx540gO1t71PuYxAsyzENZny/L7MxK8cS+9ND4xYQOE8ImIcwk+52Jy5/H7g0M4To0Xjla6FcnCjvgDsXiEH/JRPfGCuyDCZPqVOUv9B0lLJTeKEipsysIAZsAN4kM5Nomv/9DQpaEOIbX9PihEm0RYzVvqvyRBOtvshn5rnLGJKZGyJw2Hr4wSJPgpaYTPnsjTAZ8ZKOiUAAvqF8qB/7mZ8p4mXFGJJMw/lk8NK+2/vH88OpnmWGiOs9rA9BnyWbc4rmpMj/XZBt7oaxyLWmeVfYzeKc6VadjrN21Yv2qSysngvX5BodDZ+Ql6T8Dvd8KeNnoezJL/xOM3cGm74uGwQ== rad@noan.local`
+
+	// CommandWaitTimeoutDuration specifies how long the test awaits for a notification from the SSH server.
 	CommandWaitTimeoutDuration = time.Duration(15) * time.Second
-	ServerWaitTimeoutDuration  = time.Duration(10) * time.Second
+
+	// ServerWaitTimeoutDuration specifies how long the test awaits for the SSH server to start.
+	ServerWaitTimeoutDuration = time.Duration(10) * time.Second
 )
 
 // CommandTest tests an SSH server output channel for a command.
@@ -136,6 +146,15 @@ func CommandTest(t *testing.T, sshServer *TestingSSHServer, commandPrefix string
 	case <-time.After(CommandWaitTimeoutDuration):
 		t.Fatal("Excepted a notification from the SSH server.")
 	}
+}
+
+// CreateTempAnsibleBootstrapDir creates a temp Ansible bootstrap directory.
+func CreateTempAnsibleBootstrapDir(t *testing.T) string {
+	tmp, err := ioutil.TempDir("", ".temp-bootstrap")
+	if err != nil {
+		t.Fatal("Expected a temp temp bootstrap dir to be created", err)
+	}
+	return tmp
 }
 
 // CreateTempAnsibleDataDirectory creates a temp Ansible data directory.
