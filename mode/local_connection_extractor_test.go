@@ -1,7 +1,13 @@
 package mode
 
 import (
+	"fmt"
+	"strings"
 	"testing"
+	"time"
+
+	"github.com/hashicorp/terraform/terraform"
+	"github.com/radekg/terraform-provisioner-ansible/test"
 )
 
 func TestValidPrivateKeyWithExtraBytesDecrypts(t *testing.T) {
@@ -80,4 +86,140 @@ lRcaj/CLlXBZEXCFWfp6/N5X1W+/9rmJoSiItqYVYQ0xdC5lCK6aE/HyyRJceR9Q
 	if err == nil {
 		t.Fatalf("Expected an error.")
 	}
+}
+
+func TestLocalConnectionExtractor(t *testing.T) {
+	instanceState := &terraform.InstanceState{
+		Ephemeral: terraform.EphemeralState{
+			ConnInfo: map[string]string{
+				"type":                "ssh",
+				"user":                "test-username",
+				"password":            "test-password",
+				"private_key":         test.TestSSHUserKeyPrivate,
+				"host":                "127.0.0.1",
+				"host_key":            test.TestSSHHostKeyPublic,
+				"port":                "2022",
+				"agent":               "true",
+				"agent_identity":      "identity",
+				"timeout":             "10m",
+				"script_path":         "/tmp/script-path-%RAND%",
+				"bastion_user":        "test-bastion-username",
+				"bastion_password":    "test-bastion-password",
+				"bastion_private_key": test.TestSSHUserKeyPrivate,
+				"bastion_host":        "127.0.0.2",
+				"bastion_host_key":    test.TestSSHHostKeyPublic,
+				"bastion_port":        "2021",
+			},
+		},
+	}
+
+	connInfo, err := parseConnectionInfo(instanceState)
+	if err != nil {
+		t.Fatal("Expected connection info but received an error", err)
+	}
+	// agent:
+	if !connInfo.Agent {
+		t.Fatal("Expected connection info Agent true but got", connInfo.Agent)
+	}
+	if connInfo.AgentIdentity != instanceState.Ephemeral.ConnInfo["agent_identity"] {
+		t.Fatalf("Expected connection info AgentIdentity %s but got %s", instanceState.Ephemeral.ConnInfo["agent_identity"], connInfo.AgentIdentity)
+	}
+	if connInfo.ScriptPath != instanceState.Ephemeral.ConnInfo["script_path"] {
+		t.Fatalf("Expected connection info ScriptPath %s but got %s", instanceState.Ephemeral.ConnInfo["script_path"], connInfo.ScriptPath)
+	}
+	// bastion:
+	if connInfo.BastionHost != instanceState.Ephemeral.ConnInfo["bastion_host"] {
+		t.Fatalf("Expected connection info BastionHost %s but got %s", instanceState.Ephemeral.ConnInfo["bastion_host"], connInfo.BastionHost)
+	}
+	if connInfo.BastionHostKey != instanceState.Ephemeral.ConnInfo["bastion_host_key"] {
+		t.Fatalf("Expected connection info BastionHostKey %s but got %s", instanceState.Ephemeral.ConnInfo["bastion_host_key"], connInfo.BastionHostKey)
+	}
+	if connInfo.BastionPassword != instanceState.Ephemeral.ConnInfo["bastion_password"] {
+		t.Fatalf("Expected connection info BastionPassword %s but got %s", instanceState.Ephemeral.ConnInfo["bastion_password"], connInfo.BastionPassword)
+	}
+	if fmt.Sprintf("%d", connInfo.BastionPort) != instanceState.Ephemeral.ConnInfo["bastion_port"] {
+		t.Fatalf("Expected connection info BastionPort %s but got %d", instanceState.Ephemeral.ConnInfo["bastion_port"], connInfo.BastionPort)
+	}
+	if flatString(connInfo.BastionPrivateKey) != flatString(instanceState.Ephemeral.ConnInfo["bastion_private_key"]) {
+		t.Fatalf("Expected connection info BastionPrivateKey %s but got %s", instanceState.Ephemeral.ConnInfo["bastion_private_key"], connInfo.BastionPrivateKey)
+	}
+	if connInfo.BastionUser != instanceState.Ephemeral.ConnInfo["bastion_user"] {
+		t.Fatalf("Expected connection info BastionUser %s but got %s", instanceState.Ephemeral.ConnInfo["bastion_user"], connInfo.BastionUser)
+	}
+	// host:
+	if connInfo.Host != instanceState.Ephemeral.ConnInfo["host"] {
+		t.Fatalf("Expected connection info Host %s but got %s", instanceState.Ephemeral.ConnInfo["host"], connInfo.Host)
+	}
+	if connInfo.HostKey != instanceState.Ephemeral.ConnInfo["host_key"] {
+		t.Fatalf("Expected connection info HostKey %s but got %s", instanceState.Ephemeral.ConnInfo["host_key"], connInfo.HostKey)
+	}
+	if connInfo.Password != instanceState.Ephemeral.ConnInfo["password"] {
+		t.Fatalf("Expected connection info Password %s but got %s", instanceState.Ephemeral.ConnInfo["password"], connInfo.Password)
+	}
+	if fmt.Sprintf("%d", connInfo.Port) != instanceState.Ephemeral.ConnInfo["port"] {
+		t.Fatalf("Expected connection info Port %s but got %d", instanceState.Ephemeral.ConnInfo["port"], connInfo.Port)
+	}
+	if flatString(connInfo.PrivateKey) != flatString(instanceState.Ephemeral.ConnInfo["private_key"]) {
+		t.Fatalf("Expected connection info PrivateKey %s but got %s", instanceState.Ephemeral.ConnInfo["private_key"], connInfo.PrivateKey)
+	}
+	if connInfo.User != instanceState.Ephemeral.ConnInfo["user"] {
+		t.Fatalf("Expected connection info User %s but got %s", instanceState.Ephemeral.ConnInfo["user"], connInfo.User)
+	}
+}
+
+func TestLocalConnectionExtractorBastionInherits(t *testing.T) {
+	instanceState := &terraform.InstanceState{
+		Ephemeral: terraform.EphemeralState{
+			ConnInfo: map[string]string{
+				"type":           "ssh",
+				"user":           "test-username",
+				"password":       "test-password",
+				"private_key":    test.TestSSHUserKeyPrivate,
+				"host":           "127.0.0.1",
+				"host_key":       test.TestSSHHostKeyPublic,
+				"port":           "2022",
+				"agent":          "true",
+				"agent_identity": "identity",
+				"timeout":        "10m",
+				"script_path":    "/tmp/script-path-%RAND%",
+				"bastion_host":   "127.0.0.2",
+			},
+		},
+	}
+
+	connInfo, err := parseConnectionInfo(instanceState)
+	if err != nil {
+		t.Fatal("Expected connection info but received an error", err)
+	}
+	// bastion:
+	if connInfo.BastionHost != instanceState.Ephemeral.ConnInfo["bastion_host"] {
+		t.Fatalf("Expected connection info BastionHost %s but got %s", instanceState.Ephemeral.ConnInfo["bastion_host"], connInfo.BastionHost)
+	}
+	if connInfo.BastionHostKey != "" {
+		t.Fatalf("Expected connection info BastionHostKey to be empty but got %s", connInfo.BastionHostKey)
+	}
+	if connInfo.BastionPassword != instanceState.Ephemeral.ConnInfo["password"] {
+		t.Fatalf("Expected connection info BastionPassword %s but got %s", instanceState.Ephemeral.ConnInfo["password"], connInfo.BastionPassword)
+	}
+	if fmt.Sprintf("%d", connInfo.BastionPort) != instanceState.Ephemeral.ConnInfo["port"] {
+		t.Fatalf("Expected connection info BastionPort %s but got %d", instanceState.Ephemeral.ConnInfo["port"], connInfo.BastionPort)
+	}
+	if flatString(connInfo.BastionPrivateKey) != flatString(instanceState.Ephemeral.ConnInfo["private_key"]) {
+		t.Fatalf("Expected connection info BastionPrivateKey %s but got %s", instanceState.Ephemeral.ConnInfo["private_key"], connInfo.BastionPrivateKey)
+	}
+	if connInfo.BastionUser != instanceState.Ephemeral.ConnInfo["user"] {
+		t.Fatalf("Expected connection info BastionUser %s but got %s", instanceState.Ephemeral.ConnInfo["user"], connInfo.BastionUser)
+	}
+}
+
+func TestInvalidDurationResultsInDefaultDuration(t *testing.T) {
+	defaultDuration := time.Duration(time.Second * 5)
+	returnedDuration := safeDuration("not a duration string", defaultDuration)
+	if defaultDuration != returnedDuration {
+		t.Fatalf("Expected default duration")
+	}
+}
+
+func flatString(str string) string {
+	return strings.Replace(str, "\n", "", -1)
 }

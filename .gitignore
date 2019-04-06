@@ -5,3 +5,4 @@
 **/**/terraform.*
 /terraform-provisioner-ansible*
 /bin/.build_output
+.coverage/

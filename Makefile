@@ -1,5 +1,6 @@
 BINARY_NAME=terraform-provisioner-ansible
 PLUGINS_DIR=~/.terraform.d/plugins
+CURRENT_DIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
 CI_ANSIBLE_VERSION=2.6.5
 CI_GOLANG_VERSION=1.11.6
@@ -55,6 +56,13 @@ build-darwin: check-golang-version plugins-dir
 build-release:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 installsuffix=cgo go build -o ${GOPATH}/bin/${BINARY_NAME}-linux-amd64_${RELEASE_VERSION}
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 installsuffix=cgo go build -o ${GOPATH}/bin/${BINARY_NAME}-darwin-amd64_${RELEASE_VERSION}
+
+.PHONY: coverage
+coverage:
+	mkdir -p ${CURRENT_DIR}/.coverage
+	go test -coverprofile=${CURRENT_DIR}/.coverage/cov.out -v ./...
+	go tool cover -html=${CURRENT_DIR}/.coverage/cov.out \
+		-o ${CURRENT_DIR}/.coverage/cov.html
 
 .PHONY: test
 test:
