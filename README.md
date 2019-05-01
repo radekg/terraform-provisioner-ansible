@@ -6,20 +6,24 @@ Ansible with Terraform - `remote` and `local` provisioners.
 
 ## General overview
 
-The purpose of the provisioner is to provide an easy method for running Ansible to provision hosts created with Terraform.
+The purpose of the provisioner is to provide an easy method for running Ansible to configure hosts created with Terraform.
 
-This provisioner, however, is not designed to handle all possible responsibilities of Ansible. To better understand the distinction, consider what's possible and what's not possible with this provisioner.
+This provisioner, however, is not designed to handle all possible Ansible use cases. Lets consider what's possible and what's not possible with this provisioner.
 
-For after provisioning, you may find the following Ansible module useful: [terraform-state-ansible-module](https://github.com/radekg/terraform-state-ansible-module).
+For after provisioning, you may find the following Ansible module useful if you use AWS S3 for state storage: [terraform-state-ansible-module](https://github.com/radekg/terraform-state-ansible-module).
 
 ### What's possible
 
-- `local provisioner`
+- `compute resource local provisioner`
+  - configured on a compute resource e.g. aws_instance, ibm_compute_vm_instance
   - runs Ansible installed on the same machine where Terraform is executed
   - the provisioner will create a temporary inventory and execute Ansible only against hosts created with Terraform `resource`
+  - If `count` is used with the compute resource and is greater than 1, the provisioner runs after each resource instance is created, passing the host information for that instance only. 
   - Ansible Vault password file / Vault ID files can be used
-  - the temporary inventory uses `ansible_connection=ssh`, the `ansible_host` is resolved from the `resource.connection` resource, it is possible to specify an `alias` using `hosts`
-- `remote provisioner`
+  - the temporary inventory uses `ansible_connection=ssh`, the host `alias` is resolved from the `resource.connection` attribute, it is possible to specify an `ansible_host` using `plays.hosts`
+
+- `compute resource remote provisioner`
+  - configured on a compute resource e.g. aws_instance, ibm_compute_vm_instance
   - runs Ansible on the hosts created with Terraform `resource`
   - if Ansible is not installed on the newly created hosts, the provisioner can install one
   - the provisioner will create a temporary inventory and execute Ansible only against hosts created with Terraform `resource`
@@ -27,11 +31,23 @@ For after provisioning, you may find the following Ansible module useful: [terra
   - hosts are provisioned using `ansible_connection=local`
   - an alias can be provided using `hosts`, each `host` will be included in every `group` provided with `groups` but each of them will use `ansible_connection=local`
 
+- `null_resource local provisioner`
+  - configured on a null_resouce
+  - runs Ansible installed on the same machine where Terraform is executed
+  - Executes Ansible against the hosts defined by a list of IP addresses passed by interpolation on the `plays.hosts` attribute. The host group is defined by `plays.groups`. 
+  - Executes the Ansible provisioner once against all hosts defined in `plays.hosts`, triggered by the availability of the interpolated vars.
+  - Alternatively an inventory file (staticly defined or dynamically templated) can be passed to Ansible to specify a list of Terraform provisioned hosts and groups to be passed to Ansible to execute against in a single run.  
+  - Inventory file can also be used with Ansible dynamic inventory and inventory plugins. 
+  - The Terraform depends_on attribute can be used to determine when the Ansible provisioner is executed in relation to the provisioning of other Terraform resources
+  - If the Terraform host is on the same network (cloud hosted or VPN) as the provisioned hosts, private IP addresses can be passed eliminating the requirement for bastion hosts or public SSH access. 
+  - Ansible Vault password file / Vault ID files can be used
+
+
 ### What's not possible
 
-The provisioner by no means attempts to implement all Ansible use cases. The provisioner is not intended to be used as a `jump host`. For example, the `remote mode` does not allow provisioning hosts other than the one where Ansible is executed. The number of use cases and possibilities covered by Ansible is so wide that having to strive for full support is a huge undertaking for one person.
+The provisioner by no means attempts to implement all Ansible use cases. The provisioner is not intended to be used as a `jump host`. For example, the `remote mode` does not allow provisioning hosts other than the one where Ansible is executed. The number of use cases and possibilities covered by Ansible is so wide that having to strive for full support is a huge undertaking for one person. Using the provisioner with a null_resource provides further options for passing the Ansible inventory, including dynamic inventory, to meet use cases not addressed when used with a compute resource. 
 
-If you find yourself in need of executing Ansible against well specified, complex inventories, it might be, indeed, easier to follow the regular process of provisoning hosts via Terraform and executing Ansible against them as a separate step. Of course, pull requests are always welcomed!
+If you find yourself in need of executing Ansible against well specified, complex inventories, either follow the regular process of provisoning hosts via Terraform and executing Ansible against them as a separate step, or initate the Ansible execution as the last Terraform task using null_resource and depends_on. Of course, pull requests are always welcomed!
 
 ## Installation
 
@@ -155,6 +171,34 @@ resource "aws_instance" "test_box" {
 }
 ```
 
+```tf
+resource "aws_instance" "test_box" {
+  # ...
+}
+
+resource "null_resource" "test_box" {
+  depends_on = "aws_instance.test_box"
+  connection {
+    private_key = "${file("./test_box")}"
+  }
+  provisioner "ansible" {
+    plays {
+      playbook = {
+        file_path = "/path/to/playbook/file.yml"
+        roles_path = ["/path1", "/path2"]
+        force_handlers = false
+        skip_tags = ["list", "of", "tags", "to", "skip"]
+        start_at_task = "task-name"
+        tags = ["list", "of", "tags"]
+      }
+      hosts = ["aws_instance.test_box.*.public_ip"]
+      groups = ["consensus"]
+    }
+  }
+}
+```
+
+
 ### Plays
 
 #### Selecting what to run
@@ -180,7 +224,7 @@ Each `plays` must contain exactly one `playbook` or `module`. Define multiple `p
 
 #### Plays attributes
 
-- `plays.hosts`: list of hosts to include in auto-generated inventory file when `inventory_file` not given, string list, default `empty list`; more details below
+- `plays.hosts`: list of hosts to include in auto-generated inventory file when `inventory_file` not given, string list, default `empty list`; When used with nulll_resource this can be an interpolated list of host IP address public or private; more details below
 - `plays.groups`: list of groups to include in auto-generated inventory file when `inventory_file` not given, string list, default `empty list`; more details below
 - `plays.enabled`: boolean, default `true`; set to `false` to skip execution
 - `plays.become`: `ansible[-playbook] --become`, boolean, default `false` (not applied)
@@ -263,7 +307,7 @@ Because the provisioner executes SSH commands outside of itself, via Ansible com
 
 #### Host without a bastion
 
-1. If `connection.host_key` is used, the provisioner will use the provided host key to contruct the temporary `known_hosts` file.
+1. If `connection.host_key` is used, the provisioner will use the provided host key to construct the temporary `known_hosts` file.
 2. If `connection.host_key` is not given or empty, the provisioner will attempt a connection to the host and retrieve first host key returned during the handshake (similar to `ssh-keyscan` but using Golang SSH).
 
 #### Host with bastion
@@ -282,9 +326,9 @@ In the `ssh-keyscan` case, the bastion host must:
   - have `cat`, `echo`, `grep`, `mkdir`, `rm`, `ssh-keyscan` commands available on the `$PATH` for the SSH `user`
   - have `$HOME` enviornment variable set for the SSH `user`
 
-### Local provisioner: hosts and groups
+### Compute resource local provisioner: hosts and groups
 
-The `plays.hosts` and `defaults.hosts` can be used with local provisioner. However, only the first defined host will be used when generating the inventory file. When `plays.hosts` or `defaults.hosts` is set to a non-empty list, the first host will be used to generate an inventory in the following format:
+The `plays.hosts` and `defaults.hosts` attributes can be used with local provisioner. When used with a compute resource only the first defined host will be used when generating the inventory file and additional hosts will be ignored. If `plays.hosts` or `defaults.hosts` is not specified, the provisioner uses the public IP address of the Terraform provisioned resource instance. The inventory file is generated in the following format with a single host:
 
 ```
 aFirstHost ansible_host=<ip address of the host> ansible_connection-ssh
@@ -320,6 +364,39 @@ If `hosts` is an empty list or not given, the resulting generated inventory is:
 [group2]
 <ip> ansible_connection-ssh
 ```
+
+### Null_resource local provisioner: hosts and groups
+
+The `plays.hosts` and `defaults.hosts` can be used with local provisioner on a null_resource. All passed hosts are used when generating the inventory file. The inventory file is generated in the following format:
+
+```
+<firstHost IP> 
+<secondHost IP>
+```
+
+For each group, additional ini section will be added, where each section is:
+
+```
+[groupName]
+<firstHost IP> 
+<secondHost IP>
+```
+
+For a host list `["firstHost IP", "secondHost IP"]` and a group list of `["group1", "group2"]`, the inventory would be:
+
+```
+<firstHost IP> 
+<secondHost IP>
+
+[group1]
+<firstHost IP> 
+<secondHost IP>
+
+[group2]
+<firstHost IP> 
+<secondHost IP>
+```
+
 
 ### Remote provisioner: running on hosts created by Terraform
 

@@ -33,7 +33,7 @@ func vfBecomeMethod(val interface{}, key string) (warns []string, errs []error) 
 func vfPath(val interface{}, key string) (warns []string, errs []error) {
 	v := val.(string)
 	if strings.Index(v, "${path.module}") > -1 {
-		warns = append(warns, fmt.Sprintf("I could not reliably determine the existence of '%s', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.", v))
+		warns = append(warns, fmt.Sprintf("Unable to determine the existence of '%s', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.", v))
 	} else {
 		if _, err := ResolvePath(v); err != nil {
 			errs = append(errs, fmt.Errorf("file '%s' does not exist", v))
@@ -46,10 +46,10 @@ func vfPath(val interface{}, key string) (warns []string, errs []error) {
 func VfPathDirectory(val interface{}, key string) (warns []string, errs []error) {
 	v := val.(string)
 	if strings.Index(v, "${path.module}") > -1 {
-		warns = append(warns, fmt.Sprintf("I could not reliably determine the existence of '%s', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.", v))
+		warns = append(warns, fmt.Sprintf("Unable to determine the existence of '%s', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.", v))
 	} else {
 		if _, err := ResolveDirectory(v); err != nil {
-			errs = append(errs, fmt.Errorf("directory '%s' does not exist or path not directory", v))
+			errs = append(errs, fmt.Errorf("directory '%s' does not exist or path is not a directory", v))
 		}
 	}
 	return
