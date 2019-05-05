@@ -141,3 +141,12 @@ After testing each of the examples, you will need to destroy the infrastructure.
         -var "vpc_cidr_block=${R_VPC_CIDR_BLOCK}" \
         -var "infrastructure_name=${R_NAME}-remote"
     ```
+
+5. `sshagent-local-no-bastion-null-resource`: run local provisioning using a null_resource for a host without a bastion
+    
+    ```
+    cd sshagent-local-no-bastion-null-resource
+    terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
+    # ...
+    terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
+    ```

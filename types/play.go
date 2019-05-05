@@ -523,7 +523,8 @@ func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSe
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-p %d", ansibleArgs.Port))
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectTimeout=%d", ansibleSSHSettings.ConnectTimeoutSeconds()))
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectionAttempts=%d", ansibleSSHSettings.ConnectAttempts()))
-	if ansibleSSHSettings.InsecureNoStrictHostKeyChecking() {
+	
+	if ansibleSSHSettings.InsecureNoStrictHostKeyChecking() || v.InventoryFile() != "" {
 		sshExtraAgrsOptions = append(sshExtraAgrsOptions, "-o StrictHostKeyChecking=no")
 	} else {
 		if ansibleSSHSettings.UserKnownHostsFile() != "" {
@@ -539,7 +540,7 @@ func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSe
 		if ansibleArgs.BastionPemFile != "" {
 			proxyCommand = fmt.Sprintf("%s -i %s", proxyCommand, ansibleArgs.BastionPemFile)
 		}
-		if ansibleSSHSettings.InsecureBastionNoStrictHostKeyChecking() {
+		if ansibleSSHSettings.InsecureBastionNoStrictHostKeyChecking()  {
 			proxyCommand = fmt.Sprintf("%s -o StrictHostKeyChecking=no", proxyCommand)
 		} else {
 			if ansibleSSHSettings.BastionUserKnownHostsFile() != "" {
