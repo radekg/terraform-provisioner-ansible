@@ -38,6 +38,7 @@ const inventoryTemplateLocal = `{{$top := . -}}
 {{if ne .AnsibleHost "" -}}
 {{" "}}ansible_host={{.AnsibleHost -}}
 {{end -}}
+{{printf "\n" -}}
 {{end}}
 
 {{range .Groups -}}
@@ -47,6 +48,7 @@ const inventoryTemplateLocal = `{{$top := . -}}
 {{if ne .AnsibleHost "" -}}
 {{" "}}ansible_host={{.AnsibleHost -}}
 {{end -}}
+{{printf "\n" -}}
 {{end}}
 
 {{end}}`
@@ -65,9 +67,10 @@ func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode,
 	if err != nil {
 		return nil, err
 	}
-	if connInfo.User == "" || connInfo.Host == "" {
-		return nil, fmt.Errorf("Local mode requires a connection with username and host")
-	}
+
+	// Checks on connInfo unnecessary
+	// connInfo.User defaulted to "root" by Terraform
+	// connInfo.Host always populated when running under compute resource. 
 
 	return &LocalMode{
 		o:        o,
@@ -75,8 +78,29 @@ func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode,
 	}, nil
 }
 
+func (v *LocalMode) ComputeResource() bool {
+	if v.connInfo.Host != "" {
+		return true
+	} else {
+		return false
+	}
+}
+
+
 // Run executes local provisioning process.
 func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSSHSettings) error {
+
+	// Validate config for null_resource
+	compute_resource := v.ComputeResource()
+	if !compute_resource  {
+		for _, play := range plays {
+			if len(play.Hosts()) == 0 && play.InventoryFile() == "" {
+				return fmt.Errorf("Hosts or Inventory file must be specified on each plays attribute when using null_resource")
+			}
+		}	
+		// Force StrictHostKeyChecking=no for null_resource
+		ansibleSSHSettings.SetOverrideStrictHostKeyChecking()					
+	}		
 
 	bastionPemFile := ""
 	if v.connInfo.BastionPrivateKey != "" {
@@ -95,6 +119,7 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		if err != nil {
 			return err
 		}
+
 		defer os.Remove(targetPemFile)
 	}
 
@@ -150,41 +175,49 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		}
 		knownHostsBastion = append(knownHostsBastion, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
 	} else {
-
 		if !ansibleSSHSettings.InsecureNoStrictHostKeyChecking() {
-			if ansibleSSHSettings.UserKnownHostsFile() == "" {
-				if target.hostKey() == "" {
-					// fetchHostKey will issue an ssh Dial and update the hostKey() value
-					// as with bastionKeyScan, we might ask for the host key while the instance
-					// is not ready to respond to SSH, we need to retry for a number of times
-					timeoutMs := ansibleSSHSettings.SSHKeyscanSeconds() * 1000
-					timeSpentMs := 0
-					intervalMs := 5000
-					for {
-						if err := target.fetchHostKey(); err != nil {
-							v.o.Output(fmt.Sprintf("host key for '%s' not received yet; retrying...", target.host()))
-							time.Sleep(time.Duration(intervalMs) * time.Millisecond)
-							timeSpentMs = timeSpentMs + intervalMs
-							if timeSpentMs > timeoutMs {
-								v.o.Output(fmt.Sprintf("host key for '%s' not received within %d seconds",
-									target.host(),
-									ansibleSSHSettings.SSHKeyscanSeconds()))
-								return err
+			v.o.Output(fmt.Sprintf("InsecureNoStrictHostKeyChecking false" ))
+			if compute_resource {
+				if ansibleSSHSettings.UserKnownHostsFile() == "" {
+					if target.hostKey() == "" {
+						v.o.Output(fmt.Sprintf("host key for '%s' not passed", target.host()))
+						// fetchHostKey will issue an ssh Dial and update the hostKey() value
+						// as with bastionKeyScan, we might ask for the host key while the instance
+						// is not ready to respond to SSH, we need to retry for a number of times
+						timeoutMs := ansibleSSHSettings.SSHKeyscanSeconds() * 1000
+						timeSpentMs := 0
+						intervalMs := 5000
+
+
+						for {
+							if err := target.fetchHostKey(); err != nil {
+								v.o.Output(fmt.Sprintf("host key for '%s' not received yet; retrying...", target.host()))
+								time.Sleep(time.Duration(intervalMs) * time.Millisecond)
+								timeSpentMs = timeSpentMs + intervalMs
+								if timeSpentMs > timeoutMs {
+									v.o.Output(fmt.Sprintf("host key for '%s' not received within %d seconds",
+										target.host(),
+										ansibleSSHSettings.SSHKeyscanSeconds()))
+									return err
+								}
+							} else {
+								break
 							}
-						} else {
-							break
+						}
+						if target.hostKey() == "" {
+							return fmt.Errorf("expected to receive the host key for '%s', but no host key arrived", target.host())
 						}
 					}
-					if target.hostKey() == "" {
-						return fmt.Errorf("expected to receive the host key for '%s', but no host key arrived", target.host())
-					}
+					knownHostsTarget = append(knownHostsTarget, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
+				} else {
+					v.o.Output(fmt.Sprintf("using '%s' as a known hosts file", ansibleSSHSettings.UserKnownHostsFile()))
 				}
-				knownHostsTarget = append(knownHostsTarget, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
 			} else {
-				v.o.Output(fmt.Sprintf("using '%s' as a known hosts file", ansibleSSHSettings.UserKnownHostsFile()))
+				v.o.Output("null_resource, not verifying host keys")
+				// StrictHostKeyChecking=no set during play execution
 			}
 		} else {
-			v.o.Output("target host StrictHostKeyChecking=no, not verifying host keys")
+			v.o.Output("StrictHostKeyChecking=no specified or set for null_resource, not verifying host keys")
 		}
 	}
 
@@ -258,6 +291,7 @@ func (v *LocalMode) writeKnownHosts(knownHosts []string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	v.o.Output(fmt.Sprintf("Write known hosts %s\n", knownHostsFileContents) )
 	if err := ioutil.WriteFile(file.Name(), []byte(fmt.Sprintf("%s\n", knownHostsFileContents)), 0644); err != nil {
 		return "", err
 	}
@@ -285,9 +319,7 @@ func (v *LocalMode) writePem(pk string) (string, error) {
 
 func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 	if play.InventoryFile() == "" {
-		if v.connInfo.Host == "" {
-			return "", fmt.Errorf("Host could not be established from the connection info")
-		}
+
 
 		playHosts := play.Hosts()
 
@@ -296,21 +328,34 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 			Groups: play.Groups(),
 		}
 
-		if len(playHosts) > 0 {
-			if playHosts[0] != "" {
-				templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
-					Alias:       playHosts[0],
-					AnsibleHost: v.connInfo.Host,
-				})
+        // Compute resource path
+		if v.connInfo.Host != "" {
+			if len(playHosts) > 0 {
+				if playHosts[0] != "" {
+					templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+						Alias:       playHosts[0],
+						AnsibleHost: v.connInfo.Host,
+					})
+				} else {
+					templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+						Alias: v.connInfo.Host,
+					})
+				}
 			} else {
 				templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
 					Alias: v.connInfo.Host,
 				})
-			}
+			}	
 		} else {
-			templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
-				Alias: v.connInfo.Host,
-			})
+			// Path for null resource, which does not use v.connInfo.Host
+			for _, host := range playHosts {
+				if host != "" {
+					templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+							Alias: host,
+						})
+				}
+			}
+
 		}
 
 		v.o.Output("Generating temporary ansible inventory...")

@@ -16,6 +16,8 @@ type AnsibleSSHSettings struct {
 	insecureBastionNoStrictHostKeyChecking bool
 	userKnownHostsFile                     string
 	bastionUserKnownHostsFile              string
+	overrideStrictHostKeyChecking          bool
+
 }
 
 const (
@@ -136,8 +138,18 @@ func (v *AnsibleSSHSettings) SSHKeyscanSeconds() int {
 
 // InsecureNoStrictHostKeyChecking if true, SSH to the target host uses -o StrictHostKeyChecking=no.
 func (v *AnsibleSSHSettings) InsecureNoStrictHostKeyChecking() bool {
-	return v.insecureNoStrictHostKeyChecking
+	if v.overrideStrictHostKeyChecking || v.insecureNoStrictHostKeyChecking {
+		return true
+	} else {
+		return false
+	}
 }
+
+// SetOverrideStrictHostKeyChecking is used by the provisioner when attached to a null_resource
+func (v *AnsibleSSHSettings) SetOverrideStrictHostKeyChecking() {
+	v.overrideStrictHostKeyChecking  = true
+}
+
 
 // InsecureBastionNoStrictHostKeyChecking if true, SSH to the bastion host uses -o StrictHostKeyChecking=no.
 func (v *AnsibleSSHSettings) InsecureBastionNoStrictHostKeyChecking() bool {
