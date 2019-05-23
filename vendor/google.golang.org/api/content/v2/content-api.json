@@ -15,7 +15,7 @@
   "description": "Manages product items, inventory, and Merchant Center accounts for Google Shopping.",
   "discoveryVersion": "v1",
   "documentationLink": "https://developers.google.com/shopping-content",
-  "etag": "\"VPK3KBfpaEgZ16pozGOoMYfKc0U/2Mo4dCsobcaPRB5CjTNld6_m0MM\"",
+  "etag": "\"VPK3KBfpaEgZ16pozGOoMYfKc0U/M-eUGu8yDica_9ccnNfXXlRzlBg\"",
   "icons": {
     "x16": "https://www.gstatic.com/images/branding/product/1x/googleg_16dp.png",
     "x32": "https://www.gstatic.com/images/branding/product/1x/googleg_32dp.png"
@@ -250,7 +250,7 @@
           ]
         },
         "link": {
-          "description": "Performs an action on a link between a Merchant Center account and another account.",
+          "description": "Performs an action on a link between two Merchant Center accounts, namely accountId and linkedAccountId.",
           "httpMethod": "POST",
           "id": "content.accounts.link",
           "parameterOrder": [
@@ -1524,7 +1524,7 @@
     "orderinvoices": {
       "methods": {
         "createchargeinvoice": {
-          "description": "Creates a charge invoice for a shipment group, and triggers a charge capture for non-facilitated payment orders.",
+          "description": "Creates a charge invoice for a shipment group, and triggers a charge capture for orderinvoice enabled orders.",
           "httpMethod": "POST",
           "id": "content.orderinvoices.createchargeinvoice",
           "parameterOrder": [
@@ -1558,7 +1558,7 @@
           ]
         },
         "createrefundinvoice": {
-          "description": "Creates a refund invoice for one or more shipment groups, and triggers a refund for non-facilitated payment orders. This can only be used for line items that have previously been charged using createChargeInvoice. All amounts (except for the summary) are incremental with respect to the previous invoice.",
+          "description": "Creates a refund invoice for one or more shipment groups, and triggers a refund for orderinvoice enabled orders. This can only be used for line items that have previously been charged using createChargeInvoice. All amounts (except for the summary) are incremental with respect to the previous invoice.",
           "httpMethod": "POST",
           "id": "content.orderinvoices.createrefundinvoice",
           "parameterOrder": [
@@ -2334,7 +2334,7 @@
               "type": "boolean"
             },
             "maxResults": {
-              "description": "The maximum number of orders to return in the response, used for paging. The default value is 25 orders per page, and the maximum allowed value is 250 orders per page.\nKnown issue: All List calls will return all Orders without limit regardless of the value of this field.",
+              "description": "The maximum number of orders to return in the response, used for paging. The default value is 25 orders per page, and the maximum allowed value is 250 orders per page.",
               "format": "uint32",
               "location": "query",
               "type": "integer"
@@ -2347,15 +2347,7 @@
               "type": "string"
             },
             "orderBy": {
-              "description": "The ordering of the returned list. The only supported value are placedDate desc and placedDate asc for now, which returns orders sorted by placement date. \"placedDate desc\" stands for listing orders by placement date, from oldest to most recent. \"placedDate asc\" stands for listing orders by placement date, from most recent to oldest. In future releases we'll support other sorting criteria.",
-              "enum": [
-                "placedDate asc",
-                "placedDate desc"
-              ],
-              "enumDescriptions": [
-                "",
-                ""
-              ],
+              "description": "Order results by placement date in descending or ascending order.\n\nAcceptable values are:\n- placedDateAsc\n- placedDateDesc",
               "location": "query",
               "type": "string"
             },
@@ -2375,7 +2367,7 @@
               "type": "string"
             },
             "statuses": {
-              "description": "Obtains orders that match any of the specified statuses. Multiple values can be specified with comma separation. Additionally, please note that active is a shortcut for pendingShipment and partiallyShipped, and completed is a shortcut for shipped , partiallyDelivered, delivered, partiallyReturned, returned, and canceled.",
+              "description": "Obtains orders that match any of the specified statuses. Multiple values can be specified with comma separation. Additionally, please note that active is a shortcut for pendingShipment and partiallyShipped, and completed is a shortcut for shipped, partiallyDelivered, delivered, partiallyReturned, returned, and canceled.",
               "enum": [
                 "active",
                 "canceled",
@@ -3484,7 +3476,7 @@
       }
     }
   },
-  "revision": "20190320",
+  "revision": "20190513",
   "rootUrl": "https://www.googleapis.com/",
   "schemas": {
     "Account": {
@@ -6221,7 +6213,7 @@
         },
         "marketingRightsInfo": {
           "$ref": "OrderCustomerMarketingRightsInfo",
-          "description": "Customer's marketing preferences."
+          "description": "Customer's marketing preferences. Contains the marketing opt-in information that is current at the time that the merchant call. User preference selections can change from one order to the next so preferences must be checked with every order."
         }
       },
       "type": "object"
@@ -6230,7 +6222,7 @@
       "id": "OrderCustomerMarketingRightsInfo",
       "properties": {
         "explicitMarketingPreference": {
-          "description": "Last known user selection regarding marketing preferences. In certain cases this selection might not be known, so this field would be empty.",
+          "description": "Last known customer selection regarding marketing preferences. In certain cases this selection might not be known, so this field would be empty. If a customer selected granted in their most recent order, they can be subscribed to marketing emails. Customers who have chosen denied must not be subscribed, or must be unsubscribed if already opted-in.",
           "type": "string"
         },
         "lastUpdatedTimestamp": {
@@ -9070,7 +9062,7 @@
           "type": "array"
         },
         "additionalProductTypes": {
-          "description": "Additional categories of the item (formatted as in products feed specification).",
+          "description": "Additional categories of the item (formatted as in products data specification).",
           "items": {
             "type": "string"
           },
@@ -9149,7 +9141,7 @@
           "description": "Cost of goods sold. Used for gross profit reporting."
         },
         "customAttributes": {
-          "description": "A list of custom (merchant-provided) attributes. It can also be used for submitting any attribute of the feed specification in its generic form (e.g., { \"name\": \"size type\", \"type\": \"text\", \"value\": \"regular\" }). This is useful for submitting attributes not explicitly exposed by the API.",
+          "description": "A list of custom (merchant-provided) attributes. It can also be used for submitting any attribute of the feed specification in its generic form (e.g., { \"name\": \"size type\", \"value\": \"regular\" }). This is useful for submitting attributes not explicitly exposed by the API.",
           "items": {
             "$ref": "CustomAttribute"
           },
@@ -9331,7 +9323,7 @@
           "description": "Price of the item."
         },
         "productType": {
-          "description": "Your category of the item (formatted as in products feed specification).",
+          "description": "Your category of the item (formatted as in products data specification).",
           "type": "string"
         },
         "promotionIds": {
@@ -9346,7 +9338,7 @@
           "description": "Advertised sale price of the item."
         },
         "salePriceEffectiveDate": {
-          "description": "Date range during which the item is on sale (see products feed specification).",
+          "description": "Date range during which the item is on sale (see products data specification).",
           "type": "string"
         },
         "sellOnGoogleQuantity": {

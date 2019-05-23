@@ -16,18 +16,23 @@ func TestRemoteClient_impl(t *testing.T) {
 func TestRemoteClient(t *testing.T) {
 	testACC(t)
 
-	container := fmt.Sprintf("terraform-state-swift-test-%x", time.Now().Unix())
+	container := fmt.Sprintf("terraform-state-swift-testclient-%x", time.Now().Unix())
 
-	b := backend.TestBackendConfig(t, New(), map[string]interface{}{
+	b := backend.TestBackendConfig(t, New(), backend.TestWrapConfig(map[string]interface{}{
 		"container": container,
-	}).(*Backend)
+	})).(*Backend)
 
-	state, err := b.State(backend.DefaultStateName)
+	state, err := b.StateMgr(backend.DefaultStateName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	defer deleteSwiftContainer(t, b.client, container)
+	client := &RemoteClient{
+		client:    b.client,
+		container: b.container,
+	}
+
+	defer client.deleteContainer()
 
 	remote.TestClient(t, state.(*remote.State).Client)
 }

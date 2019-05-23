@@ -2,7 +2,7 @@ package: github.com/radekg/terraform-provisioner-ansible
 import:
 - package: github.com/mitchellh/go-linereader
 - package: github.com/hashicorp/terraform
-  version: v0.11.13
+  version: v0.12.0
 - package: github.com/xanzy/ssh-agent
 - package: github.com/packer-community/winrmcp/winrmcp
 - package: github.com/nu7hatch/gouuid

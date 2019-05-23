@@ -1,9 +1,13 @@
 package terraform
 
 import (
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/addrs"
+	"github.com/hashicorp/terraform/configs/configschema"
+	"github.com/hashicorp/terraform/providers"
+	"github.com/zclconf/go-cty/cty"
 )
 
 func TestPlanGraphBuilder_impl(t *testing.T) {
@@ -11,19 +15,50 @@ func TestPlanGraphBuilder_impl(t *testing.T) {
 }
 
 func TestPlanGraphBuilder(t *testing.T) {
+	awsProvider := &MockProvider{
+		GetSchemaReturn: &ProviderSchema{
+			Provider: simpleTestSchema(),
+			ResourceTypes: map[string]*configschema.Block{
+				"aws_security_group": simpleTestSchema(),
+				"aws_instance":       simpleTestSchema(),
+				"aws_load_balancer":  simpleTestSchema(),
+			},
+		},
+	}
+	openstackProvider := &MockProvider{
+		GetSchemaReturn: &ProviderSchema{
+			Provider: simpleTestSchema(),
+			ResourceTypes: map[string]*configschema.Block{
+				"openstack_floating_ip": simpleTestSchema(),
+			},
+		},
+	}
+	components := &basicComponentFactory{
+		providers: map[string]providers.Factory{
+			"aws":       providers.FactoryFixed(awsProvider),
+			"openstack": providers.FactoryFixed(openstackProvider),
+		},
+	}
+
 	b := &PlanGraphBuilder{
-		Module:        testModule(t, "graph-builder-plan-basic"),
-		Providers:     []string{"aws", "openstack"},
+		Config:     testModule(t, "graph-builder-plan-basic"),
+		Components: components,
+		Schemas: &Schemas{
+			Providers: map[string]*ProviderSchema{
+				"aws":       awsProvider.GetSchemaReturn,
+				"openstack": openstackProvider.GetSchemaReturn,
+			},
+		},
 		DisableReduce: true,
 	}
 
-	g, err := b.Build(RootModulePath)
+	g, err := b.Build(addrs.RootModuleInstance)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
-	if !reflect.DeepEqual(g.Path, RootModulePath) {
-		t.Fatalf("bad: %#v", g.Path)
+	if g.Path.String() != addrs.RootModuleInstance.String() {
+		t.Fatalf("wrong module path %q", g.Path)
 	}
 
 	actual := strings.TrimSpace(g.String())
@@ -33,22 +68,183 @@ func TestPlanGraphBuilder(t *testing.T) {
 	}
 }
 
-func TestPlanGraphBuilder_targetModule(t *testing.T) {
-	b := &PlanGraphBuilder{
-		Module:    testModule(t, "graph-builder-plan-target-module-provider"),
-		Providers: []string{"null"},
-		Targets:   []string{"module.child2"},
+func TestPlanGraphBuilder_dynamicBlock(t *testing.T) {
+	provider := &MockProvider{
+		GetSchemaReturn: &ProviderSchema{
+			ResourceTypes: map[string]*configschema.Block{
+				"test_thing": {
+					Attributes: map[string]*configschema.Attribute{
+						"id":   {Type: cty.String, Computed: true},
+						"list": {Type: cty.List(cty.String), Computed: true},
+					},
+					BlockTypes: map[string]*configschema.NestedBlock{
+						"nested": {
+							Nesting: configschema.NestingList,
+							Block: configschema.Block{
+								Attributes: map[string]*configschema.Attribute{
+									"foo": {Type: cty.String, Optional: true},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	components := &basicComponentFactory{
+		providers: map[string]providers.Factory{
+			"test": providers.FactoryFixed(provider),
+		},
 	}
 
-	g, err := b.Build(RootModulePath)
+	b := &PlanGraphBuilder{
+		Config:     testModule(t, "graph-builder-plan-dynblock"),
+		Components: components,
+		Schemas: &Schemas{
+			Providers: map[string]*ProviderSchema{
+				"test": provider.GetSchemaReturn,
+			},
+		},
+		DisableReduce: true,
+	}
+
+	g, err := b.Build(addrs.RootModuleInstance)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if g.Path.String() != addrs.RootModuleInstance.String() {
+		t.Fatalf("wrong module path %q", g.Path)
+	}
+
+	// This test is here to make sure we properly detect references inside
+	// the special "dynamic" block construct. The most important thing here
+	// is that at the end test_thing.c depends on both test_thing.a and
+	// test_thing.b. Other details might shift over time as other logic in
+	// the graph builders changes.
+	actual := strings.TrimSpace(g.String())
+	expected := strings.TrimSpace(`
+meta.count-boundary (EachMode fixup)
+  provider.test
+  test_thing.a
+  test_thing.b
+  test_thing.c
+provider.test
+provider.test (close)
+  provider.test
+  test_thing.a
+  test_thing.b
+  test_thing.c
+root
+  meta.count-boundary (EachMode fixup)
+  provider.test (close)
+test_thing.a
+  provider.test
+test_thing.b
+  provider.test
+test_thing.c
+  provider.test
+  test_thing.a
+  test_thing.b
+`)
+	if actual != expected {
+		t.Fatalf("expected:\n%s\n\ngot:\n%s", expected, actual)
+	}
+}
+
+func TestPlanGraphBuilder_attrAsBlocks(t *testing.T) {
+	provider := &MockProvider{
+		GetSchemaReturn: &ProviderSchema{
+			ResourceTypes: map[string]*configschema.Block{
+				"test_thing": {
+					Attributes: map[string]*configschema.Attribute{
+						"id": {Type: cty.String, Computed: true},
+						"nested": {
+							Type: cty.List(cty.Object(map[string]cty.Type{
+								"foo": cty.String,
+							})),
+							Optional: true,
+						},
+					},
+				},
+			},
+		},
+	}
+	components := &basicComponentFactory{
+		providers: map[string]providers.Factory{
+			"test": providers.FactoryFixed(provider),
+		},
+	}
+
+	b := &PlanGraphBuilder{
+		Config:     testModule(t, "graph-builder-plan-attr-as-blocks"),
+		Components: components,
+		Schemas: &Schemas{
+			Providers: map[string]*ProviderSchema{
+				"test": provider.GetSchemaReturn,
+			},
+		},
+		DisableReduce: true,
+	}
+
+	g, err := b.Build(addrs.RootModuleInstance)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if g.Path.String() != addrs.RootModuleInstance.String() {
+		t.Fatalf("wrong module path %q", g.Path)
+	}
+
+	// This test is here to make sure we properly detect references inside
+	// the "nested" block that is actually defined in the schema as a
+	// list-of-objects attribute. This requires some special effort
+	// inside lang.ReferencesInBlock to make sure it searches blocks of
+	// type "nested" along with an attribute named "nested".
+	actual := strings.TrimSpace(g.String())
+	expected := strings.TrimSpace(`
+meta.count-boundary (EachMode fixup)
+  provider.test
+  test_thing.a
+  test_thing.b
+provider.test
+provider.test (close)
+  provider.test
+  test_thing.a
+  test_thing.b
+root
+  meta.count-boundary (EachMode fixup)
+  provider.test (close)
+test_thing.a
+  provider.test
+test_thing.b
+  provider.test
+  test_thing.a
+`)
+	if actual != expected {
+		t.Fatalf("expected:\n%s\n\ngot:\n%s", expected, actual)
+	}
+}
+
+func TestPlanGraphBuilder_targetModule(t *testing.T) {
+	b := &PlanGraphBuilder{
+		Config:     testModule(t, "graph-builder-plan-target-module-provider"),
+		Components: simpleMockComponentFactory(),
+		Schemas:    simpleTestSchemas(),
+		Targets: []addrs.Targetable{
+			addrs.RootModuleInstance.Child("child2", addrs.NoKey),
+		},
+	}
+
+	g, err := b.Build(addrs.RootModuleInstance)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
 	t.Logf("Graph: %s", g.String())
 
-	testGraphNotContains(t, g, "module.child1.provider.null")
-	testGraphNotContains(t, g, "module.child1.null_resource.foo")
+	testGraphNotContains(t, g, "module.child1.provider.test")
+	testGraphNotContains(t, g, "module.child1.test_object.foo")
 }
 
 const testPlanGraphBuilderStr = `
@@ -63,7 +259,7 @@ aws_security_group.firewall
   provider.aws
 local.instance_id
   aws_instance.web
-meta.count-boundary (count boundary fixup)
+meta.count-boundary (EachMode fixup)
   aws_instance.web
   aws_load_balancer.weblb
   aws_security_group.firewall
@@ -89,7 +285,7 @@ provider.openstack (close)
   openstack_floating_ip.random
   provider.openstack
 root
-  meta.count-boundary (count boundary fixup)
+  meta.count-boundary (EachMode fixup)
   provider.aws (close)
   provider.openstack (close)
 var.foo

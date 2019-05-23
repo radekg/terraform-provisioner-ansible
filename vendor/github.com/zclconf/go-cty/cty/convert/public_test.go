@@ -493,6 +493,11 @@ func TestConvert(t *testing.T) {
 			}),
 			WantError: true,
 		},
+		{
+			Value: cty.EmptyTupleVal,
+			Type:  cty.Set(cty.String),
+			Want:  cty.SetValEmpty(cty.String),
+		},
 	}
 
 	for _, test := range tests {

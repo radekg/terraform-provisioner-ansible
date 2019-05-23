@@ -33,6 +33,7 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/internal/balancerload"
 	"google.golang.org/grpc/internal/binarylog"
 	"google.golang.org/grpc/internal/channelz"
 	"google.golang.org/grpc/internal/grpcrand"
@@ -244,7 +245,7 @@ func newClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, meth
 		trInfo.tr.LazyLog(&trInfo.firstLine, false)
 		ctx = trace.NewContext(ctx, trInfo.tr)
 	}
-	ctx = newContextWithRPCInfo(ctx, c.failFast)
+	ctx = newContextWithRPCInfo(ctx, c.failFast, c.codec, cp, comp)
 	sh := cc.dopts.copts.StatsHandler
 	var beginTime time.Time
 	if sh != nil {
@@ -676,15 +677,13 @@ func (cs *clientStream) SendMsg(m interface{}) (err error) {
 	if !cs.desc.ClientStreams {
 		cs.sentLast = true
 	}
-	data, err := encode(cs.codec, m)
+
+	// load hdr, payload, data
+	hdr, payload, data, err := prepareMsg(m, cs.codec, cs.cp, cs.comp)
 	if err != nil {
 		return err
 	}
-	compData, err := compress(data, cs.cp, cs.comp)
-	if err != nil {
-		return err
-	}
-	hdr, payload := msgHeader(data, compData)
+
 	// TODO(dfawley): should we be checking len(data) instead?
 	if len(payload) > *cs.callInfo.maxSendMessageSize {
 		return status.Errorf(codes.ResourceExhausted, "trying to send message larger than max (%d vs. %d)", len(payload), *cs.callInfo.maxSendMessageSize)
@@ -940,6 +939,7 @@ func (a *csAttempt) finish(err error) {
 			Trailer:       tr,
 			BytesSent:     a.s != nil,
 			BytesReceived: br,
+			ServerLoad:    balancerload.Parse(tr),
 		})
 	}
 	if a.statsHandler != nil {
@@ -1148,15 +1148,13 @@ func (as *addrConnStream) SendMsg(m interface{}) (err error) {
 	if !as.desc.ClientStreams {
 		as.sentLast = true
 	}
-	data, err := encode(as.codec, m)
+
+	// load hdr, payload, data
+	hdr, payld, _, err := prepareMsg(m, as.codec, as.cp, as.comp)
 	if err != nil {
 		return err
 	}
-	compData, err := compress(data, as.cp, as.comp)
-	if err != nil {
-		return err
-	}
-	hdr, payld := msgHeader(data, compData)
+
 	// TODO(dfawley): should we be checking len(data) instead?
 	if len(payld) > *as.callInfo.maxSendMessageSize {
 		return status.Errorf(codes.ResourceExhausted, "trying to send message larger than max (%d vs. %d)", len(payld), *as.callInfo.maxSendMessageSize)
@@ -1393,15 +1391,13 @@ func (ss *serverStream) SendMsg(m interface{}) (err error) {
 			ss.t.IncrMsgSent()
 		}
 	}()
-	data, err := encode(ss.codec, m)
+
+	// load hdr, payload, data
+	hdr, payload, data, err := prepareMsg(m, ss.codec, ss.cp, ss.comp)
 	if err != nil {
 		return err
 	}
-	compData, err := compress(data, ss.cp, ss.comp)
-	if err != nil {
-		return err
-	}
-	hdr, payload := msgHeader(data, compData)
+
 	// TODO(dfawley): should we be checking len(data) instead?
 	if len(payload) > ss.maxSendMessageSize {
 		return status.Errorf(codes.ResourceExhausted, "trying to send message larger than max (%d vs. %d)", len(payload), ss.maxSendMessageSize)
@@ -1493,4 +1489,25 @@ func (ss *serverStream) RecvMsg(m interface{}) (err error) {
 // The returned string is in the format of "/service/method".
 func MethodFromServerStream(stream ServerStream) (string, bool) {
 	return Method(stream.Context())
+}
+
+// prepareMsg returns the hdr, payload and data
+// using the compressors passed or using the
+// passed preparedmsg
+func prepareMsg(m interface{}, codec baseCodec, cp Compressor, comp encoding.Compressor) (hdr, payload, data []byte, err error) {
+	if preparedMsg, ok := m.(*PreparedMsg); ok {
+		return preparedMsg.hdr, preparedMsg.payload, preparedMsg.encodedData, nil
+	}
+	// The input interface is not a prepared msg.
+	// Marshal and Compress the data at this point
+	data, err = encode(codec, m)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	compData, err := compress(data, cp, comp)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	hdr, payload = msgHeader(data, compData)
+	return hdr, payload, data, nil
 }

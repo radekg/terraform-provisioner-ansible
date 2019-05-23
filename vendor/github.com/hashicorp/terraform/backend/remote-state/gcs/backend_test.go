@@ -61,14 +61,14 @@ func TestRemoteClient(t *testing.T) {
 	be := setupBackend(t, bucket, noPrefix, noEncryptionKey)
 	defer teardownBackend(t, be, noPrefix)
 
-	ss, err := be.State(backend.DefaultStateName)
+	ss, err := be.StateMgr(backend.DefaultStateName)
 	if err != nil {
-		t.Fatalf("be.State(%q) = %v", backend.DefaultStateName, err)
+		t.Fatalf("be.StateMgr(%q) = %v", backend.DefaultStateName, err)
 	}
 
 	rs, ok := ss.(*remote.State)
 	if !ok {
-		t.Fatalf("be.State(): got a %T, want a *remote.State", ss)
+		t.Fatalf("be.StateMgr(): got a %T, want a *remote.State", ss)
 	}
 
 	remote.TestClient(t, rs.Client)
@@ -80,14 +80,14 @@ func TestRemoteClientWithEncryption(t *testing.T) {
 	be := setupBackend(t, bucket, noPrefix, encryptionKey)
 	defer teardownBackend(t, be, noPrefix)
 
-	ss, err := be.State(backend.DefaultStateName)
+	ss, err := be.StateMgr(backend.DefaultStateName)
 	if err != nil {
-		t.Fatalf("be.State(%q) = %v", backend.DefaultStateName, err)
+		t.Fatalf("be.StateMgr(%q) = %v", backend.DefaultStateName, err)
 	}
 
 	rs, ok := ss.(*remote.State)
 	if !ok {
-		t.Fatalf("be.State(): got a %T, want a *remote.State", ss)
+		t.Fatalf("be.StateMgr(): got a %T, want a *remote.State", ss)
 	}
 
 	remote.TestClient(t, rs.Client)
@@ -101,14 +101,14 @@ func TestRemoteLocks(t *testing.T) {
 	defer teardownBackend(t, be, noPrefix)
 
 	remoteClient := func() (remote.Client, error) {
-		ss, err := be.State(backend.DefaultStateName)
+		ss, err := be.StateMgr(backend.DefaultStateName)
 		if err != nil {
 			return nil, err
 		}
 
 		rs, ok := ss.(*remote.State)
 		if !ok {
-			return nil, fmt.Errorf("be.State(): got a %T, want a *remote.State", ss)
+			return nil, fmt.Errorf("be.StateMgr(): got a %T, want a *remote.State", ss)
 		}
 
 		return rs.Client, nil
@@ -181,13 +181,12 @@ func setupBackend(t *testing.T, bucket, prefix, key string) backend.Backend {
 	}
 
 	config := map[string]interface{}{
-		"project":        projectID,
 		"bucket":         bucket,
 		"prefix":         prefix,
 		"encryption_key": key,
 	}
 
-	b := backend.TestBackendConfig(t, New(), config)
+	b := backend.TestBackendConfig(t, New(), backend.TestWrapConfig(config))
 	be := b.(*Backend)
 
 	// create the bucket if it doesn't exist
@@ -199,9 +198,9 @@ func setupBackend(t *testing.T, bucket, prefix, key string) backend.Backend {
 		}
 
 		attrs := &storage.BucketAttrs{
-			Location: be.region,
+			Location: os.Getenv("GOOGLE_REGION"),
 		}
-		err := bkt.Create(be.storageContext, be.projectID, attrs)
+		err := bkt.Create(be.storageContext, projectID, attrs)
 		if err != nil {
 			t.Fatal(err)
 		}

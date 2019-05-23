@@ -824,7 +824,7 @@
       }
     }
   },
-  "revision": "20190309",
+  "revision": "20190503",
   "rootUrl": "https://androiddeviceprovisioning.googleapis.com/",
   "schemas": {
     "ClaimDeviceRequest": {
@@ -1163,6 +1163,16 @@
             "Zero-touch enrollment section type."
           ],
           "type": "string"
+        },
+        "vacationModeExpireTime": {
+          "description": "The timestamp when the device will exit ‘vacation mode’. This value is\npresent iff the device is in 'vacation mode'.",
+          "format": "google-datetime",
+          "type": "string"
+        },
+        "vacationModeStartTime": {
+          "description": "The timestamp when the device was put into ‘vacation mode’. This value is\npresent iff the device is in 'vacation mode'.",
+          "format": "google-datetime",
+          "type": "string"
         }
       },
       "type": "object"
@@ -1495,7 +1505,7 @@
           "type": "object"
         },
         "name": {
-          "description": "The server-assigned name, which is only unique within the same service that\noriginally returns it. If you use the default HTTP mapping, the\n`name` should have the format of `operations/some/unique/name`.",
+          "description": "The server-assigned name, which is only unique within the same service that\noriginally returns it. If you use the default HTTP mapping, the\n`name` should be a resource name ending with `operations/{unique_id}`.",
           "type": "string"
         },
         "response": {
@@ -1591,6 +1601,16 @@
             "SIM-lock section type.",
             "Zero-touch enrollment section type."
           ],
+          "type": "string"
+        },
+        "vacationModeDays": {
+          "description": "The duration of the vacation unlock starting from when the request is\nprocessed. (1 day is treated as 24 hours)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "vacationModeExpireTime": {
+          "description": "The expiration time of the vacation unlock.",
+          "format": "google-datetime",
           "type": "string"
         }
       },
@@ -1692,6 +1712,16 @@
             "SIM-lock section type.",
             "Zero-touch enrollment section type."
           ],
+          "type": "string"
+        },
+        "vacationModeDays": {
+          "description": "The duration of the vacation unlock starting from when the request is\nprocessed. (1 day is treated as 24 hours)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "vacationModeExpireTime": {
+          "description": "The expiration time of the vacation unlock.",
+          "format": "google-datetime",
           "type": "string"
         }
       },

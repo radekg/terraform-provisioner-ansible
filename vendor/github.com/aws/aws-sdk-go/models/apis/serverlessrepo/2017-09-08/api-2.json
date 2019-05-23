@@ -208,6 +208,31 @@
         "shape" : "ForbiddenException"
       } ]
     },
+    "ListApplicationDependencies" : {
+      "name" : "ListApplicationDependencies",
+      "http" : {
+        "method" : "GET",
+        "requestUri" : "/applications/{applicationId}/dependencies",
+        "responseCode" : 200
+      },
+      "input" : {
+        "shape" : "ListApplicationDependenciesRequest"
+      },
+      "output" : {
+        "shape" : "ListApplicationDependenciesResponse"
+      },
+      "errors" : [ {
+        "shape" : "NotFoundException"
+      }, {
+        "shape" : "TooManyRequestsException"
+      }, {
+        "shape" : "BadRequestException"
+      }, {
+        "shape" : "InternalServerErrorException"
+      }, {
+        "shape" : "ForbiddenException"
+      } ]
+    },
     "ListApplicationVersions" : {
       "name" : "ListApplicationVersions",
       "http" : {
@@ -360,6 +385,34 @@
       },
       "required" : [ "Description", "Author", "ApplicationId", "Name" ]
     },
+    "ApplicationDependencyPage" : {
+      "type" : "structure",
+      "members" : {
+        "Dependencies" : {
+          "shape" : "__listOfApplicationDependencySummary",
+          "locationName" : "dependencies"
+        },
+        "NextToken" : {
+          "shape" : "__string",
+          "locationName" : "nextToken"
+        }
+      },
+      "required" : [ "Dependencies" ]
+    },
+    "ApplicationDependencySummary" : {
+      "type" : "structure",
+      "members" : {
+        "ApplicationId" : {
+          "shape" : "__string",
+          "locationName" : "applicationId"
+        },
+        "SemanticVersion" : {
+          "shape" : "__string",
+          "locationName" : "semanticVersion"
+        }
+      },
+      "required" : [ "ApplicationId", "SemanticVersion" ]
+    },
     "ApplicationPage" : {
       "type" : "structure",
       "members" : {
@@ -473,7 +526,7 @@
     },
     "Capability" : {
       "type" : "string",
-      "enum" : [ "CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_RESOURCE_POLICY" ]
+      "enum" : [ "CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_AUTO_EXPAND", "CAPABILITY_RESOURCE_POLICY" ]
     },
     "ChangeSetDetails" : {
       "type" : "structure",
@@ -557,6 +610,10 @@
           "shape" : "__string",
           "locationName" : "semanticVersion"
         },
+        "SourceCodeArchiveUrl" : {
+          "shape" : "__string",
+          "locationName" : "sourceCodeArchiveUrl"
+        },
         "SourceCodeUrl" : {
           "shape" : "__string",
           "locationName" : "sourceCodeUrl"
@@ -618,6 +675,10 @@
         "SemanticVersion" : {
           "shape" : "__string",
           "locationName" : "semanticVersion"
+        },
+        "SourceCodeArchiveUrl" : {
+          "shape" : "__string",
+          "locationName" : "sourceCodeArchiveUrl"
         },
         "SourceCodeUrl" : {
           "shape" : "__string",
@@ -690,6 +751,10 @@
     "CreateApplicationVersionInput" : {
       "type" : "structure",
       "members" : {
+        "SourceCodeArchiveUrl" : {
+          "shape" : "__string",
+          "locationName" : "sourceCodeArchiveUrl"
+        },
         "SourceCodeUrl" : {
           "shape" : "__string",
           "locationName" : "sourceCodeUrl"
@@ -716,6 +781,10 @@
           "shape" : "__string",
           "location" : "uri",
           "locationName" : "semanticVersion"
+        },
+        "SourceCodeArchiveUrl" : {
+          "shape" : "__string",
+          "locationName" : "sourceCodeArchiveUrl"
         },
         "SourceCodeUrl" : {
           "shape" : "__string",
@@ -758,6 +827,10 @@
         "SemanticVersion" : {
           "shape" : "__string",
           "locationName" : "semanticVersion"
+        },
+        "SourceCodeArchiveUrl" : {
+          "shape" : "__string",
+          "locationName" : "sourceCodeArchiveUrl"
         },
         "SourceCodeUrl" : {
           "shape" : "__string",
@@ -1128,6 +1201,45 @@
       "exception" : true,
       "error" : {
         "httpStatusCode" : 500
+      }
+    },
+    "ListApplicationDependenciesRequest" : {
+      "type" : "structure",
+      "members" : {
+        "ApplicationId" : {
+          "shape" : "__string",
+          "location" : "uri",
+          "locationName" : "applicationId"
+        },
+        "MaxItems" : {
+          "shape" : "MaxItems",
+          "location" : "querystring",
+          "locationName" : "maxItems"
+        },
+        "NextToken" : {
+          "shape" : "__string",
+          "location" : "querystring",
+          "locationName" : "nextToken"
+        },
+        "SemanticVersion" : {
+          "shape" : "__string",
+          "location" : "querystring",
+          "locationName" : "semanticVersion"
+        }
+      },
+      "required" : [ "ApplicationId" ]
+    },
+    "ListApplicationDependenciesResponse" : {
+      "type" : "structure",
+      "members" : {
+        "Dependencies" : {
+          "shape" : "__listOfApplicationDependencySummary",
+          "locationName" : "dependencies"
+        },
+        "NextToken" : {
+          "shape" : "__string",
+          "locationName" : "nextToken"
+        }
       }
     },
     "ListApplicationVersionsRequest" : {
@@ -1546,6 +1658,10 @@
           "shape" : "__string",
           "locationName" : "semanticVersion"
         },
+        "SourceCodeArchiveUrl" : {
+          "shape" : "__string",
+          "locationName" : "sourceCodeArchiveUrl"
+        },
         "SourceCodeUrl" : {
           "shape" : "__string",
           "locationName" : "sourceCodeUrl"
@@ -1587,6 +1703,12 @@
     },
     "__integer" : {
       "type" : "integer"
+    },
+    "__listOfApplicationDependencySummary" : {
+      "type" : "list",
+      "member" : {
+        "shape" : "ApplicationDependencySummary"
+      }
     },
     "__listOfApplicationPolicyStatement" : {
       "type" : "list",

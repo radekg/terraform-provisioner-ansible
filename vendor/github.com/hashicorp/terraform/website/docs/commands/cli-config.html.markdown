@@ -7,7 +7,7 @@ description: |-
   configuration file.
 ---
 
-# CLI Configuration File (`.terraformrc`/`terraform.rc`)
+# CLI Configuration File (`.terraformrc` or `terraform.rc`)
 
 The CLI configuration file configures per-user settings for CLI behaviors,
 which apply across all Terraform working directories. This is separate from
@@ -19,7 +19,7 @@ The configuration is placed in a single file whose location depends on the
 host operating system:
 
 * On Windows, the file must be named named `terraform.rc` and placed
-  in the relevant user's "Application Data" directory. The physical location
+  in the relevant user's `%APPDATA%` directory. The physical location
   of this directory depends on your Windows version and system configuration;
   use `$env:APPDATA` in PowerShell to find its location on your system.
 * On all other systems, the file must be named `.terraformrc` (note
@@ -31,6 +31,9 @@ extensions. Terraform will not recognize a file named `terraform.rc.txt` as a
 CLI configuration file, even though Windows Explorer may _display_ its name
 as just `terraform.rc`. Use `dir` from PowerShell or Command Prompt to
 confirm the filename.
+
+The location of the Terraform CLI configuration file can also be specified
+using the `TF_CLI_CONFIG_FILE` [environment variable](/docs/commands/environment-variables.html).
 
 ## Configuration File Syntax
 
@@ -96,6 +99,6 @@ longer recommended for use:
 * `providers` - a configuration block that allows specifying the locations of
   specific plugins for each named provider. This mechanism is deprecated
   because it is unable to specify a version number for each plugin, and thus
-  it does not co-operate with the plugin versioning mechansim. Instead,
+  it does not co-operate with the plugin versioning mechanism. Instead,
   place the plugin executable files in
   [the third-party plugins directory](/docs/configuration/providers.html#third-party-plugins).

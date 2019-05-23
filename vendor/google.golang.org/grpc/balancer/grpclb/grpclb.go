@@ -28,7 +28,6 @@ import (
 	"context"
 	"errors"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -129,19 +128,8 @@ func newLBBuilderWithFallbackTimeout(fallbackTimeout time.Duration) balancer.Bui
 	}
 }
 
-// newLBBuilderWithPickFirst creates a grpclb builder with pick-first.
-func newLBBuilderWithPickFirst() balancer.Builder {
-	return &lbBuilder{
-		usePickFirst: true,
-	}
-}
-
 type lbBuilder struct {
 	fallbackTimeout time.Duration
-
-	// TODO: delete this when balancer can handle service config. This should be
-	//  updated by service config.
-	usePickFirst bool // Use roundrobin or pickfirst for backends.
 }
 
 func (b *lbBuilder) Name() string {
@@ -155,24 +143,14 @@ func (b *lbBuilder) Build(cc balancer.ClientConn, opt balancer.BuildOptions) bal
 	scheme := "grpclb_internal_" + strconv.FormatInt(time.Now().UnixNano(), 36)
 	r := &lbManualResolver{scheme: scheme, ccb: cc}
 
-	var target string
-	targetSplitted := strings.Split(cc.Target(), ":///")
-	if len(targetSplitted) < 2 {
-		target = cc.Target()
-	} else {
-		target = targetSplitted[1]
-	}
-
 	lb := &lbBalancer{
 		cc:              newLBCacheClientConn(cc),
-		target:          target,
+		target:          opt.Target.Endpoint,
 		opt:             opt,
-		usePickFirst:    b.usePickFirst,
 		fallbackTimeout: b.fallbackTimeout,
 		doneCh:          make(chan struct{}),
 
 		manualResolver: r,
-		csEvltr:        &balancer.ConnectivityStateEvaluator{},
 		subConns:       make(map[resolver.Address]balancer.SubConn),
 		scStates:       make(map[balancer.SubConn]connectivity.State),
 		picker:         &errPicker{err: balancer.ErrNoSubConnAvailable},
@@ -232,21 +210,24 @@ type lbBalancer struct {
 	// serverList contains anything new. Each generate picker will also have
 	// reference to this list to do the first layer pick.
 	fullServerList []*lbpb.Server
+	// Backend addresses. It's kept so the addresses are available when
+	// switching between round_robin and pickfirst.
+	backendAddrs []resolver.Address
 	// All backends addresses, with metadata set to nil. This list contains all
 	// backend addresses in the same order and with the same duplicates as in
 	// serverlist. When generating picker, a SubConn slice with the same order
 	// but with only READY SCs will be gerenated.
-	backendAddrs []resolver.Address
+	backendAddrsWithoutMetadata []resolver.Address
 	// Roundrobin functionalities.
-	csEvltr  *balancer.ConnectivityStateEvaluator
 	state    connectivity.State
 	subConns map[resolver.Address]balancer.SubConn   // Used to new/remove SubConn.
 	scStates map[balancer.SubConn]connectivity.State // Used to filter READY SubConns.
 	picker   balancer.Picker
 	// Support fallback to resolved backend addresses if there's no response
 	// from remote balancer within fallbackTimeout.
-	fallbackTimerExpired bool
-	serverListReceived   bool
+	remoteBalancerConnected bool
+	serverListReceived      bool
+	inFallback              bool
 	// resolvedBackendAddrs is resolvedAddrs minus remote balancers. It's set
 	// when resolved address updates are received, and read in the goroutine
 	// handling fallback.
@@ -264,16 +245,19 @@ func (lb *lbBalancer) regeneratePicker(resetDrop bool) {
 		return
 	}
 
+	if lb.state == connectivity.Connecting {
+		lb.picker = &errPicker{err: balancer.ErrNoSubConnAvailable}
+		return
+	}
+
 	var readySCs []balancer.SubConn
 	if lb.usePickFirst {
-		if lb.state == connectivity.Ready || lb.state == connectivity.Idle {
-			for _, sc := range lb.subConns {
-				readySCs = append(readySCs, sc)
-				break
-			}
+		for _, sc := range lb.subConns {
+			readySCs = append(readySCs, sc)
+			break
 		}
 	} else {
-		for _, a := range lb.backendAddrs {
+		for _, a := range lb.backendAddrsWithoutMetadata {
 			if sc, ok := lb.subConns[a]; ok {
 				if st, ok := lb.scStates[sc]; ok && st == connectivity.Ready {
 					readySCs = append(readySCs, sc)
@@ -286,10 +270,13 @@ func (lb *lbBalancer) regeneratePicker(resetDrop bool) {
 		// If there's no ready SubConns, always re-pick. This is to avoid drops
 		// unless at least one SubConn is ready. Otherwise we may drop more
 		// often than want because of drops + re-picks(which become re-drops).
+		//
+		// This doesn't seem to be necessary after the connecting check above.
+		// Kept for safety.
 		lb.picker = &errPicker{err: balancer.ErrNoSubConnAvailable}
 		return
 	}
-	if len(lb.fullServerList) <= 0 {
+	if lb.inFallback {
 		lb.picker = newRRPicker(readySCs)
 		return
 	}
@@ -305,7 +292,40 @@ func (lb *lbBalancer) regeneratePicker(resetDrop bool) {
 	prevLBPicker.updateReadySCs(readySCs)
 }
 
+// aggregateSubConnStats calculate the aggregated state of SubConns in
+// lb.SubConns. These SubConns are subconns in use (when switching between
+// fallback and grpclb). lb.scState contains states for all SubConns, including
+// those in cache (SubConns are cached for 10 seconds after remove).
+//
+// The aggregated state is:
+//  - If at least one SubConn in Ready, the aggregated state is Ready;
+//  - Else if at least one SubConn in Connecting, the aggregated state is Connecting;
+//  - Else the aggregated state is TransientFailure.
+func (lb *lbBalancer) aggregateSubConnStates() connectivity.State {
+	var numConnecting uint64
+
+	for _, sc := range lb.subConns {
+		if state, ok := lb.scStates[sc]; ok {
+			switch state {
+			case connectivity.Ready:
+				return connectivity.Ready
+			case connectivity.Connecting:
+				numConnecting++
+			}
+		}
+	}
+	if numConnecting > 0 {
+		return connectivity.Connecting
+	}
+	return connectivity.TransientFailure
+}
+
 func (lb *lbBalancer) HandleSubConnStateChange(sc balancer.SubConn, s connectivity.State) {
+	panic("not used")
+}
+
+func (lb *lbBalancer) UpdateSubConnState(sc balancer.SubConn, scs balancer.SubConnState) {
+	s := scs.ConnectivityState
 	if grpclog.V(2) {
 		grpclog.Infof("lbBalancer: handle SubConn state change: %p, %v", sc, s)
 	}
@@ -328,18 +348,33 @@ func (lb *lbBalancer) HandleSubConnStateChange(sc balancer.SubConn, s connectivi
 		// kept the sc's state in scStates. Remove state for this sc here.
 		delete(lb.scStates, sc)
 	}
-
-	oldAggrState := lb.state
-	lb.state = lb.csEvltr.RecordTransition(oldS, s)
-
-	// Regenerate picker when one of the following happens:
+	// Force regenerate picker if
 	//  - this sc became ready from not-ready
 	//  - this sc became not-ready from ready
-	//  - the aggregated state of balancer became TransientFailure from non-TransientFailure
-	//  - the aggregated state of balancer became non-TransientFailure from TransientFailure
-	if (oldS == connectivity.Ready) != (s == connectivity.Ready) ||
-		(lb.state == connectivity.TransientFailure) != (oldAggrState == connectivity.TransientFailure) {
-		lb.regeneratePicker(false)
+	lb.updateStateAndPicker((oldS == connectivity.Ready) != (s == connectivity.Ready), false)
+
+	// Enter fallback when the aggregated state is not Ready and the connection
+	// to remote balancer is lost.
+	if lb.state != connectivity.Ready {
+		if !lb.inFallback && !lb.remoteBalancerConnected {
+			// Enter fallback.
+			lb.refreshSubConns(lb.resolvedBackendAddrs, true, lb.usePickFirst)
+		}
+	}
+}
+
+// updateStateAndPicker re-calculate the aggregated state, and regenerate picker
+// if overall state is changed.
+//
+// If forceRegeneratePicker is true, picker will be regenerated.
+func (lb *lbBalancer) updateStateAndPicker(forceRegeneratePicker bool, resetDrop bool) {
+	oldAggrState := lb.state
+	lb.state = lb.aggregateSubConnStates()
+	// Regenerate picker when one of the following happens:
+	//  - caller wants to regenerate
+	//  - the aggregated state changed
+	if forceRegeneratePicker || (lb.state != oldAggrState) {
+		lb.regeneratePicker(resetDrop)
 	}
 
 	lb.cc.UpdateBalancerState(lb.state, lb.picker)
@@ -357,12 +392,12 @@ func (lb *lbBalancer) fallbackToBackendsAfter(fallbackTimeout time.Duration) {
 		return
 	}
 	lb.mu.Lock()
-	if lb.serverListReceived {
+	if lb.inFallback || lb.serverListReceived {
 		lb.mu.Unlock()
 		return
 	}
-	lb.fallbackTimerExpired = true
-	lb.refreshSubConns(lb.resolvedBackendAddrs, false)
+	// Enter fallback.
+	lb.refreshSubConns(lb.resolvedBackendAddrs, true, lb.usePickFirst)
 	lb.mu.Unlock()
 }
 
@@ -370,9 +405,30 @@ func (lb *lbBalancer) fallbackToBackendsAfter(fallbackTimeout time.Duration) {
 // clientConn. The remoteLB clientConn will handle creating/removing remoteLB
 // connections.
 func (lb *lbBalancer) HandleResolvedAddrs(addrs []resolver.Address, err error) {
-	if grpclog.V(2) {
-		grpclog.Infof("lbBalancer: handleResolvedResult: %+v", addrs)
+	panic("not used")
+}
+
+func (lb *lbBalancer) handleServiceConfig(sc string) {
+	lb.mu.Lock()
+	defer lb.mu.Unlock()
+
+	newUsePickFirst := childIsPickFirst(sc)
+	if lb.usePickFirst == newUsePickFirst {
+		return
 	}
+	if grpclog.V(2) {
+		grpclog.Infof("lbBalancer: switching mode, new usePickFirst: %+v", newUsePickFirst)
+	}
+	lb.refreshSubConns(lb.backendAddrs, lb.inFallback, newUsePickFirst)
+}
+
+func (lb *lbBalancer) UpdateResolverState(rs resolver.State) {
+	if grpclog.V(2) {
+		grpclog.Infof("lbBalancer: UpdateResolverState: %+v", rs)
+	}
+	lb.handleServiceConfig(rs.ServiceConfig)
+
+	addrs := rs.Addresses
 	if len(addrs) <= 0 {
 		return
 	}
@@ -405,14 +461,11 @@ func (lb *lbBalancer) HandleResolvedAddrs(addrs []resolver.Address, err error) {
 
 	lb.mu.Lock()
 	lb.resolvedBackendAddrs = backendAddrs
-	// If serverListReceived is true, connection to remote balancer was
-	// successful and there's no need to do fallback anymore.
-	// If fallbackTimerExpired is false, fallback hasn't happened yet.
-	if !lb.serverListReceived && lb.fallbackTimerExpired {
+	if lb.inFallback {
 		// This means we received a new list of resolved backends, and we are
 		// still in fallback mode. Need to update the list of backends we are
 		// using to the new list of backends.
-		lb.refreshSubConns(lb.resolvedBackendAddrs, false)
+		lb.refreshSubConns(lb.resolvedBackendAddrs, true, lb.usePickFirst)
 	}
 	lb.mu.Unlock()
 }

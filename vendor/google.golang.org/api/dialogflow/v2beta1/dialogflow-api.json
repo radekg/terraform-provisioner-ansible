@@ -1279,7 +1279,7 @@
             "knowledgeBases": {
               "methods": {
                 "create": {
-                  "description": "Creates a knowledge base.",
+                  "description": "Creates a knowledge base.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
                   "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases",
                   "httpMethod": "POST",
                   "id": "dialogflow.projects.agent.knowledgeBases.create",
@@ -1308,7 +1308,7 @@
                   ]
                 },
                 "delete": {
-                  "description": "Deletes the specified knowledge base.",
+                  "description": "Deletes the specified knowledge base.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
                   "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}",
                   "httpMethod": "DELETE",
                   "id": "dialogflow.projects.agent.knowledgeBases.delete",
@@ -1339,7 +1339,7 @@
                   ]
                 },
                 "get": {
-                  "description": "Retrieves the specified knowledge base.",
+                  "description": "Retrieves the specified knowledge base.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
                   "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}",
                   "httpMethod": "GET",
                   "id": "dialogflow.projects.agent.knowledgeBases.get",
@@ -1365,7 +1365,7 @@
                   ]
                 },
                 "list": {
-                  "description": "Returns the list of all knowledge bases of the specified agent.",
+                  "description": "Returns the list of all knowledge bases of the specified agent.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
                   "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases",
                   "httpMethod": "GET",
                   "id": "dialogflow.projects.agent.knowledgeBases.list",
@@ -1402,7 +1402,7 @@
                   ]
                 },
                 "patch": {
-                  "description": "Updates the specified knowledge base.",
+                  "description": "Updates the specified knowledge base.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
                   "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}",
                   "httpMethod": "PATCH",
                   "id": "dialogflow.projects.agent.knowledgeBases.patch",
@@ -1441,7 +1441,7 @@
                 "documents": {
                   "methods": {
                     "create": {
-                      "description": "Creates a new document.\n\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
+                      "description": "Creates a new document.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.\n\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
                       "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}/documents",
                       "httpMethod": "POST",
                       "id": "dialogflow.projects.agent.knowledgeBases.documents.create",
@@ -1470,7 +1470,7 @@
                       ]
                     },
                     "delete": {
-                      "description": "Deletes the specified document.\n\nOperation \u003cresponse: google.protobuf.Empty,\n           metadata: KnowledgeOperationMetadata\u003e",
+                      "description": "Deletes the specified document.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.\n\nOperation \u003cresponse: google.protobuf.Empty,\n           metadata: KnowledgeOperationMetadata\u003e",
                       "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}/documents/{documentsId}",
                       "httpMethod": "DELETE",
                       "id": "dialogflow.projects.agent.knowledgeBases.documents.delete",
@@ -1496,7 +1496,7 @@
                       ]
                     },
                     "get": {
-                      "description": "Retrieves the specified document.",
+                      "description": "Retrieves the specified document.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.",
                       "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}/documents/{documentsId}",
                       "httpMethod": "GET",
                       "id": "dialogflow.projects.agent.knowledgeBases.documents.get",
@@ -1522,7 +1522,7 @@
                       ]
                     },
                     "list": {
-                      "description": "Returns the list of all documents of the knowledge base.",
+                      "description": "Returns the list of all documents of the knowledge base.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.",
                       "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}/documents",
                       "httpMethod": "GET",
                       "id": "dialogflow.projects.agent.knowledgeBases.documents.list",
@@ -1559,7 +1559,7 @@
                       ]
                     },
                     "patch": {
-                      "description": "Updates the specified document.\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
+                      "description": "Updates the specified document.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.\n\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
                       "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}/documents/{documentsId}",
                       "httpMethod": "PATCH",
                       "id": "dialogflow.projects.agent.knowledgeBases.documents.patch",
@@ -1594,7 +1594,7 @@
                       ]
                     },
                     "reload": {
-                      "description": "Reloads the specified document from its specified source, content_uri or\ncontent. The previously loaded content of the document will be deleted.\nNote: Even when the content of the document has not changed, there still\nmay be side effects because of internal implementation changes.\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
+                      "description": "Reloads the specified document from its specified source, content_uri or\ncontent. The previously loaded content of the document will be deleted.\nNote: Even when the content of the document has not changed, there still\nmay be side effects because of internal implementation changes.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.\n\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
                       "flatPath": "v2beta1/projects/{projectsId}/agent/knowledgeBases/{knowledgeBasesId}/documents/{documentsId}:reload",
                       "httpMethod": "POST",
                       "id": "dialogflow.projects.agent.knowledgeBases.documents.reload",
@@ -2006,7 +2006,7 @@
         "knowledgeBases": {
           "methods": {
             "create": {
-              "description": "Creates a knowledge base.",
+              "description": "Creates a knowledge base.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
               "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases",
               "httpMethod": "POST",
               "id": "dialogflow.projects.knowledgeBases.create",
@@ -2035,7 +2035,7 @@
               ]
             },
             "delete": {
-              "description": "Deletes the specified knowledge base.",
+              "description": "Deletes the specified knowledge base.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
               "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}",
               "httpMethod": "DELETE",
               "id": "dialogflow.projects.knowledgeBases.delete",
@@ -2066,7 +2066,7 @@
               ]
             },
             "get": {
-              "description": "Retrieves the specified knowledge base.",
+              "description": "Retrieves the specified knowledge base.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
               "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}",
               "httpMethod": "GET",
               "id": "dialogflow.projects.knowledgeBases.get",
@@ -2092,7 +2092,7 @@
               ]
             },
             "list": {
-              "description": "Returns the list of all knowledge bases of the specified agent.",
+              "description": "Returns the list of all knowledge bases of the specified agent.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
               "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases",
               "httpMethod": "GET",
               "id": "dialogflow.projects.knowledgeBases.list",
@@ -2129,7 +2129,7 @@
               ]
             },
             "patch": {
-              "description": "Updates the specified knowledge base.",
+              "description": "Updates the specified knowledge base.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
               "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}",
               "httpMethod": "PATCH",
               "id": "dialogflow.projects.knowledgeBases.patch",
@@ -2168,7 +2168,7 @@
             "documents": {
               "methods": {
                 "create": {
-                  "description": "Creates a new document.\n\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
+                  "description": "Creates a new document.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.\n\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
                   "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}/documents",
                   "httpMethod": "POST",
                   "id": "dialogflow.projects.knowledgeBases.documents.create",
@@ -2197,7 +2197,7 @@
                   ]
                 },
                 "delete": {
-                  "description": "Deletes the specified document.\n\nOperation \u003cresponse: google.protobuf.Empty,\n           metadata: KnowledgeOperationMetadata\u003e",
+                  "description": "Deletes the specified document.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.\n\nOperation \u003cresponse: google.protobuf.Empty,\n           metadata: KnowledgeOperationMetadata\u003e",
                   "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}/documents/{documentsId}",
                   "httpMethod": "DELETE",
                   "id": "dialogflow.projects.knowledgeBases.documents.delete",
@@ -2223,7 +2223,7 @@
                   ]
                 },
                 "get": {
-                  "description": "Retrieves the specified document.",
+                  "description": "Retrieves the specified document.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.",
                   "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}/documents/{documentsId}",
                   "httpMethod": "GET",
                   "id": "dialogflow.projects.knowledgeBases.documents.get",
@@ -2249,7 +2249,7 @@
                   ]
                 },
                 "list": {
-                  "description": "Returns the list of all documents of the knowledge base.",
+                  "description": "Returns the list of all documents of the knowledge base.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.",
                   "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}/documents",
                   "httpMethod": "GET",
                   "id": "dialogflow.projects.knowledgeBases.documents.list",
@@ -2286,7 +2286,7 @@
                   ]
                 },
                 "patch": {
-                  "description": "Updates the specified document.\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
+                  "description": "Updates the specified document.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.\n\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
                   "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}/documents/{documentsId}",
                   "httpMethod": "PATCH",
                   "id": "dialogflow.projects.knowledgeBases.documents.patch",
@@ -2321,7 +2321,7 @@
                   ]
                 },
                 "reload": {
-                  "description": "Reloads the specified document from its specified source, content_uri or\ncontent. The previously loaded content of the document will be deleted.\nNote: Even when the content of the document has not changed, there still\nmay be side effects because of internal implementation changes.\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
+                  "description": "Reloads the specified document from its specified source, content_uri or\ncontent. The previously loaded content of the document will be deleted.\nNote: Even when the content of the document has not changed, there still\nmay be side effects because of internal implementation changes.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.\n\nOperation \u003cresponse: Document,\n           metadata: KnowledgeOperationMetadata\u003e",
                   "flatPath": "v2beta1/projects/{projectsId}/knowledgeBases/{knowledgeBasesId}/documents/{documentsId}:reload",
                   "httpMethod": "POST",
                   "id": "dialogflow.projects.knowledgeBases.documents.reload",
@@ -2386,7 +2386,7 @@
       }
     }
   },
-  "revision": "20190318",
+  "revision": "20190514",
   "rootUrl": "https://dialogflow.googleapis.com/",
   "schemas": {
     "GoogleCloudDialogflowV2BatchUpdateEntityTypesResponse": {
@@ -2555,7 +2555,7 @@
           "type": "string"
         },
         "defaultResponsePlatforms": {
-          "description": "Optional. The list of platforms for which the first response will be\ntaken from among the messages assigned to the DEFAULT_PLATFORM.",
+          "description": "Optional. The list of platforms for which the first responses will be\ncopied from the messages in PLATFORM_UNSPECIFIED (i.e. default platform).",
           "enumDescriptions": [
             "Not specified.",
             "Facebook.",
@@ -2565,7 +2565,8 @@
             "Skype.",
             "Line.",
             "Viber.",
-            "Actions on Google.\nWhen using Actions on Google, you can choose one of the specific\nIntent.Message types that mention support for Actions on Google,\nor you can use the advanced Intent.Message.payload field.\nThe payload field provides access to AoG features not available in the\nspecific message types.\nIf using the Intent.Message.payload field, it should have a structure\nsimilar to the JSON message shown here. For more information, see\n[Actions on Google Webhook\nFormat](https://developers.google.com/actions/dialogflow/webhook)\n\u003cpre\u003e{\n  \"expectUserResponse\": true,\n  \"isSsml\": false,\n  \"noInputPrompts\": [],\n  \"richResponse\": {\n    \"items\": [\n      {\n        \"simpleResponse\": {\n          \"displayText\": \"hi\",\n          \"textToSpeech\": \"hello\"\n        }\n      }\n    ],\n    \"suggestions\": [\n      {\n        \"title\": \"Say this\"\n      },\n      {\n        \"title\": \"or this\"\n      }\n    ]\n  },\n  \"systemIntent\": {\n    \"data\": {\n      \"@type\": \"type.googleapis.com/google.actions.v2.OptionValueSpec\",\n      \"listSelect\": {\n        \"items\": [\n          {\n            \"optionInfo\": {\n              \"key\": \"key1\",\n              \"synonyms\": [\n                \"key one\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          },\n          {\n            \"optionInfo\": {\n              \"key\": \"key2\",\n              \"synonyms\": [\n                \"key two\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          }\n        ]\n      }\n    },\n    \"intent\": \"actions.intent.OPTION\"\n  }\n}\u003c/pre\u003e"
+            "Actions on Google.\nWhen using Actions on Google, you can choose one of the specific\nIntent.Message types that mention support for Actions on Google,\nor you can use the advanced Intent.Message.payload field.\nThe payload field provides access to AoG features not available in the\nspecific message types.\nIf using the Intent.Message.payload field, it should have a structure\nsimilar to the JSON message shown here. For more information, see\n[Actions on Google Webhook\nFormat](https://developers.google.com/actions/dialogflow/webhook)\n\u003cpre\u003e{\n  \"expectUserResponse\": true,\n  \"isSsml\": false,\n  \"noInputPrompts\": [],\n  \"richResponse\": {\n    \"items\": [\n      {\n        \"simpleResponse\": {\n          \"displayText\": \"hi\",\n          \"textToSpeech\": \"hello\"\n        }\n      }\n    ],\n    \"suggestions\": [\n      {\n        \"title\": \"Say this\"\n      },\n      {\n        \"title\": \"or this\"\n      }\n    ]\n  },\n  \"systemIntent\": {\n    \"data\": {\n      \"@type\": \"type.googleapis.com/google.actions.v2.OptionValueSpec\",\n      \"listSelect\": {\n        \"items\": [\n          {\n            \"optionInfo\": {\n              \"key\": \"key1\",\n              \"synonyms\": [\n                \"key one\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          },\n          {\n            \"optionInfo\": {\n              \"key\": \"key2\",\n              \"synonyms\": [\n                \"key two\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          }\n        ]\n      }\n    },\n    \"intent\": \"actions.intent.OPTION\"\n  }\n}\u003c/pre\u003e",
+            "Google Hangouts."
           ],
           "items": {
             "enum": [
@@ -2577,7 +2578,8 @@
               "SKYPE",
               "LINE",
               "VIBER",
-              "ACTIONS_ON_GOOGLE"
+              "ACTIONS_ON_GOOGLE",
+              "GOOGLE_HANGOUTS"
             ],
             "type": "string"
           },
@@ -2744,7 +2746,8 @@
             "SKYPE",
             "LINE",
             "VIBER",
-            "ACTIONS_ON_GOOGLE"
+            "ACTIONS_ON_GOOGLE",
+            "GOOGLE_HANGOUTS"
           ],
           "enumDescriptions": [
             "Not specified.",
@@ -2755,7 +2758,8 @@
             "Skype.",
             "Line.",
             "Viber.",
-            "Actions on Google.\nWhen using Actions on Google, you can choose one of the specific\nIntent.Message types that mention support for Actions on Google,\nor you can use the advanced Intent.Message.payload field.\nThe payload field provides access to AoG features not available in the\nspecific message types.\nIf using the Intent.Message.payload field, it should have a structure\nsimilar to the JSON message shown here. For more information, see\n[Actions on Google Webhook\nFormat](https://developers.google.com/actions/dialogflow/webhook)\n\u003cpre\u003e{\n  \"expectUserResponse\": true,\n  \"isSsml\": false,\n  \"noInputPrompts\": [],\n  \"richResponse\": {\n    \"items\": [\n      {\n        \"simpleResponse\": {\n          \"displayText\": \"hi\",\n          \"textToSpeech\": \"hello\"\n        }\n      }\n    ],\n    \"suggestions\": [\n      {\n        \"title\": \"Say this\"\n      },\n      {\n        \"title\": \"or this\"\n      }\n    ]\n  },\n  \"systemIntent\": {\n    \"data\": {\n      \"@type\": \"type.googleapis.com/google.actions.v2.OptionValueSpec\",\n      \"listSelect\": {\n        \"items\": [\n          {\n            \"optionInfo\": {\n              \"key\": \"key1\",\n              \"synonyms\": [\n                \"key one\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          },\n          {\n            \"optionInfo\": {\n              \"key\": \"key2\",\n              \"synonyms\": [\n                \"key two\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          }\n        ]\n      }\n    },\n    \"intent\": \"actions.intent.OPTION\"\n  }\n}\u003c/pre\u003e"
+            "Actions on Google.\nWhen using Actions on Google, you can choose one of the specific\nIntent.Message types that mention support for Actions on Google,\nor you can use the advanced Intent.Message.payload field.\nThe payload field provides access to AoG features not available in the\nspecific message types.\nIf using the Intent.Message.payload field, it should have a structure\nsimilar to the JSON message shown here. For more information, see\n[Actions on Google Webhook\nFormat](https://developers.google.com/actions/dialogflow/webhook)\n\u003cpre\u003e{\n  \"expectUserResponse\": true,\n  \"isSsml\": false,\n  \"noInputPrompts\": [],\n  \"richResponse\": {\n    \"items\": [\n      {\n        \"simpleResponse\": {\n          \"displayText\": \"hi\",\n          \"textToSpeech\": \"hello\"\n        }\n      }\n    ],\n    \"suggestions\": [\n      {\n        \"title\": \"Say this\"\n      },\n      {\n        \"title\": \"or this\"\n      }\n    ]\n  },\n  \"systemIntent\": {\n    \"data\": {\n      \"@type\": \"type.googleapis.com/google.actions.v2.OptionValueSpec\",\n      \"listSelect\": {\n        \"items\": [\n          {\n            \"optionInfo\": {\n              \"key\": \"key1\",\n              \"synonyms\": [\n                \"key one\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          },\n          {\n            \"optionInfo\": {\n              \"key\": \"key2\",\n              \"synonyms\": [\n                \"key two\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          }\n        ]\n      }\n    },\n    \"intent\": \"actions.intent.OPTION\"\n  }\n}\u003c/pre\u003e",
+            "Google Hangouts."
           ],
           "type": "string"
         },
@@ -3279,6 +3283,10 @@
           "description": "The original conversational query text:\n- If natural language text was provided as input, `query_text` contains\n  a copy of the input.\n- If natural language speech audio was provided as input, `query_text`\n  contains the speech recognition result. If speech recognizer produced\n  multiple alternatives, a particular one is picked.\n- If an event was provided as input, `query_text` is not set.",
           "type": "string"
         },
+        "sentimentAnalysisResult": {
+          "$ref": "GoogleCloudDialogflowV2SentimentAnalysisResult",
+          "description": "The sentiment analysis result, which depends on the\n`sentiment_analysis_request_config` specified in the request."
+        },
         "speechRecognitionConfidence": {
           "description": "The Speech recognition confidence between 0.0 and 1.0. A higher number\nindicates an estimated greater likelihood that the recognized words are\ncorrect. The default of 0.0 is a sentinel value indicating that confidence\nwas not set.\n\nThis field is not guaranteed to be accurate or set. In particular this\nfield isn't set for StreamingDetectIntent since the streaming endpoint has\nseparate confidence estimates per portion of the audio in\nStreamingRecognitionResult.",
           "format": "float",
@@ -3295,6 +3303,34 @@
         "webhookSource": {
           "description": "If the query was fulfilled by a webhook call, this field is set to the\nvalue of the `source` field returned in the webhook response.",
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "GoogleCloudDialogflowV2Sentiment": {
+      "description": "The sentiment, such as positive/negative feeling or association, for a unit\nof analysis, such as the query text.",
+      "id": "GoogleCloudDialogflowV2Sentiment",
+      "properties": {
+        "magnitude": {
+          "description": "A non-negative number in the [0, +inf) range, which represents the absolute\nmagnitude of sentiment, regardless of score (positive or negative).",
+          "format": "float",
+          "type": "number"
+        },
+        "score": {
+          "description": "Sentiment score between -1.0 (negative sentiment) and 1.0 (positive\nsentiment).",
+          "format": "float",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "GoogleCloudDialogflowV2SentimentAnalysisResult": {
+      "description": "The result of sentiment analysis as configured by\n`sentiment_analysis_request_config`.",
+      "id": "GoogleCloudDialogflowV2SentimentAnalysisResult",
+      "properties": {
+        "queryTextSentiment": {
+          "$ref": "GoogleCloudDialogflowV2Sentiment",
+          "description": "The sentiment analysis result for `query_text`."
         }
       },
       "type": "object"
@@ -3683,7 +3719,7 @@
       "type": "object"
     },
     "GoogleCloudDialogflowV2beta1Document": {
-      "description": "A document resource.\n\nNote: resource `projects.agent.knowledgeBases.documents` is deprecated,\nplease use `projects.knowledgeBases.documents` instead.",
+      "description": "A document resource.\n\nNote: The `projects.agent.knowledgeBases.documents` resource is deprecated;\nonly use `projects.knowledgeBases.documents`.",
       "id": "GoogleCloudDialogflowV2beta1Document",
       "properties": {
         "content": {
@@ -3878,7 +3914,7 @@
       "type": "object"
     },
     "GoogleCloudDialogflowV2beta1InputAudioConfig": {
-      "description": "Instructs the speech recognizer how to process the audio content.",
+      "description": "Instructs the speech recognizer on how to process the audio content.",
       "id": "GoogleCloudDialogflowV2beta1InputAudioConfig",
       "properties": {
         "audioEncoding": {
@@ -3913,6 +3949,22 @@
           "description": "Optional. Which Speech model to select for the given request. Select the\nmodel best suited to your domain to get best results. If a model is not\nexplicitly specified, then we auto-select a model based on the parameters\nin the InputAudioConfig.\nIf enhanced speech model is enabled for the agent and an enhanced\nversion of the specified model for the language does not exist, then the\nspeech is recognized using the standard version of the specified model.\nRefer to\n[Cloud Speech API\ndocumentation](https://cloud.google.com/speech-to-text/docs/basics#select-model)\nfor more details.",
           "type": "string"
         },
+        "modelVariant": {
+          "description": "Optional. Which variant of the Speech model to use.",
+          "enum": [
+            "SPEECH_MODEL_VARIANT_UNSPECIFIED",
+            "USE_BEST_AVAILABLE",
+            "USE_STANDARD",
+            "USE_ENHANCED"
+          ],
+          "enumDescriptions": [
+            "No model variant specified. In this case Dialogflow defaults to\nUSE_BEST_AVAILABLE.",
+            "Use the best available variant of the Speech\nmodel that the caller is eligible for.\n\nPlease see the [Dialogflow\ndocs](https://cloud.google.com/dialogflow-enterprise/docs/data-logging) for\nhow to make your project eligible for enhanced models.",
+            "Use standard model variant even if an enhanced model is available.  See the\n[Cloud Speech\ndocumentation](https://cloud.google.com/speech-to-text/docs/enhanced-models)\nfor details about enhanced models.",
+            "Use an enhanced model variant:\n\n* If an enhanced variant does not exist for the given\n  model and request language, Dialogflow falls\n  back to the standard variant.\n\n  The [Cloud Speech\n  documentation](https://cloud.google.com/speech-to-text/docs/enhanced-models)\n  describes which models have enhanced variants.\n\n* If the API caller isn't eligible for enhanced models, Dialogflow returns\n  an error.  Please see the [Dialogflow\n  docs](https://cloud.google.com/dialogflow-enterprise/docs/data-logging)\n  for how to make your project eligible."
+          ],
+          "type": "string"
+        },
         "phraseHints": {
           "description": "Optional. The collection of phrase hints which are used to boost accuracy\nof speech recognition.\nRefer to\n[Cloud Speech API\ndocumentation](https://cloud.google.com/speech-to-text/docs/basics#phrase-hints)\nfor more details.",
           "items": {
@@ -3937,7 +3989,7 @@
           "type": "string"
         },
         "defaultResponsePlatforms": {
-          "description": "Optional. The list of platforms for which the first response will be\ntaken from among the messages assigned to the DEFAULT_PLATFORM.",
+          "description": "Optional. The list of platforms for which the first responses will be\ncopied from the messages in PLATFORM_UNSPECIFIED (i.e. default platform).",
           "enumDescriptions": [
             "Not specified.",
             "Facebook.",
@@ -3948,7 +4000,8 @@
             "Line.",
             "Viber.",
             "Actions on Google.\nWhen using Actions on Google, you can choose one of the specific\nIntent.Message types that mention support for Actions on Google,\nor you can use the advanced Intent.Message.payload field.\nThe payload field provides access to AoG features not available in the\nspecific message types.\nIf using the Intent.Message.payload field, it should have a structure\nsimilar to the JSON message shown here. For more information, see\n[Actions on Google Webhook\nFormat](https://developers.google.com/actions/dialogflow/webhook)\n\u003cpre\u003e{\n  \"expectUserResponse\": true,\n  \"isSsml\": false,\n  \"noInputPrompts\": [],\n  \"richResponse\": {\n    \"items\": [\n      {\n        \"simpleResponse\": {\n          \"displayText\": \"hi\",\n          \"textToSpeech\": \"hello\"\n        }\n      }\n    ],\n    \"suggestions\": [\n      {\n        \"title\": \"Say this\"\n      },\n      {\n        \"title\": \"or this\"\n      }\n    ]\n  },\n  \"systemIntent\": {\n    \"data\": {\n      \"@type\": \"type.googleapis.com/google.actions.v2.OptionValueSpec\",\n      \"listSelect\": {\n        \"items\": [\n          {\n            \"optionInfo\": {\n              \"key\": \"key1\",\n              \"synonyms\": [\n                \"key one\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          },\n          {\n            \"optionInfo\": {\n              \"key\": \"key2\",\n              \"synonyms\": [\n                \"key two\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          }\n        ]\n      }\n    },\n    \"intent\": \"actions.intent.OPTION\"\n  }\n}\u003c/pre\u003e",
-            "Telephony Gateway."
+            "Telephony Gateway.",
+            "Google Hangouts."
           ],
           "items": {
             "enum": [
@@ -3961,7 +4014,8 @@
               "LINE",
               "VIBER",
               "ACTIONS_ON_GOOGLE",
-              "TELEPHONY"
+              "TELEPHONY",
+              "GOOGLE_HANGOUTS"
             ],
             "type": "string"
           },
@@ -4151,7 +4205,8 @@
             "LINE",
             "VIBER",
             "ACTIONS_ON_GOOGLE",
-            "TELEPHONY"
+            "TELEPHONY",
+            "GOOGLE_HANGOUTS"
           ],
           "enumDescriptions": [
             "Not specified.",
@@ -4163,7 +4218,8 @@
             "Line.",
             "Viber.",
             "Actions on Google.\nWhen using Actions on Google, you can choose one of the specific\nIntent.Message types that mention support for Actions on Google,\nor you can use the advanced Intent.Message.payload field.\nThe payload field provides access to AoG features not available in the\nspecific message types.\nIf using the Intent.Message.payload field, it should have a structure\nsimilar to the JSON message shown here. For more information, see\n[Actions on Google Webhook\nFormat](https://developers.google.com/actions/dialogflow/webhook)\n\u003cpre\u003e{\n  \"expectUserResponse\": true,\n  \"isSsml\": false,\n  \"noInputPrompts\": [],\n  \"richResponse\": {\n    \"items\": [\n      {\n        \"simpleResponse\": {\n          \"displayText\": \"hi\",\n          \"textToSpeech\": \"hello\"\n        }\n      }\n    ],\n    \"suggestions\": [\n      {\n        \"title\": \"Say this\"\n      },\n      {\n        \"title\": \"or this\"\n      }\n    ]\n  },\n  \"systemIntent\": {\n    \"data\": {\n      \"@type\": \"type.googleapis.com/google.actions.v2.OptionValueSpec\",\n      \"listSelect\": {\n        \"items\": [\n          {\n            \"optionInfo\": {\n              \"key\": \"key1\",\n              \"synonyms\": [\n                \"key one\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          },\n          {\n            \"optionInfo\": {\n              \"key\": \"key2\",\n              \"synonyms\": [\n                \"key two\"\n              ]\n            },\n            \"title\": \"must not be empty, but unique\"\n          }\n        ]\n      }\n    },\n    \"intent\": \"actions.intent.OPTION\"\n  }\n}\u003c/pre\u003e",
-            "Telephony Gateway."
+            "Telephony Gateway.",
+            "Google Hangouts."
           ],
           "type": "string"
         },
@@ -4705,7 +4761,7 @@
       "type": "object"
     },
     "GoogleCloudDialogflowV2beta1KnowledgeBase": {
-      "description": "Represents knowledge base resource.\n\nNote: resource `projects.agent.knowledgeBases` is deprecated, please use\n`projects.knowledgeBases` instead.",
+      "description": "Represents knowledge base resource.\n\nNote: The `projects.agent.knowledgeBases` resource is deprecated;\nonly use `projects.knowledgeBases`.",
       "id": "GoogleCloudDialogflowV2beta1KnowledgeBase",
       "properties": {
         "displayName": {
@@ -5355,7 +5411,7 @@
           "type": "object"
         },
         "name": {
-          "description": "The server-assigned name, which is only unique within the same service that\noriginally returns it. If you use the default HTTP mapping, the\n`name` should have the format of `operations/some/unique/name`.",
+          "description": "The server-assigned name, which is only unique within the same service that\noriginally returns it. If you use the default HTTP mapping, the\n`name` should be a resource name ending with `operations/{unique_id}`.",
           "type": "string"
         },
         "response": {

@@ -261,7 +261,7 @@ func (s *Api) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// AuthProvider: Configuration for an anthentication provider, including
+// AuthProvider: Configuration for an authentication provider, including
 // support for
 // [JSON Web
 // Token
@@ -522,46 +522,6 @@ func (s *AuthenticationRule) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// AuthorizationConfig: Configuration of authorization.
-//
-// This section determines the authorization provider, if unspecified,
-// then no
-// authorization check will be done.
-//
-// Example:
-//
-//     experimental:
-//       authorization:
-//         provider: firebaserules.googleapis.com
-type AuthorizationConfig struct {
-	// Provider: The name of the authorization provider, such
-	// as
-	// firebaserules.googleapis.com.
-	Provider string `json:"provider,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Provider") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Provider") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *AuthorizationConfig) MarshalJSON() ([]byte, error) {
-	type NoMethod AuthorizationConfig
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
 // Backend: `Backend` defines the backend configuration for a service.
 type Backend struct {
 	// Rules: A list of API backend rules that apply to individual API
@@ -722,6 +682,64 @@ func (s *BackendRule) UnmarshalJSON(data []byte) error {
 	s.MinDeadline = float64(s1.MinDeadline)
 	s.OperationDeadline = float64(s1.OperationDeadline)
 	return nil
+}
+
+// BatchCreateAdminOverridesResponse: Response message for
+// BatchCreateAdminOverrides
+type BatchCreateAdminOverridesResponse struct {
+	// Overrides: The overrides that were created.
+	Overrides []*QuotaOverride `json:"overrides,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Overrides") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Overrides") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreateAdminOverridesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreateAdminOverridesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// BatchCreateConsumerOverridesResponse: Response message for
+// BatchCreateConsumerOverrides
+type BatchCreateConsumerOverridesResponse struct {
+	// Overrides: The overrides that were created.
+	Overrides []*QuotaOverride `json:"overrides,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Overrides") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Overrides") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreateConsumerOverridesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreateConsumerOverridesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // BatchEnableServicesRequest: Request message for the
@@ -1637,36 +1655,6 @@ func (s *EnumValue) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Experimental: Experimental service configuration. These configuration
-// options can
-// only be used by whitelisted users.
-type Experimental struct {
-	// Authorization: Authorization configuration.
-	Authorization *AuthorizationConfig `json:"authorization,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Authorization") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Authorization") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *Experimental) MarshalJSON() ([]byte, error) {
-	type NoMethod Experimental
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
 // Field: A single field of a message type.
 type Field struct {
 	// Cardinality: The field cardinality.
@@ -1844,9 +1832,6 @@ type GoogleApiService struct {
 	//     enums:
 	//     - name: google.someapi.v1.SomeEnum
 	Enums []*Enum `json:"enums,omitempty"`
-
-	// Experimental: Experimental configuration.
-	Experimental *Experimental `json:"experimental,omitempty"`
 
 	// Http: HTTP configuration.
 	Http *Http `json:"http,omitempty"`
@@ -2238,9 +2223,11 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 //
 // HTTP | gRPC
 // -----|-----
-// `GET /v1/messages/123456?revision=2&sub.subfield=foo` |
+// `GET /v1/messages/123456?revision=2&sub.subfield=foo`
+// |
 // `GetMessage(message_id: "123456" revision: 2 sub:
-// SubMessage(subfield: "foo"))`
+// SubMessage(subfield:
+// "foo"))`
 //
 // Note that fields which are mapped to URL query parameters must have
 // a
@@ -2281,7 +2268,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // HTTP | gRPC
 // -----|-----
 // `PATCH /v1/messages/123456 { "text": "Hi!" }` |
-// `UpdateMessage(message_id: "123456" message { text: "Hi!" })`
+// `UpdateMessage(message_id:
+// "123456" message { text: "Hi!" })`
 //
 // The special name `*` can be used in the body mapping to define
 // that
@@ -2310,7 +2298,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // HTTP | gRPC
 // -----|-----
 // `PATCH /v1/messages/123456 { "text": "Hi!" }` |
-// `UpdateMessage(message_id: "123456" text: "Hi!")`
+// `UpdateMessage(message_id:
+// "123456" text: "Hi!")`
 //
 // Note that when using `*` in the body mapping, it is not possible
 // to
@@ -2347,7 +2336,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // -----|-----
 // `GET /v1/messages/123456` | `GetMessage(message_id: "123456")`
 // `GET /v1/users/me/messages/123456` | `GetMessage(user_id: "me"
-// message_id: "123456")`
+// message_id:
+// "123456")`
 //
 // ## Rules for HTTP mapping
 //
@@ -2410,9 +2400,9 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // server side does the reverse decoding. Such variables show up in
 // the
 // [Discovery
-// Document](https://developers.google.com/discovery/v1/reference/apis)
-// a
-// s `{var}`.
+// Document](https://developers.google.com/discovery/v1/re
+// ference/apis) as
+// `{var}`.
 //
 // If a variable contains multiple path segments, such as
 // "{var=foo/*}"
@@ -2422,11 +2412,12 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // percent-encoded.
 // The server side does the reverse decoding, except "%2F" and "%2f" are
 // left
-// unchanged. Such variables show up in the
+// unchanged. Such variables show up in
+// the
 // [Discovery
-// Document](https://developers.google.com/discovery/v1/reference/apis)
-// a
-// s `{+var}`.
+// Document](https://developers.google.com/discovery/v1/re
+// ference/apis) as
+// `{+var}`.
 //
 // ## Using gRPC API Service Configuration
 //
@@ -2953,6 +2944,58 @@ type MetricDescriptor struct {
 	// for responses that failed.
 	Labels []*LabelDescriptor `json:"labels,omitempty"`
 
+	// LaunchStage: Optional. The launch stage of the metric definition.
+	//
+	// Possible values:
+	//   "LAUNCH_STAGE_UNSPECIFIED" - Do not use this default value.
+	//   "EARLY_ACCESS" - Early Access features are limited to a closed
+	// group of testers. To use
+	// these features, you must sign up in advance and sign a Trusted
+	// Tester
+	// agreement (which includes confidentiality provisions). These features
+	// may
+	// be unstable, changed in backward-incompatible ways, and are
+	// not
+	// guaranteed to be released.
+	//   "ALPHA" - Alpha is a limited availability test for releases before
+	// they are cleared
+	// for widespread use. By Alpha, all significant design issues are
+	// resolved
+	// and we are in the process of verifying functionality. Alpha
+	// customers
+	// need to apply for access, agree to applicable terms, and have
+	// their
+	// projects whitelisted. Alpha releases don’t have to be feature
+	// complete,
+	// no SLAs are provided, and there are no technical support obligations,
+	// but
+	// they will be far enough along that customers can actually use them
+	// in
+	// test environments or for limited-use tests -- just like they would
+	// in
+	// normal production cases.
+	//   "BETA" - Beta is the point at which we are ready to open a release
+	// for any
+	// customer to use. There are no SLA or technical support obligations in
+	// a
+	// Beta release. Products will be complete from a feature perspective,
+	// but
+	// may have some open outstanding issues. Beta releases are suitable
+	// for
+	// limited production use cases.
+	//   "GA" - GA features are open to all developers and are considered
+	// stable and
+	// fully qualified for production use.
+	//   "DEPRECATED" - Deprecated features are scheduled to be shut down
+	// and removed. For more
+	// information, see the “Deprecation Policy” section of our [Terms
+	// of
+	// Service](https://cloud.google.com/terms/)
+	// and the [Google Cloud Platform Subject to the
+	// Deprecation
+	// Policy](https://cloud.google.com/terms/deprecation) documentation.
+	LaunchStage string `json:"launchStage,omitempty"`
+
 	// Metadata: Optional. Metadata which can be used to guide usage of the
 	// metric.
 	Metadata *MetricDescriptorMetadata `json:"metadata,omitempty"`
@@ -3111,7 +3154,9 @@ type MetricDescriptorMetadata struct {
 	// data loss due to errors.
 	IngestDelay string `json:"ingestDelay,omitempty"`
 
-	// LaunchStage: The launch stage of the metric definition.
+	// LaunchStage: Deprecated. Please use the MetricDescriptor.launch_stage
+	// instead.
+	// The launch stage of the metric definition.
 	//
 	// Possible values:
 	//   "LAUNCH_STAGE_UNSPECIFIED" - Do not use this default value.
@@ -3391,6 +3436,59 @@ type MonitoredResourceDescriptor struct {
 	// identified by values for the labels "database_id" and "zone".
 	Labels []*LabelDescriptor `json:"labels,omitempty"`
 
+	// LaunchStage: Optional. The launch stage of the monitored resource
+	// definition.
+	//
+	// Possible values:
+	//   "LAUNCH_STAGE_UNSPECIFIED" - Do not use this default value.
+	//   "EARLY_ACCESS" - Early Access features are limited to a closed
+	// group of testers. To use
+	// these features, you must sign up in advance and sign a Trusted
+	// Tester
+	// agreement (which includes confidentiality provisions). These features
+	// may
+	// be unstable, changed in backward-incompatible ways, and are
+	// not
+	// guaranteed to be released.
+	//   "ALPHA" - Alpha is a limited availability test for releases before
+	// they are cleared
+	// for widespread use. By Alpha, all significant design issues are
+	// resolved
+	// and we are in the process of verifying functionality. Alpha
+	// customers
+	// need to apply for access, agree to applicable terms, and have
+	// their
+	// projects whitelisted. Alpha releases don’t have to be feature
+	// complete,
+	// no SLAs are provided, and there are no technical support obligations,
+	// but
+	// they will be far enough along that customers can actually use them
+	// in
+	// test environments or for limited-use tests -- just like they would
+	// in
+	// normal production cases.
+	//   "BETA" - Beta is the point at which we are ready to open a release
+	// for any
+	// customer to use. There are no SLA or technical support obligations in
+	// a
+	// Beta release. Products will be complete from a feature perspective,
+	// but
+	// may have some open outstanding issues. Beta releases are suitable
+	// for
+	// limited production use cases.
+	//   "GA" - GA features are open to all developers and are considered
+	// stable and
+	// fully qualified for production use.
+	//   "DEPRECATED" - Deprecated features are scheduled to be shut down
+	// and removed. For more
+	// information, see the “Deprecation Policy” section of our [Terms
+	// of
+	// Service](https://cloud.google.com/terms/)
+	// and the [Google Cloud Platform Subject to the
+	// Deprecation
+	// Policy](https://cloud.google.com/terms/deprecation) documentation.
+	LaunchStage string `json:"launchStage,omitempty"`
+
 	// Name: Optional. The resource name of the monitored resource
 	// descriptor:
 	// "projects/{project_id}/monitoredResourceDescriptors/{type
@@ -3657,7 +3755,8 @@ type Operation struct {
 	// service that
 	// originally returns it. If you use the default HTTP mapping,
 	// the
-	// `name` should have the format of `operations/some/unique/name`.
+	// `name` should be a resource name ending with
+	// `operations/{unique_id}`.
 	Name string `json:"name,omitempty"`
 
 	// Response: The normal response of the operation in case of success.
@@ -4063,6 +4162,83 @@ type QuotaLimit struct {
 
 func (s *QuotaLimit) MarshalJSON() ([]byte, error) {
 	type NoMethod QuotaLimit
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// QuotaOverride: A quota override
+type QuotaOverride struct {
+	// Dimensions: If this map is nonempty, then this override applies only
+	// to specific values
+	// for dimensions defined in the limit unit.
+	//
+	// For example, an override on a limit with the unit
+	// 1/{project}/{region}
+	// could contain an entry with the key "region" and the value
+	// "us-east-1";
+	// the override is only applied to quota consumed in that region.
+	//
+	// This map has the following restrictions:
+	// - Keys that are not defined in the limit's unit are not valid keys.
+	//   Any string appearing in {brackets} in the unit (besides {project}
+	// or
+	//   {user}) is a defined key.
+	// - "project" is not a valid key; the project is already specified in
+	//   the parent resource name.
+	// - "user" is not a valid key; the API does not support quota
+	// overrides
+	//   that apply only to a specific user.
+	// - If "region" appears as a key, its value must be a valid Cloud
+	// region.
+	// - If "zone" appears as a key, its value must be a valid Cloud zone.
+	// - If any valid key other than "region" or "zone" appears in the map,
+	// then
+	//   all valid keys other than "region" or "zone" must also appear in
+	// the map.
+	Dimensions map[string]string `json:"dimensions,omitempty"`
+
+	// Name: The resource name of the override.
+	// This name is generated by the server when the override is
+	// created.
+	//
+	// Example names would
+	// be:
+	// `projects/123/services/compute.googleapis.com/consumerQuotaMetrics
+	// /compute.googleapis.com%2Fcpus/limits/%2Fproject%2Fregion/adminOverrid
+	// es/4a3f2c1d`
+	// `projects/123/services/compute.googleapis.com/consumerQuo
+	// taMetrics/compute.googleapis.com%2Fcpus/limits/%2Fproject%2Fregion/con
+	// sumerOverrides/4a3f2c1d`
+	//
+	// The resource name is intended to be opaque and should not be parsed
+	// for
+	// its component strings, since its representation could change in the
+	// future.
+	Name string `json:"name,omitempty"`
+
+	// OverrideValue: The overriding quota limit value.
+	// Can be any nonnegative integer, or -1 (unlimited quota).
+	OverrideValue int64 `json:"overrideValue,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "Dimensions") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Dimensions") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *QuotaOverride) MarshalJSON() ([]byte, error) {
+	type NoMethod QuotaOverride
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }

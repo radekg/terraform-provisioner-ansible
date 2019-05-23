@@ -313,6 +313,9 @@ type BackupConfiguration struct {
 	// Kind: This is always sql#backupConfiguration.
 	Kind string `json:"kind,omitempty"`
 
+	// Location: The location of the backup.
+	Location string `json:"location,omitempty"`
+
 	// ReplicationLogArchivingEnabled: Reserved for future use.
 	ReplicationLogArchivingEnabled bool `json:"replicationLogArchivingEnabled,omitempty"`
 
@@ -371,6 +374,9 @@ type BackupRun struct {
 
 	// Kind: This is always sql#backupRun.
 	Kind string `json:"kind,omitempty"`
+
+	// Location: The location of the backup.
+	Location string `json:"location,omitempty"`
 
 	// SelfLink: The URI of this resource.
 	SelfLink string `json:"selfLink,omitempty"`
@@ -653,8 +659,8 @@ type DatabaseInstance struct {
 	// DatabaseVersion: The database engine type and version. The
 	// databaseVersion field can not be changed after instance creation.
 	// MySQL Second Generation instances: MYSQL_5_7 (default) or MYSQL_5_6.
-	// PostgreSQL instances: POSTGRES_9_6 MySQL First Generation instances:
-	// MYSQL_5_6 (default) or MYSQL_5_5
+	// PostgreSQL instances: POSTGRES_9_6 (default) or POSTGRES_11 Beta.
+	// MySQL First Generation instances: MYSQL_5_6 (default) or MYSQL_5_5
 	DatabaseVersion string `json:"databaseVersion,omitempty"`
 
 	// DiskEncryptionConfiguration: Disk encryption configuration specific
@@ -731,6 +737,9 @@ type DatabaseInstance struct {
 
 	// ReplicaNames: The replicas of the instance.
 	ReplicaNames []string `json:"replicaNames,omitempty"`
+
+	// RootPassword: Initial root password. Use only on creation.
+	RootPassword string `json:"rootPassword,omitempty"`
 
 	// SelfLink: The URI of this resource.
 	SelfLink string `json:"selfLink,omitempty"`

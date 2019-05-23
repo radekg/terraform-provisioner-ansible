@@ -292,9 +292,7 @@ type CloudFunction struct {
 
 	// MaxInstances: The limit on the maximum number of function instances
 	// that may coexist at a
-	// given time. This feature is currently in alpha, available only
-	// for
-	// whitelisted users.
+	// given time.
 	MaxInstances int64 `json:"maxInstances,omitempty"`
 
 	// Name: A user-defined name of the function. Function names must be
@@ -330,9 +328,14 @@ type CloudFunction struct {
 	// users.
 	Network string `json:"network,omitempty"`
 
-	// Runtime: The runtime in which the function is going to run. If empty,
-	// defaults to
-	// Node.js 6.
+	// Runtime: Required. The runtime in which the function is going to run.
+	// Choices:
+	//
+	// * `nodejs6`: Node.js 6
+	// * `nodejs8`: Node.js 8
+	// * `nodejs10`: Node.js 10
+	// * `python37`: Python 3.7
+	// * `go111`: Go 1.11
 	Runtime string `json:"runtime,omitempty"`
 
 	// ServiceAccount: The email of the function's service account. If
@@ -877,7 +880,8 @@ type Operation struct {
 	// service that
 	// originally returns it. If you use the default HTTP mapping,
 	// the
-	// `name` should have the format of `operations/some/unique/name`.
+	// `name` should be a resource name ending with
+	// `operations/{unique_id}`.
 	Name string `json:"name,omitempty"`
 
 	// Response: The normal response of the operation in case of success.

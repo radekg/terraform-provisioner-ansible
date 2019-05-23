@@ -18,6 +18,7 @@ package talent
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"time"
 
@@ -138,7 +139,8 @@ func (c *JobClient) setGoogleClientInfo(keyval ...string) {
 // Typically, the job becomes searchable within 10 seconds, but it may take
 // up to 5 minutes.
 func (c *JobClient) CreateJob(ctx context.Context, req *talentpb.CreateJobRequest, opts ...gax.CallOption) (*talentpb.Job, error) {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", req.GetParent()))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.CreateJob[0:len(c.CallOptions.CreateJob):len(c.CallOptions.CreateJob)], opts...)
 	var resp *talentpb.Job
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
@@ -155,7 +157,8 @@ func (c *JobClient) CreateJob(ctx context.Context, req *talentpb.CreateJobReques
 // GetJob retrieves the specified job, whose status is OPEN or recently EXPIRED
 // within the last 90 days.
 func (c *JobClient) GetJob(ctx context.Context, req *talentpb.GetJobRequest, opts ...gax.CallOption) (*talentpb.Job, error) {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "name", req.GetName()))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.GetJob[0:len(c.CallOptions.GetJob):len(c.CallOptions.GetJob)], opts...)
 	var resp *talentpb.Job
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
@@ -174,7 +177,8 @@ func (c *JobClient) GetJob(ctx context.Context, req *talentpb.GetJobRequest, opt
 // Typically, updated contents become visible in search results within 10
 // seconds, but it may take up to 5 minutes.
 func (c *JobClient) UpdateJob(ctx context.Context, req *talentpb.UpdateJobRequest, opts ...gax.CallOption) (*talentpb.Job, error) {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "job.name", req.GetJob().GetName()))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.UpdateJob[0:len(c.CallOptions.UpdateJob):len(c.CallOptions.UpdateJob)], opts...)
 	var resp *talentpb.Job
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
@@ -193,7 +197,8 @@ func (c *JobClient) UpdateJob(ctx context.Context, req *talentpb.UpdateJobReques
 // Typically, the job becomes unsearchable within 10 seconds, but it may take
 // up to 5 minutes.
 func (c *JobClient) DeleteJob(ctx context.Context, req *talentpb.DeleteJobRequest, opts ...gax.CallOption) error {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "name", req.GetName()))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.DeleteJob[0:len(c.CallOptions.DeleteJob):len(c.CallOptions.DeleteJob)], opts...)
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
@@ -205,7 +210,8 @@ func (c *JobClient) DeleteJob(ctx context.Context, req *talentpb.DeleteJobReques
 
 // ListJobs lists jobs by filter.
 func (c *JobClient) ListJobs(ctx context.Context, req *talentpb.ListJobsRequest, opts ...gax.CallOption) *JobIterator {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", req.GetParent()))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.ListJobs[0:len(c.CallOptions.ListJobs):len(c.CallOptions.ListJobs)], opts...)
 	it := &JobIterator{}
 	req = proto.Clone(req).(*talentpb.ListJobsRequest)
@@ -237,12 +243,14 @@ func (c *JobClient) ListJobs(ctx context.Context, req *talentpb.ListJobsRequest,
 	}
 	it.pageInfo, it.nextFunc = iterator.NewPageInfo(fetch, it.bufLen, it.takeBuf)
 	it.pageInfo.MaxSize = int(req.PageSize)
+	it.pageInfo.Token = req.PageToken
 	return it
 }
 
 // BatchDeleteJobs deletes a list of [Job][google.cloud.talent.v4beta1.Job]s by filter.
 func (c *JobClient) BatchDeleteJobs(ctx context.Context, req *talentpb.BatchDeleteJobsRequest, opts ...gax.CallOption) error {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", req.GetParent()))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.BatchDeleteJobs[0:len(c.CallOptions.BatchDeleteJobs):len(c.CallOptions.BatchDeleteJobs)], opts...)
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
@@ -252,15 +260,14 @@ func (c *JobClient) BatchDeleteJobs(ctx context.Context, req *talentpb.BatchDele
 	return err
 }
 
-// SearchJobs searches for jobs using the provided
-// [SearchJobsRequest][google.cloud.talent.v4beta1.SearchJobsRequest].
+// SearchJobs searches for jobs using the provided [SearchJobsRequest][google.cloud.talent.v4beta1.SearchJobsRequest].
 //
-// This call constrains the
-// [visibility][google.cloud.talent.v4beta1.Job.visibility] of jobs present in
-// the database, and only returns jobs that the caller has permission to
-// search against.
+// This call constrains the [visibility][google.cloud.talent.v4beta1.Job.visibility] of jobs
+// present in the database, and only returns jobs that the caller has
+// permission to search against.
 func (c *JobClient) SearchJobs(ctx context.Context, req *talentpb.SearchJobsRequest, opts ...gax.CallOption) *SearchJobsResponse_MatchingJobIterator {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", req.GetParent()))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.SearchJobs[0:len(c.CallOptions.SearchJobs):len(c.CallOptions.SearchJobs)], opts...)
 	it := &SearchJobsResponse_MatchingJobIterator{}
 	req = proto.Clone(req).(*talentpb.SearchJobsRequest)
@@ -292,23 +299,23 @@ func (c *JobClient) SearchJobs(ctx context.Context, req *talentpb.SearchJobsRequ
 	}
 	it.pageInfo, it.nextFunc = iterator.NewPageInfo(fetch, it.bufLen, it.takeBuf)
 	it.pageInfo.MaxSize = int(req.PageSize)
+	it.pageInfo.Token = req.PageToken
 	return it
 }
 
-// SearchJobsForAlert searches for jobs using the provided
-// [SearchJobsRequest][google.cloud.talent.v4beta1.SearchJobsRequest].
+// SearchJobsForAlert searches for jobs using the provided [SearchJobsRequest][google.cloud.talent.v4beta1.SearchJobsRequest].
 //
 // This API call is intended for the use case of targeting passive job
 // seekers (for example, job seekers who have signed up to receive email
 // alerts about potential job opportunities), and has different algorithmic
 // adjustments that are targeted to passive job seekers.
 //
-// This call constrains the
-// [visibility][google.cloud.talent.v4beta1.Job.visibility] of jobs present in
-// the database, and only returns jobs the caller has permission to search
-// against.
+// This call constrains the [visibility][google.cloud.talent.v4beta1.Job.visibility] of jobs
+// present in the database, and only returns jobs the caller has
+// permission to search against.
 func (c *JobClient) SearchJobsForAlert(ctx context.Context, req *talentpb.SearchJobsRequest, opts ...gax.CallOption) *SearchJobsResponse_MatchingJobIterator {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", req.GetParent()))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.SearchJobsForAlert[0:len(c.CallOptions.SearchJobsForAlert):len(c.CallOptions.SearchJobsForAlert)], opts...)
 	it := &SearchJobsResponse_MatchingJobIterator{}
 	req = proto.Clone(req).(*talentpb.SearchJobsRequest)
@@ -340,6 +347,7 @@ func (c *JobClient) SearchJobsForAlert(ctx context.Context, req *talentpb.Search
 	}
 	it.pageInfo, it.nextFunc = iterator.NewPageInfo(fetch, it.bufLen, it.takeBuf)
 	it.pageInfo.MaxSize = int(req.PageSize)
+	it.pageInfo.Token = req.PageToken
 	return it
 }
 

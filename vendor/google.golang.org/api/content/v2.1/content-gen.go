@@ -4088,7 +4088,10 @@ type OrderCustomer struct {
 	// FullName: Full name of the customer.
 	FullName string `json:"fullName,omitempty"`
 
-	// MarketingRightsInfo: Customer's marketing preferences.
+	// MarketingRightsInfo: Customer's marketing preferences. Contains the
+	// marketing opt-in information that is current at the time that the
+	// merchant call. User preference selections can change from one order
+	// to the next so preferences must be checked with every order.
 	MarketingRightsInfo *OrderCustomerMarketingRightsInfo `json:"marketingRightsInfo,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "FullName") to
@@ -4115,9 +4118,12 @@ func (s *OrderCustomer) MarshalJSON() ([]byte, error) {
 }
 
 type OrderCustomerMarketingRightsInfo struct {
-	// ExplicitMarketingPreference: Last known user selection regarding
+	// ExplicitMarketingPreference: Last known customer selection regarding
 	// marketing preferences. In certain cases this selection might not be
-	// known, so this field would be empty.
+	// known, so this field would be empty. If a customer selected granted
+	// in their most recent order, they can be subscribed to marketing
+	// emails. Customers who have chosen denied must not be subscribed, or
+	// must be unsubscribed if already opted-in.
 	ExplicitMarketingPreference string `json:"explicitMarketingPreference,omitempty"`
 
 	// LastUpdatedTimestamp: Timestamp when last time marketing preference
@@ -7291,8 +7297,8 @@ type Product struct {
 	// CustomAttributes: A list of custom (merchant-provided) attributes. It
 	// can also be used for submitting any attribute of the feed
 	// specification in its generic form (e.g., { "name": "size type",
-	// "type": "text", "value": "regular" }). This is useful for submitting
-	// attributes not explicitly exposed by the API.
+	// "value": "regular" }). This is useful for submitting attributes not
+	// explicitly exposed by the API.
 	CustomAttributes []*CustomAttribute `json:"customAttributes,omitempty"`
 
 	// CustomLabel0: Custom label 0 for custom grouping of items in a
@@ -7444,7 +7450,7 @@ type Product struct {
 	// Price: Price of the item.
 	Price *Price `json:"price,omitempty"`
 
-	// ProductTypes: Categories of the item (formatted as in products feed
+	// ProductTypes: Categories of the item (formatted as in products data
 	// specification).
 	ProductTypes []string `json:"productTypes,omitempty"`
 
@@ -7455,7 +7461,7 @@ type Product struct {
 	SalePrice *Price `json:"salePrice,omitempty"`
 
 	// SalePriceEffectiveDate: Date range during which the item is on sale
-	// (see products feed specification).
+	// (see products data specification).
 	SalePriceEffectiveDate string `json:"salePriceEffectiveDate,omitempty"`
 
 	// SellOnGoogleQuantity: The quantity of the product that is available
@@ -7497,11 +7503,19 @@ type Product struct {
 	// TargetCountry: The CLDR territory code for the item.
 	TargetCountry string `json:"targetCountry,omitempty"`
 
+	// TaxCategory: The tax category of the product, used to configure
+	// detailed tax nexus in account-level tax settings.
+	TaxCategory string `json:"taxCategory,omitempty"`
+
 	// Taxes: Tax information.
 	Taxes []*ProductTax `json:"taxes,omitempty"`
 
 	// Title: Title of the item.
 	Title string `json:"title,omitempty"`
+
+	// TransitTimeLabel: The transit time label of the product, used to
+	// group product in account-level transit time tables.
+	TransitTimeLabel string `json:"transitTimeLabel,omitempty"`
 
 	// UnitPricingBaseMeasure: The preference of the denominator of the unit
 	// price.
@@ -10486,8 +10500,8 @@ type AccountsLinkCall struct {
 	header_             http.Header
 }
 
-// Link: Performs an action on a link between a Merchant Center account
-// and another account.
+// Link: Performs an action on a link between two Merchant Center
+// accounts, namely accountId and linkedAccountId.
 func (r *AccountsService) Link(merchantId uint64, accountId uint64, accountslinkrequest *AccountsLinkRequest) *AccountsLinkCall {
 	c := &AccountsLinkCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.merchantId = merchantId
@@ -10587,7 +10601,7 @@ func (c *AccountsLinkCall) Do(opts ...googleapi.CallOption) (*AccountsLinkRespon
 	}
 	return ret, nil
 	// {
-	//   "description": "Performs an action on a link between a Merchant Center account and another account.",
+	//   "description": "Performs an action on a link between two Merchant Center accounts, namely accountId and linkedAccountId.",
 	//   "httpMethod": "POST",
 	//   "id": "content.accounts.link",
 	//   "parameterOrder": [
@@ -15130,7 +15144,7 @@ type OrderinvoicesCreatechargeinvoiceCall struct {
 }
 
 // Createchargeinvoice: Creates a charge invoice for a shipment group,
-// and triggers a charge capture for non-facilitated payment orders.
+// and triggers a charge capture for orderinvoice enabled orders.
 func (r *OrderinvoicesService) Createchargeinvoice(merchantId uint64, orderId string, orderinvoicescreatechargeinvoicerequest *OrderinvoicesCreateChargeInvoiceRequest) *OrderinvoicesCreatechargeinvoiceCall {
 	c := &OrderinvoicesCreatechargeinvoiceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.merchantId = merchantId
@@ -15232,7 +15246,7 @@ func (c *OrderinvoicesCreatechargeinvoiceCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a charge invoice for a shipment group, and triggers a charge capture for non-facilitated payment orders.",
+	//   "description": "Creates a charge invoice for a shipment group, and triggers a charge capture for orderinvoice enabled orders.",
 	//   "httpMethod": "POST",
 	//   "id": "content.orderinvoices.createchargeinvoice",
 	//   "parameterOrder": [
@@ -15281,7 +15295,7 @@ type OrderinvoicesCreaterefundinvoiceCall struct {
 }
 
 // Createrefundinvoice: Creates a refund invoice for one or more
-// shipment groups, and triggers a refund for non-facilitated payment
+// shipment groups, and triggers a refund for orderinvoice enabled
 // orders. This can only be used for line items that have previously
 // been charged using createChargeInvoice. All amounts (except for the
 // summary) are incremental with respect to the previous invoice.
@@ -15386,7 +15400,7 @@ func (c *OrderinvoicesCreaterefundinvoiceCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a refund invoice for one or more shipment groups, and triggers a refund for non-facilitated payment orders. This can only be used for line items that have previously been charged using createChargeInvoice. All amounts (except for the summary) are incremental with respect to the previous invoice.",
+	//   "description": "Creates a refund invoice for one or more shipment groups, and triggers a refund for orderinvoice enabled orders. This can only be used for line items that have previously been charged using createChargeInvoice. All amounts (except for the summary) are incremental with respect to the previous invoice.",
 	//   "httpMethod": "POST",
 	//   "id": "content.orderinvoices.createrefundinvoice",
 	//   "parameterOrder": [
@@ -17939,24 +17953,17 @@ func (c *OrdersListCall) Acknowledged(acknowledged bool) *OrdersListCall {
 // number of orders to return in the response, used for paging. The
 // default value is 25 orders per page, and the maximum allowed value is
 // 250 orders per page.
-// Known issue: All List calls will return all Orders without limit
-// regardless of the value of this field.
 func (c *OrdersListCall) MaxResults(maxResults int64) *OrdersListCall {
 	c.urlParams_.Set("maxResults", fmt.Sprint(maxResults))
 	return c
 }
 
-// OrderBy sets the optional parameter "orderBy": The ordering of the
-// returned list. The only supported value are placedDate desc and
-// placedDate asc for now, which returns orders sorted by placement
-// date. "placedDate desc" stands for listing orders by placement date,
-// from oldest to most recent. "placedDate asc" stands for listing
-// orders by placement date, from most recent to oldest. In future
-// releases we'll support other sorting criteria.
+// OrderBy sets the optional parameter "orderBy": Order results by
+// placement date in descending or ascending order.
 //
-// Possible values:
-//   "placedDate asc"
-//   "placedDate desc"
+// Acceptable values are:
+// - placedDateAsc
+// - placedDateDesc
 func (c *OrdersListCall) OrderBy(orderBy string) *OrdersListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -17988,7 +17995,7 @@ func (c *OrdersListCall) PlacedDateStart(placedDateStart string) *OrdersListCall
 // match any of the specified statuses. Multiple values can be specified
 // with comma separation. Additionally, please note that active is a
 // shortcut for pendingShipment and partiallyShipped, and completed is a
-// shortcut for shipped , partiallyDelivered, delivered,
+// shortcut for shipped, partiallyDelivered, delivered,
 // partiallyReturned, returned, and canceled.
 //
 // Possible values:
@@ -18119,7 +18126,7 @@ func (c *OrdersListCall) Do(opts ...googleapi.CallOption) (*OrdersListResponse, 
 	//       "type": "boolean"
 	//     },
 	//     "maxResults": {
-	//       "description": "The maximum number of orders to return in the response, used for paging. The default value is 25 orders per page, and the maximum allowed value is 250 orders per page.\nKnown issue: All List calls will return all Orders without limit regardless of the value of this field.",
+	//       "description": "The maximum number of orders to return in the response, used for paging. The default value is 25 orders per page, and the maximum allowed value is 250 orders per page.",
 	//       "format": "uint32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -18132,15 +18139,7 @@ func (c *OrdersListCall) Do(opts ...googleapi.CallOption) (*OrdersListResponse, 
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "The ordering of the returned list. The only supported value are placedDate desc and placedDate asc for now, which returns orders sorted by placement date. \"placedDate desc\" stands for listing orders by placement date, from oldest to most recent. \"placedDate asc\" stands for listing orders by placement date, from most recent to oldest. In future releases we'll support other sorting criteria.",
-	//       "enum": [
-	//         "placedDate asc",
-	//         "placedDate desc"
-	//       ],
-	//       "enumDescriptions": [
-	//         "",
-	//         ""
-	//       ],
+	//       "description": "Order results by placement date in descending or ascending order.\n\nAcceptable values are:\n- placedDateAsc\n- placedDateDesc",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -18160,7 +18159,7 @@ func (c *OrdersListCall) Do(opts ...googleapi.CallOption) (*OrdersListResponse, 
 	//       "type": "string"
 	//     },
 	//     "statuses": {
-	//       "description": "Obtains orders that match any of the specified statuses. Multiple values can be specified with comma separation. Additionally, please note that active is a shortcut for pendingShipment and partiallyShipped, and completed is a shortcut for shipped , partiallyDelivered, delivered, partiallyReturned, returned, and canceled.",
+	//       "description": "Obtains orders that match any of the specified statuses. Multiple values can be specified with comma separation. Additionally, please note that active is a shortcut for pendingShipment and partiallyShipped, and completed is a shortcut for shipped, partiallyDelivered, delivered, partiallyReturned, returned, and canceled.",
 	//       "enum": [
 	//         "active",
 	//         "canceled",

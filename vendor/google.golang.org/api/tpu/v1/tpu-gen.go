@@ -596,10 +596,10 @@ type Node struct {
 	Network string `json:"network,omitempty"`
 
 	// NetworkEndpoints: Output only. The network endpoints where TPU
-	// workers can be accessed and sent work.
-	// It is recommended that Tensorflow clients of the node reach out to
-	// the 0th
-	// entry in this map first.
+	// workers can be accessed and
+	// sent work. It is recommended that Tensorflow clients of the node
+	// reach out
+	// to the 0th entry in this map first.
 	NetworkEndpoints []*NetworkEndpoint `json:"networkEndpoints,omitempty"`
 
 	// Port: Output only.
@@ -633,8 +633,7 @@ type Node struct {
 	//   "REPAIRING" - TPU node is being repaired and may be unusable.
 	// Details can be
 	// found in the `help_description` field.
-	//   "STOPPED" - 7 - Reserved. Was SUSPENDED.
-	// TPU node is stopped.
+	//   "STOPPED" - TPU node is stopped.
 	//   "STOPPING" - TPU node is currently stopping.
 	//   "STARTING" - TPU node is currently starting.
 	//   "PREEMPTED" - TPU node has been preempted. Only applies to
@@ -708,7 +707,8 @@ type Operation struct {
 	// service that
 	// originally returns it. If you use the default HTTP mapping,
 	// the
-	// `name` should have the format of `operations/some/unique/name`.
+	// `name` should be a resource name ending with
+	// `operations/{unique_id}`.
 	Name string `json:"name,omitempty"`
 
 	// Response: The normal response of the operation in case of success.
@@ -841,6 +841,9 @@ func (s *ReimageNodeRequest) MarshalJSON() ([]byte, error) {
 
 type SchedulingConfig struct {
 	Preemptible bool `json:"preemptible,omitempty"`
+
+	// Reserved: Whether the node is created under a reservation.
+	Reserved bool `json:"reserved,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Preemptible") to
 	// unconditionally include in API requests. By default, fields with

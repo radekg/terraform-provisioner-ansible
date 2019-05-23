@@ -40,6 +40,8 @@ google/cloud/language/artman_language_v1.yaml
 google/cloud/language/artman_language_v1beta2.yaml
 google/cloud/oslogin/artman_oslogin_v1.yaml
 google/cloud/oslogin/artman_oslogin_v1beta.yaml
+google/cloud/phishingprotection/artman_phishingprotection_v1beta1.yaml
+google/cloud/recaptchaenterprise/artman_recaptchaenterprise_v1beta1.yaml
 google/cloud/redis/artman_redis_v1beta1.yaml
 google/cloud/redis/artman_redis_v1.yaml
 google/cloud/scheduler/artman_cloudscheduler_v1beta1.yaml
@@ -58,6 +60,7 @@ google/cloud/videointelligence/artman_videointelligence_v1beta1.yaml
 google/cloud/videointelligence/artman_videointelligence_v1beta2.yaml
 google/cloud/vision/artman_vision_v1.yaml
 google/cloud/vision/artman_vision_v1p1beta1.yaml
+google/cloud/webrisk/artman_webrisk_v1beta1.yaml
 google/devtools/artman_clouddebugger.yaml
 google/devtools/clouderrorreporting/artman_errorreporting.yaml
 google/devtools/cloudtrace/artman_cloudtrace_v1.yaml
@@ -78,6 +81,29 @@ for api in "${APIS[@]}"; do
   rm -rf artman-genfiles/*
   artman --config "$api" generate go_gapic
   cp -r artman-genfiles/gapi-*/cloud.google.com/go/* $GOPATH/src/cloud.google.com/go/
+done
+
+microgen() {
+  input=$1
+  options="${@:2}"
+
+  # see https://github.com/googleapis/gapic-generator-go/blob/master/README.md#docker-wrapper for details
+  docker run \
+    --mount type=bind,source=$(pwd),destination=/conf,readonly \
+    --mount type=bind,source=$(pwd)/$input,destination=/in/$input,readonly \
+    --mount type=bind,source=$GOPATH/src,destination=/out \
+    --rm \
+    gcr.io/gapic-images/gapic-generator-go:latest \
+    $options
+}
+
+MICROAPIS=(
+  # input proto directory  |  gapic-generator-go flag  | gapic-service-config flag
+  # "google/cloud/language/v1 --go-gapic-package cloud.google.com/go/language/apiv1;language --gapic-service-config google/cloud/language/language_v1.yaml"
+)
+
+for api in "${MICROAPIS[@]}"; do
+  microgen $api
 done
 
 pushd $GOPATH/src/cloud.google.com/go/

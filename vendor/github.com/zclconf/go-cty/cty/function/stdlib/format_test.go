@@ -578,7 +578,7 @@ func TestFormatList(t *testing.T) {
 		Want    cty.Value
 		WantErr string
 	}{
-		{
+		0: {
 			cty.StringVal(""),
 			nil,
 			cty.ListVal([]cty.Value{
@@ -586,7 +586,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		1: {
 			cty.StringVal("hello"),
 			nil,
 			cty.ListVal([]cty.Value{
@@ -594,7 +594,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		2: {
 			cty.StringVal("100%% successful"),
 			nil,
 			cty.ListVal([]cty.Value{
@@ -602,7 +602,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		3: {
 			cty.StringVal("100%%"),
 			nil,
 			cty.ListVal([]cty.Value{
@@ -611,7 +611,7 @@ func TestFormatList(t *testing.T) {
 			``,
 		},
 
-		{
+		4: {
 			cty.StringVal("%s"),
 			[]cty.Value{cty.StringVal("hello")},
 			cty.ListVal([]cty.Value{
@@ -619,7 +619,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		5: {
 			cty.StringVal("%s"),
 			[]cty.Value{
 				cty.ListVal([]cty.Value{
@@ -631,7 +631,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		6: {
 			cty.StringVal("%s"),
 			[]cty.Value{
 				cty.ListVal([]cty.Value{
@@ -645,7 +645,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		7: {
 			cty.StringVal("%s %s"),
 			[]cty.Value{
 				cty.ListVal([]cty.Value{
@@ -663,7 +663,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		8: {
 			cty.StringVal("%s %s"),
 			[]cty.Value{
 				cty.ListVal([]cty.Value{
@@ -678,7 +678,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		9: {
 			cty.StringVal("%s %s"),
 			[]cty.Value{
 				cty.StringVal("hello"),
@@ -693,7 +693,7 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		10: {
 			cty.StringVal("%s %s"),
 			[]cty.Value{
 				cty.ListVal([]cty.Value{
@@ -707,28 +707,28 @@ func TestFormatList(t *testing.T) {
 			cty.ListValEmpty(cty.String),
 			`argument 2 has length 1, which is inconsistent with argument 1 of length 2`,
 		},
-		{
+		11: {
 			cty.StringVal("%s"),
 			[]cty.Value{cty.EmptyObjectVal},
 			cty.ListValEmpty(cty.String),
 			`error on format iteration 0: unsupported value for "%s" at 0: string required`,
 		},
-		{
+		12: {
 			cty.StringVal("%v"),
 			[]cty.Value{cty.EmptyTupleVal},
 			cty.ListValEmpty(cty.String), // no items because our given tuple is empty
 			``,
 		},
-		{
+		13: {
 			cty.StringVal("%v"),
 			[]cty.Value{cty.NullVal(cty.List(cty.String))},
 			cty.ListVal([]cty.Value{
-				cty.StringVal("null"), // single item because a null list is interpreted as a single null
+				cty.StringVal("null"), // we treat a null list like a list whose elements are all null
 			}),
 			``,
 		},
 
-		{
+		14: {
 			cty.UnknownVal(cty.String),
 			[]cty.Value{
 				cty.True,
@@ -736,7 +736,7 @@ func TestFormatList(t *testing.T) {
 			cty.UnknownVal(cty.List(cty.String)),
 			``,
 		},
-		{
+		15: {
 			cty.StringVal("%v"),
 			[]cty.Value{
 				cty.UnknownVal(cty.String),
@@ -746,7 +746,25 @@ func TestFormatList(t *testing.T) {
 			}),
 			``,
 		},
-		{
+		16: {
+			cty.StringVal("%v"),
+			[]cty.Value{
+				cty.NullVal(cty.String),
+			},
+			cty.ListVal([]cty.Value{
+				cty.StringVal("null"),
+			}),
+			``,
+		},
+		17: {
+			cty.StringVal("%v"),
+			[]cty.Value{
+				cty.UnknownVal(cty.List(cty.String)),
+			},
+			cty.UnknownVal(cty.List(cty.String)),
+			``,
+		},
+		18: {
 			cty.StringVal("%v"),
 			[]cty.Value{
 				cty.ListVal([]cty.Value{

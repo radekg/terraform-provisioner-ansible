@@ -68,6 +68,10 @@ type AlexaForBusinessAPI interface {
 	AssociateContactWithAddressBookWithContext(aws.Context, *alexaforbusiness.AssociateContactWithAddressBookInput, ...request.Option) (*alexaforbusiness.AssociateContactWithAddressBookOutput, error)
 	AssociateContactWithAddressBookRequest(*alexaforbusiness.AssociateContactWithAddressBookInput) (*request.Request, *alexaforbusiness.AssociateContactWithAddressBookOutput)
 
+	AssociateDeviceWithNetworkProfile(*alexaforbusiness.AssociateDeviceWithNetworkProfileInput) (*alexaforbusiness.AssociateDeviceWithNetworkProfileOutput, error)
+	AssociateDeviceWithNetworkProfileWithContext(aws.Context, *alexaforbusiness.AssociateDeviceWithNetworkProfileInput, ...request.Option) (*alexaforbusiness.AssociateDeviceWithNetworkProfileOutput, error)
+	AssociateDeviceWithNetworkProfileRequest(*alexaforbusiness.AssociateDeviceWithNetworkProfileInput) (*request.Request, *alexaforbusiness.AssociateDeviceWithNetworkProfileOutput)
+
 	AssociateDeviceWithRoom(*alexaforbusiness.AssociateDeviceWithRoomInput) (*alexaforbusiness.AssociateDeviceWithRoomOutput, error)
 	AssociateDeviceWithRoomWithContext(aws.Context, *alexaforbusiness.AssociateDeviceWithRoomInput, ...request.Option) (*alexaforbusiness.AssociateDeviceWithRoomOutput, error)
 	AssociateDeviceWithRoomRequest(*alexaforbusiness.AssociateDeviceWithRoomInput) (*request.Request, *alexaforbusiness.AssociateDeviceWithRoomOutput)
@@ -80,9 +84,17 @@ type AlexaForBusinessAPI interface {
 	AssociateSkillWithSkillGroupWithContext(aws.Context, *alexaforbusiness.AssociateSkillWithSkillGroupInput, ...request.Option) (*alexaforbusiness.AssociateSkillWithSkillGroupOutput, error)
 	AssociateSkillWithSkillGroupRequest(*alexaforbusiness.AssociateSkillWithSkillGroupInput) (*request.Request, *alexaforbusiness.AssociateSkillWithSkillGroupOutput)
 
+	AssociateSkillWithUsers(*alexaforbusiness.AssociateSkillWithUsersInput) (*alexaforbusiness.AssociateSkillWithUsersOutput, error)
+	AssociateSkillWithUsersWithContext(aws.Context, *alexaforbusiness.AssociateSkillWithUsersInput, ...request.Option) (*alexaforbusiness.AssociateSkillWithUsersOutput, error)
+	AssociateSkillWithUsersRequest(*alexaforbusiness.AssociateSkillWithUsersInput) (*request.Request, *alexaforbusiness.AssociateSkillWithUsersOutput)
+
 	CreateAddressBook(*alexaforbusiness.CreateAddressBookInput) (*alexaforbusiness.CreateAddressBookOutput, error)
 	CreateAddressBookWithContext(aws.Context, *alexaforbusiness.CreateAddressBookInput, ...request.Option) (*alexaforbusiness.CreateAddressBookOutput, error)
 	CreateAddressBookRequest(*alexaforbusiness.CreateAddressBookInput) (*request.Request, *alexaforbusiness.CreateAddressBookOutput)
+
+	CreateBusinessReportSchedule(*alexaforbusiness.CreateBusinessReportScheduleInput) (*alexaforbusiness.CreateBusinessReportScheduleOutput, error)
+	CreateBusinessReportScheduleWithContext(aws.Context, *alexaforbusiness.CreateBusinessReportScheduleInput, ...request.Option) (*alexaforbusiness.CreateBusinessReportScheduleOutput, error)
+	CreateBusinessReportScheduleRequest(*alexaforbusiness.CreateBusinessReportScheduleInput) (*request.Request, *alexaforbusiness.CreateBusinessReportScheduleOutput)
 
 	CreateConferenceProvider(*alexaforbusiness.CreateConferenceProviderInput) (*alexaforbusiness.CreateConferenceProviderOutput, error)
 	CreateConferenceProviderWithContext(aws.Context, *alexaforbusiness.CreateConferenceProviderInput, ...request.Option) (*alexaforbusiness.CreateConferenceProviderOutput, error)
@@ -91,6 +103,14 @@ type AlexaForBusinessAPI interface {
 	CreateContact(*alexaforbusiness.CreateContactInput) (*alexaforbusiness.CreateContactOutput, error)
 	CreateContactWithContext(aws.Context, *alexaforbusiness.CreateContactInput, ...request.Option) (*alexaforbusiness.CreateContactOutput, error)
 	CreateContactRequest(*alexaforbusiness.CreateContactInput) (*request.Request, *alexaforbusiness.CreateContactOutput)
+
+	CreateGatewayGroup(*alexaforbusiness.CreateGatewayGroupInput) (*alexaforbusiness.CreateGatewayGroupOutput, error)
+	CreateGatewayGroupWithContext(aws.Context, *alexaforbusiness.CreateGatewayGroupInput, ...request.Option) (*alexaforbusiness.CreateGatewayGroupOutput, error)
+	CreateGatewayGroupRequest(*alexaforbusiness.CreateGatewayGroupInput) (*request.Request, *alexaforbusiness.CreateGatewayGroupOutput)
+
+	CreateNetworkProfile(*alexaforbusiness.CreateNetworkProfileInput) (*alexaforbusiness.CreateNetworkProfileOutput, error)
+	CreateNetworkProfileWithContext(aws.Context, *alexaforbusiness.CreateNetworkProfileInput, ...request.Option) (*alexaforbusiness.CreateNetworkProfileOutput, error)
+	CreateNetworkProfileRequest(*alexaforbusiness.CreateNetworkProfileInput) (*request.Request, *alexaforbusiness.CreateNetworkProfileOutput)
 
 	CreateProfile(*alexaforbusiness.CreateProfileInput) (*alexaforbusiness.CreateProfileOutput, error)
 	CreateProfileWithContext(aws.Context, *alexaforbusiness.CreateProfileInput, ...request.Option) (*alexaforbusiness.CreateProfileOutput, error)
@@ -112,6 +132,10 @@ type AlexaForBusinessAPI interface {
 	DeleteAddressBookWithContext(aws.Context, *alexaforbusiness.DeleteAddressBookInput, ...request.Option) (*alexaforbusiness.DeleteAddressBookOutput, error)
 	DeleteAddressBookRequest(*alexaforbusiness.DeleteAddressBookInput) (*request.Request, *alexaforbusiness.DeleteAddressBookOutput)
 
+	DeleteBusinessReportSchedule(*alexaforbusiness.DeleteBusinessReportScheduleInput) (*alexaforbusiness.DeleteBusinessReportScheduleOutput, error)
+	DeleteBusinessReportScheduleWithContext(aws.Context, *alexaforbusiness.DeleteBusinessReportScheduleInput, ...request.Option) (*alexaforbusiness.DeleteBusinessReportScheduleOutput, error)
+	DeleteBusinessReportScheduleRequest(*alexaforbusiness.DeleteBusinessReportScheduleInput) (*request.Request, *alexaforbusiness.DeleteBusinessReportScheduleOutput)
+
 	DeleteConferenceProvider(*alexaforbusiness.DeleteConferenceProviderInput) (*alexaforbusiness.DeleteConferenceProviderOutput, error)
 	DeleteConferenceProviderWithContext(aws.Context, *alexaforbusiness.DeleteConferenceProviderInput, ...request.Option) (*alexaforbusiness.DeleteConferenceProviderOutput, error)
 	DeleteConferenceProviderRequest(*alexaforbusiness.DeleteConferenceProviderInput) (*request.Request, *alexaforbusiness.DeleteConferenceProviderOutput)
@@ -123,6 +147,18 @@ type AlexaForBusinessAPI interface {
 	DeleteDevice(*alexaforbusiness.DeleteDeviceInput) (*alexaforbusiness.DeleteDeviceOutput, error)
 	DeleteDeviceWithContext(aws.Context, *alexaforbusiness.DeleteDeviceInput, ...request.Option) (*alexaforbusiness.DeleteDeviceOutput, error)
 	DeleteDeviceRequest(*alexaforbusiness.DeleteDeviceInput) (*request.Request, *alexaforbusiness.DeleteDeviceOutput)
+
+	DeleteDeviceUsageData(*alexaforbusiness.DeleteDeviceUsageDataInput) (*alexaforbusiness.DeleteDeviceUsageDataOutput, error)
+	DeleteDeviceUsageDataWithContext(aws.Context, *alexaforbusiness.DeleteDeviceUsageDataInput, ...request.Option) (*alexaforbusiness.DeleteDeviceUsageDataOutput, error)
+	DeleteDeviceUsageDataRequest(*alexaforbusiness.DeleteDeviceUsageDataInput) (*request.Request, *alexaforbusiness.DeleteDeviceUsageDataOutput)
+
+	DeleteGatewayGroup(*alexaforbusiness.DeleteGatewayGroupInput) (*alexaforbusiness.DeleteGatewayGroupOutput, error)
+	DeleteGatewayGroupWithContext(aws.Context, *alexaforbusiness.DeleteGatewayGroupInput, ...request.Option) (*alexaforbusiness.DeleteGatewayGroupOutput, error)
+	DeleteGatewayGroupRequest(*alexaforbusiness.DeleteGatewayGroupInput) (*request.Request, *alexaforbusiness.DeleteGatewayGroupOutput)
+
+	DeleteNetworkProfile(*alexaforbusiness.DeleteNetworkProfileInput) (*alexaforbusiness.DeleteNetworkProfileOutput, error)
+	DeleteNetworkProfileWithContext(aws.Context, *alexaforbusiness.DeleteNetworkProfileInput, ...request.Option) (*alexaforbusiness.DeleteNetworkProfileOutput, error)
+	DeleteNetworkProfileRequest(*alexaforbusiness.DeleteNetworkProfileInput) (*request.Request, *alexaforbusiness.DeleteNetworkProfileOutput)
 
 	DeleteProfile(*alexaforbusiness.DeleteProfileInput) (*alexaforbusiness.DeleteProfileOutput, error)
 	DeleteProfileWithContext(aws.Context, *alexaforbusiness.DeleteProfileInput, ...request.Option) (*alexaforbusiness.DeleteProfileOutput, error)
@@ -160,6 +196,10 @@ type AlexaForBusinessAPI interface {
 	DisassociateSkillFromSkillGroupWithContext(aws.Context, *alexaforbusiness.DisassociateSkillFromSkillGroupInput, ...request.Option) (*alexaforbusiness.DisassociateSkillFromSkillGroupOutput, error)
 	DisassociateSkillFromSkillGroupRequest(*alexaforbusiness.DisassociateSkillFromSkillGroupInput) (*request.Request, *alexaforbusiness.DisassociateSkillFromSkillGroupOutput)
 
+	DisassociateSkillFromUsers(*alexaforbusiness.DisassociateSkillFromUsersInput) (*alexaforbusiness.DisassociateSkillFromUsersOutput, error)
+	DisassociateSkillFromUsersWithContext(aws.Context, *alexaforbusiness.DisassociateSkillFromUsersInput, ...request.Option) (*alexaforbusiness.DisassociateSkillFromUsersOutput, error)
+	DisassociateSkillFromUsersRequest(*alexaforbusiness.DisassociateSkillFromUsersInput) (*request.Request, *alexaforbusiness.DisassociateSkillFromUsersOutput)
+
 	DisassociateSkillGroupFromRoom(*alexaforbusiness.DisassociateSkillGroupFromRoomInput) (*alexaforbusiness.DisassociateSkillGroupFromRoomOutput, error)
 	DisassociateSkillGroupFromRoomWithContext(aws.Context, *alexaforbusiness.DisassociateSkillGroupFromRoomInput, ...request.Option) (*alexaforbusiness.DisassociateSkillGroupFromRoomOutput, error)
 	DisassociateSkillGroupFromRoomRequest(*alexaforbusiness.DisassociateSkillGroupFromRoomInput) (*request.Request, *alexaforbusiness.DisassociateSkillGroupFromRoomOutput)
@@ -188,6 +228,22 @@ type AlexaForBusinessAPI interface {
 	GetDeviceWithContext(aws.Context, *alexaforbusiness.GetDeviceInput, ...request.Option) (*alexaforbusiness.GetDeviceOutput, error)
 	GetDeviceRequest(*alexaforbusiness.GetDeviceInput) (*request.Request, *alexaforbusiness.GetDeviceOutput)
 
+	GetGateway(*alexaforbusiness.GetGatewayInput) (*alexaforbusiness.GetGatewayOutput, error)
+	GetGatewayWithContext(aws.Context, *alexaforbusiness.GetGatewayInput, ...request.Option) (*alexaforbusiness.GetGatewayOutput, error)
+	GetGatewayRequest(*alexaforbusiness.GetGatewayInput) (*request.Request, *alexaforbusiness.GetGatewayOutput)
+
+	GetGatewayGroup(*alexaforbusiness.GetGatewayGroupInput) (*alexaforbusiness.GetGatewayGroupOutput, error)
+	GetGatewayGroupWithContext(aws.Context, *alexaforbusiness.GetGatewayGroupInput, ...request.Option) (*alexaforbusiness.GetGatewayGroupOutput, error)
+	GetGatewayGroupRequest(*alexaforbusiness.GetGatewayGroupInput) (*request.Request, *alexaforbusiness.GetGatewayGroupOutput)
+
+	GetInvitationConfiguration(*alexaforbusiness.GetInvitationConfigurationInput) (*alexaforbusiness.GetInvitationConfigurationOutput, error)
+	GetInvitationConfigurationWithContext(aws.Context, *alexaforbusiness.GetInvitationConfigurationInput, ...request.Option) (*alexaforbusiness.GetInvitationConfigurationOutput, error)
+	GetInvitationConfigurationRequest(*alexaforbusiness.GetInvitationConfigurationInput) (*request.Request, *alexaforbusiness.GetInvitationConfigurationOutput)
+
+	GetNetworkProfile(*alexaforbusiness.GetNetworkProfileInput) (*alexaforbusiness.GetNetworkProfileOutput, error)
+	GetNetworkProfileWithContext(aws.Context, *alexaforbusiness.GetNetworkProfileInput, ...request.Option) (*alexaforbusiness.GetNetworkProfileOutput, error)
+	GetNetworkProfileRequest(*alexaforbusiness.GetNetworkProfileInput) (*request.Request, *alexaforbusiness.GetNetworkProfileOutput)
+
 	GetProfile(*alexaforbusiness.GetProfileInput) (*alexaforbusiness.GetProfileOutput, error)
 	GetProfileWithContext(aws.Context, *alexaforbusiness.GetProfileInput, ...request.Option) (*alexaforbusiness.GetProfileOutput, error)
 	GetProfileRequest(*alexaforbusiness.GetProfileInput) (*request.Request, *alexaforbusiness.GetProfileOutput)
@@ -204,6 +260,13 @@ type AlexaForBusinessAPI interface {
 	GetSkillGroupWithContext(aws.Context, *alexaforbusiness.GetSkillGroupInput, ...request.Option) (*alexaforbusiness.GetSkillGroupOutput, error)
 	GetSkillGroupRequest(*alexaforbusiness.GetSkillGroupInput) (*request.Request, *alexaforbusiness.GetSkillGroupOutput)
 
+	ListBusinessReportSchedules(*alexaforbusiness.ListBusinessReportSchedulesInput) (*alexaforbusiness.ListBusinessReportSchedulesOutput, error)
+	ListBusinessReportSchedulesWithContext(aws.Context, *alexaforbusiness.ListBusinessReportSchedulesInput, ...request.Option) (*alexaforbusiness.ListBusinessReportSchedulesOutput, error)
+	ListBusinessReportSchedulesRequest(*alexaforbusiness.ListBusinessReportSchedulesInput) (*request.Request, *alexaforbusiness.ListBusinessReportSchedulesOutput)
+
+	ListBusinessReportSchedulesPages(*alexaforbusiness.ListBusinessReportSchedulesInput, func(*alexaforbusiness.ListBusinessReportSchedulesOutput, bool) bool) error
+	ListBusinessReportSchedulesPagesWithContext(aws.Context, *alexaforbusiness.ListBusinessReportSchedulesInput, func(*alexaforbusiness.ListBusinessReportSchedulesOutput, bool) bool, ...request.Option) error
+
 	ListConferenceProviders(*alexaforbusiness.ListConferenceProvidersInput) (*alexaforbusiness.ListConferenceProvidersOutput, error)
 	ListConferenceProvidersWithContext(aws.Context, *alexaforbusiness.ListConferenceProvidersInput, ...request.Option) (*alexaforbusiness.ListConferenceProvidersOutput, error)
 	ListConferenceProvidersRequest(*alexaforbusiness.ListConferenceProvidersInput) (*request.Request, *alexaforbusiness.ListConferenceProvidersOutput)
@@ -217,6 +280,20 @@ type AlexaForBusinessAPI interface {
 
 	ListDeviceEventsPages(*alexaforbusiness.ListDeviceEventsInput, func(*alexaforbusiness.ListDeviceEventsOutput, bool) bool) error
 	ListDeviceEventsPagesWithContext(aws.Context, *alexaforbusiness.ListDeviceEventsInput, func(*alexaforbusiness.ListDeviceEventsOutput, bool) bool, ...request.Option) error
+
+	ListGatewayGroups(*alexaforbusiness.ListGatewayGroupsInput) (*alexaforbusiness.ListGatewayGroupsOutput, error)
+	ListGatewayGroupsWithContext(aws.Context, *alexaforbusiness.ListGatewayGroupsInput, ...request.Option) (*alexaforbusiness.ListGatewayGroupsOutput, error)
+	ListGatewayGroupsRequest(*alexaforbusiness.ListGatewayGroupsInput) (*request.Request, *alexaforbusiness.ListGatewayGroupsOutput)
+
+	ListGatewayGroupsPages(*alexaforbusiness.ListGatewayGroupsInput, func(*alexaforbusiness.ListGatewayGroupsOutput, bool) bool) error
+	ListGatewayGroupsPagesWithContext(aws.Context, *alexaforbusiness.ListGatewayGroupsInput, func(*alexaforbusiness.ListGatewayGroupsOutput, bool) bool, ...request.Option) error
+
+	ListGateways(*alexaforbusiness.ListGatewaysInput) (*alexaforbusiness.ListGatewaysOutput, error)
+	ListGatewaysWithContext(aws.Context, *alexaforbusiness.ListGatewaysInput, ...request.Option) (*alexaforbusiness.ListGatewaysOutput, error)
+	ListGatewaysRequest(*alexaforbusiness.ListGatewaysInput) (*request.Request, *alexaforbusiness.ListGatewaysOutput)
+
+	ListGatewaysPages(*alexaforbusiness.ListGatewaysInput, func(*alexaforbusiness.ListGatewaysOutput, bool) bool) error
+	ListGatewaysPagesWithContext(aws.Context, *alexaforbusiness.ListGatewaysInput, func(*alexaforbusiness.ListGatewaysOutput, bool) bool, ...request.Option) error
 
 	ListSkills(*alexaforbusiness.ListSkillsInput) (*alexaforbusiness.ListSkillsOutput, error)
 	ListSkillsWithContext(aws.Context, *alexaforbusiness.ListSkillsInput, ...request.Option) (*alexaforbusiness.ListSkillsOutput, error)
@@ -256,6 +333,10 @@ type AlexaForBusinessAPI interface {
 	PutConferencePreference(*alexaforbusiness.PutConferencePreferenceInput) (*alexaforbusiness.PutConferencePreferenceOutput, error)
 	PutConferencePreferenceWithContext(aws.Context, *alexaforbusiness.PutConferencePreferenceInput, ...request.Option) (*alexaforbusiness.PutConferencePreferenceOutput, error)
 	PutConferencePreferenceRequest(*alexaforbusiness.PutConferencePreferenceInput) (*request.Request, *alexaforbusiness.PutConferencePreferenceOutput)
+
+	PutInvitationConfiguration(*alexaforbusiness.PutInvitationConfigurationInput) (*alexaforbusiness.PutInvitationConfigurationOutput, error)
+	PutInvitationConfigurationWithContext(aws.Context, *alexaforbusiness.PutInvitationConfigurationInput, ...request.Option) (*alexaforbusiness.PutInvitationConfigurationOutput, error)
+	PutInvitationConfigurationRequest(*alexaforbusiness.PutInvitationConfigurationInput) (*request.Request, *alexaforbusiness.PutInvitationConfigurationOutput)
 
 	PutRoomSkillParameter(*alexaforbusiness.PutRoomSkillParameterInput) (*alexaforbusiness.PutRoomSkillParameterOutput, error)
 	PutRoomSkillParameterWithContext(aws.Context, *alexaforbusiness.PutRoomSkillParameterInput, ...request.Option) (*alexaforbusiness.PutRoomSkillParameterOutput, error)
@@ -302,6 +383,13 @@ type AlexaForBusinessAPI interface {
 	SearchDevicesPages(*alexaforbusiness.SearchDevicesInput, func(*alexaforbusiness.SearchDevicesOutput, bool) bool) error
 	SearchDevicesPagesWithContext(aws.Context, *alexaforbusiness.SearchDevicesInput, func(*alexaforbusiness.SearchDevicesOutput, bool) bool, ...request.Option) error
 
+	SearchNetworkProfiles(*alexaforbusiness.SearchNetworkProfilesInput) (*alexaforbusiness.SearchNetworkProfilesOutput, error)
+	SearchNetworkProfilesWithContext(aws.Context, *alexaforbusiness.SearchNetworkProfilesInput, ...request.Option) (*alexaforbusiness.SearchNetworkProfilesOutput, error)
+	SearchNetworkProfilesRequest(*alexaforbusiness.SearchNetworkProfilesInput) (*request.Request, *alexaforbusiness.SearchNetworkProfilesOutput)
+
+	SearchNetworkProfilesPages(*alexaforbusiness.SearchNetworkProfilesInput, func(*alexaforbusiness.SearchNetworkProfilesOutput, bool) bool) error
+	SearchNetworkProfilesPagesWithContext(aws.Context, *alexaforbusiness.SearchNetworkProfilesInput, func(*alexaforbusiness.SearchNetworkProfilesOutput, bool) bool, ...request.Option) error
+
 	SearchProfiles(*alexaforbusiness.SearchProfilesInput) (*alexaforbusiness.SearchProfilesOutput, error)
 	SearchProfilesWithContext(aws.Context, *alexaforbusiness.SearchProfilesInput, ...request.Option) (*alexaforbusiness.SearchProfilesOutput, error)
 	SearchProfilesRequest(*alexaforbusiness.SearchProfilesInput) (*request.Request, *alexaforbusiness.SearchProfilesOutput)
@@ -330,6 +418,10 @@ type AlexaForBusinessAPI interface {
 	SearchUsersPages(*alexaforbusiness.SearchUsersInput, func(*alexaforbusiness.SearchUsersOutput, bool) bool) error
 	SearchUsersPagesWithContext(aws.Context, *alexaforbusiness.SearchUsersInput, func(*alexaforbusiness.SearchUsersOutput, bool) bool, ...request.Option) error
 
+	SendAnnouncement(*alexaforbusiness.SendAnnouncementInput) (*alexaforbusiness.SendAnnouncementOutput, error)
+	SendAnnouncementWithContext(aws.Context, *alexaforbusiness.SendAnnouncementInput, ...request.Option) (*alexaforbusiness.SendAnnouncementOutput, error)
+	SendAnnouncementRequest(*alexaforbusiness.SendAnnouncementInput) (*request.Request, *alexaforbusiness.SendAnnouncementOutput)
+
 	SendInvitation(*alexaforbusiness.SendInvitationInput) (*alexaforbusiness.SendInvitationOutput, error)
 	SendInvitationWithContext(aws.Context, *alexaforbusiness.SendInvitationInput, ...request.Option) (*alexaforbusiness.SendInvitationOutput, error)
 	SendInvitationRequest(*alexaforbusiness.SendInvitationInput) (*request.Request, *alexaforbusiness.SendInvitationOutput)
@@ -354,6 +446,10 @@ type AlexaForBusinessAPI interface {
 	UpdateAddressBookWithContext(aws.Context, *alexaforbusiness.UpdateAddressBookInput, ...request.Option) (*alexaforbusiness.UpdateAddressBookOutput, error)
 	UpdateAddressBookRequest(*alexaforbusiness.UpdateAddressBookInput) (*request.Request, *alexaforbusiness.UpdateAddressBookOutput)
 
+	UpdateBusinessReportSchedule(*alexaforbusiness.UpdateBusinessReportScheduleInput) (*alexaforbusiness.UpdateBusinessReportScheduleOutput, error)
+	UpdateBusinessReportScheduleWithContext(aws.Context, *alexaforbusiness.UpdateBusinessReportScheduleInput, ...request.Option) (*alexaforbusiness.UpdateBusinessReportScheduleOutput, error)
+	UpdateBusinessReportScheduleRequest(*alexaforbusiness.UpdateBusinessReportScheduleInput) (*request.Request, *alexaforbusiness.UpdateBusinessReportScheduleOutput)
+
 	UpdateConferenceProvider(*alexaforbusiness.UpdateConferenceProviderInput) (*alexaforbusiness.UpdateConferenceProviderOutput, error)
 	UpdateConferenceProviderWithContext(aws.Context, *alexaforbusiness.UpdateConferenceProviderInput, ...request.Option) (*alexaforbusiness.UpdateConferenceProviderOutput, error)
 	UpdateConferenceProviderRequest(*alexaforbusiness.UpdateConferenceProviderInput) (*request.Request, *alexaforbusiness.UpdateConferenceProviderOutput)
@@ -365,6 +461,18 @@ type AlexaForBusinessAPI interface {
 	UpdateDevice(*alexaforbusiness.UpdateDeviceInput) (*alexaforbusiness.UpdateDeviceOutput, error)
 	UpdateDeviceWithContext(aws.Context, *alexaforbusiness.UpdateDeviceInput, ...request.Option) (*alexaforbusiness.UpdateDeviceOutput, error)
 	UpdateDeviceRequest(*alexaforbusiness.UpdateDeviceInput) (*request.Request, *alexaforbusiness.UpdateDeviceOutput)
+
+	UpdateGateway(*alexaforbusiness.UpdateGatewayInput) (*alexaforbusiness.UpdateGatewayOutput, error)
+	UpdateGatewayWithContext(aws.Context, *alexaforbusiness.UpdateGatewayInput, ...request.Option) (*alexaforbusiness.UpdateGatewayOutput, error)
+	UpdateGatewayRequest(*alexaforbusiness.UpdateGatewayInput) (*request.Request, *alexaforbusiness.UpdateGatewayOutput)
+
+	UpdateGatewayGroup(*alexaforbusiness.UpdateGatewayGroupInput) (*alexaforbusiness.UpdateGatewayGroupOutput, error)
+	UpdateGatewayGroupWithContext(aws.Context, *alexaforbusiness.UpdateGatewayGroupInput, ...request.Option) (*alexaforbusiness.UpdateGatewayGroupOutput, error)
+	UpdateGatewayGroupRequest(*alexaforbusiness.UpdateGatewayGroupInput) (*request.Request, *alexaforbusiness.UpdateGatewayGroupOutput)
+
+	UpdateNetworkProfile(*alexaforbusiness.UpdateNetworkProfileInput) (*alexaforbusiness.UpdateNetworkProfileOutput, error)
+	UpdateNetworkProfileWithContext(aws.Context, *alexaforbusiness.UpdateNetworkProfileInput, ...request.Option) (*alexaforbusiness.UpdateNetworkProfileOutput, error)
+	UpdateNetworkProfileRequest(*alexaforbusiness.UpdateNetworkProfileInput) (*request.Request, *alexaforbusiness.UpdateNetworkProfileOutput)
 
 	UpdateProfile(*alexaforbusiness.UpdateProfileInput) (*alexaforbusiness.UpdateProfileOutput, error)
 	UpdateProfileWithContext(aws.Context, *alexaforbusiness.UpdateProfileInput, ...request.Option) (*alexaforbusiness.UpdateProfileOutput, error)

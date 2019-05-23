@@ -230,18 +230,21 @@ func (b *remoteBalancer) BalanceLoad(stream lbgrpc.LoadBalancer_BalanceLoadServe
 			b.stats.merge(req.GetClientStats())
 		}
 	}()
-	for v := range b.sls {
-		resp = &lbpb.LoadBalanceResponse{
-			LoadBalanceResponseType: &lbpb.LoadBalanceResponse_ServerList{
-				ServerList: v,
-			},
+	for {
+		select {
+		case v := <-b.sls:
+			resp = &lbpb.LoadBalanceResponse{
+				LoadBalanceResponseType: &lbpb.LoadBalanceResponse_ServerList{
+					ServerList: v,
+				},
+			}
+		case <-stream.Context().Done():
+			return stream.Context().Err()
 		}
 		if err := stream.Send(resp); err != nil {
 			return err
 		}
 	}
-	<-b.done
-	return nil
 }
 
 type testServer struct {
@@ -297,6 +300,9 @@ type testServers struct {
 	backends []*grpc.Server
 	beIPs    []net.IP
 	bePorts  []int
+
+	lbListener  net.Listener
+	beListeners []net.Listener
 }
 
 func newLoadBalancer(numberOfBackends int) (tss *testServers, cleanup func(), err error) {
@@ -317,7 +323,7 @@ func newLoadBalancer(numberOfBackends int) (tss *testServers, cleanup func(), er
 		beIPs = append(beIPs, beLis.Addr().(*net.TCPAddr).IP)
 		bePorts = append(bePorts, beLis.Addr().(*net.TCPAddr).Port)
 
-		beListeners = append(beListeners, beLis)
+		beListeners = append(beListeners, newRestartableListener(beLis))
 	}
 	backends := startBackends(beServerName, false, beListeners...)
 
@@ -327,6 +333,7 @@ func newLoadBalancer(numberOfBackends int) (tss *testServers, cleanup func(), er
 		err = fmt.Errorf("failed to create the listener for the load balancer %v", err)
 		return
 	}
+	lbLis = newRestartableListener(lbLis)
 	lbCreds := &serverNameCheckCreds{
 		sn: lbServerName,
 	}
@@ -344,6 +351,9 @@ func newLoadBalancer(numberOfBackends int) (tss *testServers, cleanup func(), er
 		backends: backends,
 		beIPs:    beIPs,
 		bePorts:  bePorts,
+
+		lbListener:  lbLis,
+		beListeners: beListeners,
 	}
 	cleanup = func() {
 		defer stopBackends(backends)
@@ -712,7 +722,7 @@ func TestFallback(t *testing.T) {
 	testC := testpb.NewTestServiceClient(cc)
 
 	r.UpdateState(resolver.State{Addresses: []resolver.Address{{
-		Addr:       "",
+		Addr:       "invalid.address",
 		Type:       resolver.GRPCLB,
 		ServerName: lbServerName,
 	}, {
@@ -723,7 +733,7 @@ func TestFallback(t *testing.T) {
 
 	var p peer.Peer
 	if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
-		t.Fatalf("%v.EmptyCall(_, _) = _, %v, want _, <nil>", testC, err)
+		t.Fatalf("_.EmptyCall(_, _) = _, %v, want _, <nil>", err)
 	}
 	if p.Addr.String() != beLis.Addr().String() {
 		t.Fatalf("got peer: %v, want peer: %v", p.Addr, beLis.Addr())
@@ -739,22 +749,66 @@ func TestFallback(t *testing.T) {
 		ServerName: beServerName,
 	}}})
 
+	var backendUsed bool
 	for i := 0; i < 1000; i++ {
 		if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
 			t.Fatalf("%v.EmptyCall(_, _) = _, %v, want _, <nil>", testC, err)
 		}
 		if p.Addr.(*net.TCPAddr).Port == tss.bePorts[0] {
-			return
+			backendUsed = true
+			break
 		}
 		time.Sleep(time.Millisecond)
 	}
-	t.Fatalf("No RPC sent to backend behind remote balancer after 1 second")
+	if !backendUsed {
+		t.Fatalf("No RPC sent to backend behind remote balancer after 1 second")
+	}
+
+	// Close backend and remote balancer connections, should use fallback.
+	tss.beListeners[0].(*restartableListener).stopPreviousConns()
+	tss.lbListener.(*restartableListener).stopPreviousConns()
+	time.Sleep(time.Second)
+
+	var fallbackUsed bool
+	for i := 0; i < 1000; i++ {
+		if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
+			t.Fatalf("%v.EmptyCall(_, _) = _, %v, want _, <nil>", testC, err)
+		}
+		if p.Addr.String() == beLis.Addr().String() {
+			fallbackUsed = true
+			break
+		}
+		time.Sleep(time.Millisecond)
+	}
+	if !fallbackUsed {
+		t.Fatalf("No RPC sent to fallback after 1 second")
+	}
+
+	// Restart backend and remote balancer, should not use backends.
+	tss.beListeners[0].(*restartableListener).restart()
+	tss.lbListener.(*restartableListener).restart()
+	tss.ls.sls <- sl
+
+	time.Sleep(time.Second)
+
+	var backendUsed2 bool
+	for i := 0; i < 1000; i++ {
+		if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
+			t.Fatalf("%v.EmptyCall(_, _) = _, %v, want _, <nil>", testC, err)
+		}
+		if p.Addr.(*net.TCPAddr).Port == tss.bePorts[0] {
+			backendUsed2 = true
+			break
+		}
+		time.Sleep(time.Millisecond)
+	}
+	if !backendUsed2 {
+		t.Fatalf("No RPC sent to backend behind remote balancer after 1 second")
+	}
 }
 
-// The remote balancer sends response with duplicates to grpclb client.
 func TestGRPCLBPickFirst(t *testing.T) {
-	balancer.Register(newLBBuilderWithPickFirst())
-	defer balancer.Register(newLBBuilder())
+	const grpclbServiceConfigWithPickFirst = `{"loadBalancingConfig":[{"grpclb":{"childPolicy":[{"pick_first":{}}]}}]}`
 
 	defer leakcheck.Check(t)
 
@@ -798,57 +852,90 @@ func TestGRPCLBPickFirst(t *testing.T) {
 	defer cc.Close()
 	testC := testpb.NewTestServiceClient(cc)
 
-	r.UpdateState(resolver.State{Addresses: []resolver.Address{{
-		Addr:       tss.lbAddr,
-		Type:       resolver.GRPCLB,
-		ServerName: lbServerName,
-	}}})
+	var (
+		p      peer.Peer
+		result string
+	)
+	tss.ls.sls <- &lbpb.ServerList{Servers: beServers[0:3]}
 
-	var p peer.Peer
+	// Start with sub policy pick_first.
 
-	portPicked1 := 0
-	tss.ls.sls <- &lbpb.ServerList{Servers: beServers[1:2]}
+	r.UpdateState(resolver.State{
+		Addresses: []resolver.Address{{
+			Addr:       tss.lbAddr,
+			Type:       resolver.GRPCLB,
+			ServerName: lbServerName,
+		}},
+		ServiceConfig: grpclbServiceConfigWithPickFirst,
+	})
+
+	result = ""
 	for i := 0; i < 1000; i++ {
 		if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
 			t.Fatalf("_.EmptyCall(_, _) = _, %v, want _, <nil>", err)
 		}
-		if portPicked1 == 0 {
-			portPicked1 = p.Addr.(*net.TCPAddr).Port
-			continue
-		}
-		if portPicked1 != p.Addr.(*net.TCPAddr).Port {
-			t.Fatalf("Different backends are picked for RPCs: %v vs %v", portPicked1, p.Addr.(*net.TCPAddr).Port)
-		}
+		result += strconv.Itoa(portsToIndex[p.Addr.(*net.TCPAddr).Port])
+	}
+	if seq := "00000"; !strings.Contains(result, strings.Repeat(seq, 100)) {
+		t.Errorf("got result sequence %q, want patten %q", result, seq)
 	}
 
-	portPicked2 := portPicked1
-	tss.ls.sls <- &lbpb.ServerList{Servers: beServers[:1]}
+	tss.ls.sls <- &lbpb.ServerList{Servers: beServers[2:]}
+	result = ""
 	for i := 0; i < 1000; i++ {
 		if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
 			t.Fatalf("_.EmptyCall(_, _) = _, %v, want _, <nil>", err)
 		}
-		if portPicked2 == portPicked1 {
-			portPicked2 = p.Addr.(*net.TCPAddr).Port
-			continue
-		}
-		if portPicked2 != p.Addr.(*net.TCPAddr).Port {
-			t.Fatalf("Different backends are picked for RPCs: %v vs %v", portPicked2, p.Addr.(*net.TCPAddr).Port)
-		}
+		result += strconv.Itoa(portsToIndex[p.Addr.(*net.TCPAddr).Port])
+	}
+	if seq := "22222"; !strings.Contains(result, strings.Repeat(seq, 100)) {
+		t.Errorf("got result sequence %q, want patten %q", result, seq)
 	}
 
-	portPicked := portPicked2
 	tss.ls.sls <- &lbpb.ServerList{Servers: beServers[1:]}
+	result = ""
 	for i := 0; i < 1000; i++ {
 		if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
 			t.Fatalf("_.EmptyCall(_, _) = _, %v, want _, <nil>", err)
 		}
-		if portPicked == portPicked2 {
-			portPicked = p.Addr.(*net.TCPAddr).Port
-			continue
+		result += strconv.Itoa(portsToIndex[p.Addr.(*net.TCPAddr).Port])
+	}
+	if seq := "22222"; !strings.Contains(result, strings.Repeat(seq, 100)) {
+		t.Errorf("got result sequence %q, want patten %q", result, seq)
+	}
+
+	// Switch sub policy to roundrobin.
+
+	r.UpdateState(resolver.State{
+		Addresses: []resolver.Address{{
+			Addr:       tss.lbAddr,
+			Type:       resolver.GRPCLB,
+			ServerName: lbServerName,
+		}},
+		ServiceConfig: `{}`,
+	})
+
+	result = ""
+	for i := 0; i < 1000; i++ {
+		if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
+			t.Fatalf("_.EmptyCall(_, _) = _, %v, want _, <nil>", err)
 		}
-		if portPicked != p.Addr.(*net.TCPAddr).Port {
-			t.Fatalf("Different backends are picked for RPCs: %v vs %v", portPicked, p.Addr.(*net.TCPAddr).Port)
+		result += strconv.Itoa(portsToIndex[p.Addr.(*net.TCPAddr).Port])
+	}
+	if seq := "121212"; !strings.Contains(result, strings.Repeat(seq, 100)) {
+		t.Errorf("got result sequence %q, want patten %q", result, seq)
+	}
+
+	tss.ls.sls <- &lbpb.ServerList{Servers: beServers[0:3]}
+	result = ""
+	for i := 0; i < 1000; i++ {
+		if _, err := testC.EmptyCall(context.Background(), &testpb.Empty{}, grpc.WaitForReady(true), grpc.Peer(&p)); err != nil {
+			t.Fatalf("%v.EmptyCall(_, _) = _, %v, want _, <nil>", testC, err)
 		}
+		result += strconv.Itoa(portsToIndex[p.Addr.(*net.TCPAddr).Port])
+	}
+	if seq := "012012012"; !strings.Contains(result, strings.Repeat(seq, 2)) {
+		t.Errorf("got result sequence %q, want patten %q", result, seq)
 	}
 }
 

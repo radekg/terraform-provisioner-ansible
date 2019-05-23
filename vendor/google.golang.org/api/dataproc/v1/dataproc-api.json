@@ -108,6 +108,94 @@
       "resources": {
         "locations": {
           "resources": {
+            "autoscalingPolicies": {
+              "methods": {
+                "getIamPolicy": {
+                  "description": "Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.",
+                  "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:getIamPolicy",
+                  "httpMethod": "POST",
+                  "id": "dataproc.projects.locations.autoscalingPolicies.getIamPolicy",
+                  "parameterOrder": [
+                    "resource"
+                  ],
+                  "parameters": {
+                    "resource": {
+                      "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+                      "location": "path",
+                      "pattern": "^projects/[^/]+/locations/[^/]+/autoscalingPolicies/[^/]+$",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "path": "v1/{+resource}:getIamPolicy",
+                  "request": {
+                    "$ref": "GetIamPolicyRequest"
+                  },
+                  "response": {
+                    "$ref": "Policy"
+                  },
+                  "scopes": [
+                    "https://www.googleapis.com/auth/cloud-platform"
+                  ]
+                },
+                "setIamPolicy": {
+                  "description": "Sets the access control policy on the specified resource. Replaces any existing policy.",
+                  "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:setIamPolicy",
+                  "httpMethod": "POST",
+                  "id": "dataproc.projects.locations.autoscalingPolicies.setIamPolicy",
+                  "parameterOrder": [
+                    "resource"
+                  ],
+                  "parameters": {
+                    "resource": {
+                      "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+                      "location": "path",
+                      "pattern": "^projects/[^/]+/locations/[^/]+/autoscalingPolicies/[^/]+$",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "path": "v1/{+resource}:setIamPolicy",
+                  "request": {
+                    "$ref": "SetIamPolicyRequest"
+                  },
+                  "response": {
+                    "$ref": "Policy"
+                  },
+                  "scopes": [
+                    "https://www.googleapis.com/auth/cloud-platform"
+                  ]
+                },
+                "testIamPermissions": {
+                  "description": "Returns permissions that a caller has on the specified resource. If the resource does not exist, this will return an empty set of permissions, not a NOT_FOUND error.Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may \"fail open\" without warning.",
+                  "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:testIamPermissions",
+                  "httpMethod": "POST",
+                  "id": "dataproc.projects.locations.autoscalingPolicies.testIamPermissions",
+                  "parameterOrder": [
+                    "resource"
+                  ],
+                  "parameters": {
+                    "resource": {
+                      "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+                      "location": "path",
+                      "pattern": "^projects/[^/]+/locations/[^/]+/autoscalingPolicies/[^/]+$",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "path": "v1/{+resource}:testIamPermissions",
+                  "request": {
+                    "$ref": "TestIamPermissionsRequest"
+                  },
+                  "response": {
+                    "$ref": "TestIamPermissionsResponse"
+                  },
+                  "scopes": [
+                    "https://www.googleapis.com/auth/cloud-platform"
+                  ]
+                }
+              }
+            },
             "workflowTemplates": {
               "methods": {
                 "create": {
@@ -415,6 +503,94 @@
         },
         "regions": {
           "resources": {
+            "autoscalingPolicies": {
+              "methods": {
+                "getIamPolicy": {
+                  "description": "Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.",
+                  "flatPath": "v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:getIamPolicy",
+                  "httpMethod": "POST",
+                  "id": "dataproc.projects.regions.autoscalingPolicies.getIamPolicy",
+                  "parameterOrder": [
+                    "resource"
+                  ],
+                  "parameters": {
+                    "resource": {
+                      "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+                      "location": "path",
+                      "pattern": "^projects/[^/]+/regions/[^/]+/autoscalingPolicies/[^/]+$",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "path": "v1/{+resource}:getIamPolicy",
+                  "request": {
+                    "$ref": "GetIamPolicyRequest"
+                  },
+                  "response": {
+                    "$ref": "Policy"
+                  },
+                  "scopes": [
+                    "https://www.googleapis.com/auth/cloud-platform"
+                  ]
+                },
+                "setIamPolicy": {
+                  "description": "Sets the access control policy on the specified resource. Replaces any existing policy.",
+                  "flatPath": "v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:setIamPolicy",
+                  "httpMethod": "POST",
+                  "id": "dataproc.projects.regions.autoscalingPolicies.setIamPolicy",
+                  "parameterOrder": [
+                    "resource"
+                  ],
+                  "parameters": {
+                    "resource": {
+                      "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+                      "location": "path",
+                      "pattern": "^projects/[^/]+/regions/[^/]+/autoscalingPolicies/[^/]+$",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "path": "v1/{+resource}:setIamPolicy",
+                  "request": {
+                    "$ref": "SetIamPolicyRequest"
+                  },
+                  "response": {
+                    "$ref": "Policy"
+                  },
+                  "scopes": [
+                    "https://www.googleapis.com/auth/cloud-platform"
+                  ]
+                },
+                "testIamPermissions": {
+                  "description": "Returns permissions that a caller has on the specified resource. If the resource does not exist, this will return an empty set of permissions, not a NOT_FOUND error.Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may \"fail open\" without warning.",
+                  "flatPath": "v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:testIamPermissions",
+                  "httpMethod": "POST",
+                  "id": "dataproc.projects.regions.autoscalingPolicies.testIamPermissions",
+                  "parameterOrder": [
+                    "resource"
+                  ],
+                  "parameters": {
+                    "resource": {
+                      "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+                      "location": "path",
+                      "pattern": "^projects/[^/]+/regions/[^/]+/autoscalingPolicies/[^/]+$",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "path": "v1/{+resource}:testIamPermissions",
+                  "request": {
+                    "$ref": "TestIamPermissionsRequest"
+                  },
+                  "response": {
+                    "$ref": "TestIamPermissionsResponse"
+                  },
+                  "scopes": [
+                    "https://www.googleapis.com/auth/cloud-platform"
+                  ]
+                }
+              }
+            },
             "clusters": {
               "methods": {
                 "create": {
@@ -1634,7 +1810,7 @@
       }
     }
   },
-  "revision": "20190301",
+  "revision": "20190511",
   "rootUrl": "https://dataproc.googleapis.com/",
   "schemas": {
     "AcceleratorConfig": {
@@ -1659,7 +1835,7 @@
       "properties": {
         "condition": {
           "$ref": "Expr",
-          "description": "Unimplemented. The condition that is associated with this binding. NOTE: an unsatisfied condition will not allow user access via current binding. Different bindings, including their conditions, are examined independently."
+          "description": "The condition that is associated with this binding. NOTE: An unsatisfied condition will not allow user access via current binding. Different bindings, including their conditions, are examined independently."
         },
         "members": {
           "description": "Specifies the identities requesting access for a Cloud Platform resource. members can have the following values:\nallUsers: A special identifier that represents anyone who is  on the internet; with or without a Google account.\nallAuthenticatedUsers: A special identifier that represents anyone  who is authenticated with a Google account or a service account.\nuser:{emailid}: An email address that represents a specific Google  account. For example, alice@gmail.com .\nserviceAccount:{emailid}: An email address that represents a service  account. For example, my-other-app@appspot.gserviceaccount.com.\ngroup:{emailid}: An email address that represents a Google group.  For example, admins@example.com.\ndomain:{domain}: The G Suite domain (primary) that represents all the  users of that domain. For example, google.com or example.com.",
@@ -1743,7 +1919,7 @@
           "description": "Optional. The shared Compute Engine config settings for all instances in a cluster."
         },
         "initializationActions": {
-          "description": "Optional. Commands to execute on each node after config is completed. By default, executables are run on master and all worker nodes. You can test a node's role metadata to run an executable on a master or worker node, as shown below using curl (you can also use wget):\nROLE=$(curl -H Metadata-Flavor:Google http://metadata/computeMetadata/v1/instance/attributes/dataproc-role)\nif [[ \"${ROLE}\" == 'Master' ]]; then\n  ... master specific actions ...\nelse\n  ... worker specific actions ...\nfi\n",
+          "description": "Optional. Commands to execute on each node after config is completed. By default, executables are run on master and all worker nodes. You can test a node's role metadata to run an executable on a master or worker node, as shown below using curl (you can also use wget):\nROLE=$(curl -H Metadata-Flavor:Google\nhttp://metadata/computeMetadata/v1/instance/attributes/dataproc-role)\nif [[ \"${ROLE}\" == 'Master' ]]; then\n  ... master specific actions ...\nelse\n  ... worker specific actions ...\nfi\n",
           "items": {
             "$ref": "NodeInitializationAction"
           },
@@ -2071,7 +2247,7 @@
           "type": "array"
         },
         "subnetworkUri": {
-          "description": "Optional. The Compute Engine subnetwork to be used for machine communications. Cannot be specified with network_uri.A full URL, partial URI, or short name are valid. Examples:\nhttps://www.googleapis.com/compute/v1/projects/[project_id]/regions/us-east1/sub0\nprojects/[project_id]/regions/us-east1/sub0\nsub0",
+          "description": "Optional. The Compute Engine subnetwork to be used for machine communications. Cannot be specified with network_uri.A full URL, partial URI, or short name are valid. Examples:\nhttps://www.googleapis.com/compute/v1/projects/[project_id]/regions/us-east1/subnetworks/sub0\nprojects/[project_id]/regions/us-east1/subnetworks/sub0\nsub0",
           "type": "string"
         },
         "tags": {
@@ -2610,7 +2786,7 @@
           "type": "object"
         },
         "name": {
-          "description": "The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the name should have the format of operations/some/unique/name.",
+          "description": "The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the name should be a resource name ending with operations/{unique_id}.",
           "type": "string"
         },
         "response": {
@@ -2861,7 +3037,7 @@
       "id": "SoftwareConfig",
       "properties": {
         "imageVersion": {
-          "description": "Optional. The version of software inside the cluster. It must be one of the supported Cloud Dataproc Versions, such as \"1.2\" (including a subminor version, such as \"1.2.29\"), or the \"preview\" version. If unspecified, it defaults to the latest version.",
+          "description": "Optional. The version of software inside the cluster. It must be one of the supported Cloud Dataproc Versions, such as \"1.2\" (including a subminor version, such as \"1.2.29\"), or the \"preview\" version. If unspecified, it defaults to the latest Debian version.",
           "type": "string"
         },
         "optionalComponents": {

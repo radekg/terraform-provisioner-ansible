@@ -515,10 +515,11 @@ func (s *CorpusQuery) MarshalJSON() ([]byte, error) {
 type DriveExportOptions struct {
 	// IncludeAccessInfo: Set to true to include access level information
 	// for users
-	// with <a
-	// href="https://support.google.com/vault/answer/6099459#metadata">indire
-	// ct access</a>
-	// to files.
+	// with
+	// <a
+	// href="https://support.google.com/vault/answer/6099459#metadata">ind
+	// irect
+	// access</a> to files.
 	IncludeAccessInfo bool `json:"includeAccessInfo,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "IncludeAccessInfo")
@@ -878,8 +879,19 @@ type HeldAccount struct {
 	// <a href="https://developers.google.com/admin-sdk/">Admin SDK</a>.
 	AccountId string `json:"accountId,omitempty"`
 
-	// HoldTime: When the account was put on hold.
+	// Email: The primary email address of the account. If used as an input,
+	// this takes
+	// precedence over account ID.
+	Email string `json:"email,omitempty"`
+
+	// FirstName: Output only. The first name of the account holder.
+	FirstName string `json:"firstName,omitempty"`
+
+	// HoldTime: Output only. When the account was put on hold.
 	HoldTime string `json:"holdTime,omitempty"`
+
+	// LastName: Output only. The last name of the account holder.
+	LastName string `json:"lastName,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -1453,7 +1465,8 @@ func (s *Matter) MarshalJSON() ([]byte, error) {
 // resources
 // cease to exist.
 type MatterPermission struct {
-	// AccountId: The account id, as provided by <a
+	// AccountId: The account id, as provided by
+	// <a
 	// href="https://developers.google.com/admin-sdk/">Admin SDK</a>.
 	AccountId string `json:"accountId,omitempty"`
 
@@ -1496,7 +1509,8 @@ func (s *MatterPermission) MarshalJSON() ([]byte, error) {
 type OrgUnitInfo struct {
 	// OrgUnitId: Org unit to search, as provided by the
 	// <a href="https://developers.google.com/admin-sdk/directory/">Admin
-	// SDK Directory API</a>.
+	// SDK
+	// Directory API</a>.
 	OrgUnitId string `json:"orgUnitId,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "OrgUnitId") to
@@ -1601,9 +1615,10 @@ type Query struct {
 	TeamDriveInfo *TeamDriveInfo `json:"teamDriveInfo,omitempty"`
 
 	// Terms: The corpus-specific
-	// <a href="https://support.google.com/vault/answer/2474474">search
-	// operators</a>
-	// used to generate search results.
+	// <a
+	// href="https://support.google.com/vault/answer/2474474">search
+	// operator
+	// s</a> used to generate search results.
 	Terms string `json:"terms,omitempty"`
 
 	// TimeZone: The time zone name.
@@ -1817,20 +1832,20 @@ func (s *SavedQuery) MarshalJSON() ([]byte, error) {
 }
 
 // Status: The `Status` type defines a logical error model that is
-// suitable for different
-// programming environments, including REST APIs and RPC APIs. It is
-// used by
-// [gRPC](https://github.com/grpc). The error model is designed to
-// be:
+// suitable for
+// different programming environments, including REST APIs and RPC APIs.
+// It is
+// used by [gRPC](https://github.com/grpc). The error model is designed
+// to be:
 //
 // - Simple to use and understand for most users
 // - Flexible enough to meet unexpected needs
 //
 // # Overview
 //
-// The `Status` message contains three pieces of data: error code, error
-// message,
-// and error details. The error code should be an enum value
+// The `Status` message contains three pieces of data: error code,
+// error
+// message, and error details. The error code should be an enum value
 // of
 // google.rpc.Code, but it may accept additional error codes if needed.
 // The

@@ -1130,9 +1130,7 @@ func TestGracefulClose(t *testing.T) {
 	if _, err := s.Read(recvMsg); err != nil {
 		t.Fatalf("Error while reading: %v", err)
 	}
-	if err = ct.GracefulClose(); err != nil {
-		t.Fatalf("GracefulClose() = %v, want <nil>", err)
-	}
+	ct.GracefulClose()
 	var wg sync.WaitGroup
 	// Expect the failure for all the follow-up streams because ct has been closed gracefully.
 	for i := 0; i < 200; i++ {
@@ -1717,6 +1715,24 @@ func TestInvalidHeaderField(t *testing.T) {
 	}
 	ct.Close()
 	server.stop()
+}
+
+func TestHeaderChanClosedAfterReceivingAnInvalidHeader(t *testing.T) {
+	server, ct, cancel := setUp(t, 0, math.MaxUint32, invalidHeaderField)
+	defer cancel()
+	defer server.stop()
+	defer ct.Close()
+	s, err := ct.NewStream(context.Background(), &CallHdr{Host: "localhost", Method: "foo"})
+	if err != nil {
+		t.Fatalf("failed to create the stream")
+	}
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
+	select {
+	case <-s.headerChan:
+	case <-timer.C:
+		t.Errorf("s.headerChan: got open, want closed")
+	}
 }
 
 func TestIsReservedHeader(t *testing.T) {

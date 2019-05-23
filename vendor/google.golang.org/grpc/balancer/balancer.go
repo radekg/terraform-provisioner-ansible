@@ -138,6 +138,8 @@ type ClientConn interface {
 	ResolveNow(resolver.ResolveNowOption)
 
 	// Target returns the dial target for this ClientConn.
+	//
+	// Deprecated: Use the Target field in the BuildOptions instead.
 	Target() string
 }
 
@@ -155,6 +157,10 @@ type BuildOptions struct {
 	Dialer func(context.Context, string) (net.Conn, error)
 	// ChannelzParentID is the entity parent's channelz unique identification number.
 	ChannelzParentID int64
+	// Target contains the parsed address info of the dial target. It is the same resolver.Target as
+	// passed to the resolver.
+	// See the documentation for the resolver.Target type for details about what it contains.
+	Target resolver.Target
 }
 
 // Builder creates a balancer.
@@ -183,6 +189,11 @@ type DoneInfo struct {
 	BytesSent bool
 	// BytesReceived indicates if any byte has been received from the server.
 	BytesReceived bool
+	// ServerLoad is the load received from server. It's usually sent as part of
+	// trailing metadata.
+	//
+	// The only supported type now is *orca_v1.LoadReport.
+	ServerLoad interface{}
 }
 
 var (

@@ -397,7 +397,7 @@ func (s *AttestorPublicKey) MarshalJSON() ([]byte, error) {
 // Binding: Associates `members` with a `role`.
 type Binding struct {
 	// Condition: The condition that is associated with this binding.
-	// NOTE: an unsatisfied condition will not allow user access via
+	// NOTE: An unsatisfied condition will not allow user access via
 	// current
 	// binding. Different bindings, including their conditions, are
 	// examined
@@ -1025,7 +1025,14 @@ type ProjectsGetPolicyCall struct {
 	header_      http.Header
 }
 
-// GetPolicy: Gets the policy for this project. Returns a default
+// GetPolicy: A policy specifies the attestors that must attest to
+// a container image, before the project is allowed to deploy
+// that
+// image. There is at most one policy per project. All image
+// admission
+// requests are permitted if a project has no policy.
+//
+// Gets the policy for this project. Returns a default
 // policy if the project does not have one.
 func (r *ProjectsService) GetPolicy(name string) *ProjectsGetPolicyCall {
 	c := &ProjectsGetPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -1131,7 +1138,7 @@ func (c *ProjectsGetPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, error
 	}
 	return ret, nil
 	// {
-	//   "description": "Gets the policy for this project. Returns a default\npolicy if the project does not have one.",
+	//   "description": "A policy specifies the attestors that must attest to\na container image, before the project is allowed to deploy that\nimage. There is at most one policy per project. All image admission\nrequests are permitted if a project has no policy.\n\nGets the policy for this project. Returns a default\npolicy if the project does not have one.",
 	//   "flatPath": "v1beta1/projects/{projectsId}/policy",
 	//   "httpMethod": "GET",
 	//   "id": "binaryauthorization.projects.getPolicy",

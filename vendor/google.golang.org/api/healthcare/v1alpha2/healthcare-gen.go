@@ -285,34 +285,10 @@ type ProjectsLocationsDatasetsFhirStoresService struct {
 
 func NewProjectsLocationsDatasetsFhirStoresFhirService(s *Service) *ProjectsLocationsDatasetsFhirStoresFhirService {
 	rs := &ProjectsLocationsDatasetsFhirStoresFhirService{s: s}
-	rs.Patient = NewProjectsLocationsDatasetsFhirStoresFhirPatientService(s)
-	rs.History = NewProjectsLocationsDatasetsFhirStoresFhirHistoryService(s)
 	return rs
 }
 
 type ProjectsLocationsDatasetsFhirStoresFhirService struct {
-	s *Service
-
-	Patient *ProjectsLocationsDatasetsFhirStoresFhirPatientService
-
-	History *ProjectsLocationsDatasetsFhirStoresFhirHistoryService
-}
-
-func NewProjectsLocationsDatasetsFhirStoresFhirPatientService(s *Service) *ProjectsLocationsDatasetsFhirStoresFhirPatientService {
-	rs := &ProjectsLocationsDatasetsFhirStoresFhirPatientService{s: s}
-	return rs
-}
-
-type ProjectsLocationsDatasetsFhirStoresFhirPatientService struct {
-	s *Service
-}
-
-func NewProjectsLocationsDatasetsFhirStoresFhirHistoryService(s *Service) *ProjectsLocationsDatasetsFhirStoresFhirHistoryService {
-	rs := &ProjectsLocationsDatasetsFhirStoresFhirHistoryService{s: s}
-	return rs
-}
-
-type ProjectsLocationsDatasetsFhirStoresFhirHistoryService struct {
 	s *Service
 }
 
@@ -649,7 +625,7 @@ func (s *AuditLogConfig) MarshalJSON() ([]byte, error) {
 // Binding: Associates `members` with a `role`.
 type Binding struct {
 	// Condition: The condition that is associated with this binding.
-	// NOTE: an unsatisfied condition will not allow user access via
+	// NOTE: An unsatisfied condition will not allow user access via
 	// current
 	// binding. Different bindings, including their conditions, are
 	// examined
@@ -1006,16 +982,20 @@ func (s *DeidentifyConfig) MarshalJSON() ([]byte, error) {
 // DeidentifyDatasetRequest: Redacts identifying information from the
 // specified dataset.
 type DeidentifyDatasetRequest struct {
-	// Config: Deidentify configuration
+	// Config: Deidentify configuration.
 	Config *DeidentifyConfig `json:"config,omitempty"`
 
-	// DestinationDataset: The name of the dataset resource to which the
-	// redacted data should be
-	// written
+	// DestinationDataset: The name of the dataset resource to create and
+	// write the redacted data
+	// to
 	// (e.g.,
-	// `projects/{project_id}/locations/{location_id}/datasets/{datase
-	// t_id}`).
-	// The new dataset must not exist, or the request will fail.
+	// `projects/{project_id}/locations/{location_id}/datasets/{dat
+	// aset_id}`).
+	//
+	//  * The destination dataset must not exist.
+	//  * The destination dataset must be in the same project as the source
+	//    dataset. De-identifying data across multiple projects is not
+	// supported.
 	DestinationDataset string `json:"destinationDataset,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Config") to
@@ -1159,10 +1139,11 @@ type DicomConfig struct {
 	// Profile (DICOM Standard Edition 2018e).
 	//   "KEEP_ALL_PROFILE" - Keep all tags.
 	//   "DEIDENTIFY_TAG_CONTENTS" - Inspects within tag contents and
-	// replaces sensitive text with its type.
+	// replaces sensitive text. The process
+	// can be configured using the TextConfig.
 	// Applies to all tags with the following Value Representation
 	// names:
-	// AE, LO, LT, PN, SH, ST, UC, UT
+	// AE, LO, LT, PN, SH, ST, UC, UT, DA, DT, AS
 	FilterProfile string `json:"filterProfile,omitempty"`
 
 	// KeepList: List of tags to keep. Remove all other tags.
@@ -1628,9 +1609,10 @@ type FieldMetadata struct {
 	// Possible values:
 	//   "ACTION_UNSPECIFIED" - No action specified.
 	//   "TRANSFORM" - Transform the entire field.
-	//   "INSPECT_AND_TRANSFORM" - Should be inspected and any PHI found
-	// should be
-	// transformed.
+	//   "INSPECT_AND_TRANSFORM" - Inspect and transform any found PHI. When
+	// `AnnotationConfig` is
+	// provided, annotations of PHI will be generated, except for Date and
+	// Datetime.
 	//   "DO_NOT_TRANSFORM" - Do not transform.
 	Action string `json:"action,omitempty"`
 
@@ -2257,7 +2239,7 @@ func (s *Hl7V2Store) MarshalJSON() ([]byte, error) {
 //       rpc GetResource(GetResourceRequest) returns
 // (google.api.HttpBody);
 //       rpc UpdateResource(google.api.HttpBody) returns
-// (google.protobuf.Empty);
+//       (google.protobuf.Empty);
 //     }
 //
 // Example with streaming methods:
@@ -2458,10 +2440,10 @@ type ImportResourcesRequest struct {
 	//
 	// Possible values:
 	//   "CONTENT_STRUCTURE_UNSPECIFIED"
-	//   "BUNDLE" - Each unit is a bundle, which contains one or more
+	//   "BUNDLE" - Each line is a bundle, which contains one or more
 	// resources. Set the
 	// bundle type to `history` to import resource versions.
-	//   "RESOURCE" - Each unit is a single resource.
+	//   "RESOURCE" - Each line is a single resource.
 	ContentStructure string `json:"contentStructure,omitempty"`
 
 	// GcsErrorDestination: The Cloud Storage destination to write the error
@@ -3197,7 +3179,8 @@ type Operation struct {
 	// service that
 	// originally returns it. If you use the default HTTP mapping,
 	// the
-	// `name` should have the format of `operations/some/unique/name`.
+	// `name` should be a resource name ending with
+	// `operations/{unique_id}`.
 	Name string `json:"name,omitempty"`
 
 	// Response: The normal response of the operation in case of success.
@@ -3620,7 +3603,12 @@ func (s *SchemaConfig) MarshalJSON() ([]byte, error) {
 // SearchResourcesRequest: Request to search the resources in the
 // specified FHIR store.
 type SearchResourcesRequest struct {
-	// ResourceType: The type of the resource to search.
+	// ResourceType: The FHIR resource type to search, such as Patient or
+	// Observation. For a
+	// complete list, see the [FHIR
+	// Resource
+	// Index](http://hl7.org/implement/standards/fhir/STU3/resourcel
+	// ist.html).
 	ResourceType string `json:"resourceType,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ResourceType") to
@@ -3901,7 +3889,7 @@ type TagFilterList struct {
 	// l#table_6-1,.
 	// They may be provided by "Keyword" or "Tag". For example
 	// "PatientID",
-	// "0010,0010".
+	// "00100010".
 	Tags []string `json:"tags,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Tags") to
@@ -9401,42 +9389,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForInstancesCall) doR
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.searchForInstances" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForInstancesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForInstancesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "SearchForInstances returns a list of matching instances. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.7",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/instances",
@@ -9558,42 +9513,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForSeriesCall) doRequ
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.searchForSeries" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForSeriesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForSeriesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "SearchForSeries returns a list of matching series. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.7",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/series",
@@ -9716,42 +9638,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForStudiesCall) doReq
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.searchForStudies" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForStudiesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebSearchForStudiesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "SearchForStudies returns a list of matching studies. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.7",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies",
@@ -9794,7 +9683,7 @@ type ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall struct {
 	s            *Service
 	parent       string
 	dicomWebPath string
-	httpbody     *HttpBody
+	body_        io.Reader
 	urlParams_   gensupport.URLParams
 	ctx_         context.Context
 	header_      http.Header
@@ -9806,11 +9695,11 @@ type ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall struct {
 // See
 // http://dicom.nema.org/medical/dicom/current/output/html/part18.htm
 // l#sect_6.6.1.
-func (r *ProjectsLocationsDatasetsDicomStoresDicomWebService) StoreInstances(parent string, dicomWebPath string, httpbody *HttpBody) *ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall {
+func (r *ProjectsLocationsDatasetsDicomStoresDicomWebService) StoreInstances(parent string, dicomWebPath string, body_ io.Reader) *ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
 	c.dicomWebPath = dicomWebPath
-	c.httpbody = httpbody
+	c.body_ = body_
 	return c
 }
 
@@ -9846,13 +9735,7 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall) doReque
 	}
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.httpbody)
-	if err != nil {
-		return nil, err
-	}
-	reqHeaders.Set("Content-Type", "application/json")
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
+	body = c.body_
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/dicomWeb/{+dicomWebPath}")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("POST", urls, body)
@@ -9868,42 +9751,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall) doReque
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.storeInstances" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStoreInstancesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "StoreInstances stores DICOM instances associated with study instance unique\nidentifiers (SUID). See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.6.1.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies",
@@ -10172,42 +10022,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesMetadataCall) doRequ
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.metadata" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesMetadataCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesMetadataCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveStudyMetadata returns instance associated with the given study\npresented as metadata with the bulk data removed. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.6.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/metadata",
@@ -10330,42 +10147,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesRetrieveStudyCall) d
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.retrieveStudy" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesRetrieveStudyCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesRetrieveStudyCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveStudy returns all instances within the given study. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.1.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}",
@@ -10488,42 +10272,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSearchForInstancesCa
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.searchForInstances" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSearchForInstancesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSearchForInstancesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "SearchForInstances returns a list of matching instances. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.7",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/instances",
@@ -10645,42 +10396,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSearchForSeriesCall)
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.searchForSeries" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSearchForSeriesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSearchForSeriesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "SearchForSeries returns a list of matching series. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.7",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series",
@@ -10723,7 +10441,7 @@ type ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall struc
 	s            *Service
 	parent       string
 	dicomWebPath string
-	httpbody     *HttpBody
+	body_        io.Reader
 	urlParams_   gensupport.URLParams
 	ctx_         context.Context
 	header_      http.Header
@@ -10735,11 +10453,11 @@ type ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall struc
 // See
 // http://dicom.nema.org/medical/dicom/current/output/html/part18.htm
 // l#sect_6.6.1.
-func (r *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesService) StoreInstances(parent string, dicomWebPath string, httpbody *HttpBody) *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall {
+func (r *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesService) StoreInstances(parent string, dicomWebPath string, body_ io.Reader) *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
 	c.dicomWebPath = dicomWebPath
-	c.httpbody = httpbody
+	c.body_ = body_
 	return c
 }
 
@@ -10775,13 +10493,7 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall) 
 	}
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.httpbody)
-	if err != nil {
-		return nil, err
-	}
-	reqHeaders.Set("Content-Type", "application/json")
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
+	body = c.body_
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/dicomWeb/{+dicomWebPath}")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("POST", urls, body)
@@ -10797,42 +10509,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall) 
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.storeInstances" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesStoreInstancesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "StoreInstances stores DICOM instances associated with study instance unique\nidentifiers (SUID). See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.6.1.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}",
@@ -11103,42 +10782,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesMetadataCall) 
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.series.metadata" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesMetadataCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesMetadataCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveSeriesMetadata returns instance associated with the given study and\nseries, presented as metadata with the bulk data removed. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.6.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series/{seriesId}/metadata",
@@ -11261,42 +10907,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesRetrieveSeries
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.series.retrieveSeries" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesRetrieveSeriesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesRetrieveSeriesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveSeries returns all instances within the given study and series. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.2.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series/{seriesId}",
@@ -11419,42 +11032,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesSearchForInsta
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.series.searchForInstances" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesSearchForInstancesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesSearchForInstancesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "SearchForInstances returns a list of matching instances. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.7",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series/{seriesId}/instances",
@@ -11724,42 +11304,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesMetad
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.series.instances.metadata" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesMetadataCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesMetadataCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveInstanceMetadata returns instance associated with the given study,\nseries, and SOP Instance UID presented as metadata with the bulk data\nremoved. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.6.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series/{seriesId}/instances/{instancesId}/metadata",
@@ -11883,42 +11430,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesRende
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.series.instances.rendered" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesRenderedCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesRenderedCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveRenderedInstance returns instance associated with the given study,\nseries, and SOP Instance UID in an acceptable Rendered Media Type. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.8.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series/{seriesId}/instances/{instancesId}/rendered",
@@ -12042,42 +11556,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesRetri
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.series.instances.retrieveInstance" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesRetrieveInstanceCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesRetrieveInstanceCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveInstance returns instance associated with the given study, series,\nand SOP Instance UID. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.3.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series/{seriesId}/instances/{instancesId}",
@@ -12203,42 +11684,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesFrame
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.series.instances.frames.rendered" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesFramesRenderedCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesFramesRenderedCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveRenderedFrames returns instances associated with the given study,\nseries, SOP Instance UID and frame numbers in an acceptable Rendered Media\nType. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.8.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series/{seriesId}/instances/{instancesId}/frames/{framesId}/rendered",
@@ -12362,42 +11810,9 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesFrame
 }
 
 // Do executes the "healthcare.projects.locations.datasets.dicomStores.dicomWeb.studies.series.instances.frames.retrieveFrames" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesFramesRetrieveFramesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesFramesRetrieveFramesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
 	//   "description": "RetrieveFrames returns instances associated with the given study, series,\nSOP Instance UID and frame numbers. See\nhttp://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.5.4.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}/dicomWeb/studies/{studiesId}/series/{seriesId}/instances/{instancesId}/frames/{framesId}",
@@ -12424,6 +11839,131 @@ func (c *ProjectsLocationsDatasetsDicomStoresDicomWebStudiesSeriesInstancesFrame
 	//     }
 	//   },
 	//   "path": "v1alpha2/{+parent}/dicomWeb/{+dicomWebPath}",
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.capabilities":
+
+type ProjectsLocationsDatasetsFhirStoresCapabilitiesCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Capabilities: Gets the FHIR
+// [capability
+// statement](http://hl7.org/implement/standards/fhir/STU3/ca
+// pabilitystatement.html)
+// for the store, which contains a description of functionality
+// supported by
+// the server.
+//
+// Implements the FHIR standard
+// [capabilities
+// interaction](http://hl7.org/implement/standards/fhir/STU
+// 3/http.html#capabilities).
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of a `CapabilityStatement` resource.
+func (r *ProjectsLocationsDatasetsFhirStoresService) Capabilities(name string) *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall {
+	c := &ProjectsLocationsDatasetsFhirStoresCapabilitiesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/metadata")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.capabilities" call.
+func (c *ProjectsLocationsDatasetsFhirStoresCapabilitiesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Gets the FHIR [capability\nstatement](http://hl7.org/implement/standards/fhir/STU3/capabilitystatement.html)\nfor the store, which contains a description of functionality supported by\nthe server.\n\nImplements the FHIR standard [capabilities\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#capabilities).\n\nOn success, the response body will contain a JSON-encoded representation\nof a `CapabilityStatement` resource.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/metadata",
+	//   "httpMethod": "GET",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.capabilities",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Name of the FHIR store to retrieve the capabilities for.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+name}/metadata",
 	//   "response": {
 	//     "$ref": "HttpBody"
 	//   },
@@ -12709,145 +12249,6 @@ func (c *ProjectsLocationsDatasetsFhirStoresDeleteCall) Do(opts ...googleapi.Cal
 	//   "path": "v1alpha2/{+name}",
 	//   "response": {
 	//     "$ref": "Empty"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.executeBundle":
-
-type ProjectsLocationsDatasetsFhirStoresExecuteBundleCall struct {
-	s          *Service
-	parent     string
-	httpbody   *HttpBody
-	urlParams_ gensupport.URLParams
-	ctx_       context.Context
-	header_    http.Header
-}
-
-// ExecuteBundle: Executes all the requests in the given Bundle.
-func (r *ProjectsLocationsDatasetsFhirStoresService) ExecuteBundle(parent string, httpbody *HttpBody) *ProjectsLocationsDatasetsFhirStoresExecuteBundleCall {
-	c := &ProjectsLocationsDatasetsFhirStoresExecuteBundleCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.parent = parent
-	c.httpbody = httpbody
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresExecuteBundleCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresExecuteBundleCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresExecuteBundleCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresExecuteBundleCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresExecuteBundleCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresExecuteBundleCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.httpbody)
-	if err != nil {
-		return nil, err
-	}
-	reqHeaders.Set("Content-Type", "application/json")
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"parent": c.parent,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.executeBundle" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresExecuteBundleCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Executes all the requests in the given Bundle.",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir",
-	//   "httpMethod": "POST",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.executeBundle",
-	//   "parameterOrder": [
-	//     "parent"
-	//   ],
-	//   "parameters": {
-	//     "parent": {
-	//       "description": "Name of the FHIR store in which this bundle will be executed.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+parent}/fhir",
-	//   "request": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "response": {
-	//     "$ref": "HttpBody"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform"
@@ -13299,152 +12700,6 @@ func (c *ProjectsLocationsDatasetsFhirStoresGetIamPolicyCall) Do(opts ...googlea
 	//   "path": "v1alpha2/{+resource}:getIamPolicy",
 	//   "response": {
 	//     "$ref": "Policy"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.getMetadata":
-
-type ProjectsLocationsDatasetsFhirStoresGetMetadataCall struct {
-	s            *Service
-	name         string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// GetMetadata: Gets the FHIR capability statement for the store, which
-// contains a
-// description of functionality supported by the server.
-//
-func (r *ProjectsLocationsDatasetsFhirStoresService) GetMetadata(name string) *ProjectsLocationsDatasetsFhirStoresGetMetadataCall {
-	c := &ProjectsLocationsDatasetsFhirStoresGetMetadataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresGetMetadataCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresGetMetadataCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsDatasetsFhirStoresGetMetadataCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresGetMetadataCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresGetMetadataCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresGetMetadataCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresGetMetadataCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresGetMetadataCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/metadata")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.getMetadata" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresGetMetadataCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Gets the FHIR capability statement for the store, which contains a\ndescription of functionality supported by the server.\n",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/metadata",
-	//   "httpMethod": "GET",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.getMetadata",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "name": {
-	//       "description": "Name of the FHIR store to retrieve the capabilities for.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+name}/metadata",
-	//   "response": {
-	//     "$ref": "HttpBody"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform"
@@ -14286,7 +13541,1874 @@ func (c *ProjectsLocationsDatasetsFhirStoresTestIamPermissionsCall) Do(opts ...g
 
 }
 
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir._search":
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.Observation-lastn":
+
+type ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// ObservationLastn: Retrieves the N most recent `Observation` resources
+// for a subject matching
+// search criteria specified as query parameters, grouped
+// by
+// `Observation.code`, sorted from most recent to oldest.
+//
+// Implements the FHIR extended
+// operation
+// [Observation-lastn](http://hl7.org/implement/standards/fhir/
+// STU3/observation-operations.html#lastn).
+//
+// Search terms are provided as query parameters following the same
+// pattern as
+// the search method. This operation accepts an additional
+// query parameter `max`, which specifies N, the maximum number
+// of
+// Observations to return from each group, with a default of 1.
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of a `Bundle` resource of type `searchset`, containing the results of
+// the
+// operation.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ObservationLastn(parent string) *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/Observation/$lastn")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.Observation-lastn" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirObservationLastnCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Retrieves the N most recent `Observation` resources for a subject matching\nsearch criteria specified as query parameters, grouped by\n`Observation.code`, sorted from most recent to oldest.\n\nImplements the FHIR extended operation\n[Observation-lastn](http://hl7.org/implement/standards/fhir/STU3/observation-operations.html#lastn).\n\nSearch terms are provided as query parameters following the same pattern as\nthe search method. This operation accepts an additional\nquery parameter `max`, which specifies N, the maximum number of\nObservations to return from each group, with a default of 1.\n\nOn success, the response body will contain a JSON-encoded representation\nof a `Bundle` resource of type `searchset`, containing the results of the\noperation.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/Observation/$lastn",
+	//   "httpMethod": "GET",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.Observation-lastn",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Name of the FHIR store to retrieve resources from.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+parent}/fhir/Observation/$lastn",
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.Patient-everything":
+
+type ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// PatientEverything: Retrieves all the resources in the patient
+// compartment for a `Patient`
+// resource.
+//
+// Implements the FHIR extended
+// operation
+// [Patient-everything](http://hl7.org/implement/standards/fhir
+// /STU3/patient-operations.html#everything).
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of a `Bundle` resource of type `searchset`, containing the results of
+// the
+// operation.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) PatientEverything(name string) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// End sets the optional parameter "end": The response includes records
+// prior to the end date. If no end date is
+// provided, all records subsequent to the start date are in scope.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) End(end string) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
+	c.urlParams_.Set("end", end)
+	return c
+}
+
+// Start sets the optional parameter "start": The response includes
+// records subsequent to the start date. If no start
+// date is provided, all records prior to the end date are in scope.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Start(start string) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
+	c.urlParams_.Set("start", start)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/$everything")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.Patient-everything" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Retrieves all the resources in the patient compartment for a `Patient`\nresource.\n\nImplements the FHIR extended operation\n[Patient-everything](http://hl7.org/implement/standards/fhir/STU3/patient-operations.html#everything).\n\nOn success, the response body will contain a JSON-encoded representation\nof a `Bundle` resource of type `searchset`, containing the results of the\noperation.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/Patient/{PatientId}/$everything",
+	//   "httpMethod": "GET",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.Patient-everything",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "end": {
+	//       "description": "The response includes records prior to the end date. If no end date is\nprovided, all records subsequent to the start date are in scope.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "name": {
+	//       "description": "Name of the `Patient` resource for which the information is required.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/Patient/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "start": {
+	//       "description": "The response includes records subsequent to the start date. If no start\ndate is provided, all records prior to the end date are in scope.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+name}/$everything",
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.Resource-purge":
+
+type ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// ResourcePurge: Deletes all the historical versions of a resource
+// (excluding the current
+// version) from the FHIR store. To remove all versions of a resource,
+// first
+// delete the current version and then call this method.
+//
+// This is not a FHIR standard operation.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ResourcePurge(name string) *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/$purge")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.Resource-purge" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes all the historical versions of a resource (excluding the current\nversion) from the FHIR store. To remove all versions of a resource, first\ndelete the current version and then call this method.\n\nThis is not a FHIR standard operation.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}/$purge",
+	//   "httpMethod": "DELETE",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.Resource-purge",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the resource to purge.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+name}/$purge",
+	//   "response": {
+	//     "$ref": "Empty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.capabilities":
+
+type ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Capabilities: Gets the FHIR
+// [capability
+// statement](http://hl7.org/implement/standards/fhir/STU3/ca
+// pabilitystatement.html)
+// for the store, which contains a description of functionality
+// supported by
+// the server.
+//
+// Implements the FHIR standard
+// [capabilities
+// interaction](http://hl7.org/implement/standards/fhir/STU
+// 3/http.html#capabilities).
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of a `CapabilityStatement` resource.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Capabilities(name string) *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/fhir/metadata")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.capabilities" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCapabilitiesCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Gets the FHIR [capability\nstatement](http://hl7.org/implement/standards/fhir/STU3/capabilitystatement.html)\nfor the store, which contains a description of functionality supported by\nthe server.\n\nImplements the FHIR standard [capabilities\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#capabilities).\n\nOn success, the response body will contain a JSON-encoded representation\nof a `CapabilityStatement` resource.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/metadata",
+	//   "httpMethod": "GET",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.capabilities",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Name of the FHIR store to retrieve the capabilities for.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+name}/fhir/metadata",
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalDelete":
+
+type ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall struct {
+	s          *Service
+	parent     string
+	type_      string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// ConditionalDelete: Deletes FHIR resources that match a search
+// query.
+//
+// Implements the FHIR standard [conditional
+// delete
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http.
+// html#2.21.0.13.1).
+// If multiple resources match, all of them will be deleted.
+//
+// Search terms are provided as query parameters following the same
+// pattern as
+// the search method.
+//
+// Note: Unless resource versioning is disabled by setting
+// the
+// disable_resource_versioning flag
+// on the FHIR store, the deleted resources will be moved to a
+// history
+// repository that can still be retrieved through vread
+// and related methods, unless they are removed by the
+// purge method.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ConditionalDelete(parent string, type_ string) *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.type_ = type_
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+type}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+		"type":   c.type_,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalDelete" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes FHIR resources that match a search query.\n\nImplements the FHIR standard [conditional delete\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.13.1).\nIf multiple resources match, all of them will be deleted.\n\nSearch terms are provided as query parameters following the same pattern as\nthe search method.\n\nNote: Unless resource versioning is disabled by setting the\ndisable_resource_versioning flag\non the FHIR store, the deleted resources will be moved to a history\nrepository that can still be retrieved through vread\nand related methods, unless they are removed by the\npurge method.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
+	//   "httpMethod": "DELETE",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalDelete",
+	//   "parameterOrder": [
+	//     "parent",
+	//     "type"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "The name of the FHIR store this resource belongs to.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "type": {
+	//       "description": "The FHIR resource type to delete, such as Patient or Observation. For a\ncomplete list, see the [FHIR Resource\nIndex](http://hl7.org/implement/standards/fhir/STU3/resourcelist.html).",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+parent}/fhir/{+type}",
+	//   "response": {
+	//     "$ref": "Empty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalPatch":
+
+type ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall struct {
+	s          *Service
+	parent     string
+	type_      string
+	body_      io.Reader
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// ConditionalPatch: If a resource is found based on the search criteria
+// specified in the query
+// parameters, updates part of that resource by applying the
+// operations
+// specified in a [JSON Patch](http://jsonpatch.com/)
+// document.
+//
+// Implements the FHIR standard [conditional
+// patch
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http.h
+// tml#patch).
+//
+// Search terms are provided as query parameters following the same
+// pattern as
+// the search method.
+//
+// If the search criteria identify more than one match, the request
+// will
+// return a `412 Precondition Failed` error.
+//
+// The request body must contain a JSON Patch document, and the
+// request
+// headers must contain `Content-Type: application/json-patch+json`.
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of the updated resource, including the server-assigned version
+// ID.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ConditionalPatch(parent string, type_ string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.type_ = type_
+	c.body_ = body_
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body = c.body_
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+type}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+		"type":   c.type_,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalPatch" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "If a resource is found based on the search criteria specified in the query\nparameters, updates part of that resource by applying the operations\nspecified in a [JSON Patch](http://jsonpatch.com/) document.\n\nImplements the FHIR standard [conditional patch\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#patch).\n\nSearch terms are provided as query parameters following the same pattern as\nthe search method.\n\nIf the search criteria identify more than one match, the request will\nreturn a `412 Precondition Failed` error.\n\nThe request body must contain a JSON Patch document, and the request\nheaders must contain `Content-Type: application/json-patch+json`.\n\nOn success, the response body will contain a JSON-encoded representation\nof the updated resource, including the server-assigned version ID.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
+	//   "httpMethod": "PATCH",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalPatch",
+	//   "parameterOrder": [
+	//     "parent",
+	//     "type"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "The name of the FHIR store this resource belongs to.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "type": {
+	//       "description": "The FHIR resource type to update, such as Patient or Observation. For a\ncomplete list, see the [FHIR Resource\nIndex](http://hl7.org/implement/standards/fhir/STU3/resourcelist.html).",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+parent}/fhir/{+type}",
+	//   "request": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalUpdate":
+
+type ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall struct {
+	s          *Service
+	parent     string
+	type_      string
+	body_      io.Reader
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// ConditionalUpdate: If a resource is found based on the search
+// criteria specified in the query
+// parameters, updates the entire contents of that resource.
+//
+// Implements the FHIR standard [conditional
+// update
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http.
+// html#cond-update).
+//
+// Search terms are provided as query parameters following the same
+// pattern as
+// the search method.
+//
+// If the search criteria identify more than one match, the request
+// will
+// return a `412 Precondition Failed` error.
+// If the search criteria identify zero matches, and the supplied
+// resource
+// body contains an `id`, and the FHIR store has
+// enable_update_create set, creates the
+// resource with the client-specified ID. If the search criteria
+// identify zero
+// matches, and the supplied resource body does not contain an `id`,
+// the
+// resource will be created with a server-assigned ID as per the
+// create method.
+//
+// The request body must contain a JSON-encoded FHIR resource, and the
+// request
+// headers must contain `Content-Type: application/fhir+json`.
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of the updated resource, including the server-assigned version
+// ID.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ConditionalUpdate(parent string, type_ string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.type_ = type_
+	c.body_ = body_
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body = c.body_
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+type}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PUT", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+		"type":   c.type_,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalUpdate" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "If a resource is found based on the search criteria specified in the query\nparameters, updates the entire contents of that resource.\n\nImplements the FHIR standard [conditional update\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#cond-update).\n\nSearch terms are provided as query parameters following the same pattern as\nthe search method.\n\nIf the search criteria identify more than one match, the request will\nreturn a `412 Precondition Failed` error.\nIf the search criteria identify zero matches, and the supplied resource\nbody contains an `id`, and the FHIR store has\nenable_update_create set, creates the\nresource with the client-specified ID. If the search criteria identify zero\nmatches, and the supplied resource body does not contain an `id`, the\nresource will be created with a server-assigned ID as per the\ncreate method.\n\nThe request body must contain a JSON-encoded FHIR resource, and the request\nheaders must contain `Content-Type: application/fhir+json`.\n\nOn success, the response body will contain a JSON-encoded representation\nof the updated resource, including the server-assigned version ID.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
+	//   "httpMethod": "PUT",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalUpdate",
+	//   "parameterOrder": [
+	//     "parent",
+	//     "type"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "The name of the FHIR store this resource belongs to.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "type": {
+	//       "description": "The FHIR resource type to update, such as Patient or Observation. For a\ncomplete list, see the [FHIR Resource\nIndex](http://hl7.org/implement/standards/fhir/STU3/resourcelist.html).\nMust match the resource type in the provided content.",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+parent}/fhir/{+type}",
+	//   "request": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.create":
+
+type ProjectsLocationsDatasetsFhirStoresFhirCreateCall struct {
+	s          *Service
+	parent     string
+	type_      string
+	body_      io.Reader
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Create: Creates a FHIR resource.
+//
+// Implements the FHIR standard
+// [create
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http
+// .html#create),
+// which creates a new resource with a server-assigned resource
+// ID.
+//
+// Also supports the FHIR standard [conditional
+// create
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http.
+// html#ccreate),
+// specified by supplying an `If-None-Exist` header containing a FHIR
+// search
+// query. If no resources match this search query, the server processes
+// the
+// create operation as normal.
+//
+// The request body must contain a JSON-encoded FHIR resource, and the
+// request
+// headers must contain `Content-Type: application/fhir+json`.
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of the resource as it was created on the server, including
+// the
+// server-assigned resource ID and version ID.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Create(parent string, type_ string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirCreateCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.type_ = type_
+	c.body_ = body_
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body = c.body_
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+type}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+		"type":   c.type_,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.create" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Creates a FHIR resource.\n\nImplements the FHIR standard [create\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#create),\nwhich creates a new resource with a server-assigned resource ID.\n\nAlso supports the FHIR standard [conditional create\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#ccreate),\nspecified by supplying an `If-None-Exist` header containing a FHIR search\nquery. If no resources match this search query, the server processes the\ncreate operation as normal.\n\nThe request body must contain a JSON-encoded FHIR resource, and the request\nheaders must contain `Content-Type: application/fhir+json`.\n\nOn success, the response body will contain a JSON-encoded representation\nof the resource as it was created on the server, including the\nserver-assigned resource ID and version ID.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
+	//   "httpMethod": "POST",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.create",
+	//   "parameterOrder": [
+	//     "parent",
+	//     "type"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "The name of the FHIR store this resource belongs to.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "type": {
+	//       "description": "The FHIR resource type to create, such as Patient or Observation. For a\ncomplete list, see the [FHIR Resource\nIndex](http://hl7.org/implement/standards/fhir/STU3/resourcelist.html).\nMust match the resource type in the provided content.",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+parent}/fhir/{+type}",
+	//   "request": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.delete":
+
+type ProjectsLocationsDatasetsFhirStoresFhirDeleteCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Delete: Deletes a FHIR resource.
+//
+// Implements the FHIR standard
+// [delete
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http
+// .html#delete).
+//
+// Note: Unless resource versioning is disabled by setting
+// the
+// disable_resource_versioning flag
+// on the FHIR store, the deleted resources will be moved to a
+// history
+// repository that can still be retrieved through vread
+// and related methods, unless they are removed by the
+// purge method.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Delete(name string) *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.delete" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Deletes a FHIR resource.\n\nImplements the FHIR standard [delete\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#delete).\n\nNote: Unless resource versioning is disabled by setting the\ndisable_resource_versioning flag\non the FHIR store, the deleted resources will be moved to a history\nrepository that can still be retrieved through vread\nand related methods, unless they are removed by the\npurge method.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
+	//   "httpMethod": "DELETE",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.delete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the resource to delete.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+name}",
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.executeBundle":
+
+type ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall struct {
+	s          *Service
+	parent     string
+	body_      io.Reader
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// ExecuteBundle: Executes all the requests in the given
+// Bundle.
+//
+// Implements the FHIR standard
+// [batch/transaction
+// interaction](http://hl7.org/implement/standards/fhi
+// r/STU3/http.html#transaction).
+//
+// Supports all interactions within a bundle, except search. This
+// method
+// accepts Bundles of type `batch` and `transaction`, processing
+// them
+// according to the [batch
+// processing
+// rules](http://hl7.org/implement/standards/fhir/STU3/http.ht
+// ml#2.21.0.17.1)
+// and [transaction
+// processing
+// rules](http://hl7.org/implement/standards/fhir/STU3/http.ht
+// ml#2.21.0.17.2).
+//
+// The request body must contain a JSON-encoded FHIR `Bundle` resource,
+// and
+// the request headers must contain `Content-Type:
+// application/fhir+json`.
+//
+// For a batch bundle or a successful transaction the response body
+// will
+// contain a JSON-encoded representation of a `Bundle` resource of
+// type
+// `batch-response` or `transaction-response` containing one entry for
+// each
+// entry in the request, with the outcome of processing the entry. In
+// the
+// case of an error for a transaction bundle, the response body will
+// contain
+// a JSON-encoded `OperationOutcome` resource describing the reason for
+// the
+// error. If the request cannot be mapped to a valid API method on a
+// FHIR
+// store, a generic GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ExecuteBundle(parent string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.body_ = body_
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body = c.body_
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.executeBundle" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Executes all the requests in the given Bundle.\n\nImplements the FHIR standard [batch/transaction\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#transaction).\n\nSupports all interactions within a bundle, except search. This method\naccepts Bundles of type `batch` and `transaction`, processing them\naccording to the [batch processing\nrules](http://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.1)\nand [transaction processing\nrules](http://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.2).\n\nThe request body must contain a JSON-encoded FHIR `Bundle` resource, and\nthe request headers must contain `Content-Type: application/fhir+json`.\n\nFor a batch bundle or a successful transaction the response body will\ncontain a JSON-encoded representation of a `Bundle` resource of type\n`batch-response` or `transaction-response` containing one entry for each\nentry in the request, with the outcome of processing the entry. In the\ncase of an error for a transaction bundle, the response body will contain\na JSON-encoded `OperationOutcome` resource describing the reason for the\nerror. If the request cannot be mapped to a valid API method on a FHIR\nstore, a generic GCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir",
+	//   "httpMethod": "POST",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.executeBundle",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Name of the FHIR store in which this bundle will be executed.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+parent}/fhir",
+	//   "request": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.history":
+
+type ProjectsLocationsDatasetsFhirStoresFhirHistoryCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// History: Lists all the versions of a resource (including the current
+// version and
+// deleted versions) from the FHIR store.
+//
+// Implements the per-resource form of the FHIR standard
+// [history
+// interaction](http://hl7.org/implement/standards/fhir/STU3/htt
+// p.html#history).
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of a `Bundle` resource of type `history`, containing the version
+// history
+// sorted from most recent to oldest versions.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) History(name string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirHistoryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// At sets the optional parameter "at": Only include resource versions
+// that were current at some point during the
+// time period specified in the date time value. The date parameter
+// format is
+// yyyy-mm-ddThh:mm:ss[Z|(+|-)hh:mm]
+//
+// Clients may specify any of the following:
+//
+// *  An entire year: `_at=2019`
+// *  An entire month: `_at=2019-01`
+// *  A specific day: `_at=2019-01-20`
+// *  A specific second: `_at=2018-12-31T23:59:58Z`
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) At(at string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
+	c.urlParams_.Set("at", at)
+	return c
+}
+
+// Count sets the optional parameter "count": The maximum number of
+// search results on a page. Defaults to 1000.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) Count(count int64) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
+	c.urlParams_.Set("count", fmt.Sprint(count))
+	return c
+}
+
+// Page sets the optional parameter "page": Used to retrieve the first,
+// previous, next, or last page of resource
+// versions when using pagination. Value should be set to the value of
+// the
+// `link.url` field returned in the response to the previous request,
+// where
+// `link.relation` is "first", "previous", "next" or "last".
+//
+// Omit `page` if no previous request has been made.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) Page(page string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
+	c.urlParams_.Set("page", page)
+	return c
+}
+
+// Since sets the optional parameter "since": Only include resource
+// versions that were created at or after the given
+// instant in time. The instant in time uses the
+// format
+// YYYY-MM-DDThh:mm:ss.sss+zz:zz (for example
+// 2015-02-07T13:28:17.239+02:00 or
+// 2017-01-01T00:00:00Z). The time must be specified to the second
+// and
+// include a time zone.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) Since(since string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
+	c.urlParams_.Set("since", since)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/_history")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.history" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Lists all the versions of a resource (including the current version and\ndeleted versions) from the FHIR store.\n\nImplements the per-resource form of the FHIR standard [history\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#history).\n\nOn success, the response body will contain a JSON-encoded representation\nof a `Bundle` resource of type `history`, containing the version history\nsorted from most recent to oldest versions.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}/_history",
+	//   "httpMethod": "GET",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.history",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "at": {
+	//       "description": "Only include resource versions that were current at some point during the\ntime period specified in the date time value. The date parameter format is\nyyyy-mm-ddThh:mm:ss[Z|(+|-)hh:mm]\n\nClients may specify any of the following:\n\n*  An entire year: `_at=2019`\n*  An entire month: `_at=2019-01`\n*  A specific day: `_at=2019-01-20`\n*  A specific second: `_at=2018-12-31T23:59:58Z`",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "count": {
+	//       "description": "The maximum number of search results on a page. Defaults to 1000.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "name": {
+	//       "description": "The name of the resource to retrieve.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "page": {
+	//       "description": "Used to retrieve the first, previous, next, or last page of resource\nversions when using pagination. Value should be set to the value of the\n`link.url` field returned in the response to the previous request, where\n`link.relation` is \"first\", \"previous\", \"next\" or \"last\".\n\nOmit `page` if no previous request has been made.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "since": {
+	//       "description": "Only include resource versions that were created at or after the given\ninstant in time. The instant in time uses the format\nYYYY-MM-DDThh:mm:ss.sss+zz:zz (for example 2015-02-07T13:28:17.239+02:00 or\n2017-01-01T00:00:00Z). The time must be specified to the second and\ninclude a time zone.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+name}/_history",
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.patch":
+
+type ProjectsLocationsDatasetsFhirStoresFhirPatchCall struct {
+	s          *Service
+	name       string
+	body_      io.Reader
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Patch: Updates part of an existing resource by applying the
+// operations specified
+// in a [JSON Patch](http://jsonpatch.com/) document.
+//
+// Implements the FHIR standard
+// [patch
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http.
+// html#patch).
+//
+// The request body must contain a JSON Patch document, and the
+// request
+// headers must contain `Content-Type: application/json-patch+json`.
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of the updated resource, including the server-assigned version
+// ID.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Patch(name string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirPatchCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.body_ = body_
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirPatchCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirPatchCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body = c.body_
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.patch" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Updates part of an existing resource by applying the operations specified\nin a [JSON Patch](http://jsonpatch.com/) document.\n\nImplements the FHIR standard [patch\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#patch).\n\nThe request body must contain a JSON Patch document, and the request\nheaders must contain `Content-Type: application/json-patch+json`.\n\nOn success, the response body will contain a JSON-encoded representation\nof the updated resource, including the server-assigned version ID.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
+	//   "httpMethod": "PATCH",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.patch",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the resource to update.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+name}",
+	//   "request": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.read":
+
+type ProjectsLocationsDatasetsFhirStoresFhirReadCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Read: Gets the contents of a FHIR resource.
+//
+// Implements the FHIR standard
+// [read
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http.h
+// tml#read).
+//
+// Also supports the FHIR standard [conditional
+// read
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http.ht
+// ml#cread)
+// specified by supplying an `If-Modified-Since` header with a date/time
+// value
+// or an `If-None-Match` header with an ETag value.
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of the resource.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Read(name string) *ProjectsLocationsDatasetsFhirStoresFhirReadCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirReadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirReadCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirReadCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirReadCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirReadCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirReadCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirReadCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirReadCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresFhirReadCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.read" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirReadCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	return c.doRequest("")
+	// {
+	//   "description": "Gets the contents of a FHIR resource.\n\nImplements the FHIR standard [read\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#read).\n\nAlso supports the FHIR standard [conditional read\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#cread)\nspecified by supplying an `If-Modified-Since` header with a date/time value\nor an `If-None-Match` header with an ETag value.\n\nOn success, the response body will contain a JSON-encoded representation\nof the resource.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
+	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
+	//   "httpMethod": "GET",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.read",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the resource to retrieve.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha2/{+name}",
+	//   "response": {
+	//     "$ref": "HttpBody"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.search":
 
 type ProjectsLocationsDatasetsFhirStoresFhirSearchCall struct {
 	s                      *Service
@@ -14297,14 +15419,57 @@ type ProjectsLocationsDatasetsFhirStoresFhirSearchCall struct {
 	header_                http.Header
 }
 
-// Search: Searches resources in the given FHIR store.
+// Search: Searches for resources in the given FHIR store according to
+// criteria
+// specified as query parameters.
+//
+// Implements the FHIR standard
+// [search
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http
+// .html#search)
+// using the search semantics described in the [FHIR
+// Search
+// specification](http://hl7.org/implement/standards/fhir/STU3/sea
+// rch.html).
+//
+// Supports three methods of search defined by the specification:
+//
+// *  `GET [base]?[parameters]` to search across all resources.
+// *  `GET [base]/[type]?[parameters]` to search resources of a
+// specified
+// type.
+// *  `POST [base]/[type]/_search?[parameters]` as an alternate form
+// having
+// the same semantics as the `GET` method.
+//
+// The `GET` methods do not support compartment searches. The `POST`
+// method
+// does not support `application/x-www-form-urlencoded` search
+// parameters.
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of a `Bundle` resource of type `searchset`, containing the results of
+// the
+// search.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
 //
 // # Search Parameters
 //
-// The server's capability statement, retrieved
-// through
-// GetCapabilityStatement, indicates which search
-// parameters are supported on each FHIR resource.
+// The server's capability statement, retrieved through
+// capabilities, indicates what search parameters
+// are supported on each FHIR resource. A list of all search
+// parameters
+// defined by the specification can be found in the [FHIR Search
+// Parameter
+// Registry](http://hl7.org/implement/standards/fhir/STU3/searc
+// hparameter-registry.html).
 //
 // # Search Modifiers
 //
@@ -14380,48 +15545,15 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchCall) doRequest(alt string
 	return gensupport.SendRequest(c.ctx_, c.s.client, req)
 }
 
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir._search" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.search" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
-	//   "description": "Searches resources in the given FHIR store.\n\n# Search Parameters\n\nThe server's capability statement, retrieved through\nGetCapabilityStatement, indicates which search\nparameters are supported on each FHIR resource.\n\n# Search Modifiers\n\nModifier   | Supported\n----------- | ---------\n`:missing`  | Yes\n`:exact`    | Yes\n`:contains` | Yes\n`:text`     | Yes\n`:in`       | Yes\n`:not-in`   | Yes\n`:above`    | Yes\n`:below`    | Yes\n`:[type]`   | Yes\n`:not`      | Yes\n`:recurse`  | No",
+	//   "description": "Searches for resources in the given FHIR store according to criteria\nspecified as query parameters.\n\nImplements the FHIR standard [search\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#search)\nusing the search semantics described in the [FHIR Search\nspecification](http://hl7.org/implement/standards/fhir/STU3/search.html).\n\nSupports three methods of search defined by the specification:\n\n*  `GET [base]?[parameters]` to search across all resources.\n*  `GET [base]/[type]?[parameters]` to search resources of a specified\ntype.\n*  `POST [base]/[type]/_search?[parameters]` as an alternate form having\nthe same semantics as the `GET` method.\n\nThe `GET` methods do not support compartment searches. The `POST` method\ndoes not support `application/x-www-form-urlencoded` search parameters.\n\nOn success, the response body will contain a JSON-encoded representation\nof a `Bundle` resource of type `searchset`, containing the results of the\nsearch.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.\n\n# Search Parameters\n\nThe server's capability statement, retrieved through\ncapabilities, indicates what search parameters\nare supported on each FHIR resource. A list of all search parameters\ndefined by the specification can be found in the [FHIR Search Parameter\nRegistry](http://hl7.org/implement/standards/fhir/STU3/searchparameter-registry.html).\n\n# Search Modifiers\n\nModifier   | Supported\n----------- | ---------\n`:missing`  | Yes\n`:exact`    | Yes\n`:contains` | Yes\n`:text`     | Yes\n`:in`       | Yes\n`:not-in`   | Yes\n`:above`    | Yes\n`:below`    | Yes\n`:[type]`   | Yes\n`:not`      | Yes\n`:recurse`  | No",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/_search",
 	//   "httpMethod": "POST",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir._search",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.search",
 	//   "parameterOrder": [
 	//     "parent"
 	//   ],
@@ -14448,1515 +15580,52 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchCall) Do(opts ...googleapi
 
 }
 
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalDeleteResource":
-
-type ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall struct {
-	s          *Service
-	parent     string
-	type_      string
-	urlParams_ gensupport.URLParams
-	ctx_       context.Context
-	header_    http.Header
-}
-
-// ConditionalDeleteResource: Deletes FHIR resources matching a search
-// query.
-//
-// Note: unless resource versioning is disabled by setting
-// the
-// disable_resource_versioning flag
-// on the FHIR store, the deleted resources will be moved to a
-// history
-// repository that can still be retrieved through GetResourceVersion
-// and
-// related methods, unless they are removed by the
-// DeleteResourceVersions
-// method.
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ConditionalDeleteResource(parent string, type_ string) *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.parent = parent
-	c.type_ = type_
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+type}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("DELETE", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"parent": c.parent,
-		"type":   c.type_,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalDeleteResource" call.
-// Exactly one of *Empty or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *Empty.ServerResponse.Header or (if a response was returned at all)
-// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
-// check whether the returned error was because http.StatusNotModified
-// was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalDeleteResourceCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &Empty{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Deletes FHIR resources matching a search query.\n\nNote: unless resource versioning is disabled by setting the\ndisable_resource_versioning flag\non the FHIR store, the deleted resources will be moved to a history\nrepository that can still be retrieved through GetResourceVersion and\nrelated methods, unless they are removed by the DeleteResourceVersions\nmethod.",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
-	//   "httpMethod": "DELETE",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalDeleteResource",
-	//   "parameterOrder": [
-	//     "parent",
-	//     "type"
-	//   ],
-	//   "parameters": {
-	//     "parent": {
-	//       "description": "The name of the FHIR store this resource belongs to.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "type": {
-	//       "description": "The type of the resource to update.",
-	//       "location": "path",
-	//       "pattern": "^[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+parent}/fhir/{+type}",
-	//   "response": {
-	//     "$ref": "Empty"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalPatchResource":
-
-type ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall struct {
-	s          *Service
-	parent     string
-	type_      string
-	httpbody   *HttpBody
-	urlParams_ gensupport.URLParams
-	ctx_       context.Context
-	header_    http.Header
-}
-
-// ConditionalPatchResource: Updates parts of a resource if the resource
-// exists based on the
-// search criteria specified via query parameters.
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ConditionalPatchResource(parent string, type_ string, httpbody *HttpBody) *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.parent = parent
-	c.type_ = type_
-	c.httpbody = httpbody
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.httpbody)
-	if err != nil {
-		return nil, err
-	}
-	reqHeaders.Set("Content-Type", "application/json")
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+type}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("PATCH", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"parent": c.parent,
-		"type":   c.type_,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalPatchResource" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalPatchResourceCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Updates parts of a resource if the resource exists based on the\nsearch criteria specified via query parameters.",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
-	//   "httpMethod": "PATCH",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalPatchResource",
-	//   "parameterOrder": [
-	//     "parent",
-	//     "type"
-	//   ],
-	//   "parameters": {
-	//     "parent": {
-	//       "description": "The name of the FHIR store this resource belongs to.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "type": {
-	//       "description": "The type of the resource to update.",
-	//       "location": "path",
-	//       "pattern": "^[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+parent}/fhir/{+type}",
-	//   "request": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalUpdateResource":
-
-type ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall struct {
-	s          *Service
-	parent     string
-	type_      string
-	httpbody   *HttpBody
-	urlParams_ gensupport.URLParams
-	ctx_       context.Context
-	header_    http.Header
-}
-
-// ConditionalUpdateResource: Updates the entire resource if the
-// resource exists based on the
-// search criteria specified via query parameters.
-//
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ConditionalUpdateResource(parent string, type_ string, httpbody *HttpBody) *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.parent = parent
-	c.type_ = type_
-	c.httpbody = httpbody
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.httpbody)
-	if err != nil {
-		return nil, err
-	}
-	reqHeaders.Set("Content-Type", "application/json")
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+type}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("PUT", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"parent": c.parent,
-		"type":   c.type_,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalUpdateResource" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirConditionalUpdateResourceCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Updates the entire resource if the resource exists based on the\nsearch criteria specified via query parameters.\n",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
-	//   "httpMethod": "PUT",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.conditionalUpdateResource",
-	//   "parameterOrder": [
-	//     "parent",
-	//     "type"
-	//   ],
-	//   "parameters": {
-	//     "parent": {
-	//       "description": "The name of the FHIR store this resource belongs to.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "type": {
-	//       "description": "The type of the resource to update.",
-	//       "location": "path",
-	//       "pattern": "^[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+parent}/fhir/{+type}",
-	//   "request": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.createResource":
-
-type ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall struct {
-	s          *Service
-	parent     string
-	type_      string
-	httpbody   *HttpBody
-	urlParams_ gensupport.URLParams
-	ctx_       context.Context
-	header_    http.Header
-}
-
-// CreateResource: Creates a FHIR resource.
-//
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) CreateResource(parent string, type_ string, httpbody *HttpBody) *ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.parent = parent
-	c.type_ = type_
-	c.httpbody = httpbody
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.httpbody)
-	if err != nil {
-		return nil, err
-	}
-	reqHeaders.Set("Content-Type", "application/json")
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+type}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"parent": c.parent,
-		"type":   c.type_,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.createResource" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateResourceCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Creates a FHIR resource.\n",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
-	//   "httpMethod": "POST",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.createResource",
-	//   "parameterOrder": [
-	//     "parent",
-	//     "type"
-	//   ],
-	//   "parameters": {
-	//     "parent": {
-	//       "description": "The name of the FHIR store this resource belongs to.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "type": {
-	//       "description": "The type of the resource to create.",
-	//       "location": "path",
-	//       "pattern": "^[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+parent}/fhir/{+type}",
-	//   "request": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.delete":
-
-type ProjectsLocationsDatasetsFhirStoresFhirDeleteCall struct {
-	s          *Service
-	name       string
-	urlParams_ gensupport.URLParams
-	ctx_       context.Context
-	header_    http.Header
-}
-
-// Delete: Deletes a FHIR resource.
-//
-// Note: unless resource versioning is disabled by setting
-// the
-// disable_resource_versioning flag
-// on the FHIR store, the deleted resources will be moved to a
-// history
-// repository that can still be retrieved through GetResourceVersion
-// and
-// related methods, unless they are removed by the
-// DeleteResourceVersions
-// method.
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Delete(name string) *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("DELETE", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.delete" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Deletes a FHIR resource.\n\nNote: unless resource versioning is disabled by setting the\ndisable_resource_versioning flag\non the FHIR store, the deleted resources will be moved to a history\nrepository that can still be retrieved through GetResourceVersion and\nrelated methods, unless they are removed by the DeleteResourceVersions\nmethod.",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
-	//   "httpMethod": "DELETE",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.delete",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "name": {
-	//       "description": "The name of the resource to delete.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+name}",
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.delete$purge":
-
-type ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall struct {
-	s          *Service
-	name       string
-	urlParams_ gensupport.URLParams
-	ctx_       context.Context
-	header_    http.Header
-}
-
-// DeletePurge: Deletes all the historical versions of a resource
-// (excluding current
-// version) from the FHIR store. To remove all versions of a resource,
-// first
-// delete the current version and call this method.
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) DeletePurge(name string) *ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/$purge")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("DELETE", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.delete$purge" call.
-// Exactly one of *Empty or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *Empty.ServerResponse.Header or (if a response was returned at all)
-// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
-// check whether the returned error was because http.StatusNotModified
-// was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirDeletePurgeCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &Empty{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Deletes all the historical versions of a resource (excluding current\nversion) from the FHIR store. To remove all versions of a resource, first\ndelete the current version and call this method.",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}/$purge",
-	//   "httpMethod": "DELETE",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.delete$purge",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "name": {
-	//       "description": "The name of the resource to purge.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+name}/$purge",
-	//   "response": {
-	//     "$ref": "Empty"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.get":
-
-type ProjectsLocationsDatasetsFhirStoresFhirGetCall struct {
-	s            *Service
-	name         string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// Get: Gets a FHIR resource.
-//
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Get(name string) *ProjectsLocationsDatasetsFhirStoresFhirGetCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirGetCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirGetCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirGetCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.get" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Gets a FHIR resource.\n",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
-	//   "httpMethod": "GET",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.get",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "name": {
-	//       "description": "The name of the resource to retrieve.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+name}",
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.getMetadata":
-
-type ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall struct {
-	s            *Service
-	name         string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// GetMetadata: Gets the FHIR capability statement for the store, which
-// contains a
-// description of functionality supported by the server.
-//
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) GetMetadata(name string) *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/fhir/metadata")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.getMetadata" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirGetMetadataCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Gets the FHIR capability statement for the store, which contains a\ndescription of functionality supported by the server.\n",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/metadata",
-	//   "httpMethod": "GET",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.getMetadata",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "name": {
-	//       "description": "Name of the FHIR store to retrieve the capabilities for.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+name}/fhir/metadata",
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.patch":
-
-type ProjectsLocationsDatasetsFhirStoresFhirPatchCall struct {
-	s          *Service
-	name       string
-	httpbody   *HttpBody
-	urlParams_ gensupport.URLParams
-	ctx_       context.Context
-	header_    http.Header
-}
-
-// Patch: Updates part of an existing resource.
-//
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Patch(name string, httpbody *HttpBody) *ProjectsLocationsDatasetsFhirStoresFhirPatchCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	c.httpbody = httpbody
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirPatchCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirPatchCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.httpbody)
-	if err != nil {
-		return nil, err
-	}
-	reqHeaders.Set("Content-Type", "application/json")
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("PATCH", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.patch" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Updates part of an existing resource.\n",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
-	//   "httpMethod": "PATCH",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.patch",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "name": {
-	//       "description": "The name of the resource to update.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+name}",
-	//   "request": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.searchResources":
-
-type ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall struct {
-	s            *Service
-	parent       string
-	resourceType string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// SearchResources: Searches resources in the given FHIR store.
-//
-// # Search Parameters
-//
-// The server's capability statement, retrieved
-// through
-// GetCapabilityStatement, indicates which search
-// parameters are supported on each FHIR resource.
-//
-// # Search Modifiers
-//
-// Modifier   | Supported
-// ----------- | ---------
-// `:missing`  | Yes
-// `:exact`    | Yes
-// `:contains` | Yes
-// `:text`     | Yes
-// `:in`       | Yes
-// `:not-in`   | Yes
-// `:above`    | Yes
-// `:below`    | Yes
-// `:[type]`   | Yes
-// `:not`      | Yes
-// `:recurse`  | No
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) SearchResources(parent string, resourceType string) *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.parent = parent
-	c.resourceType = resourceType
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+parent}/fhir/{+resourceType}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"parent":       c.parent,
-		"resourceType": c.resourceType,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.searchResources" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchResourcesCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Searches resources in the given FHIR store.\n\n# Search Parameters\n\nThe server's capability statement, retrieved through\nGetCapabilityStatement, indicates which search\nparameters are supported on each FHIR resource.\n\n# Search Modifiers\n\nModifier   | Supported\n----------- | ---------\n`:missing`  | Yes\n`:exact`    | Yes\n`:contains` | Yes\n`:text`     | Yes\n`:in`       | Yes\n`:not-in`   | Yes\n`:above`    | Yes\n`:below`    | Yes\n`:[type]`   | Yes\n`:not`      | Yes\n`:recurse`  | No",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
-	//   "httpMethod": "GET",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.searchResources",
-	//   "parameterOrder": [
-	//     "parent",
-	//     "resourceType"
-	//   ],
-	//   "parameters": {
-	//     "parent": {
-	//       "description": "Name of the FHIR store to retrieve resources from.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "resourceType": {
-	//       "description": "The type of the resource to search.",
-	//       "location": "path",
-	//       "pattern": "^.+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+parent}/fhir/{+resourceType}",
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
 // method id "healthcare.projects.locations.datasets.fhirStores.fhir.update":
 
 type ProjectsLocationsDatasetsFhirStoresFhirUpdateCall struct {
 	s          *Service
 	name       string
-	httpbody   *HttpBody
+	body_      io.Reader
 	urlParams_ gensupport.URLParams
 	ctx_       context.Context
 	header_    http.Header
 }
 
-// Update: Updates the entire resource or creates a new resource with a
-// client
-// specified ID if the resource does not exist and the FHIR store
-// has
-// enable_update_create set.
+// Update: Updates the entire contents of a resource.
 //
-func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Update(name string, httpbody *HttpBody) *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall {
+// Implements the FHIR standard
+// [update
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http
+// .html#update).
+//
+// If the specified resource does
+// not exist and the FHIR store has
+// enable_update_create set, creates the
+// resource with the client-specified ID.
+//
+// The request body must contain a JSON-encoded FHIR resource, and the
+// request
+// headers must contain `Content-Type: application/fhir+json`. The
+// resource
+// must contain an `id` element having an identical value to the ID in
+// the
+// REST path of the request.
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of the updated resource, including the server-assigned version
+// ID.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Update(name string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall {
 	c := &ProjectsLocationsDatasetsFhirStoresFhirUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
-	c.httpbody = httpbody
+	c.body_ = body_
 	return c
 }
 
@@ -15992,13 +15661,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall) doRequest(alt string
 	}
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.httpbody)
-	if err != nil {
-		return nil, err
-	}
-	reqHeaders.Set("Content-Type", "application/json")
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
+	body = c.body_
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("PUT", urls, body)
@@ -16013,44 +15676,11 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall) doRequest(alt string
 }
 
 // Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.update" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+func (c *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
-	//   "description": "Updates the entire resource or creates a new resource with a client\nspecified ID if the resource does not exist and the FHIR store has\nenable_update_create set.\n",
+	//   "description": "Updates the entire contents of a resource.\n\nImplements the FHIR standard [update\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#update).\n\nIf the specified resource does\nnot exist and the FHIR store has\nenable_update_create set, creates the\nresource with the client-specified ID.\n\nThe request body must contain a JSON-encoded FHIR resource, and the request\nheaders must contain `Content-Type: application/fhir+json`. The resource\nmust contain an `id` element having an identical value to the ID in the\nREST path of the request.\n\nOn success, the response body will contain a JSON-encoded representation\nof the updated resource, including the server-assigned version ID.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
 	//   "httpMethod": "PUT",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.update",
@@ -16080,9 +15710,9 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall) Do(opts ...googleapi
 
 }
 
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir.Patient.get$everything":
+// method id "healthcare.projects.locations.datasets.fhirStores.fhir.vread":
 
-type ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall struct {
+type ProjectsLocationsDatasetsFhirStoresFhirVreadCall struct {
 	s            *Service
 	name         string
 	urlParams_   gensupport.URLParams
@@ -16091,34 +15721,35 @@ type ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall struct {
 	header_      http.Header
 }
 
-// GetEverything: Gets all the resources in the patient compartment.
+// Vread: Gets the contents of a version (current or historical) of a
+// FHIR resource
+// by version ID.
 //
-func (r *ProjectsLocationsDatasetsFhirStoresFhirPatientService) GetEverything(name string) *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+// Implements the FHIR standard
+// [vread
+// interaction](http://hl7.org/implement/standards/fhir/STU3/http.
+// html#vread).
+//
+// On success, the response body will contain a JSON-encoded
+// representation
+// of the resource.
+// Errors generated by the FHIR store will contain a
+// JSON-encoded
+// `OperationOutcome` resource describing the reason for the error. If
+// the
+// request cannot be mapped to a valid API method on a FHIR store, a
+// generic
+// GCP error might be returned instead.
+func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Vread(name string) *ProjectsLocationsDatasetsFhirStoresFhirVreadCall {
+	c := &ProjectsLocationsDatasetsFhirStoresFhirVreadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
-	return c
-}
-
-// End sets the optional parameter "end": The response includes records
-// prior to the end date. If no end date is
-// provided, all records subsequent to the start date are in scope.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) End(end string) *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall {
-	c.urlParams_.Set("end", end)
-	return c
-}
-
-// Start sets the optional parameter "start": The response includes
-// records subsequent to the start date. If no start
-// date is provided, all records prior to the end date are in scope.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) Start(start string) *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall {
-	c.urlParams_.Set("start", start)
 	return c
 }
 
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall {
+func (c *ProjectsLocationsDatasetsFhirStoresFhirVreadCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirVreadCall {
 	c.urlParams_.Set("fields", googleapi.CombineFields(s))
 	return c
 }
@@ -16128,7 +15759,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) Fields
 // getting updates only after the object has changed since the last
 // request. Use googleapi.IsNotModified to check whether the response
 // error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall {
+func (c *ProjectsLocationsDatasetsFhirStoresFhirVreadCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirVreadCall {
 	c.ifNoneMatch_ = entityTag
 	return c
 }
@@ -16136,176 +15767,21 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) IfNone
 // Context sets the context to be used in this call's Do method. Any
 // pending HTTP request will be aborted if the provided context is
 // canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall {
+func (c *ProjectsLocationsDatasetsFhirStoresFhirVreadCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirVreadCall {
 	c.ctx_ = ctx
 	return c
 }
 
 // Header returns an http.Header that can be modified by the caller to
 // add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) Header() http.Header {
+func (c *ProjectsLocationsDatasetsFhirStoresFhirVreadCall) Header() http.Header {
 	if c.header_ == nil {
 		c.header_ = make(http.Header)
 	}
 	return c.header_
 }
 
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/$everything")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.Patient.get$everything" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientGetEverythingCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Gets all the resources in the patient compartment.\n",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/Patient/{PatientId}/$everything",
-	//   "httpMethod": "GET",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.Patient.get$everything",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "end": {
-	//       "description": "The response includes records prior to the end date. If no end date is\nprovided, all records subsequent to the start date are in scope.",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "name": {
-	//       "description": "Name of the patient for which the information is required.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/Patient/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "start": {
-	//       "description": "The response includes records subsequent to the start date. If no start\ndate is provided, all records prior to the end date are in scope.",
-	//       "location": "query",
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+name}/$everything",
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir._history.get":
-
-type ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall struct {
-	s            *Service
-	name         string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// Get: Gets a version (current or historical) of FHIR resource by
-// version id.
-//
-func (r *ProjectsLocationsDatasetsFhirStoresFhirHistoryService) Get(name string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall) doRequest(alt string) (*http.Response, error) {
+func (c *ProjectsLocationsDatasetsFhirStoresFhirVreadCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
@@ -16330,48 +15806,15 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall) doRequest(alt st
 	return gensupport.SendRequest(c.ctx_, c.s.client, req)
 }
 
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir._history.get" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir.vread" call.
+func (c *ProjectsLocationsDatasetsFhirStoresFhirVreadCall) Do(opts ...googleapi.CallOption) (*http.Response, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return c.doRequest("")
 	// {
-	//   "description": "Gets a version (current or historical) of FHIR resource by version id.\n",
+	//   "description": "Gets the contents of a version (current or historical) of a FHIR resource\nby version ID.\n\nImplements the FHIR standard [vread\ninteraction](http://hl7.org/implement/standards/fhir/STU3/http.html#vread).\n\nOn success, the response body will contain a JSON-encoded representation\nof the resource.\nErrors generated by the FHIR store will contain a JSON-encoded\n`OperationOutcome` resource describing the reason for the error. If the\nrequest cannot be mapped to a valid API method on a FHIR store, a generic\nGCP error might be returned instead.",
 	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}/_history/{_historyId}",
 	//   "httpMethod": "GET",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir._history.get",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.vread",
 	//   "parameterOrder": [
 	//     "name"
 	//   ],
@@ -16385,222 +15828,6 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryGetCall) Do(opts ...googl
 	//     }
 	//   },
 	//   "path": "v1alpha2/{+name}",
-	//   "response": {
-	//     "$ref": "HttpBody"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "healthcare.projects.locations.datasets.fhirStores.fhir._history.list":
-
-type ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall struct {
-	s            *Service
-	name         string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// List: Lists all the versions of a resource (including the current
-// version and
-// deleted versions) from the FHIR store.
-//
-func (r *ProjectsLocationsDatasetsFhirStoresFhirHistoryService) List(name string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall {
-	c := &ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// At sets the optional parameter "at": Only include resource versions
-// that were current at some point during the
-// time period specified in the date time value. The date parameter
-// format is
-// yyyy-mm-ddThh:mm:ss[Z|(+|-)hh:mm]
-// Clients may specify any of the following:
-// An entire year: `_at=2019`
-// An entire month: `_at=2019-01`
-// A specific day: `_at=2019-01-20`
-// A specific second: `_at=2018-12-31T23:59:58Z`
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) At(at string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall {
-	c.urlParams_.Set("at", at)
-	return c
-}
-
-// Count sets the optional parameter "count": The maximum number of
-// search results on a page.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) Count(count int64) *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall {
-	c.urlParams_.Set("count", fmt.Sprint(count))
-	return c
-}
-
-// Page sets the optional parameter "page": Used to retrieve the first,
-// previous, next, or last page of resource
-// versions when using pagination. Value should be set to the value of
-// the
-// `link.url` field returned in the response to the previous request,
-// where
-// `link.relation` is "first", "previous", "next" or "last".
-// Omit `page` if no previous request has been made.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) Page(page string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall {
-	c.urlParams_.Set("page", page)
-	return c
-}
-
-// Since sets the optional parameter "since": Only include resource
-// versions that were created at or after the given
-// instant in time. The instant in time uses the
-// format
-// YYYY-MM-DDThh:mm:ss.sss+zz:zz (for example
-// 2015-02-07T13:28:17.239+02:00 or
-// 2017-01-01T00:00:00Z). The time must be specified to the second
-// and
-// include a time zone.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) Since(since string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall {
-	c.urlParams_.Set("since", since)
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha2/{+name}/_history")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "healthcare.projects.locations.datasets.fhirStores.fhir._history.list" call.
-// Exactly one of *HttpBody or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HttpBody.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryListCall) Do(opts ...googleapi.CallOption) (*HttpBody, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HttpBody{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Lists all the versions of a resource (including the current version and\ndeleted versions) from the FHIR store.\n",
-	//   "flatPath": "v1alpha2/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}/_history",
-	//   "httpMethod": "GET",
-	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir._history.list",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "at": {
-	//       "description": "Only include resource versions that were current at some point during the\ntime period specified in the date time value. The date parameter format is\nyyyy-mm-ddThh:mm:ss[Z|(+|-)hh:mm]\nClients may specify any of the following:\nAn entire year: `_at=2019`\nAn entire month: `_at=2019-01`\nA specific day: `_at=2019-01-20`\nA specific second: `_at=2018-12-31T23:59:58Z`",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "count": {
-	//       "description": "The maximum number of search results on a page.",
-	//       "format": "int32",
-	//       "location": "query",
-	//       "type": "integer"
-	//     },
-	//     "name": {
-	//       "description": "The name of the resource to retrieve.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+/fhir/[^/]+/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "page": {
-	//       "description": "Used to retrieve the first, previous, next, or last page of resource\nversions when using pagination. Value should be set to the value of the\n`link.url` field returned in the response to the previous request, where\n`link.relation` is \"first\", \"previous\", \"next\" or \"last\".\nOmit `page` if no previous request has been made.",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "since": {
-	//       "description": "Only include resource versions that were created at or after the given\ninstant in time. The instant in time uses the format\nYYYY-MM-DDThh:mm:ss.sss+zz:zz (for example 2015-02-07T13:28:17.239+02:00 or\n2017-01-01T00:00:00Z). The time must be specified to the second and\ninclude a time zone.",
-	//       "location": "query",
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1alpha2/{+name}/_history",
 	//   "response": {
 	//     "$ref": "HttpBody"
 	//   },

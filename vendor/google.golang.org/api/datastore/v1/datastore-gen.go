@@ -338,8 +338,10 @@ type CommitRequest struct {
 	//   "MODE_UNSPECIFIED" - Unspecified. This value must not be used.
 	//   "TRANSACTIONAL" - Transactional: The mutations are either all
 	// applied, or none are applied.
-	// Learn about transactions
-	// [here](https://cloud.google.com/datastore/docs/concepts/transactions).
+	// Learn about
+	// transactions
+	// [here](https://cloud.google.com/datastore/docs/concepts/t
+	// ransactions).
 	//   "NON_TRANSACTIONAL" - Non-transactional: The mutations may not
 	// apply as all or none.
 	Mode string `json:"mode,omitempty"`
@@ -1642,9 +1644,10 @@ func (s *GoogleLongrunningOperation) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GqlQuery: A [GQL
-// query](https://cloud.google.com/datastore/docs/apis/gql/gql_reference)
-// .
+// GqlQuery: A
+// [GQL
+// query](https://cloud.google.com/datastore/docs/apis/gql/gql_refer
+// ence).
 type GqlQuery struct {
 	// AllowLiterals: When false, the query string must not contain any
 	// literals and instead must
@@ -2306,9 +2309,10 @@ type Query struct {
 	// EndCursor: An ending point for the query results. Query cursors
 	// are
 	// returned in query result batches and
-	// [can only be used to limit the same
-	// query](https://cloud.google.com/datastore/docs/concepts/queries#cursor
-	// s_limits_and_offsets).
+	// [can only be used to limit the
+	// same
+	// query](https://cloud.google.com/datastore/docs/concepts/queries#c
+	// ursors_limits_and_offsets).
 	EndCursor string `json:"endCursor,omitempty"`
 
 	// Filter: The filter to apply.
@@ -2342,9 +2346,10 @@ type Query struct {
 	// StartCursor: A starting point for the query results. Query cursors
 	// are
 	// returned in query result batches and
-	// [can only be used to continue the same
-	// query](https://cloud.google.com/datastore/docs/concepts/queries#cursor
-	// s_limits_and_offsets).
+	// [can only be used to continue the
+	// same
+	// query](https://cloud.google.com/datastore/docs/concepts/queries#c
+	// ursors_limits_and_offsets).
 	StartCursor string `json:"startCursor,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "DistinctOn") to
@@ -2690,20 +2695,20 @@ func (s *RunQueryResponse) MarshalJSON() ([]byte, error) {
 }
 
 // Status: The `Status` type defines a logical error model that is
-// suitable for different
-// programming environments, including REST APIs and RPC APIs. It is
-// used by
-// [gRPC](https://github.com/grpc). The error model is designed to
-// be:
+// suitable for
+// different programming environments, including REST APIs and RPC APIs.
+// It is
+// used by [gRPC](https://github.com/grpc). The error model is designed
+// to be:
 //
 // - Simple to use and understand for most users
 // - Flexible enough to meet unexpected needs
 //
 // # Overview
 //
-// The `Status` message contains three pieces of data: error code, error
-// message,
-// and error details. The error code should be an enum value
+// The `Status` message contains three pieces of data: error code,
+// error
+// message, and error details. The error code should be an enum value
 // of
 // google.rpc.Code, but it may accept additional error codes if needed.
 // The

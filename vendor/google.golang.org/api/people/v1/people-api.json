@@ -8,9 +8,6 @@
         "https://www.googleapis.com/auth/contacts.readonly": {
           "description": "See and download your contacts"
         },
-        "https://www.googleapis.com/auth/plus.login": {
-          "description": "View your basic profile info, including your age range and language"
-        },
         "https://www.googleapis.com/auth/user.addresses.read": {
           "description": "View your street addresses"
         },
@@ -422,7 +419,6 @@
           "scopes": [
             "https://www.googleapis.com/auth/contacts",
             "https://www.googleapis.com/auth/contacts.readonly",
-            "https://www.googleapis.com/auth/plus.login",
             "https://www.googleapis.com/auth/user.addresses.read",
             "https://www.googleapis.com/auth/user.birthday.read",
             "https://www.googleapis.com/auth/user.emails.read",
@@ -464,7 +460,6 @@
           "scopes": [
             "https://www.googleapis.com/auth/contacts",
             "https://www.googleapis.com/auth/contacts.readonly",
-            "https://www.googleapis.com/auth/plus.login",
             "https://www.googleapis.com/auth/user.addresses.read",
             "https://www.googleapis.com/auth/user.birthday.read",
             "https://www.googleapis.com/auth/user.emails.read",
@@ -490,7 +485,7 @@
               "type": "string"
             },
             "updatePersonFields": {
-              "description": "**Required.** A field mask to restrict which fields on the person are\nupdated. Multiple fields can be specified by separating them with commas.\nAll updated fields will be replaced. Valid values are:\n\n* addresses\n* biographies\n* birthdays\n* emailAddresses\n* events\n* genders\n* imClients\n* interests\n* locales\n* names\n* nicknames\n* occupations\n* organizations\n* phoneNumbers\n* relations\n* residences\n* sipAddresses\n* urls\n* userDefined",
+              "description": "**Required.** A field mask to restrict which fields on the person are\nupdated. Multiple fields can be specified by separating them with commas.\nAll updated fields will be replaced. Valid values are:\n\n* addresses\n* biographies\n* birthdays\n* emailAddresses\n* events\n* genders\n* imClients\n* interests\n* locales\n* memberships\n* names\n* nicknames\n* occupations\n* organizations\n* phoneNumbers\n* relations\n* residences\n* sipAddresses\n* urls\n* userDefined",
               "format": "google-fieldmask",
               "location": "query",
               "type": "string"
@@ -559,6 +554,7 @@
                   "description": "The order in which the connections should be sorted. Defaults to\n`LAST_MODIFIED_ASCENDING`.",
                   "enum": [
                     "LAST_MODIFIED_ASCENDING",
+                    "LAST_MODIFIED_DESCENDING",
                     "FIRST_NAME_ASCENDING",
                     "LAST_NAME_ASCENDING"
                   ],
@@ -585,7 +581,7 @@
       }
     }
   },
-  "revision": "20190323",
+  "revision": "20190516",
   "rootUrl": "https://people.googleapis.com/",
   "schemas": {
     "Address": {
@@ -805,7 +801,11 @@
       "id": "ContactGroupMembership",
       "properties": {
         "contactGroupId": {
-          "description": "The contact group ID for the contact group membership. The contact group\nID can be custom or one of these predefined values:\n\n*  `myContacts`\n*  `starred`\n*  A numerical ID for user-created groups.",
+          "description": "The read-only contact group ID for the contact group membership.",
+          "type": "string"
+        },
+        "contactGroupResourceName": {
+          "description": "The resource name for the contact group, assigned by the server. An ASCII\nstring, in the form of `contactGroups/`\u003cvar\u003econtact_group_id\u003c/var\u003e.\nOnly contact_group_resource_name can be used for modifying memberships.\nAny contact group membership can be removed, but only user group or\n\"myContacts\" or \"starred\" system groups memberships can be added. A\ncontact must always have at least one contact group membership.",
           "type": "string"
         }
       },
@@ -899,11 +899,11 @@
       "type": "object"
     },
     "DomainMembership": {
-      "description": "A Google Apps Domain membership.",
+      "description": "A read-only G Suite Domain membership.",
       "id": "DomainMembership",
       "properties": {
         "inViewerDomain": {
-          "description": "True if the person is in the viewer's Google Apps domain.",
+          "description": "True if the person is in the viewer's G Suite domain.",
           "type": "boolean"
         }
       },
@@ -1136,7 +1136,7 @@
       "type": "object"
     },
     "Membership": {
-      "description": "A person's read-only membership in a group.",
+      "description": "A person's membership in a group. Only contact group memberships can be\nmodified.",
       "id": "Membership",
       "properties": {
         "contactGroupMembership": {
@@ -1145,7 +1145,7 @@
         },
         "domainMembership": {
           "$ref": "DomainMembership",
-          "description": "The domain membership."
+          "description": "The read-only domain membership."
         },
         "metadata": {
           "$ref": "FieldMetadata",
@@ -1155,7 +1155,7 @@
       "type": "object"
     },
     "ModifyContactGroupMembersRequest": {
-      "description": "A request to modify an existing contact group's members. Contacts can be\nremoved from any group but they can only be added to a user group or\nmyContacts or starred system groups.",
+      "description": "A request to modify an existing contact group's members. Contacts can be\nremoved from any group but they can only be added to a user group or\n\"myContacts\" or \"starred\" system groups.",
       "id": "ModifyContactGroupMembersRequest",
       "properties": {
         "resourceNamesToAdd": {
@@ -1472,7 +1472,7 @@
           "type": "array"
         },
         "memberships": {
-          "description": "The person's read-only group memberships.",
+          "description": "The person's group memberships.",
           "items": {
             "$ref": "Membership"
           },
@@ -1734,7 +1734,7 @@
             "The user type is not known.",
             "The user is a Google user.",
             "The user is a Google+ user.",
-            "The user is a Google Apps for Work user."
+            "The user is a G Suite user."
           ],
           "items": {
             "enum": [
@@ -1897,7 +1897,7 @@
             "Unspecified.",
             "[Google Account](https://accounts.google.com).",
             "[Google profile](https://profiles.google.com). You can view the\nprofile at https://profiles.google.com/\u003cvar\u003eid\u003c/var\u003e where\n\u003cvar\u003eid\u003c/var\u003e is the source id.",
-            "[Google Apps domain profile](https://admin.google.com).",
+            "[G Suite domain profile](https://support.google.com/a/answer/1628008).",
             "[Google contact](https://contacts.google.com). You can view the\ncontact at https://contact.google.com/\u003cvar\u003eid\u003c/var\u003e where \u003cvar\u003eid\u003c/var\u003e\nis the source id."
           ],
           "type": "string"

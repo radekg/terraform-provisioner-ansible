@@ -165,13 +165,13 @@
       "type":"structure",
       "required":[
         "VocabularyName",
-        "LanguageCode",
-        "Phrases"
+        "LanguageCode"
       ],
       "members":{
         "VocabularyName":{"shape":"VocabularyName"},
         "LanguageCode":{"shape":"LanguageCode"},
-        "Phrases":{"shape":"Phrases"}
+        "Phrases":{"shape":"Phrases"},
+        "VocabularyFileUri":{"shape":"Uri"}
       }
     },
     "CreateVocabularyResponse":{
@@ -246,7 +246,15 @@
         "es-US",
         "en-AU",
         "fr-CA",
-        "en-UK"
+        "en-GB",
+        "de-DE",
+        "pt-BR",
+        "fr-FR",
+        "it-IT",
+        "ko-KR",
+        "es-ES",
+        "en-IN",
+        "hi-IN"
       ]
     },
     "LimitExceededException":{
@@ -441,13 +449,13 @@
       "type":"structure",
       "required":[
         "VocabularyName",
-        "LanguageCode",
-        "Phrases"
+        "LanguageCode"
       ],
       "members":{
         "VocabularyName":{"shape":"VocabularyName"},
         "LanguageCode":{"shape":"LanguageCode"},
-        "Phrases":{"shape":"Phrases"}
+        "Phrases":{"shape":"Phrases"},
+        "VocabularyFileUri":{"shape":"Uri"}
       }
     },
     "UpdateVocabularyResponse":{

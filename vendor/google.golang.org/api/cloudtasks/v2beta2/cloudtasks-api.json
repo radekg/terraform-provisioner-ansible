@@ -179,7 +179,7 @@
             "queues": {
               "methods": {
                 "create": {
-                  "description": "Creates a queue.\n\nQueues created with this method allow tasks to live for a maximum of 31\ndays. After a task is 31 days old, the task will be deleted regardless of whether\nit was dispatched or not.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)\nbefore using this method.",
+                  "description": "Creates a queue.\n\nQueues created with this method allow tasks to live for a maximum of 31\ndays. After a task is 31 days old, the task will be deleted regardless of whether\nit was dispatched or not.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and\nqueue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before using\nthis method.",
                   "flatPath": "v2beta2/projects/{projectsId}/locations/{locationsId}/queues",
                   "httpMethod": "POST",
                   "id": "cloudtasks.projects.locations.queues.create",
@@ -207,7 +207,7 @@
                   ]
                 },
                 "delete": {
-                  "description": "Deletes a queue.\n\nThis command will delete the queue even if it has tasks in it.\n\nNote: If you delete a queue, a queue with the same name can't be created\nfor 7 days.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)\nbefore using this method.",
+                  "description": "Deletes a queue.\n\nThis command will delete the queue even if it has tasks in it.\n\nNote: If you delete a queue, a queue with the same name can't be created\nfor 7 days.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and\nqueue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before using\nthis method.",
                   "flatPath": "v2beta2/projects/{projectsId}/locations/{locationsId}/queues/{queuesId}",
                   "httpMethod": "DELETE",
                   "id": "cloudtasks.projects.locations.queues.delete",
@@ -294,7 +294,7 @@
                   ],
                   "parameters": {
                     "filter": {
-                      "description": "`filter` can be used to specify a subset of queues. Any Queue\nfield can be used as a filter and several operators as supported.\nFor example: `\u003c=, \u003c, \u003e=, \u003e, !=, =, :`. The filter syntax is the same as\ndescribed in\n[Stackdriver's Advanced Logs Filters](https://cloud.google.com/logging/docs/view/advanced_filters).\n\nSample filter \"app_engine_http_target: *\".\n\nNote that using filters might cause fewer queues than the\nrequested_page size to be returned.",
+                      "description": "`filter` can be used to specify a subset of queues. Any Queue\nfield can be used as a filter and several operators as supported.\nFor example: `\u003c=, \u003c, \u003e=, \u003e, !=, =, :`. The filter syntax is the same as\ndescribed in\n[Stackdriver's Advanced Logs\nFilters](https://cloud.google.com/logging/docs/view/advanced_filters).\n\nSample filter \"app_engine_http_target: *\".\n\nNote that using filters might cause fewer queues than the\nrequested_page size to be returned.",
                       "location": "query",
                       "type": "string"
                     },
@@ -326,7 +326,7 @@
                   ]
                 },
                 "patch": {
-                  "description": "Updates a queue.\n\nThis method creates the queue if it does not exist and updates\nthe queue if it does exist.\n\nQueues created with this method allow tasks to live for a maximum of 31\ndays. After a task is 31 days old, the task will be deleted regardless of whether\nit was dispatched or not.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)\nbefore using this method.",
+                  "description": "Updates a queue.\n\nThis method creates the queue if it does not exist and updates\nthe queue if it does exist.\n\nQueues created with this method allow tasks to live for a maximum of 31\ndays. After a task is 31 days old, the task will be deleted regardless of whether\nit was dispatched or not.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and\nqueue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before using\nthis method.",
                   "flatPath": "v2beta2/projects/{projectsId}/locations/{locationsId}/queues/{queuesId}",
                   "httpMethod": "PATCH",
                   "id": "cloudtasks.projects.locations.queues.patch",
@@ -416,7 +416,7 @@
                   ]
                 },
                 "resume": {
-                  "description": "Resume a queue.\n\nThis method resumes a queue after it has been\nPAUSED or\nDISABLED. The state of a queue is stored\nin the queue's state; after calling this method it\nwill be set to RUNNING.\n\nWARNING: Resuming many high-QPS queues at the same time can\nlead to target overloading. If you are resuming high-QPS\nqueues, follow the 500/50/5 pattern described in\n[Managing Cloud Tasks Scaling Risks](https://cloud.google.com/tasks/docs/manage-cloud-task-scaling).",
+                  "description": "Resume a queue.\n\nThis method resumes a queue after it has been\nPAUSED or\nDISABLED. The state of a queue is stored\nin the queue's state; after calling this method it\nwill be set to RUNNING.\n\nWARNING: Resuming many high-QPS queues at the same time can\nlead to target overloading. If you are resuming high-QPS\nqueues, follow the 500/50/5 pattern described in\n[Managing Cloud Tasks Scaling\nRisks](https://cloud.google.com/tasks/docs/manage-cloud-task-scaling).",
                   "flatPath": "v2beta2/projects/{projectsId}/locations/{locationsId}/queues/{queuesId}:resume",
                   "httpMethod": "POST",
                   "id": "cloudtasks.projects.locations.queues.resume",
@@ -685,7 +685,7 @@
                       ],
                       "parameters": {
                         "pageSize": {
-                          "description": "Requested page size. Fewer tasks than requested might be returned.\n\nThe maximum page size is 1000. If unspecified, the page size will\nbe the maximum. Fewer tasks than requested might be returned,\neven if more tasks exist; use\nnext_page_token in the\nresponse to determine if more tasks exist.",
+                          "description": "Maximum page size.\n\nFewer tasks than requested might be returned, even if more tasks exist; use\nnext_page_token in the response to\ndetermine if more tasks exist.\n\nThe maximum page size is 1000. If unspecified, the page size will be the\nmaximum.",
                           "format": "int32",
                           "location": "query",
                           "type": "integer"
@@ -786,7 +786,7 @@
       }
     }
   },
-  "revision": "20190326",
+  "revision": "20190513",
   "rootUrl": "https://cloudtasks.googleapis.com/",
   "schemas": {
     "AcknowledgeTaskRequest": {
@@ -802,7 +802,7 @@
       "type": "object"
     },
     "AppEngineHttpRequest": {
-      "description": "App Engine HTTP request.\n\nThe message defines the HTTP request that is sent to an App Engine app when\nthe task is dispatched.\n\nThis proto can only be used for tasks in a queue which has\napp_engine_http_target set.\n\nUsing AppEngineHttpRequest requires\n[`appengine.applications.get`](https://cloud.google.com/appengine/docs/admin-api/access-control)\nGoogle IAM permission for the project\nand the following scope:\n\n`https://www.googleapis.com/auth/cloud-platform`\n\nThe task will be delivered to the App Engine app which belongs to the same\nproject as the queue. For more information, see\n[How Requests are\nRouted](https://cloud.google.com/appengine/docs/standard/python/how-requests-are-routed)\nand how routing is affected by\n[dispatch\nfiles](https://cloud.google.com/appengine/docs/python/config/dispatchref).\nTraffic is encrypted during transport and never leaves Google datacenters.\nBecause this traffic is carried over a communication mechanism internal to\nGoogle, you cannot explicitly set the protocol (for example, HTTP or HTTPS).\nThe request to the handler, however, will appear to have used the HTTP\nprotocol.\n\nThe AppEngineRouting used to construct the URL that the task is\ndelivered to can be set at the queue-level or task-level:\n\n* If set,\n   app_engine_routing_override\n   is used for all tasks in the queue, no matter what the setting\n   is for the\n   task-level app_engine_routing.\n\n\nThe `url` that the task will be sent to is:\n\n* `url =` host `+`\n  relative_url\n\nTasks can be dispatched to secure app handlers, unsecure app handlers, and\nURIs restricted with\n[`login:\nadmin`](https://cloud.google.com/appengine/docs/standard/python/config/appref).\nBecause tasks are not run as any user, they cannot be dispatched to URIs\nrestricted with\n[`login:\nrequired`](https://cloud.google.com/appengine/docs/standard/python/config/appref)\nTask dispatches also do not follow redirects.\n\nThe task attempt has succeeded if the app's request handler returns\nan HTTP response code in the range [`200` - `299`]. `503` is\nconsidered an App Engine system error instead of an application\nerror. Requests returning error `503` will be retried regardless of\nretry configuration and not counted against retry counts.\nAny other response code or a failure to receive a response before the\ndeadline is a failed attempt.",
+      "description": "App Engine HTTP request.\n\nThe message defines the HTTP request that is sent to an App Engine app when\nthe task is dispatched.\n\nThis proto can only be used for tasks in a queue which has\napp_engine_http_target set.\n\nUsing AppEngineHttpRequest requires\n[`appengine.applications.get`](https://cloud.google.com/appengine/docs/admin-api/access-control)\nGoogle IAM permission for the project\nand the following scope:\n\n`https://www.googleapis.com/auth/cloud-platform`\n\nThe task will be delivered to the App Engine app which belongs to the same\nproject as the queue. For more information, see\n[How Requests are\nRouted](https://cloud.google.com/appengine/docs/standard/python/how-requests-are-routed)\nand how routing is affected by\n[dispatch\nfiles](https://cloud.google.com/appengine/docs/python/config/dispatchref).\nTraffic is encrypted during transport and never leaves Google datacenters.\nBecause this traffic is carried over a communication mechanism internal to\nGoogle, you cannot explicitly set the protocol (for example, HTTP or HTTPS).\nThe request to the handler, however, will appear to have used the HTTP\nprotocol.\n\nThe AppEngineRouting used to construct the URL that the task is\ndelivered to can be set at the queue-level or task-level:\n\n* If set,\n   app_engine_routing_override\n   is used for all tasks in the queue, no matter what the setting\n   is for the\n   task-level app_engine_routing.\n\n\nThe `url` that the task will be sent to is:\n\n* `url =` host `+`\n  relative_url\n\nTasks can be dispatched to secure app handlers, unsecure app handlers, and\nURIs restricted with\n[`login:\nadmin`](https://cloud.google.com/appengine/docs/standard/python/config/appref).\nBecause tasks are not run as any user, they cannot be dispatched to URIs\nrestricted with\n[`login:\nrequired`](https://cloud.google.com/appengine/docs/standard/python/config/appref)\nTask dispatches also do not follow redirects.\n\nThe task attempt has succeeded if the app's request handler returns an HTTP\nresponse code in the range [`200` - `299`]. The task attempt has failed if\nthe app's handler returns a non-2xx response code or Cloud Tasks does\nnot receive response before the deadline. Failed\ntasks will be retried according to the\nretry configuration. `503` (Service Unavailable) is\nconsidered an App Engine system error instead of an application error and\nwill cause Cloud Tasks' traffic congestion control to temporarily throttle\nthe queue's dispatches. Unlike other types of task targets, a `429` (Too Many\nRequests) response from an app handler does not cause traffic congestion\ncontrol to throttle the queue.",
       "id": "AppEngineHttpRequest",
       "properties": {
         "appEngineRouting": {
@@ -914,7 +914,7 @@
       "properties": {
         "condition": {
           "$ref": "Expr",
-          "description": "The condition that is associated with this binding.\nNOTE: an unsatisfied condition will not allow user access via current\nbinding. Different bindings, including their conditions, are examined\nindependently."
+          "description": "The condition that is associated with this binding.\nNOTE: An unsatisfied condition will not allow user access via current\nbinding. Different bindings, including their conditions, are examined\nindependently."
         },
         "members": {
           "description": "Specifies the identities requesting access for a Cloud Platform resource.\n`members` can have the following values:\n\n* `allUsers`: A special identifier that represents anyone who is\n   on the internet; with or without a Google account.\n\n* `allAuthenticatedUsers`: A special identifier that represents anyone\n   who is authenticated with a Google account or a service account.\n\n* `user:{emailid}`: An email address that represents a specific Google\n   account. For example, `alice@gmail.com` .\n\n\n* `serviceAccount:{emailid}`: An email address that represents a service\n   account. For example, `my-other-app@appspot.gserviceaccount.com`.\n\n* `group:{emailid}`: An email address that represents a Google group.\n   For example, `admins@example.com`.\n\n\n* `domain:{domain}`: The G Suite domain (primary) that represents all the\n   users of that domain. For example, `google.com` or `example.com`.\n\n",

@@ -168,7 +168,7 @@ type AnalyzeEntitiesRequest struct {
 	// that use this encoding natively.
 	//   "UTF16" - Encoding-dependent information (such as `begin_offset`)
 	// is calculated based
-	// on the UTF-16 encoding of the input. Java and Javascript are examples
+	// on the UTF-16 encoding of the input. Java and JavaScript are examples
 	// of
 	// languages that use this encoding natively.
 	//   "UTF32" - Encoding-dependent information (such as `begin_offset`)
@@ -259,7 +259,7 @@ type AnalyzeEntitySentimentRequest struct {
 	// that use this encoding natively.
 	//   "UTF16" - Encoding-dependent information (such as `begin_offset`)
 	// is calculated based
-	// on the UTF-16 encoding of the input. Java and Javascript are examples
+	// on the UTF-16 encoding of the input. Java and JavaScript are examples
 	// of
 	// languages that use this encoding natively.
 	//   "UTF32" - Encoding-dependent information (such as `begin_offset`)
@@ -353,7 +353,7 @@ type AnalyzeSentimentRequest struct {
 	// that use this encoding natively.
 	//   "UTF16" - Encoding-dependent information (such as `begin_offset`)
 	// is calculated based
-	// on the UTF-16 encoding of the input. Java and Javascript are examples
+	// on the UTF-16 encoding of the input. Java and JavaScript are examples
 	// of
 	// languages that use this encoding natively.
 	//   "UTF32" - Encoding-dependent information (such as `begin_offset`)
@@ -447,7 +447,7 @@ type AnalyzeSyntaxRequest struct {
 	// that use this encoding natively.
 	//   "UTF16" - Encoding-dependent information (such as `begin_offset`)
 	// is calculated based
-	// on the UTF-16 encoding of the input. Java and Javascript are examples
+	// on the UTF-16 encoding of the input. Java and JavaScript are examples
 	// of
 	// languages that use this encoding natively.
 	//   "UTF32" - Encoding-dependent information (such as `begin_offset`)
@@ -543,7 +543,7 @@ type AnnotateTextRequest struct {
 	// that use this encoding natively.
 	//   "UTF16" - Encoding-dependent information (such as `begin_offset`)
 	// is calculated based
-	// on the UTF-16 encoding of the input. Java and Javascript are examples
+	// on the UTF-16 encoding of the input. Java and JavaScript are examples
 	// of
 	// languages that use this encoding natively.
 	//   "UTF32" - Encoding-dependent information (such as `begin_offset`)
@@ -960,10 +960,11 @@ type Entity struct {
 
 	// Metadata: Metadata associated with the entity.
 	//
-	// Currently, Wikipedia URLs and Knowledge Graph MIDs are provided,
-	// if
-	// available. The associated keys are "wikipedia_url" and "mid",
-	// respectively.
+	// For most entity types, the metadata is a Wikipedia URL
+	// (`wikipedia_url`)
+	// and Knowledge Graph MID (`mid`), if they are available. For the
+	// metadata
+	// associated with other entity types, see the Type table below.
 	Metadata map[string]string `json:"metadata,omitempty"`
 
 	// Name: The representative name for the entity.
@@ -997,9 +998,55 @@ type Entity struct {
 	//   "LOCATION" - Location
 	//   "ORGANIZATION" - Organization
 	//   "EVENT" - Event
-	//   "WORK_OF_ART" - Work of art
-	//   "CONSUMER_GOOD" - Consumer goods
-	//   "OTHER" - Other types
+	//   "WORK_OF_ART" - Artwork
+	//   "CONSUMER_GOOD" - Consumer product
+	//   "OTHER" - Other types of entities
+	//   "PHONE_NUMBER" - Phone number
+	//
+	// The metadata lists the phone number, formatted according to
+	// local
+	// convention, plus whichever additional elements appear in the text:
+	//
+	// * `number` - the actual number, broken down into sections as per
+	// local
+	// convention
+	// * `national_prefix` - country code, if detected
+	// * `area_code` - region or area code, if detected
+	// * `extension` - phone extension (to be dialed after connection),
+	// if
+	// detected
+	//   "ADDRESS" - Address
+	//
+	// The metadata identifies the street number and locality plus
+	// whichever
+	// additional elements appear in the text:
+	//
+	// * `street_number` - street number
+	// * `locality` - city or town
+	// * `street_name` - street/route name, if detected
+	// * `postal_code` - postal code, if detected
+	// * `country` - country, if detected<
+	// * `broad_region` - administrative area, such as the state, if
+	// detected
+	// * `narrow_region` - smaller administrative area, such as county,
+	// if
+	// detected
+	// * `sublocality` - used in Asian addresses to demark a district within
+	// a
+	// city, if detected
+	//   "DATE" - Date
+	//
+	// The metadata identifies the components of the date:
+	//
+	// * `year` - four digit year, if detected
+	// * `month` - two digit month number, if detected
+	// * `day` - two digit day number, if detected
+	//   "NUMBER" - Number
+	//
+	// The metadata is the number itself.
+	//   "PRICE" - Price
+	//
+	// The metadata identifies the `value` and `currency`.
 	Type string `json:"type,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Mentions") to

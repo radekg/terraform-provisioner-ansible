@@ -81,7 +81,7 @@ During init, the root configuration directory is consulted for
 [backend configuration](/docs/backends/config.html) and the chosen backend
 is initialized using the given configuration settings.
 
-Re-running init with an already-initalized backend will update the working
+Re-running init with an already-initialized backend will update the working
 directory to use the new backend settings. Depending on what changed, this
 may result in interactive prompts to confirm migration of workspace states.
 The `-force-copy` option suppresses these prompts and answers "yes" to the
@@ -123,7 +123,7 @@ For [providers distributed by HashiCorp](/docs/providers/index.html),
 init will automatically download and install plugins if necessary. Plugins
 can also be manually installed in the user plugins directory, located at
 `~/.terraform.d/plugins` on most operating systems and
-`<APPLICATION DATA>\plugins` on Windows.
+`%APPDATA%\terraform.d\plugins` on Windows.
 
 For more information about configuring and installing providers, see
 [Configuration: Providers](/docs/configuration/providers.html).
