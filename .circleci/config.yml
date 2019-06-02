@@ -5,7 +5,7 @@ jobs:
   build:
     docker:
       # specify the version
-      - image: radekg/terraform-provisioner-ansible-ci:ansible-2.6.5-go-1.11.6
+      - image: radekg/terraform-provisioner-ansible-ci:ansible-2.6.5-go-1.12.5
     working_directory: /go/src/github.com/radekg/terraform-provisioner-ansible
     steps:
       - checkout

@@ -3,7 +3,7 @@ PLUGINS_DIR=~/.terraform.d/plugins
 CURRENT_DIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
 CI_ANSIBLE_VERSION=2.6.5
-CI_GOLANG_VERSION=1.11.6
+CI_GOLANG_VERSION=1.12.5
 CI_PROJECT_PATH=/go/src/github.com/radekg/terraform-provisioner-ansible
 
 .PHONY: plugins-dir
