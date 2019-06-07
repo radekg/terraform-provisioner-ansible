@@ -43,7 +43,8 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 	validPlaysCount := 0
 
 	if plays, hasPlays := c.Get("plays"); hasPlays {
-		for _, vPlay := range plays.([]map[string]interface{}) {
+		for _, rawVPlay := range plays.([]interface{}) {
+			vPlay := rawVPlay.(map[string]interface{})
 
 			currentErrorCount := len(es)
 
@@ -57,8 +58,8 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 			} else {
 
 				if playHasPlaybook {
-					vPlaybookTyped := vPlaybook.([]map[string]interface{})
-					rolesPath, hasRolesPath := vPlaybookTyped[0]["roles_path"]
+					vPlaybookTyped := vPlaybook.([]interface{})
+					rolesPath, hasRolesPath := vPlaybookTyped[0].(map[string]interface{})["roles_path"]
 					if hasRolesPath {
 						for _, singlePath := range rolesPath.([]interface{}) {
 							vws, ves := types.VfPathDirectory(singlePath, "roles_path")
