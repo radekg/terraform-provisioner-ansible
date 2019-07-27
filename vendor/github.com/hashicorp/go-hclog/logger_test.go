@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -149,7 +150,7 @@ func TestLogger(t *testing.T) {
 		rest := str[dataIdx+1:]
 
 		// This test will break if you move this around, it's line dependent, just fyi
-		assert.Equal(t, "[INFO]  go-hclog/logger_test.go:145: test: this is test: who=programmer why=\"testing is fun\"\n", rest)
+		assert.Equal(t, "[INFO]  go-hclog/logger_test.go:146: test: this is test: who=programmer why=\"testing is fun\"\n", rest)
 	})
 
 	t.Run("prefixes the name", func(t *testing.T) {
@@ -553,6 +554,55 @@ func TestLogger_JSON(t *testing.T) {
 
 		assert.Equal(t, "this is test", raw["@message"])
 		assert.Equal(t, "12 beans/day", raw["production"])
+	})
+
+	t.Run("includes the caller location", func(t *testing.T) {
+		var buf bytes.Buffer
+
+		logger := New(&LoggerOptions{
+			Name:            "test",
+			Output:          &buf,
+			JSONFormat:      true,
+			IncludeLocation: true,
+		})
+
+		logger.Info("this is test")
+		_, file, line, ok := runtime.Caller(0)
+		require.True(t, ok)
+
+		b := buf.Bytes()
+
+		var raw map[string]interface{}
+		if err := json.Unmarshal(b, &raw); err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, "this is test", raw["@message"])
+		assert.Equal(t, fmt.Sprintf("%v:%d", file, line-1), raw["@caller"])
+
+	})
+
+	t.Run("handles non-serializable entries", func(t *testing.T) {
+		var buf bytes.Buffer
+
+		logger := New(&LoggerOptions{
+			Name:       "test",
+			Output:     &buf,
+			JSONFormat: true,
+		})
+
+		myfunc := func() int { return 42 }
+		logger.Info("this is test", "production", myfunc)
+
+		b := buf.Bytes()
+
+		var raw map[string]interface{}
+		if err := json.Unmarshal(b, &raw); err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, "this is test", raw["@message"])
+		assert.Equal(t, errJsonUnsupportedTypeMsg, raw["@warn"])
 	})
 }
 

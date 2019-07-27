@@ -24,6 +24,7 @@ import (
 	"cloud.google.com/go/pubsub/pstest"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
+	pb "google.golang.org/genproto/googleapis/pubsub/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -129,7 +130,17 @@ func TestUpdateSubscription(t *testing.T) {
 	defer srv.Close()
 
 	topic := mustCreateTopic(t, client, "t")
-	sub, err := client.CreateSubscription(ctx, "s", SubscriptionConfig{Topic: topic})
+	sub, err := client.CreateSubscription(ctx, "s", SubscriptionConfig{
+		Topic:            topic,
+		ExpirationPolicy: 30 * time.Hour,
+		PushConfig: PushConfig{
+			Endpoint: "https://example.com/push",
+			AuthenticationMethod: &OIDCToken{
+				ServiceAccountEmail: "foo@example.com",
+				Audience:            "client-12345",
+			},
+		},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,6 +153,14 @@ func TestUpdateSubscription(t *testing.T) {
 		AckDeadline:         10 * time.Second,
 		RetainAckedMessages: false,
 		RetentionDuration:   defaultRetentionDuration,
+		ExpirationPolicy:    30 * time.Hour,
+		PushConfig: PushConfig{
+			Endpoint: "https://example.com/push",
+			AuthenticationMethod: &OIDCToken{
+				ServiceAccountEmail: "foo@example.com",
+				Audience:            "client-12345",
+			},
+		},
 	}
 	if !testutil.Equal(cfg, want) {
 		t.Fatalf("\ngot  %+v\nwant %+v", cfg, want)
@@ -151,6 +170,14 @@ func TestUpdateSubscription(t *testing.T) {
 		AckDeadline:         20 * time.Second,
 		RetainAckedMessages: true,
 		Labels:              map[string]string{"label": "value"},
+		ExpirationPolicy:    72 * time.Hour,
+		PushConfig: &PushConfig{
+			Endpoint: "https://example.com/push",
+			AuthenticationMethod: &OIDCToken{
+				ServiceAccountEmail: "foo@example.com",
+				Audience:            "client-12345",
+			},
+		},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -161,6 +188,14 @@ func TestUpdateSubscription(t *testing.T) {
 		RetainAckedMessages: true,
 		RetentionDuration:   defaultRetentionDuration,
 		Labels:              map[string]string{"label": "value"},
+		ExpirationPolicy:    72 * time.Hour,
+		PushConfig: PushConfig{
+			Endpoint: "https://example.com/push",
+			AuthenticationMethod: &OIDCToken{
+				ServiceAccountEmail: "foo@example.com",
+				Audience:            "client-12345",
+			},
+		},
 	}
 	if !testutil.Equal(got, want) {
 		t.Fatalf("\ngot  %+v\nwant %+v", got, want)
@@ -182,6 +217,18 @@ func TestUpdateSubscription(t *testing.T) {
 	_, err = sub.Update(ctx, SubscriptionConfigToUpdate{})
 	if err == nil {
 		t.Fatal("got nil, want error")
+	}
+
+	// Check ExpirationPolicy when set to never expire.
+	got, err = sub.Update(ctx, SubscriptionConfigToUpdate{
+		ExpirationPolicy: time.Duration(0),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want.ExpirationPolicy = time.Duration(0)
+	if !testutil.Equal(got, want) {
+		t.Fatalf("\ngot %+v\nwant %+v", got, want)
 	}
 }
 
@@ -242,4 +289,27 @@ func newFake(t *testing.T) (*Client, *pstest.Server) {
 		t.Fatal(err)
 	}
 	return client, srv
+}
+
+func TestPushConfigAuthenticationMethod_toProto(t *testing.T) {
+	in := &PushConfig{
+		Endpoint: "https://example.com/push",
+		AuthenticationMethod: &OIDCToken{
+			ServiceAccountEmail: "foo@example.com",
+			Audience:            "client-12345",
+		},
+	}
+	got := in.toProto()
+	want := &pb.PushConfig{
+		PushEndpoint: "https://example.com/push",
+		AuthenticationMethod: &pb.PushConfig_OidcToken_{
+			OidcToken: &pb.PushConfig_OidcToken{
+				ServiceAccountEmail: "foo@example.com",
+				Audience:            "client-12345",
+			},
+		},
+	}
+	if diff := testutil.Diff(got, want); diff != "" {
+		t.Errorf("Roundtrip to Proto failed\ngot: - want: +\n%s", diff)
+	}
 }

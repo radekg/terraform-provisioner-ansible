@@ -501,10 +501,10 @@ func (s *BasicYarnAutoscalingConfig) UnmarshalJSON(data []byte) error {
 
 // Binding: Associates members with a role.
 type Binding struct {
-	// Condition: Unimplemented. The condition that is associated with this
-	// binding. NOTE: an unsatisfied condition will not allow user access
-	// via current binding. Different bindings, including their conditions,
-	// are examined independently.
+	// Condition: The condition that is associated with this binding. NOTE:
+	// An unsatisfied condition will not allow user access via current
+	// binding. Different bindings, including their conditions, are examined
+	// independently.
 	Condition *Expr `json:"condition,omitempty"`
 
 	// Members: Specifies the identities requesting access for a Cloud
@@ -1250,8 +1250,9 @@ type GceClusterConfig struct {
 	// URL, partial URI, or short name are valid.
 	// Examples:
 	// https://www.googleapis.com/compute/v1/projects/[project_id]/
-	// regions/us-east1/sub0
-	// projects/[project_id]/regions/us-east1/sub0
+	// regions/us-east1/subnetworks/sub0
+	// projects/[project_id]/regions/us-eas
+	// t1/subnetworks/sub0
 	// sub0
 	SubnetworkUri string `json:"subnetworkUri,omitempty"`
 
@@ -1298,6 +1299,63 @@ func (s *GceClusterConfig) MarshalJSON() ([]byte, error) {
 
 // GetIamPolicyRequest: Request message for GetIamPolicy method.
 type GetIamPolicyRequest struct {
+	// Options: OPTIONAL: A GetPolicyOptions object for specifying options
+	// to GetIamPolicy. This field is only used by Cloud IAM.
+	Options *GetPolicyOptions `json:"options,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Options") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Options") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GetIamPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GetIamPolicyRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GetPolicyOptions: Encapsulates settings provided to GetIamPolicy.
+type GetPolicyOptions struct {
+	// RequestedPolicyVersion: Optional. The policy format version to be
+	// returned. Acceptable values are 0 and 1. If the value is 0, or the
+	// field is omitted, policy format version 1 will be returned.
+	RequestedPolicyVersion int64 `json:"requestedPolicyVersion,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "RequestedPolicyVersion") to unconditionally include in API requests.
+	// By default, fields with empty values are omitted from API requests.
+	// However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "RequestedPolicyVersion")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GetPolicyOptions) MarshalJSON() ([]byte, error) {
+	type NoMethod GetPolicyOptions
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // HadoopJob: A Cloud Dataproc job for running Apache Hadoop MapReduce
@@ -1442,6 +1500,22 @@ type InstanceGroupAutoscalingPolicyConfig struct {
 	// Secondary workers - Bounds: 0, max_instances. Default: 0.
 	MinInstances int64 `json:"minInstances,omitempty"`
 
+	// Weight: Optional. Weight for the instance group, which is used to
+	// determine the fraction of total workers in the cluster from this
+	// instance group. For example, if primary workers have weight 2, and
+	// secondary workers have weight 1, the cluster will have approximately
+	// 2 primary workers for each secondary worker.The cluster may not reach
+	// the specified balance if constrained by min/max bounds or other
+	// autoscaling settings. For example, if max_instances for secondary
+	// workers is 0, then only primary workers will be added. The cluster
+	// can also be out of balance when created.If weight is not set on any
+	// instance group, the cluster will default to equal weight for all
+	// groups: the cluster will attempt to maintain an equal number of
+	// workers in each group within the configured size bounds for each
+	// group. If weight is set for one group only, the cluster will default
+	// to zero weight on the unset group. For example if weight is set only
+	// on primary workers, the cluster will use primary workers only and no
+	// secondary workers.
 	Weight int64 `json:"weight,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "MaxInstances") to
@@ -1885,41 +1959,42 @@ type KerberosConfig struct {
 	// on-cluster KDC will trust, should the user enable cross realm trust.
 	CrossRealmTrustRealm string `json:"crossRealmTrustRealm,omitempty"`
 
-	// CrossRealmTrustSharedPasswordUri: Optional. The GCS uri of a KMS
-	// encrypted file containing the shared password between the on-cluster
-	// Kerberos realm and the remote trusted realm, in a cross realm trust
-	// relationship.
+	// CrossRealmTrustSharedPasswordUri: Optional. The Cloud Storage URI of
+	// a KMS encrypted file containing the shared password between the
+	// on-cluster Kerberos realm and the remote trusted realm, in a cross
+	// realm trust relationship.
 	CrossRealmTrustSharedPasswordUri string `json:"crossRealmTrustSharedPasswordUri,omitempty"`
 
 	// EnableKerberos: Optional. Flag to indicate whether to Kerberize the
 	// cluster.
 	EnableKerberos bool `json:"enableKerberos,omitempty"`
 
-	// KdcDbKeyUri: Optional. The GCS uri of a KMS encrypted file containing
-	// the master key of the KDC database.
+	// KdcDbKeyUri: Optional. The Cloud Storage URI of a KMS encrypted file
+	// containing the master key of the KDC database.
 	KdcDbKeyUri string `json:"kdcDbKeyUri,omitempty"`
 
-	// KeyPasswordUri: Optional. The GCS uri of a KMS encrypted file
-	// containing the password to the user provided key. For the self-signed
-	// certificate, this password is generated by Dataproc.
+	// KeyPasswordUri: Optional. The Cloud Storage URI of a KMS encrypted
+	// file containing the password to the user provided key. For the
+	// self-signed certificate, this password is generated by Dataproc.
 	KeyPasswordUri string `json:"keyPasswordUri,omitempty"`
 
-	// KeystorePasswordUri: Optional. The GCS uri of a KMS encrypted file
-	// containing the password to the user provided keystore. For the
-	// self-signed certificate, this password is generated by Dataproc.
+	// KeystorePasswordUri: Optional. The Cloud Storage URI of a KMS
+	// encrypted file containing the password to the user provided keystore.
+	// For the self-signed certificate, this password is generated by
+	// Dataproc.
 	KeystorePasswordUri string `json:"keystorePasswordUri,omitempty"`
 
-	// KeystoreUri: Optional. The GCS uri of the keystore file used for SSL
-	// encryption. If not provided, Dataproc will provide a self-signed
-	// certificate.
+	// KeystoreUri: Optional. The Cloud Storage URI of the keystore file
+	// used for SSL encryption. If not provided, Dataproc will provide a
+	// self-signed certificate.
 	KeystoreUri string `json:"keystoreUri,omitempty"`
 
 	// KmsKeyUri: Required. The uri of the KMS key used to encrypt various
 	// sensitive files.
 	KmsKeyUri string `json:"kmsKeyUri,omitempty"`
 
-	// RootPrincipalPasswordUri: Required. The GCS uri of a KMS encrypted
-	// file containing the root principal password.
+	// RootPrincipalPasswordUri: Required. The Cloud Storage URI of a KMS
+	// encrypted file containing the root principal password.
 	RootPrincipalPasswordUri string `json:"rootPrincipalPasswordUri,omitempty"`
 
 	// TgtLifetimeHours: Optional. The lifetime of the ticket granting
@@ -1927,14 +2002,15 @@ type KerberosConfig struct {
 	// value 10 will be used.
 	TgtLifetimeHours int64 `json:"tgtLifetimeHours,omitempty"`
 
-	// TruststorePasswordUri: Optional. The GCS uri of a KMS encrypted file
-	// containing the password to the user provided truststore. For the
-	// self-signed certificate, this password is generated by Dataproc.
+	// TruststorePasswordUri: Optional. The Cloud Storage URI of a KMS
+	// encrypted file containing the password to the user provided
+	// truststore. For the self-signed certificate, this password is
+	// generated by Dataproc.
 	TruststorePasswordUri string `json:"truststorePasswordUri,omitempty"`
 
-	// TruststoreUri: Optional. The GCS uri of the truststore file used for
-	// SSL encryption. If not provided, Dataproc will provide a self-signed
-	// certificate.
+	// TruststoreUri: Optional. The Cloud Storage URI of the truststore file
+	// used for SSL encryption. If not provided, Dataproc will provide a
+	// self-signed certificate.
 	TruststoreUri string `json:"truststoreUri,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -2361,8 +2437,8 @@ type Operation struct {
 
 	// Name: The server-assigned name, which is only unique within the same
 	// service that originally returns it. If you use the default HTTP
-	// mapping, the name should have the format of
-	// operations/some/unique/name.
+	// mapping, the name should be a resource name ending with
+	// operations/{unique_id}.
 	Name string `json:"name,omitempty"`
 
 	// Response: The normal response of the operation in case of success. If
@@ -2939,7 +3015,8 @@ type SoftwareConfig struct {
 	// ImageVersion: Optional. The version of software inside the cluster.
 	// It must be one of the supported Cloud Dataproc Versions, such as
 	// "1.2" (including a subminor version, such as "1.2.29"), or the
-	// "preview" version. If unspecified, it defaults to the latest version.
+	// "preview" version. If unspecified, it defaults to the latest Debian
+	// version.
 	ImageVersion string `json:"imageVersion,omitempty"`
 
 	// OptionalComponents: The set of optional components to activate on the
@@ -2948,6 +3025,7 @@ type SoftwareConfig struct {
 	// Possible values:
 	//   "COMPONENT_UNSPECIFIED" - Unspecified component.
 	//   "ANACONDA" - The Anaconda python distribution.
+	//   "DRUID" - The Druid query engine.
 	//   "HIVE_WEBHCAT" - The Hive Web HCatalog (the REST service for
 	// accessing HCatalog).
 	//   "JUPYTER" - The Jupyter Notebook.
@@ -2955,7 +3033,6 @@ type SoftwareConfig struct {
 	//   "PRESTO" - The Presto query engine.
 	//   "ZEPPELIN" - The Zeppelin notebook.
 	//   "ZOOKEEPER" - The Zookeeper service.
-	//   "DRUID" - The Druid query engine.
 	OptionalComponents []string `json:"optionalComponents,omitempty"`
 
 	// Properties: Optional. The properties to set on daemon config
@@ -3164,43 +3241,11 @@ func (s *SparkSqlJob) MarshalJSON() ([]byte, error) {
 
 // Status: The Status type defines a logical error model that is
 // suitable for different programming environments, including REST APIs
-// and RPC APIs. It is used by gRPC (https://github.com/grpc). The error
-// model is designed to be:
-// Simple to use and understand for most users
-// Flexible enough to meet unexpected needsOverviewThe Status message
-// contains three pieces of data: error code, error message, and error
-// details. The error code should be an enum value of google.rpc.Code,
-// but it may accept additional error codes if needed. The error message
-// should be a developer-facing English message that helps developers
-// understand and resolve the error. If a localized user-facing error
-// message is needed, put the localized message in the error details or
-// localize it in the client. The optional error details may contain
-// arbitrary information about the error. There is a predefined set of
-// error detail types in the package google.rpc that can be used for
-// common error conditions.Language mappingThe Status message is the
-// logical representation of the error model, but it is not necessarily
-// the actual wire format. When the Status message is exposed in
-// different client libraries and different wire protocols, it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions in Java, but more likely mapped to some error codes in
-// C.Other usesThe error model and the Status message can be used in a
-// variety of environments, either with or without APIs, to provide a
-// consistent developer experience across different environments.Example
-// uses of this error model include:
-// Partial errors. If a service needs to return partial errors to the
-// client, it may embed the Status in the normal response to indicate
-// the partial errors.
-// Workflow errors. A typical workflow has multiple steps. Each step may
-// have a Status message for error reporting.
-// Batch operations. If a client uses batch request and batch response,
-// the Status message should be used directly inside batch response, one
-// for each error sub-response.
-// Asynchronous operations. If an API call embeds asynchronous operation
-// results in its response, the status of those operations should be
-// represented directly using the Status message.
-// Logging. If some API errors are stored in logs, the message Status
-// could be used directly after any stripping needed for
-// security/privacy reasons.
+// and RPC APIs. It is used by gRPC (https://github.com/grpc). Each
+// Status message contains three pieces of data: error code, error
+// message, and error details.You can find out more about this error
+// model and how to work with it in the API Design Guide
+// (https://cloud.google.com/apis/design/errors).
 type Status struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -4222,6 +4267,15 @@ func (r *ProjectsLocationsAutoscalingPoliciesService) GetIamPolicy(resource stri
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned. Acceptable values are 0 and 1. If the value is 0, or the
+// field is omitted, policy format version 1 will be returned.
+func (c *ProjectsLocationsAutoscalingPoliciesGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsLocationsAutoscalingPoliciesGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -4328,6 +4382,12 @@ func (c *ProjectsLocationsAutoscalingPoliciesGetIamPolicyCall) Do(opts ...google
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned. Acceptable values are 0 and 1. If the value is 0, or the field is omitted, policy format version 1 will be returned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -4366,7 +4426,8 @@ func (r *ProjectsLocationsAutoscalingPoliciesService) List(parent string) *Proje
 }
 
 // PageSize sets the optional parameter "pageSize": The maximum number
-// of results to return in each response.
+// of results to return in each response. Must be less than or equal to
+// 1000. Defaults to 100.
 func (c *ProjectsLocationsAutoscalingPoliciesListCall) PageSize(pageSize int64) *ProjectsLocationsAutoscalingPoliciesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -4486,7 +4547,7 @@ func (c *ProjectsLocationsAutoscalingPoliciesListCall) Do(opts ...googleapi.Call
 	//   ],
 	//   "parameters": {
 	//     "pageSize": {
-	//       "description": "Optional. The maximum number of results to return in each response.",
+	//       "description": "Optional. The maximum number of results to return in each response. Must be less than or equal to 1000. Defaults to 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -5421,6 +5482,15 @@ func (r *ProjectsLocationsWorkflowTemplatesService) GetIamPolicy(resource string
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned. Acceptable values are 0 and 1. If the value is 0, or the
+// field is omitted, policy format version 1 will be returned.
+func (c *ProjectsLocationsWorkflowTemplatesGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsLocationsWorkflowTemplatesGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -5527,6 +5597,12 @@ func (c *ProjectsLocationsWorkflowTemplatesGetIamPolicyCall) Do(opts ...googleap
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned. Acceptable values are 0 and 1. If the value is 0, or the field is omitted, policy format version 1 will be returned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -6897,21 +6973,29 @@ func (c *ProjectsRegionsAutoscalingPoliciesGetCall) Do(opts ...googleapi.CallOpt
 // method id "dataproc.projects.regions.autoscalingPolicies.getIamPolicy":
 
 type ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall struct {
-	s                   *Service
-	resource            string
-	getiampolicyrequest *GetIamPolicyRequest
-	urlParams_          gensupport.URLParams
-	ctx_                context.Context
-	header_             http.Header
+	s            *Service
+	resource     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
 }
 
 // GetIamPolicy: Gets the access control policy for a resource. Returns
 // an empty policy if the resource exists and does not have a policy
 // set.
-func (r *ProjectsRegionsAutoscalingPoliciesService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall {
+func (r *ProjectsRegionsAutoscalingPoliciesService) GetIamPolicy(resource string) *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall {
 	c := &ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
-	c.getiampolicyrequest = getiampolicyrequest
+	return c
+}
+
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned. Acceptable values are 0 and 1. If the value is 0, or the
+// field is omitted, policy format version 1 will be returned.
+func (c *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
 	return c
 }
 
@@ -6920,6 +7004,16 @@ func (r *ProjectsRegionsAutoscalingPoliciesService) GetIamPolicy(resource string
 // for more information.
 func (c *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall) Fields(s ...googleapi.Field) *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall {
 	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall) IfNoneMatch(entityTag string) *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall {
+	c.ifNoneMatch_ = entityTag
 	return c
 }
 
@@ -6946,17 +7040,15 @@ func (c *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall) doRequest(alt strin
 		reqHeaders[k] = v
 	}
 	reqHeaders.Set("User-Agent", c.s.userAgent())
-	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.getiampolicyrequest)
-	if err != nil {
-		return nil, err
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
 	}
-	reqHeaders.Set("Content-Type", "application/json")
+	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
 	c.urlParams_.Set("prettyPrint", "false")
 	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+resource}:getIamPolicy")
 	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("POST", urls, body)
+	req, err := http.NewRequest("GET", urls, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7007,12 +7099,18 @@ func (c *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall) Do(opts ...googleap
 	// {
 	//   "description": "Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:getIamPolicy",
-	//   "httpMethod": "POST",
+	//   "httpMethod": "GET",
 	//   "id": "dataproc.projects.regions.autoscalingPolicies.getIamPolicy",
 	//   "parameterOrder": [
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned. Acceptable values are 0 and 1. If the value is 0, or the field is omitted, policy format version 1 will be returned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -7022,9 +7120,6 @@ func (c *ProjectsRegionsAutoscalingPoliciesGetIamPolicyCall) Do(opts ...googleap
 	//     }
 	//   },
 	//   "path": "v1beta2/{+resource}:getIamPolicy",
-	//   "request": {
-	//     "$ref": "GetIamPolicyRequest"
-	//   },
 	//   "response": {
 	//     "$ref": "Policy"
 	//   },
@@ -7054,7 +7149,8 @@ func (r *ProjectsRegionsAutoscalingPoliciesService) List(parent string) *Project
 }
 
 // PageSize sets the optional parameter "pageSize": The maximum number
-// of results to return in each response.
+// of results to return in each response. Must be less than or equal to
+// 1000. Defaults to 100.
 func (c *ProjectsRegionsAutoscalingPoliciesListCall) PageSize(pageSize int64) *ProjectsRegionsAutoscalingPoliciesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -7174,7 +7270,7 @@ func (c *ProjectsRegionsAutoscalingPoliciesListCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "pageSize": {
-	//       "description": "Optional. The maximum number of results to return in each response.",
+	//       "description": "Optional. The maximum number of results to return in each response. Must be less than or equal to 1000. Defaults to 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -8337,6 +8433,15 @@ func (r *ProjectsRegionsClustersService) GetIamPolicy(resource string) *Projects
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned. Acceptable values are 0 and 1. If the value is 0, or the
+// field is omitted, policy format version 1 will be returned.
+func (c *ProjectsRegionsClustersGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsRegionsClustersGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -8443,6 +8548,12 @@ func (c *ProjectsRegionsClustersGetIamPolicyCall) Do(opts ...googleapi.CallOptio
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned. Acceptable values are 0 and 1. If the value is 0, or the field is omitted, policy format version 1 will be returned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -9736,6 +9847,15 @@ func (r *ProjectsRegionsJobsService) GetIamPolicy(resource string) *ProjectsRegi
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned. Acceptable values are 0 and 1. If the value is 0, or the
+// field is omitted, policy format version 1 will be returned.
+func (c *ProjectsRegionsJobsGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsRegionsJobsGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -9842,6 +9962,12 @@ func (c *ProjectsRegionsJobsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned. Acceptable values are 0 and 1. If the value is 0, or the field is omitted, policy format version 1 will be returned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -11156,6 +11282,15 @@ func (r *ProjectsRegionsOperationsService) GetIamPolicy(resource string) *Projec
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned. Acceptable values are 0 and 1. If the value is 0, or the
+// field is omitted, policy format version 1 will be returned.
+func (c *ProjectsRegionsOperationsGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsRegionsOperationsGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -11262,6 +11397,12 @@ func (c *ProjectsRegionsOperationsGetIamPolicyCall) Do(opts ...googleapi.CallOpt
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned. Acceptable values are 0 and 1. If the value is 0, or the field is omitted, policy format version 1 will be returned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -12236,6 +12377,15 @@ func (r *ProjectsRegionsWorkflowTemplatesService) GetIamPolicy(resource string) 
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned. Acceptable values are 0 and 1. If the value is 0, or the
+// field is omitted, policy format version 1 will be returned.
+func (c *ProjectsRegionsWorkflowTemplatesGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsRegionsWorkflowTemplatesGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -12342,6 +12492,12 @@ func (c *ProjectsRegionsWorkflowTemplatesGetIamPolicyCall) Do(opts ...googleapi.
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned. Acceptable values are 0 and 1. If the value is 0, or the field is omitted, policy format version 1 will be returned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
 	//       "location": "path",

@@ -1,7 +1,7 @@
 ---
 layout: "commands-state"
 page_title: "Command: state show"
-sidebar_current: "docs-state-sub-show"
+sidebar_current: "docs-commands-state-sub-show"
 description: |-
   The `terraform state show` command is used to show the attributes of a single resource in the Terraform state.
 ---
@@ -23,7 +23,7 @@ The attributes are listed in alphabetical order (with the except of "id"
 which is always at the top). They are outputted in a way that is easy
 to parse on the command-line.
 
-This command requires a address that points to a single resource in the
+This command requires an address that points to a single resource in the
 state. Addresses are
 in [resource addressing format](/docs/commands/state/addressing.html).
 

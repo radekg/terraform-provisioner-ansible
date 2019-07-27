@@ -1,8 +1,8 @@
-hash: 46b64f4e1828a6e2e1cb017df24018047bc5209dd0cd3b721e5646836390ad52
-updated: 2019-04-02T00:46:39.121922+02:00
+hash: 146a0b3c18d3959b2a5163c178e733425d588761b25db4d20fa7cdd2192e137e
+updated: 2019-07-28T00:22:02.181009+02:00
 imports:
 - name: cloud.google.com/go
-  version: 914ec4c1e2b7fdfddf146016ffc3fc69f4f2309e
+  version: 5a21f3e59ff498bc7a9c6c61d000b3b23b7fa991
   subpackages:
   - compute/metadata
   - iam
@@ -12,7 +12,7 @@ imports:
   - internal/version
   - storage
 - name: github.com/agext/levenshtein
-  version: 0ded9c86537917af2ff89bc9c78de6bd58477894
+  version: 5d192579c10bf1e3d17dd5682a98601480190f5d
 - name: github.com/apparentlymart/go-cidr
   version: 1755c023625ec3a84979b90841a1ab067ed6c071
   subpackages:
@@ -70,9 +70,9 @@ imports:
 - name: github.com/bgentry/speakeasy
   version: 4aabc24848ce5fd31929f7d1e4ea74d3709c14cd
 - name: github.com/blang/semver
-  version: 3c1074078d32d767e08ab2c8564867292da86926
+  version: 1a9109f8c4a1d669a78442f567dfe8eedf982793
 - name: github.com/ChrisTrenkamp/goxpath
-  version: c385f95c6022e7756e91beac5f5510872f7dcb7d
+  version: c5096ec8773dd9f554971472081ddfbb0782334e
   subpackages:
   - internal/execxp
   - internal/execxp/findutil
@@ -94,9 +94,9 @@ imports:
 - name: github.com/fatih/color
   version: 3f9d52f7176a6927daacff70a3e8d1dc2025c53e
 - name: github.com/gofrs/uuid
-  version: 2593f3d8aa45b432942fe24758a279312d0f8719
+  version: abfe1881e60ef34074c1b8d8c63b42565c356ed6
 - name: github.com/golang/protobuf
-  version: d3c38a4eb4970272b87a425ae00ccc4548e2f9bb
+  version: b4deda0973fb4c70b50d226b1af49f3da59f5265
   subpackages:
   - proto
   - protoc-gen-go/descriptor
@@ -105,7 +105,7 @@ imports:
   - ptypes/duration
   - ptypes/timestamp
 - name: github.com/google/go-cmp
-  version: 6f77996f0c42f7b84e5a2b252227263f93432e9b
+  version: 1b316004397f1f336546ca058ddb5b95c41a8772
   subpackages:
   - cmp
   - cmp/internal/diff
@@ -113,23 +113,23 @@ imports:
   - cmp/internal/function
   - cmp/internal/value
 - name: github.com/googleapis/gax-go
-  version: beaecbbdd8af86aa3acf14180d53828ce69400b2
+  version: bd5b16380fd03dc758d11cef74ba2e3bc8b0e8c2
   subpackages:
   - v2
 - name: github.com/hashicorp/errwrap
   version: 8a6fb523712970c966eefc6b39ed2c5e74880354
 - name: github.com/hashicorp/go-cleanhttp
-  version: eda1e5db218aad1db63ca4642c8906b26bcf2744
+  version: d3fcbee8e1810ecee4bdbf415f42f84cfd0e3361
 - name: github.com/hashicorp/go-getter
-  version: 69dec094fde6ac8d2659bff743fc0b2096ccb54f
+  version: 30a49e438715626318447d8ac7166bb425b695dc
   subpackages:
   - helper/url
 - name: github.com/hashicorp/go-hclog
-  version: 6907afbebd2eef854f0be9194eb79b0ba75d7b29
+  version: f1d61ad5398ffe4f2eb61eacb088340d44e99672
 - name: github.com/hashicorp/go-multierror
-  version: 886a7fbe3eb1c874d46f623bfa70af45f425b3d1
+  version: bdca7bb83f603b80ef756bb953fe1dafa9cd00a2
 - name: github.com/hashicorp/go-plugin
-  version: 52e1c4730856c1438ced7597c9b5c585a7bd06a2
+  version: 9e3e1c37db188a1acb66561ee0ed4bf4d5e77554
   subpackages:
   - internal/plugin
 - name: github.com/hashicorp/go-safetemp
@@ -137,13 +137,13 @@ imports:
 - name: github.com/hashicorp/go-uuid
   version: 4f571afc59f3043a65f8fe6bf46d887b10a01d43
 - name: github.com/hashicorp/go-version
-  version: d40cf49b3a77bba84a7afdbd7f1dc295d114efb1
+  version: 192140e6f3e645d971b134d4e35b5191adb9dfd3
 - name: github.com/hashicorp/golang-lru
-  version: 7087cb70de9f7a8bc0a10c375cb0d2280a8edf9c
+  version: 20f1fb78b0740ba8c3cb143a61e86ba5c8669768
   subpackages:
   - simplelru
 - name: github.com/hashicorp/hcl
-  version: 65a6292f0157eff210d03ed1bf6c59b190b8b906
+  version: cf7d376da96d9cecec7c7483cec2735efe54a410
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -154,8 +154,10 @@ imports:
   - json/scanner
   - json/token
 - name: github.com/hashicorp/hcl2
-  version: 3fb4ed0d9260f5c187470d0d879c7b598d5899d1
+  version: 0c3fe388e4503d9717d39c315e8c7ee2433f752a
   subpackages:
+  - ext/dynblock
+  - ext/typeexpr
   - gohcl
   - hcl
   - hcl/hclsyntax
@@ -170,8 +172,9 @@ imports:
   - parser
   - scanner
 - name: github.com/hashicorp/terraform
-  version: d48069534832fdb09919a5fe46500755540cbf0a
+  version: 0facd03d3a035268be7bd992cf8d088325f9d761
   subpackages:
+  - addrs
   - builtin/provisioners/local-exec
   - communicator
   - communicator/remote
@@ -179,21 +182,35 @@ imports:
   - communicator/ssh
   - communicator/winrm
   - config
-  - config/configschema
   - config/hcl2shim
   - config/module
+  - configs
+  - configs/configschema
   - dag
   - flatmap
+  - helper/didyoumean
   - helper/hashcode
   - helper/hilmapstructure
+  - helper/plugin
   - helper/schema
   - httpclient
+  - internal/tfplugin5
+  - lang
+  - lang/blocktoattr
+  - lang/funcs
   - moduledeps
+  - plans
+  - plans/objchange
   - plugin
+  - plugin/convert
   - plugin/discovery
+  - providers
+  - provisioners
   - registry
   - registry/regsrc
   - registry/response
+  - states
+  - states/statefile
   - svchost
   - svchost/auth
   - svchost/disco
@@ -207,7 +224,7 @@ imports:
 - name: github.com/kr/fs
   version: 1455def202f6e05b95cc7bfc7e8ae67ae5141eba
 - name: github.com/masterzen/simplexml
-  version: 4572e39b1ab9fe03ee513ce6fc7e289e98482190
+  version: 31eea30827864c9ab643aa5a0d5b2d4988ec8409
   subpackages:
   - dom
 - name: github.com/masterzen/winrm
@@ -215,9 +232,9 @@ imports:
   subpackages:
   - soap
 - name: github.com/mattn/go-colorable
-  version: 3a70a971f94a22f2fa562ffcc7a0eb45f5daf045
+  version: c52ace132bf44798a21f16fdafaaafbf329519e2
 - name: github.com/mattn/go-isatty
-  version: c2a7a6ca930a4cd0bc33a3f298eb71960732a3a7
+  version: da60ac76bf7019a8b005f8dd1ad9d1a0e6434155
 - name: github.com/mitchellh/cli
   version: 3d22a244be8aa6fb16ac24af0e195c08b7d973aa
 - name: github.com/mitchellh/copystructure
@@ -235,7 +252,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: 3536a929edddb9a5b34bd6861dc4a9647cb459fe
 - name: github.com/mitchellh/reflectwalk
-  version: eecee6c969c02c8cc2ae48e1e269843ae8590796
+  version: 3e2c75dfad4fbf904b58782a80fd595c760ad185
 - name: github.com/nu7hatch/gouuid
   version: 179d4d0c4d8d407a32af483c2354df1d2c91e6c3
 - name: github.com/oklog/run
@@ -249,23 +266,35 @@ imports:
 - name: github.com/pkg/sftp
   version: a713b07e6d90e1831d7fefcb69f1310edb3783ae
 - name: github.com/posener/complete
-  version: af07aa5181b38e3fa57d053328e44aaa27da5999
+  version: 2f2ff270a9f6adcef8351b1bdf5319b5d612b53f
   subpackages:
   - cmd
   - cmd/install
-  - match
 - name: github.com/satori/go.uuid
   version: b2ce2384e17bbe0c6d34077efa39dbab3e09123b
+- name: github.com/spf13/afero
+  version: 588a75ec4f32903aa5e39a2619ba6a4631e28424
+  subpackages:
+  - mem
 - name: github.com/ulikunitz/xz
   version: 6f934d456d51e742b4eeab20d925a827ef22320a
   subpackages:
   - internal/hash
   - internal/xlog
   - lzma
+- name: github.com/vmihailenco/msgpack
+  version: 70e3a1417f36cc7023e1209a4478e56e32d2a50c
+  subpackages:
+  - codes
+- name: github.com/vmihailenco/tagparser
+  version: 30ae5c3178272fa372e1e9c17e68f181e0ebe285
+  subpackages:
+  - internal
+  - internal/parser
 - name: github.com/xanzy/ssh-agent
   version: 6a3e2ff9e7c564f36873c2e36413f634534f1c44
 - name: github.com/zclconf/go-cty
-  version: fd76348b9329dc6f3bd4b87a45ae9e5fb72bffbc
+  version: 01e2a242a65eb6f8ee372ddcea68c111fd4da15e
   subpackages:
   - cty
   - cty/convert
@@ -273,9 +302,12 @@ imports:
   - cty/function/stdlib
   - cty/gocty
   - cty/json
+  - cty/msgpack
   - cty/set
+- name: github.com/zclconf/go-cty-yaml
+  version: 7a838f9d8c6346f0043dd40f764db8ae6ccb113d
 - name: go.opencensus.io
-  version: 46618d076d80f4eab85adbcb3be9a370be1dc4e0
+  version: b4a14686f0a98096416fe1b4cb848e384fb2b22b
   subpackages:
   - internal
   - internal/tagencoding
@@ -293,7 +325,7 @@ imports:
   - trace/propagation
   - trace/tracestate
 - name: golang.org/x/crypto
-  version: a5d413f7728c81fb97d96a2b722368945f651e78
+  version: de0752318171da717af4ce24d0a2e8626afaeb11
   subpackages:
   - bcrypt
   - blowfish
@@ -315,7 +347,7 @@ imports:
   - ssh/agent
   - ssh/knownhosts
 - name: golang.org/x/net
-  version: 74de082e2cca95839e88aa0aeee5aadf6ce7710f
+  version: 65e2d4e15006aab9813ff8769e768bbf4bb667a0
   subpackages:
   - context
   - context/ctxhttp
@@ -329,19 +361,18 @@ imports:
   - internal/timeseries
   - trace
 - name: golang.org/x/oauth2
-  version: c85d3e98c914e3a33234ad863dcbff5dbc425bb8
+  version: 0f29369cfe4552d0e4bcddc57cc75f4d7e672a33
   subpackages:
   - google
   - internal
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: 9eb1bfa1ce65ae8a6ff3114b0aaf9a41a6cf3560
+  version: fc99dfbffb4e5ed5758a37e31dd861afe285406b
   subpackages:
-  - cpu
   - unix
 - name: golang.org/x/text
-  version: e3703dcdd614d2d7488fff034c75c551ea25da95
+  version: 342b2e1fbaa52c93f31447ad2c6abc048c63e475
   subpackages:
   - encoding
   - encoding/charmap
@@ -364,7 +395,7 @@ imports:
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/api
-  version: c30064f755a065acb7c5446e8b69067240dcdd39
+  version: 025bef8d2de479daa7cb44888be36177e7d94a19
   subpackages:
   - gensupport
   - googleapi
@@ -379,6 +410,7 @@ imports:
 - name: google.golang.org/appengine
   version: 54a98f90d1c46b7731eb8fb305d2a321c30ef610
   subpackages:
+  - datastore
   - internal
   - internal/app_identity
   - internal/base
@@ -389,14 +421,15 @@ imports:
   - internal/urlfetch
   - urlfetch
 - name: google.golang.org/genproto
-  version: f467c93bbac2133ff463e1f93d18d8f9f3f04451
+  version: c506a9f9061087022822e8da603a52fc387115a8
   subpackages:
   - googleapis/api/annotations
   - googleapis/iam/v1
   - googleapis/rpc/code
   - googleapis/rpc/status
+  - googleapis/type/expr
 - name: google.golang.org/grpc
-  version: f1437f7cc5fa7525032e27aa5fdc15e288220c4e
+  version: 120728e1f775e40a2a764341939b78d666b08260
   subpackages:
   - balancer
   - balancer/base
@@ -413,6 +446,7 @@ imports:
   - health/grpc_health_v1
   - internal
   - internal/backoff
+  - internal/balancerload
   - internal/binarylog
   - internal/channelz
   - internal/envconfig
@@ -427,6 +461,7 @@ imports:
   - resolver
   - resolver/dns
   - resolver/passthrough
+  - serviceconfig
   - stats
   - status
   - tap

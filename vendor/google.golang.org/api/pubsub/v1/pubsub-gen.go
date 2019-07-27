@@ -241,9 +241,8 @@ func (s *AcknowledgeRequest) MarshalJSON() ([]byte, error) {
 
 // Binding: Associates `members` with a `role`.
 type Binding struct {
-	// Condition: Unimplemented. The condition that is associated with this
-	// binding.
-	// NOTE: an unsatisfied condition will not allow user access via
+	// Condition: The condition that is associated with this binding.
+	// NOTE: An unsatisfied condition will not allow user access via
 	// current
 	// binding. Different bindings, including their conditions, are
 	// examined
@@ -658,6 +657,43 @@ type ListTopicsResponse struct {
 
 func (s *ListTopicsResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod ListTopicsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type MessageStoragePolicy struct {
+	// AllowedPersistenceRegions: A list of IDs of GCP regions where
+	// messages that are published to the topic
+	// may be persisted in storage. Messages published by publishers running
+	// in
+	// non-allowed GCP regions (or running outside of GCP altogether) will
+	// be
+	// routed for storage in one of the allowed regions. An empty list means
+	// that
+	// no regions are allowed, and is not a valid configuration.
+	AllowedPersistenceRegions []string `json:"allowedPersistenceRegions,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "AllowedPersistenceRegions") to unconditionally include in API
+	// requests. By default, fields with empty values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g.
+	// "AllowedPersistenceRegions") to include in API requests with the JSON
+	// null value. By default, fields with empty values are omitted from API
+	// requests. However, any field with an empty value appearing in
+	// NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MessageStoragePolicy) MarshalJSON() ([]byte, error) {
+	type NoMethod MessageStoragePolicy
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1410,11 +1446,6 @@ type Subscription struct {
 	// *default policy* with `ttl` of 31 days will be used. The minimum
 	// allowed
 	// value for `expiration_policy.ttl` is 1 day.
-	// <b>BETA:</b> This feature is part of a beta release. This API might
-	// be
-	// changed in backward-incompatible ways and is not recommended for
-	// production
-	// use. It is not subject to any SLA or deprecation policy.
 	ExpirationPolicy *ExpirationPolicy `json:"expirationPolicy,omitempty"`
 
 	// Labels: See <a href="https://cloud.google.com/pubsub/docs/labels">
@@ -1460,10 +1491,11 @@ type Subscription struct {
 	// they are
 	// acknowledged, until they fall out of the
 	// `message_retention_duration`
-	// window. This must be true if you would like to
+	// window. This must be true if you would like
+	// to
 	// <a
-	// href="https://cloud.google.com/pubsub/docs/replay-overview#seek_to_a_t
-	// ime">
+	// href="https://cloud.google.com/pubsub/docs/replay-overview#seek_
+	// to_a_time">
 	// Seek to a timestamp</a>.
 	RetainAckedMessages bool `json:"retainAckedMessages,omitempty"`
 
@@ -1575,10 +1607,25 @@ func (s *TestIamPermissionsResponse) MarshalJSON() ([]byte, error) {
 
 // Topic: A topic resource.
 type Topic struct {
+	// KmsKeyName: The resource name of the Cloud KMS CryptoKey to be used
+	// to protect access
+	// to messages published on this topic.
+	//
+	// The expected format is
+	// `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
+	KmsKeyName string `json:"kmsKeyName,omitempty"`
+
 	// Labels: See <a href="https://cloud.google.com/pubsub/docs/labels">
 	// Creating and
 	// managing labels</a>.
 	Labels map[string]string `json:"labels,omitempty"`
+
+	// MessageStoragePolicy: Policy constraining the set of Google Cloud
+	// Platform regions where messages
+	// published to the topic may be stored. If not present, then no
+	// constraints
+	// are in effect.
+	MessageStoragePolicy *MessageStoragePolicy `json:"messageStoragePolicy,omitempty"`
 
 	// Name: The name of the topic. It must have the
 	// format
@@ -1597,7 +1644,7 @@ type Topic struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Labels") to
+	// ForceSendFields is a list of field names (e.g. "KmsKeyName") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -1605,8 +1652,8 @@ type Topic struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Labels") to include in API
-	// requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "KmsKeyName") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -1760,12 +1807,13 @@ type ProjectsSnapshotsCreateCall struct {
 // name for this snapshot on the same project as the subscription,
 // conforming
 // to the
-// [resource name
-// format](https://cloud.google.com/pubsub/docs/admin#resource_names).
-// Th
-// e generated name is populated in the returned Snapshot object. Note
-// that
-// for REST API requests, you must specify a name in the request.
+// [resource
+// name
+// format](https://cloud.google.com/pubsub/docs/admin#resource_names
+// ). The
+// generated name is populated in the returned Snapshot object. Note
+// that for
+// REST API requests, you must specify a name in the request.
 func (r *ProjectsSnapshotsService) Create(name string, createsnapshotrequest *CreateSnapshotRequest) *ProjectsSnapshotsCreateCall {
 	c := &ProjectsSnapshotsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1863,7 +1911,7 @@ func (c *ProjectsSnapshotsCreateCall) Do(opts ...googleapi.CallOption) (*Snapsho
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a snapshot from the requested subscription. Snapshots are used in\n\u003ca href=\"https://cloud.google.com/pubsub/docs/replay-overview\"\u003eSeek\u003c/a\u003e\noperations, which allow\nyou to manage message acknowledgments in bulk. That is, you can set the\nacknowledgment state of messages in an existing subscription to the state\ncaptured by a snapshot.\n\u003cbr\u003e\u003cbr\u003eIf the snapshot already exists, returns `ALREADY_EXISTS`.\nIf the requested subscription doesn't exist, returns `NOT_FOUND`.\nIf the backlog in the subscription is too old -- and the resulting snapshot\nwould expire in less than 1 hour -- then `FAILED_PRECONDITION` is returned.\nSee also the `Snapshot.expire_time` field. If the name is not provided in\nthe request, the server will assign a random\nname for this snapshot on the same project as the subscription, conforming\nto the\n[resource name format](https://cloud.google.com/pubsub/docs/admin#resource_names).\nThe generated name is populated in the returned Snapshot object. Note that\nfor REST API requests, you must specify a name in the request.",
+	//   "description": "Creates a snapshot from the requested subscription. Snapshots are used in\n\u003ca href=\"https://cloud.google.com/pubsub/docs/replay-overview\"\u003eSeek\u003c/a\u003e\noperations, which allow\nyou to manage message acknowledgments in bulk. That is, you can set the\nacknowledgment state of messages in an existing subscription to the state\ncaptured by a snapshot.\n\u003cbr\u003e\u003cbr\u003eIf the snapshot already exists, returns `ALREADY_EXISTS`.\nIf the requested subscription doesn't exist, returns `NOT_FOUND`.\nIf the backlog in the subscription is too old -- and the resulting snapshot\nwould expire in less than 1 hour -- then `FAILED_PRECONDITION` is returned.\nSee also the `Snapshot.expire_time` field. If the name is not provided in\nthe request, the server will assign a random\nname for this snapshot on the same project as the subscription, conforming\nto the\n[resource name\nformat](https://cloud.google.com/pubsub/docs/admin#resource_names). The\ngenerated name is populated in the returned Snapshot object. Note that for\nREST API requests, you must specify a name in the request.",
 	//   "flatPath": "v1/projects/{projectsId}/snapshots/{snapshotsId}",
 	//   "httpMethod": "PUT",
 	//   "id": "pubsub.projects.snapshots.create",
@@ -2215,6 +2263,18 @@ func (r *ProjectsSnapshotsService) GetIamPolicy(resource string) *ProjectsSnapsh
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned.
+// Acceptable values are 0 and 1.
+// If the value is 0, or the field is omitted, policy format version 1
+// will be
+// returned.
+func (c *ProjectsSnapshotsGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsSnapshotsGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -2321,6 +2381,12 @@ func (c *ProjectsSnapshotsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*P
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned.\nAcceptable values are 0 and 1.\nIf the value is 0, or the field is omitted, policy format version 1 will be\nreturned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested.\nSee the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -3158,13 +3224,13 @@ type ProjectsSubscriptionsCreateCall struct {
 // name for this subscription on the same project as the topic,
 // conforming
 // to the
-// [resource name
-// format](https://cloud.google.com/pubsub/docs/admin#resource_names).
-// Th
-// e generated name is populated in the returned Subscription
-// object.
-// Note that for REST API requests, you must specify a name in the
-// request.
+// [resource
+// name
+// format](https://cloud.google.com/pubsub/docs/admin#resource_names
+// ). The
+// generated name is populated in the returned Subscription object. Note
+// that
+// for REST API requests, you must specify a name in the request.
 func (r *ProjectsSubscriptionsService) Create(name string, subscription *Subscription) *ProjectsSubscriptionsCreateCall {
 	c := &ProjectsSubscriptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3262,7 +3328,7 @@ func (c *ProjectsSubscriptionsCreateCall) Do(opts ...googleapi.CallOption) (*Sub
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a subscription to a given topic. See the\n\u003ca href=\"https://cloud.google.com/pubsub/docs/admin#resource_names\"\u003e\nresource name rules\u003c/a\u003e.\nIf the subscription already exists, returns `ALREADY_EXISTS`.\nIf the corresponding topic doesn't exist, returns `NOT_FOUND`.\n\nIf the name is not provided in the request, the server will assign a random\nname for this subscription on the same project as the topic, conforming\nto the\n[resource name format](https://cloud.google.com/pubsub/docs/admin#resource_names).\nThe generated name is populated in the returned Subscription object.\nNote that for REST API requests, you must specify a name in the request.",
+	//   "description": "Creates a subscription to a given topic. See the\n\u003ca href=\"https://cloud.google.com/pubsub/docs/admin#resource_names\"\u003e\nresource name rules\u003c/a\u003e.\nIf the subscription already exists, returns `ALREADY_EXISTS`.\nIf the corresponding topic doesn't exist, returns `NOT_FOUND`.\n\nIf the name is not provided in the request, the server will assign a random\nname for this subscription on the same project as the topic, conforming\nto the\n[resource name\nformat](https://cloud.google.com/pubsub/docs/admin#resource_names). The\ngenerated name is populated in the returned Subscription object. Note that\nfor REST API requests, you must specify a name in the request.",
 	//   "flatPath": "v1/projects/{projectsId}/subscriptions/{subscriptionsId}",
 	//   "httpMethod": "PUT",
 	//   "id": "pubsub.projects.subscriptions.create",
@@ -3596,6 +3662,18 @@ func (r *ProjectsSubscriptionsService) GetIamPolicy(resource string) *ProjectsSu
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned.
+// Acceptable values are 0 and 1.
+// If the value is 0, or the field is omitted, policy format version 1
+// will be
+// returned.
+func (c *ProjectsSubscriptionsGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsSubscriptionsGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -3702,6 +3780,12 @@ func (c *ProjectsSubscriptionsGetIamPolicyCall) Do(opts ...googleapi.CallOption)
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned.\nAcceptable values are 0 and 1.\nIf the value is 0, or the field is omitted, policy format version 1 will be\nreturned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested.\nSee the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -5391,6 +5475,18 @@ func (r *ProjectsTopicsService) GetIamPolicy(resource string) *ProjectsTopicsGet
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned.
+// Acceptable values are 0 and 1.
+// If the value is 0, or the field is omitted, policy format version 1
+// will be
+// returned.
+func (c *ProjectsTopicsGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsTopicsGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -5497,6 +5593,12 @@ func (c *ProjectsTopicsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Poli
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned.\nAcceptable values are 0 and 1.\nIf the value is 0, or the field is omitted, policy format version 1 will be\nreturned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested.\nSee the operation documentation for the appropriate value for this field.",
 	//       "location": "path",

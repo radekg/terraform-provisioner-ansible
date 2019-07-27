@@ -1,32 +1,30 @@
 package dom
 
 import (
-	. "gopkg.in/check.v1"
 	"testing"
+
+	. "github.com/google/go-cmp/cmp"
 )
 
-// Hook up gocheck into the "go test" runner.
-func Test(t *testing.T) { TestingT(t) }
-
-type DomSuite struct{}
-
-var _ = Suite(&DomSuite{})
-
-func (s *DomSuite) TestEmptyDocument(c *C) {
+func TestEmptyDocument(t *testing.T) {
 	doc := CreateDocument()
 	doc.PrettyPrint = true
-	c.Assert(doc.String(), Equals, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n")
+	if diff := Diff(doc.String(), "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"); diff != "" {
+		t.Fatalf("Unexpected output: %s", diff)
+	}
 }
 
-func (s *DomSuite) TestOneEmptyNode(c *C) {
+func TestOneEmptyNode(t *testing.T) {
 	doc := CreateDocument()
 	doc.PrettyPrint = true
 	root := CreateElement("root")
 	doc.SetRoot(root)
-	c.Assert(doc.String(), Equals, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<root/>\n")
+	if diff := Diff(doc.String(), "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<root/>\n"); diff != "" {
+		t.Fatalf("Unexpected output: %s", diff)
+	}
 }
 
-func (s *DomSuite) TestMoreNodes(c *C) {
+func TestMoreNodes(t *testing.T) {
 	doc := CreateDocument()
 	doc.PrettyPrint = true
 	root := CreateElement("root")
@@ -37,7 +35,7 @@ func (s *DomSuite) TestMoreNodes(c *C) {
 	node2 := CreateElement("node2")
 	root.AddChild(node2)
 	doc.SetRoot(root)
-	
+
 	expected := `<?xml version="1.0" encoding="utf-8" ?>
 <root>
   <node1>
@@ -46,11 +44,13 @@ func (s *DomSuite) TestMoreNodes(c *C) {
   <node2/>
 </root>
 `
-	
-	c.Assert(doc.String(), Equals, expected)
+
+	if diff := Diff(doc.String(), expected); diff != "" {
+		t.Fatalf("Unexpected output: %s", diff)
+	}
 }
 
-func (s *DomSuite) TestAttributes(c *C) {
+func TestAttributes(t *testing.T) {
 	doc := CreateDocument()
 	doc.PrettyPrint = true
 	root := CreateElement("root")
@@ -58,16 +58,18 @@ func (s *DomSuite) TestAttributes(c *C) {
 	node1.SetAttr("attr1", "pouet")
 	root.AddChild(node1)
 	doc.SetRoot(root)
-	
+
 	expected := `<?xml version="1.0" encoding="utf-8" ?>
 <root>
   <node1 attr1="pouet"/>
 </root>
 `
-	c.Assert(doc.String(), Equals, expected)
+	if diff := Diff(doc.String(), expected); diff != "" {
+		t.Fatalf("Unexpected output: %s", diff)
+	}
 }
 
-func (s *DomSuite) TestContent(c *C) {
+func TestContent(t *testing.T) {
 	doc := CreateDocument()
 	doc.PrettyPrint = true
 	root := CreateElement("root")
@@ -75,31 +77,34 @@ func (s *DomSuite) TestContent(c *C) {
 	node1.SetContent("this is a text content")
 	root.AddChild(node1)
 	doc.SetRoot(root)
-	
+
 	expected := `<?xml version="1.0" encoding="utf-8" ?>
 <root>
   <node1>this is a text content</node1>
 </root>
 `
-	c.Assert(doc.String(), Equals, expected)
+	if diff := Diff(doc.String(), expected); diff != "" {
+		t.Fatalf("Unexpected output: %s", diff)
+	}
 }
 
-func (s *DomSuite) TestNamespace(c *C) {
+func TestNamespace(t *testing.T) {
 	doc := CreateDocument()
 	doc.PrettyPrint = true
 	root := CreateElement("root")
-	root.DeclareNamespace(Namespace { Prefix: "a", Uri: "http://schemas.xmlsoap.org/ws/2004/08/addressing"})
+	root.DeclareNamespace(Namespace{Prefix: "a", Uri: "http://schemas.xmlsoap.org/ws/2004/08/addressing"})
 	node1 := CreateElement("node1")
 	root.AddChild(node1)
 	node1.SetNamespace("a", "http://schemas.xmlsoap.org/ws/2004/08/addressing")
 	node1.SetContent("this is a text content")
 	doc.SetRoot(root)
-	
+
 	expected := `<?xml version="1.0" encoding="utf-8" ?>
 <root xmlns:a="http://schemas.xmlsoap.org/ws/2004/08/addressing">
   <a:node1>this is a text content</a:node1>
 </root>
 `
-	c.Assert(doc.String(), Equals, expected)
+	if diff := Diff(doc.String(), expected); diff != "" {
+		t.Fatalf("Unexpected output: %s", diff)
+	}
 }
-

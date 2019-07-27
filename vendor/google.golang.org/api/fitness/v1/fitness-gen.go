@@ -400,10 +400,8 @@ type AggregateRequest struct {
 	// since epoch, inclusive.
 	EndTimeMillis int64 `json:"endTimeMillis,omitempty,string"`
 
-	// FilteredDataQualityStandard: DO NOT POPULATE THIS FIELD. As data
-	// quality standards are deprecated, filling it in will result in no
-	// data sources being returned. It will be removed in a future version
-	// entirely.
+	// FilteredDataQualityStandard: DO NOT POPULATE THIS FIELD. It is
+	// ignored.
 	//
 	// Possible values:
 	//   "dataQualityBloodGlucoseIso151972003"
@@ -803,8 +801,8 @@ type DataSource struct {
 	// number:device.manufacturer:device.model:device.uid:dataStreamName
 	//
 	//
-	// When any of the optional fields that comprise of the data stream ID
-	// are blank, they will be omitted from the data stream ID. The minimum
+	// When any of the optional fields that make up the data stream ID are
+	// absent, they will be omitted from the data stream ID. The minimum
 	// viable data stream ID would be: type:dataType.name:developer project
 	// number
 	//

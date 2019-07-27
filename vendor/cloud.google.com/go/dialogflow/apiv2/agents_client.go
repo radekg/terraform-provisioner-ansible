@@ -18,7 +18,9 @@ package dialogflow
 
 import (
 	"context"
+	"fmt"
 	"math"
+	"net/url"
 	"time"
 
 	"cloud.google.com/go/longrunning"
@@ -38,6 +40,8 @@ import (
 
 // AgentsCallOptions contains the retry settings for each method of AgentsClient.
 type AgentsCallOptions struct {
+	SetAgent     []gax.CallOption
+	DeleteAgent  []gax.CallOption
 	GetAgent     []gax.CallOption
 	SearchAgents []gax.CallOption
 	TrainAgent   []gax.CallOption
@@ -69,6 +73,8 @@ func defaultAgentsCallOptions() *AgentsCallOptions {
 		},
 	}
 	return &AgentsCallOptions{
+		SetAgent:     retry[[2]string{"default", "idempotent"}],
+		DeleteAgent:  retry[[2]string{"default", "idempotent"}],
 		GetAgent:     retry[[2]string{"default", "idempotent"}],
 		SearchAgents: retry[[2]string{"default", "idempotent"}],
 		TrainAgent:   retry[[2]string{"default", "idempotent"}],
@@ -107,30 +113,29 @@ type AgentsClient struct {
 // in your app, product, or service to determine user intent and respond to the
 // user in a natural way.
 //
-// After you create an agent, you can add
-// [Intents][google.cloud.dialogflow.v2.Intents],
-// [Contexts][google.cloud.dialogflow.v2.Contexts], [Entity
-// Types][google.cloud.dialogflow.v2.EntityTypes],
-// [Webhooks][google.cloud.dialogflow.v2.WebhookRequest], and so on to manage
-// the flow of a conversation and match user input to predefined intents and
-// actions.
+// After you create an agent, you can add [Intents][google.cloud.dialogflow.v2.Intents], [Contexts][google.cloud.dialogflow.v2.Contexts],
+// [Entity Types][google.cloud.dialogflow.v2.EntityTypes], [Webhooks][google.cloud.dialogflow.v2.WebhookRequest], and so on to
+// manage the flow of a conversation and match user input to predefined intents
+// and actions.
 //
 // You can create an agent using both Dialogflow Standard Edition and
 // Dialogflow Enterprise Edition. For details, see
-// Dialogflow Editions (at /dialogflow-enterprise/docs/editions).
+// Dialogflow
+// Editions (at https://cloud.google.com/dialogflow/docs/editions).
 //
 // You can save your agent for backup or versioning by exporting the agent by
-// using the [ExportAgent][google.cloud.dialogflow.v2.Agents.ExportAgent]
-// method. You can import a saved agent by using the
-// [ImportAgent][google.cloud.dialogflow.v2.Agents.ImportAgent] method.
+// using the [ExportAgent][google.cloud.dialogflow.v2.Agents.ExportAgent] method. You can import a saved
+// agent by using the [ImportAgent][google.cloud.dialogflow.v2.Agents.ImportAgent] method.
 //
 // Dialogflow provides several
-// prebuilt agents (at https://dialogflow.com/docs/prebuilt-agents) for common
-// conversation scenarios such as determining a date and time, converting
-// currency, and so on.
+// prebuilt
+// agents (at https://cloud.google.com/dialogflow/docs/agents-prebuilt)
+// for common conversation scenarios such as determining a date and time,
+// converting currency, and so on.
 //
 // For more information about agents, see the
-// Dialogflow documentation (at https://dialogflow.com/docs/agents).
+// Dialogflow
+// documentation (at https://cloud.google.com/dialogflow/docs/agents-overview).
 func NewAgentsClient(ctx context.Context, opts ...option.ClientOption) (*AgentsClient, error) {
 	conn, err := transport.DialGRPC(ctx, append(defaultAgentsClientOptions(), opts...)...)
 	if err != nil {
@@ -177,9 +182,40 @@ func (c *AgentsClient) setGoogleClientInfo(keyval ...string) {
 	c.xGoogMetadata = metadata.Pairs("x-goog-api-client", gax.XGoogHeader(kv...))
 }
 
+// SetAgent creates/updates the specified agent.
+func (c *AgentsClient) SetAgent(ctx context.Context, req *dialogflowpb.SetAgentRequest, opts ...gax.CallOption) (*dialogflowpb.Agent, error) {
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "agent.parent", url.QueryEscape(req.GetAgent().GetParent())))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
+	opts = append(c.CallOptions.SetAgent[0:len(c.CallOptions.SetAgent):len(c.CallOptions.SetAgent)], opts...)
+	var resp *dialogflowpb.Agent
+	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
+		var err error
+		resp, err = c.agentsClient.SetAgent(ctx, req, settings.GRPC...)
+		return err
+	}, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// DeleteAgent deletes the specified agent.
+func (c *AgentsClient) DeleteAgent(ctx context.Context, req *dialogflowpb.DeleteAgentRequest, opts ...gax.CallOption) error {
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent())))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
+	opts = append(c.CallOptions.DeleteAgent[0:len(c.CallOptions.DeleteAgent):len(c.CallOptions.DeleteAgent)], opts...)
+	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
+		var err error
+		_, err = c.agentsClient.DeleteAgent(ctx, req, settings.GRPC...)
+		return err
+	}, opts...)
+	return err
+}
+
 // GetAgent retrieves the specified agent.
 func (c *AgentsClient) GetAgent(ctx context.Context, req *dialogflowpb.GetAgentRequest, opts ...gax.CallOption) (*dialogflowpb.Agent, error) {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent())))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.GetAgent[0:len(c.CallOptions.GetAgent):len(c.CallOptions.GetAgent)], opts...)
 	var resp *dialogflowpb.Agent
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
@@ -201,7 +237,8 @@ func (c *AgentsClient) GetAgent(ctx context.Context, req *dialogflowpb.GetAgentR
 // Refer to List
 // Sub-Collections (at https://cloud.google.com/apis/design/design_patterns#list_sub-collections).
 func (c *AgentsClient) SearchAgents(ctx context.Context, req *dialogflowpb.SearchAgentsRequest, opts ...gax.CallOption) *AgentIterator {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent())))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.SearchAgents[0:len(c.CallOptions.SearchAgents):len(c.CallOptions.SearchAgents)], opts...)
 	it := &AgentIterator{}
 	req = proto.Clone(req).(*dialogflowpb.SearchAgentsRequest)
@@ -233,15 +270,16 @@ func (c *AgentsClient) SearchAgents(ctx context.Context, req *dialogflowpb.Searc
 	}
 	it.pageInfo, it.nextFunc = iterator.NewPageInfo(fetch, it.bufLen, it.takeBuf)
 	it.pageInfo.MaxSize = int(req.PageSize)
+	it.pageInfo.Token = req.PageToken
 	return it
 }
 
 // TrainAgent trains the specified agent.
 //
-// Operation <response: [google.protobuf.Empty][google.protobuf.Empty],
-// metadata: [google.protobuf.Struct][google.protobuf.Struct]>
+// Operation <response: [google.protobuf.Empty][google.protobuf.Empty]>
 func (c *AgentsClient) TrainAgent(ctx context.Context, req *dialogflowpb.TrainAgentRequest, opts ...gax.CallOption) (*TrainAgentOperation, error) {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent())))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.TrainAgent[0:len(c.CallOptions.TrainAgent):len(c.CallOptions.TrainAgent)], opts...)
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
@@ -259,11 +297,10 @@ func (c *AgentsClient) TrainAgent(ctx context.Context, req *dialogflowpb.TrainAg
 
 // ExportAgent exports the specified agent to a ZIP file.
 //
-// Operation <response:
-// [ExportAgentResponse][google.cloud.dialogflow.v2.ExportAgentResponse],
-// metadata: [google.protobuf.Struct][google.protobuf.Struct]>
+// Operation <response: [ExportAgentResponse][google.cloud.dialogflow.v2.ExportAgentResponse]>
 func (c *AgentsClient) ExportAgent(ctx context.Context, req *dialogflowpb.ExportAgentRequest, opts ...gax.CallOption) (*ExportAgentOperation, error) {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent())))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.ExportAgent[0:len(c.CallOptions.ExportAgent):len(c.CallOptions.ExportAgent)], opts...)
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
@@ -285,10 +322,10 @@ func (c *AgentsClient) ExportAgent(ctx context.Context, req *dialogflowpb.Export
 // Intents and entity types with the same name are replaced with the new
 // versions from ImportAgentRequest.
 //
-// Operation <response: [google.protobuf.Empty][google.protobuf.Empty],
-// metadata: [google.protobuf.Struct][google.protobuf.Struct]>
+// Operation <response: [google.protobuf.Empty][google.protobuf.Empty]>
 func (c *AgentsClient) ImportAgent(ctx context.Context, req *dialogflowpb.ImportAgentRequest, opts ...gax.CallOption) (*ImportAgentOperation, error) {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent())))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.ImportAgent[0:len(c.CallOptions.ImportAgent):len(c.CallOptions.ImportAgent)], opts...)
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
@@ -309,10 +346,10 @@ func (c *AgentsClient) ImportAgent(ctx context.Context, req *dialogflowpb.Import
 // Replaces the current agent version with a new one. All the intents and
 // entity types in the older version are deleted.
 //
-// Operation <response: [google.protobuf.Empty][google.protobuf.Empty],
-// metadata: [google.protobuf.Struct][google.protobuf.Struct]>
+// Operation <response: [google.protobuf.Empty][google.protobuf.Empty]>
 func (c *AgentsClient) RestoreAgent(ctx context.Context, req *dialogflowpb.RestoreAgentRequest, opts ...gax.CallOption) (*RestoreAgentOperation, error) {
-	ctx = insertMetadata(ctx, c.xGoogMetadata)
+	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "parent", url.QueryEscape(req.GetParent())))
+	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.RestoreAgent[0:len(c.CallOptions.RestoreAgent):len(c.CallOptions.RestoreAgent)], opts...)
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {

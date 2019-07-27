@@ -243,8 +243,8 @@ type CreateManagedShortLinkRequest struct {
 	// DynamicLinkInfo: Information about the Dynamic Link to be
 	// shortened.
 	// [Learn
-	// more](https://firebase.google.com/docs/reference/dynamic-links/link-sh
-	// ortener).
+	// more](https://firebase.google.com/docs/reference/dyn
+	// amic-links/link-shortener).
 	DynamicLinkInfo *DynamicLinkInfo `json:"dynamicLinkInfo,omitempty"`
 
 	// LongDynamicLink: Full long Dynamic Link URL with desired query
@@ -254,8 +254,8 @@ type CreateManagedShortLinkRequest struct {
 	// "https://sample.app.goo.gl/?link=http://www.google.com&apn=co
 	// m.sample",
 	// [Learn
-	// more](https://firebase.google.com/docs/reference/dynamic-links/link-sh
-	// ortener).
+	// more](https://firebase.google.com/docs/reference/dyn
+	// amic-links/link-shortener).
 	LongDynamicLink string `json:"longDynamicLink,omitempty"`
 
 	// Name: Link name to associate with the link. It's used for marketer to
@@ -344,8 +344,8 @@ type CreateShortDynamicLinkRequest struct {
 	// DynamicLinkInfo: Information about the Dynamic Link to be
 	// shortened.
 	// [Learn
-	// more](https://firebase.google.com/docs/reference/dynamic-links/link-sh
-	// ortener).
+	// more](https://firebase.google.com/docs/reference/dyn
+	// amic-links/link-shortener).
 	DynamicLinkInfo *DynamicLinkInfo `json:"dynamicLinkInfo,omitempty"`
 
 	// LongDynamicLink: Full long Dynamic Link URL with desired query
@@ -355,8 +355,8 @@ type CreateShortDynamicLinkRequest struct {
 	// "https://sample.app.goo.gl/?link=http://www.google.com&apn=co
 	// m.sample",
 	// [Learn
-	// more](https://firebase.google.com/docs/reference/dynamic-links/link-sh
-	// ortener).
+	// more](https://firebase.google.com/docs/reference/dyn
+	// amic-links/link-shortener).
 	LongDynamicLink string `json:"longDynamicLink,omitempty"`
 
 	// SdkVersion: Google SDK version. Version takes the form
@@ -957,6 +957,10 @@ type GetIosPostInstallAttributionResponse struct {
 	// at post-install.
 	UtmCampaign string `json:"utmCampaign,omitempty"`
 
+	// UtmContent: Scion content value to be propagated by iSDK to Scion at
+	// app-reopen.
+	UtmContent string `json:"utmContent,omitempty"`
+
 	// UtmMedium: Scion medium value to be propagated by iSDK to Scion at
 	// post-install.
 	UtmMedium string `json:"utmMedium,omitempty"`
@@ -964,6 +968,10 @@ type GetIosPostInstallAttributionResponse struct {
 	// UtmSource: Scion source value to be propagated by iSDK to Scion at
 	// post-install.
 	UtmSource string `json:"utmSource,omitempty"`
+
+	// UtmTerm: Scion term value to be propagated by iSDK to Scion at
+	// app-reopen.
+	UtmTerm string `json:"utmTerm,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -1065,6 +1073,10 @@ type GetIosReopenAttributionResponse struct {
 	// at app-reopen.
 	UtmCampaign string `json:"utmCampaign,omitempty"`
 
+	// UtmContent: Scion content value to be propagated by iSDK to Scion at
+	// app-reopen.
+	UtmContent string `json:"utmContent,omitempty"`
+
 	// UtmMedium: Scion medium value to be propagated by iSDK to Scion at
 	// app-reopen.
 	UtmMedium string `json:"utmMedium,omitempty"`
@@ -1072,6 +1084,10 @@ type GetIosReopenAttributionResponse struct {
 	// UtmSource: Scion source value to be propagated by iSDK to Scion at
 	// app-reopen.
 	UtmSource string `json:"utmSource,omitempty"`
+
+	// UtmTerm: Scion term value to be propagated by iSDK to Scion at
+	// app-reopen.
+	UtmTerm string `json:"utmTerm,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.

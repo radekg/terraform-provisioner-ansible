@@ -17,6 +17,7 @@ package pubsub
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -24,9 +25,11 @@ import (
 	"cloud.google.com/go/internal"
 	"cloud.google.com/go/internal/testutil"
 	"cloud.google.com/go/internal/uid"
+	kms "cloud.google.com/go/kms/apiv1"
 	gax "github.com/googleapis/gax-go/v2"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
+	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -105,8 +108,11 @@ func TestIntegration_All(t *testing.T) {
 
 	for _, sync := range []bool{false, true} {
 		for _, maxMsgs := range []int{0, 3, -1} { // MaxOutstandingMessages = default, 3, unlimited
-			testPublishAndReceive(t, topic, sub, maxMsgs, sync)
+			testPublishAndReceive(t, topic, sub, maxMsgs, sync, 10, 0)
 		}
+
+		// Tests for large messages (larger than the 4MB gRPC limit).
+		testPublishAndReceive(t, topic, sub, 0, sync, 1, 5*1024*1024)
 	}
 	if msg, ok := testIAM(ctx, topic.IAM(), "pubsub.topics.get"); !ok {
 		t.Errorf("topic IAM: %s", msg)
@@ -175,11 +181,11 @@ func TestIntegration_All(t *testing.T) {
 	}
 }
 
-func testPublishAndReceive(t *testing.T, topic *Topic, sub *Subscription, maxMsgs int, synchronous bool) {
+func testPublishAndReceive(t *testing.T, topic *Topic, sub *Subscription, maxMsgs int, synchronous bool, numMsgs, extraBytes int) {
 	ctx := context.Background()
 	var msgs []*Message
-	for i := 0; i < 10; i++ {
-		text := fmt.Sprintf("a message with an index %d", i)
+	for i := 0; i < numMsgs; i++ {
+		text := fmt.Sprintf("a message with an index %d - %s", i, strings.Repeat(".", extraBytes))
 		attrs := make(map[string]string)
 		attrs["foo"] = "bar"
 		msgs = append(msgs, &Message{
@@ -215,7 +221,8 @@ func testPublishAndReceive(t *testing.T, topic *Topic, sub *Subscription, maxMsg
 	// Use a timeout to ensure that Pull does not block indefinitely if there are
 	// unexpectedly few messages available.
 	now := time.Now()
-	timeoutCtx, _ := context.WithTimeout(ctx, time.Minute)
+	timeoutCtx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
 	gotMsgs, err := pullN(timeoutCtx, sub, len(want), func(ctx context.Context, m *Message) {
 		m.Ack()
 	})
@@ -353,7 +360,7 @@ func TestIntegration_CancelReceive(t *testing.T) {
 	}
 }
 
-func TestIntegration_UpdateSubscription(t *testing.T) {
+func TestIntegration_CreateSubscription_neverExpire(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	client := integrationTestClient(ctx, t)
@@ -363,11 +370,15 @@ func TestIntegration_UpdateSubscription(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateTopic error: %v", err)
 	}
-	defer topic.Stop()
 	defer topic.Delete(ctx)
+	defer topic.Stop()
 
+	cfg := SubscriptionConfig{
+		Topic:            topic,
+		ExpirationPolicy: time.Duration(0),
+	}
 	var sub *Subscription
-	if sub, err = client.CreateSubscription(ctx, subIDs.New(), SubscriptionConfig{Topic: topic}); err != nil {
+	if sub, err = client.CreateSubscription(ctx, subIDs.New(), cfg); err != nil {
 		t.Fatalf("CreateSub error: %v", err)
 	}
 	defer sub.Delete(ctx)
@@ -381,15 +392,65 @@ func TestIntegration_UpdateSubscription(t *testing.T) {
 		AckDeadline:         10 * time.Second,
 		RetainAckedMessages: false,
 		RetentionDuration:   defaultRetentionDuration,
+		ExpirationPolicy:    time.Duration(0),
 	}
-	if !testutil.Equal(got, want) {
-		t.Fatalf("\ngot  %+v\nwant %+v", got, want)
+	if diff := testutil.Diff(got, want); diff != "" {
+		t.Fatalf("\ngot: - want: +\n%s", diff)
+	}
+}
+
+func TestIntegration_UpdateSubscription(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	client := integrationTestClient(ctx, t)
+	defer client.Close()
+
+	topic, err := client.CreateTopic(ctx, topicIDs.New())
+	if err != nil {
+		t.Fatalf("CreateTopic error: %v", err)
+	}
+	defer topic.Delete(ctx)
+	defer topic.Stop()
+
+	var sub *Subscription
+	projID := testutil.ProjID()
+	sCfg := SubscriptionConfig{
+		Topic: topic,
+		PushConfig: PushConfig{
+			Endpoint: "https://" + projID + ".appspot.com/_ah/push-handlers/push",
+			AuthenticationMethod: &OIDCToken{
+				Audience:            "client-12345",
+				ServiceAccountEmail: "foo@example.com",
+			},
+		},
+	}
+	if sub, err = client.CreateSubscription(ctx, subIDs.New(), sCfg); err != nil {
+		t.Fatalf("CreateSub error: %v", err)
+	}
+	defer sub.Delete(ctx)
+
+	got, err := sub.Config(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := SubscriptionConfig{
+		Topic:               topic,
+		AckDeadline:         10 * time.Second,
+		RetainAckedMessages: false,
+		RetentionDuration:   defaultRetentionDuration,
+		ExpirationPolicy:    defaultExpirationPolicy,
+	}
+	if diff := testutil.Diff(got, want); diff != "" {
+		t.Fatalf("\ngot: - want: +\n%s", diff)
 	}
 	// Add a PushConfig and change other fields.
-	projID := testutil.ProjID()
 	pc := PushConfig{
 		Endpoint:   "https://" + projID + ".appspot.com/_ah/push-handlers/push",
 		Attributes: map[string]string{"x-goog-version": "v1"},
+		AuthenticationMethod: &OIDCToken{
+			Audience:            "client-12345",
+			ServiceAccountEmail: "foo@example.com",
+		},
 	}
 	got, err = sub.Update(ctx, SubscriptionConfigToUpdate{
 		PushConfig:          &pc,
@@ -397,6 +458,7 @@ func TestIntegration_UpdateSubscription(t *testing.T) {
 		RetainAckedMessages: true,
 		RetentionDuration:   2 * time.Hour,
 		Labels:              map[string]string{"label": "value"},
+		ExpirationPolicy:    25 * time.Hour,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -408,7 +470,21 @@ func TestIntegration_UpdateSubscription(t *testing.T) {
 		RetainAckedMessages: true,
 		RetentionDuration:   2 * time.Hour,
 		Labels:              map[string]string{"label": "value"},
+		ExpirationPolicy:    25 * time.Hour,
 	}
+
+	if !testutil.Equal(got, want) {
+		t.Fatalf("\ngot  %+v\nwant %+v", got, want)
+	}
+
+	// Update ExpirationPolicy to never expire.
+	got, err = sub.Update(ctx, SubscriptionConfigToUpdate{
+		ExpirationPolicy: time.Duration(0),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want.ExpirationPolicy = time.Duration(0)
 
 	if !testutil.Equal(got, want) {
 		t.Fatalf("\ngot  %+v\nwant %+v", got, want)
@@ -441,6 +517,83 @@ func TestIntegration_UpdateSubscription(t *testing.T) {
 	}
 }
 
+func TestIntegration_UpdateSubscription_expirationPolicy(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	client := integrationTestClient(ctx, t)
+	defer client.Close()
+
+	topic, err := client.CreateTopic(ctx, topicIDs.New())
+	if err != nil {
+		t.Fatalf("CreateTopic error: %v", err)
+	}
+	defer topic.Delete(ctx)
+	defer topic.Stop()
+
+	var sub *Subscription
+	if sub, err = client.CreateSubscription(ctx, subIDs.New(), SubscriptionConfig{Topic: topic}); err != nil {
+		t.Fatalf("CreateSub error: %v", err)
+	}
+	defer sub.Delete(ctx)
+
+	// Set ExpirationPolicy within the valid range.
+	got, err := sub.Update(ctx, SubscriptionConfigToUpdate{
+		RetentionDuration: 2 * time.Hour,
+		ExpirationPolicy:  25 * time.Hour,
+		AckDeadline:       2 * time.Minute,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := SubscriptionConfig{
+		Topic:             topic,
+		AckDeadline:       2 * time.Minute,
+		RetentionDuration: 2 * time.Hour,
+		ExpirationPolicy:  25 * time.Hour,
+	}
+	// Pubsub service issue: PushConfig attributes are not removed.
+	// TODO(jba): remove when issue resolved.
+	want.PushConfig.Attributes = map[string]string{"x-goog-version": "v1"}
+	if diff := testutil.Diff(got, want); diff != "" {
+		t.Fatalf("\ngot: - want: +\n%s", diff)
+	}
+
+	// ExpirationPolicy to never expire.
+	got, err = sub.Update(ctx, SubscriptionConfigToUpdate{
+		ExpirationPolicy: time.Duration(0),
+	})
+	if err != nil {
+		t.Fatalf("Unexpected error: %v\n", err)
+	}
+	want.ExpirationPolicy = time.Duration(0)
+	if diff := testutil.Diff(got, want); diff != "" {
+		t.Fatalf("\ngot: - want: +\n%s", diff)
+	}
+
+	// ExpirationPolicy when nil is passed in, should not cause any updates.
+	got, err = sub.Update(ctx, SubscriptionConfigToUpdate{
+		ExpirationPolicy: nil,
+	})
+	if err == nil || err.Error() != "pubsub: UpdateSubscription call with nothing to update" {
+		t.Fatalf("Expected no attributes to be updated, error: %v", err)
+	}
+
+	// ExpirationPolicy of nil, with the previous value having been a non-zero value.
+	_, err = sub.Update(ctx, SubscriptionConfigToUpdate{
+		ExpirationPolicy: 26 * time.Hour,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Now examine what setting it to nil produces.
+	_, err = sub.Update(ctx, SubscriptionConfigToUpdate{
+		ExpirationPolicy: nil,
+	})
+	if err == nil || err.Error() != "pubsub: UpdateSubscription call with nothing to update" {
+		t.Fatalf("Expected no attributes to be updated, error: %v", err)
+	}
+}
+
 // NOTE: This test should be skipped by open source contributors. It requires
 // whitelisting, a (gsuite) organization project, and specific permissions.
 func TestIntegration_UpdateTopic(t *testing.T) {
@@ -465,8 +618,8 @@ func TestIntegration_UpdateTopic(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateTopic error: %v", err)
 	}
-	defer topic.Stop()
 	defer topic.Delete(ctx)
+	defer topic.Stop()
 
 	got, err := topic.Config(ctx)
 	if err != nil {
@@ -530,8 +683,8 @@ func TestIntegration_Errors(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateTopic error: %v", err)
 	}
-	defer topic.Stop()
 	defer topic.Delete(ctx)
+	defer topic.Stop()
 
 	// Out-of-range retention duration.
 	sub, err := client.CreateSubscription(ctx, subIDs.New(), SubscriptionConfig{
@@ -612,8 +765,8 @@ func TestIntegration_MessageStoragePolicy(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateTopic error: %v", err)
 	}
-	defer topic.Stop()
 	defer topic.Delete(ctx)
+	defer topic.Stop()
 
 	config, err := topic.Config(ctx)
 	if err != nil {
@@ -623,5 +776,80 @@ func TestIntegration_MessageStoragePolicy(t *testing.T) {
 	want := []string{"us-east1"}
 	if !testutil.Equal(got, want) {
 		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestIntegration_CreateTopicWithKMS(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	client := integrationTestClient(ctx, t)
+	defer client.Close()
+
+	kmsClient, err := kms.NewKeyManagementClient(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	keyRingID := "test-key-ring"
+	want := "test-key2"
+
+	// Get the test KMS key ring, optionally creating it if it doesn't exist.
+	keyRing, err := kmsClient.GetKeyRing(ctx, &kmspb.GetKeyRingRequest{
+		Name: fmt.Sprintf("projects/%s/locations/global/keyRings/%s", testutil.ProjID(), keyRingID),
+	})
+	if err != nil {
+		if status.Code(err) != codes.NotFound {
+			t.Fatal(err)
+		}
+		createKeyRingReq := &kmspb.CreateKeyRingRequest{
+			Parent:    fmt.Sprintf("projects/%s/locations/global", testutil.ProjID()),
+			KeyRingId: keyRingID,
+		}
+		keyRing, err = kmsClient.CreateKeyRing(ctx, createKeyRingReq)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Get the test KMS crypto key, optionally creating it if it doesn't exist.
+	key, err := kmsClient.GetCryptoKey(ctx, &kmspb.GetCryptoKeyRequest{
+		Name: fmt.Sprintf("%s/cryptoKeys/%s", keyRing.GetName(), want),
+	})
+	if err != nil {
+		if status.Code(err) != codes.NotFound {
+			t.Fatal(err)
+		}
+		createKeyReq := &kmspb.CreateCryptoKeyRequest{
+			Parent:      keyRing.GetName(),
+			CryptoKeyId: want,
+			CryptoKey: &kmspb.CryptoKey{
+				Purpose: 1, // ENCRYPT_DECRYPT purpose
+			},
+		}
+		key, err = kmsClient.CreateCryptoKey(ctx, createKeyReq)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	tc := TopicConfig{
+		KMSKeyName: key.GetName(),
+	}
+
+	topic, err := client.CreateTopicWithConfig(ctx, topicIDs.New(), &tc)
+	if err != nil {
+		t.Fatalf("CreateTopicWithConfig error: %v", err)
+	}
+	defer topic.Delete(ctx)
+	defer topic.Stop()
+
+	cfg, err := topic.Config(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := cfg.KMSKeyName
+
+	if got != key.GetName() {
+		t.Errorf("got %v, want %v", got, key.GetName())
 	}
 }

@@ -1,7 +1,7 @@
 ---
 layout: "backend-types"
 page_title: "Backend Type: etcd"
-sidebar_current: "docs-backends-types-standard-etcd"
+sidebar_current: "docs-backends-types-standard-etcdv2"
 description: |-
   Terraform can store state remotely in etcd 2.x.
 ---
@@ -28,7 +28,7 @@ terraform {
 ```hcl
 data "terraform_remote_state" "foo" {
   backend = "etcd"
-  config {
+  config = {
     path      = "path/to/terraform.tfstate"
     endpoints = "http://one:4001 http://two:4001"
   }

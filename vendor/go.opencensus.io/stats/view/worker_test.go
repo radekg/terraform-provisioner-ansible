@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	"go.opencensus.io/metric/metricdata"
+	"go.opencensus.io/metric/metricexport"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/tag"
 )
@@ -122,8 +124,8 @@ func Test_Worker_RecordFloat64(t *testing.T) {
 	someError := errors.New("some error")
 	m := stats.Float64("Test_Worker_RecordFloat64/MF1", "desc MF1", "unit")
 
-	k1, _ := tag.NewKey("k1")
-	k2, _ := tag.NewKey("k2")
+	k1 := tag.MustNewKey("k1")
+	k2 := tag.MustNewKey("k2")
 	ctx, err := tag.New(context.Background(),
 		tag.Insert(k1, "v1"),
 		tag.Insert(k2, "v2"),
@@ -395,6 +397,91 @@ func TestUnregisterReportsUsage(t *testing.T) {
 	if got != want {
 		t.Errorf("got count data = %v; want %v", got, want)
 	}
+}
+
+func TestWorkerRace(t *testing.T) {
+	restart()
+	ctx := context.Background()
+
+	m1 := stats.Int64("measure", "desc", "unit")
+	view1 := &View{Name: "count", Measure: m1, Aggregation: Count()}
+	m2 := stats.Int64("measure2", "desc", "unit")
+	view2 := &View{Name: "count2", Measure: m2, Aggregation: Count()}
+
+	// 1. This will export every microsecond.
+	SetReportingPeriod(time.Microsecond)
+
+	if err := Register(view1, view2); err != nil {
+		t.Fatalf("cannot register: %v", err)
+	}
+
+	e := &countExporter{}
+	RegisterExporter(e)
+
+	// Synchronize and make sure every goroutine has terminated before we exit
+	var waiter sync.WaitGroup
+	waiter.Add(3)
+	defer waiter.Wait()
+
+	doneCh := make(chan bool)
+	// 2. Record write routine at 700ns
+	go func() {
+		defer waiter.Done()
+		tick := time.NewTicker(700 * time.Nanosecond)
+		defer tick.Stop()
+
+		defer func() {
+			close(doneCh)
+		}()
+
+		for i := 0; i < 1e3; i++ {
+			stats.Record(ctx, m1.M(1))
+			stats.Record(ctx, m2.M(1))
+			stats.Record(ctx, m2.M(1))
+			<-tick.C
+		}
+	}()
+
+	// 2. Simulating RetrieveData 900ns
+	go func() {
+		defer waiter.Done()
+		tick := time.NewTicker(900 * time.Nanosecond)
+		defer tick.Stop()
+
+		for {
+			select {
+			case <-doneCh:
+				return
+			case <-tick.C:
+				RetrieveData(view1.Name)
+			}
+		}
+	}()
+
+	// 4. Export via Reader routine at 800ns
+	go func() {
+		defer waiter.Done()
+		tick := time.NewTicker(800 * time.Nanosecond)
+		defer tick.Stop()
+
+		reader := metricexport.Reader{}
+		for {
+			select {
+			case <-doneCh:
+				return
+			case <-tick.C:
+				// Perform some collection here
+				reader.ReadAndExport(&testExporter{})
+			}
+		}
+	}()
+}
+
+type testExporter struct {
+}
+
+func (te *testExporter) ExportMetrics(ctx context.Context, metrics []*metricdata.Metric) error {
+	return nil
 }
 
 type countExporter struct {

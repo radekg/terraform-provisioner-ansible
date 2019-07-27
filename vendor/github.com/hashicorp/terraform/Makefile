@@ -70,7 +70,8 @@ cover:
 	rm coverage.out
 
 # generate runs `go generate` to build the dynamically generated
-# source files.
+# source files, except the protobuf stubs which are built instead with
+# "make protobuf".
 generate: tools
 	GOFLAGS=-mod=vendor go generate ./...
 	# go fmt doesn't support -mod=vendor but it still wants to populate the
@@ -79,6 +80,16 @@ generate: tools
 	# now until the "go fmt" behavior is rationalized to either support the
 	# -mod= argument or _not_ try to install things.
 	GO111MODULE=off go fmt command/internal_plugin_list.go > /dev/null
+
+# We separate the protobuf generation because most development tasks on
+# Terraform do not involve changing protobuf files and protoc is not a
+# go-gettable dependency and so getting it installed can be inconvenient.
+#
+# If you are working on changes to protobuf interfaces you may either use
+# this target or run the individual scripts below directly.
+protobuf:
+	bash internal/tfplugin5/generate.sh
+	bash plans/internal/planproto/generate.sh
 
 fmt:
 	gofmt -w $(GOFMT_FILES)
@@ -135,4 +146,4 @@ endif
 # under parallel conditions.
 .NOTPARALLEL:
 
-.PHONY: bin cover default dev e2etest fmt fmtcheck generate plugin-dev quickdev test-compile test testacc testrace tools vendor-status website website-test
+.PHONY: bin cover default dev e2etest fmt fmtcheck generate protobuf plugin-dev quickdev test-compile test testacc testrace tools vendor-status website website-test

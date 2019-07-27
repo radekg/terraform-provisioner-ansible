@@ -123,3 +123,135 @@ func TestPathApply(t *testing.T) {
 		})
 	}
 }
+
+func TestPathEquals(t *testing.T) {
+	tests := []struct {
+		A, B   cty.Path
+		Equal  bool
+		Prefix bool
+	}{
+		{
+			A:      nil,
+			B:      nil,
+			Equal:  true,
+			Prefix: true,
+		},
+		{
+			A:      cty.Path{},
+			B:      cty.Path{},
+			Equal:  true,
+			Prefix: true,
+		},
+		{
+			A: cty.Path{nil},
+			B: cty.Path{cty.GetAttrStep{Name: "attr"}},
+		},
+		{
+			A: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.UnknownVal(cty.String)},
+				cty.GetAttrStep{Name: "attr"},
+			},
+			B: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.StringVal("key")},
+				cty.GetAttrStep{Name: "attr"},
+			},
+		},
+		{
+			A: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.ListVal([]cty.Value{cty.UnknownVal(cty.String)})},
+				cty.GetAttrStep{Name: "attr"},
+			},
+			B: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.ListVal([]cty.Value{cty.StringVal("known")})},
+				cty.GetAttrStep{Name: "attr"},
+			},
+		},
+		{
+			A: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.UnknownVal(cty.String)},
+			},
+			B: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.StringVal("known")},
+				cty.GetAttrStep{Name: "attr"},
+			},
+		},
+		{
+			A: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.StringVal("known")},
+			},
+			B: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.StringVal("known")},
+				cty.GetAttrStep{Name: "attr"},
+			},
+		},
+		{
+			A: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.StringVal("known")},
+				cty.GetAttrStep{Name: "attr"},
+			},
+			B: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.StringVal("known")},
+			},
+			Prefix: true,
+		},
+		{
+			A: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.UnknownVal(cty.String)},
+			},
+			B: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.UnknownVal(cty.String)},
+			},
+			Prefix: true,
+			Equal:  true,
+		},
+		{
+			A: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.NumberFloatVal(0)},
+				cty.GetAttrStep{Name: "attr"},
+			},
+			B: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.NumberIntVal(0)},
+				cty.GetAttrStep{Name: "attr"},
+			},
+			Equal:  true,
+			Prefix: true,
+		},
+		{
+			A: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.NumberIntVal(1)},
+				cty.GetAttrStep{Name: "attr"},
+			},
+			B: cty.Path{
+				cty.GetAttrStep{Name: "attr"},
+				cty.IndexStep{Key: cty.NumberIntVal(0)},
+				cty.GetAttrStep{Name: "attr"},
+			},
+		},
+	}
+
+	for i, test := range tests {
+		t.Run(fmt.Sprintf("%d-%#v", i, test.A), func(t *testing.T) {
+			if test.Equal != test.A.Equals(test.B) {
+				t.Fatalf("%#v.Equals(%#v) != %t", test.A, test.B, test.Equal)
+			}
+			if test.Prefix != test.A.HasPrefix(test.B) {
+				t.Fatalf("%#v.HasPrefix(%#v) != %t", test.A, test.B, test.Prefix)
+			}
+		})
+	}
+}

@@ -86,9 +86,6 @@ const (
 	// See and download your contacts
 	ContactsReadonlyScope = "https://www.googleapis.com/auth/contacts.readonly"
 
-	// View your basic profile info, including your age range and language
-	PlusLoginScope = "https://www.googleapis.com/auth/plus.login"
-
 	// View your street addresses
 	UserAddressesReadScope = "https://www.googleapis.com/auth/user.addresses.read"
 
@@ -114,7 +111,6 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, err
 	scopesOption := option.WithScopes(
 		"https://www.googleapis.com/auth/contacts",
 		"https://www.googleapis.com/auth/contacts.readonly",
-		"https://www.googleapis.com/auth/plus.login",
 		"https://www.googleapis.com/auth/user.addresses.read",
 		"https://www.googleapis.com/auth/user.birthday.read",
 		"https://www.googleapis.com/auth/user.emails.read",
@@ -547,14 +543,22 @@ func (s *ContactGroup) MarshalJSON() ([]byte, error) {
 
 // ContactGroupMembership: A Google contact group membership.
 type ContactGroupMembership struct {
-	// ContactGroupId: The contact group ID for the contact group
-	// membership. The contact group
-	// ID can be custom or one of these predefined values:
-	//
-	// *  `myContacts`
-	// *  `starred`
-	// *  A numerical ID for user-created groups.
+	// ContactGroupId: The read-only contact group ID for the contact group
+	// membership.
 	ContactGroupId string `json:"contactGroupId,omitempty"`
+
+	// ContactGroupResourceName: The resource name for the contact group,
+	// assigned by the server. An ASCII
+	// string, in the form of
+	// `contactGroups/`<var>contact_group_id</var>.
+	// Only contact_group_resource_name can be used for modifying
+	// memberships.
+	// Any contact group membership can be removed, but only user group
+	// or
+	// "myContacts" or "starred" system groups memberships can be added.
+	// A
+	// contact must always have at least one contact group membership.
+	ContactGroupResourceName string `json:"contactGroupResourceName,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ContactGroupId") to
 	// unconditionally include in API requests. By default, fields with
@@ -769,10 +773,44 @@ func (s *Date) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// DomainMembership: A Google Apps Domain membership.
+// DeleteContactPhotoResponse: The response for deleteing a contact's
+// photo.
+type DeleteContactPhotoResponse struct {
+	// Person: The updated person, if person_fields is set in
+	// the
+	// DeleteContactPhotoRequest; otherwise this will be unset.
+	Person *Person `json:"person,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Person") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Person") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *DeleteContactPhotoResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod DeleteContactPhotoResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// DomainMembership: A read-only G Suite Domain membership.
 type DomainMembership struct {
-	// InViewerDomain: True if the person is in the viewer's Google Apps
-	// domain.
+	// InViewerDomain: True if the person is in the viewer's G Suite domain.
 	InViewerDomain bool `json:"inViewerDomain,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "InViewerDomain") to
@@ -1246,12 +1284,14 @@ func (s *Locale) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Membership: A person's read-only membership in a group.
+// Membership: A person's membership in a group. Only contact group
+// memberships can be
+// modified.
 type Membership struct {
 	// ContactGroupMembership: The contact group membership.
 	ContactGroupMembership *ContactGroupMembership `json:"contactGroupMembership,omitempty"`
 
-	// DomainMembership: The domain membership.
+	// DomainMembership: The read-only domain membership.
 	DomainMembership *DomainMembership `json:"domainMembership,omitempty"`
 
 	// Metadata: Metadata about the membership.
@@ -1286,7 +1326,7 @@ func (s *Membership) MarshalJSON() ([]byte, error) {
 // contact group's members. Contacts can be
 // removed from any group but they can only be added to a user group
 // or
-// myContacts or starred system groups.
+// "myContacts" or "starred" system groups.
 type ModifyContactGroupMembersRequest struct {
 	// ResourceNamesToAdd: The resource names of the contact people to add
 	// in the form of in the form
@@ -1654,7 +1694,7 @@ type Person struct {
 	// Locales: The person's locale preferences.
 	Locales []*Locale `json:"locales,omitempty"`
 
-	// Memberships: The person's read-only group memberships.
+	// Memberships: The person's group memberships.
 	Memberships []*Membership `json:"memberships,omitempty"`
 
 	// Metadata: Read-only metadata about the person.
@@ -1973,7 +2013,7 @@ type ProfileMetadata struct {
 	//   "USER_TYPE_UNKNOWN" - The user type is not known.
 	//   "GOOGLE_USER" - The user is a Google user.
 	//   "GPLUS_USER" - The user is a Google+ user.
-	//   "GOOGLE_APPS_USER" - The user is a Google Apps for Work user.
+	//   "GOOGLE_APPS_USER" - The user is a G Suite user.
 	UserTypes []string `json:"userTypes,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ObjectType") to
@@ -2298,8 +2338,8 @@ type Source struct {
 	// profile at https://profiles.google.com/<var>id</var>
 	// where
 	// <var>id</var> is the source id.
-	//   "DOMAIN_PROFILE" - [Google Apps domain
-	// profile](https://admin.google.com).
+	//   "DOMAIN_PROFILE" - [G Suite domain
+	// profile](https://support.google.com/a/answer/1628008).
 	//   "CONTACT" - [Google contact](https://contacts.google.com). You can
 	// view the
 	// contact at https://contact.google.com/<var>id</var> where
@@ -2339,81 +2379,14 @@ func (s *Source) MarshalJSON() ([]byte, error) {
 // suitable for
 // different programming environments, including REST APIs and RPC APIs.
 // It is
-// used by [gRPC](https://github.com/grpc). The error model is designed
-// to be:
+// used by [gRPC](https://github.com/grpc). Each `Status` message
+// contains
+// three pieces of data: error code, error message, and error
+// details.
 //
-// - Simple to use and understand for most users
-// - Flexible enough to meet unexpected needs
-//
-// # Overview
-//
-// The `Status` message contains three pieces of data: error code,
-// error
-// message, and error details. The error code should be an enum value
-// of
-// google.rpc.Code, but it may accept additional error codes if needed.
-// The
-// error message should be a developer-facing English message that
-// helps
-// developers *understand* and *resolve* the error. If a localized
-// user-facing
-// error message is needed, put the localized message in the error
-// details or
-// localize it in the client. The optional error details may contain
-// arbitrary
-// information about the error. There is a predefined set of error
-// detail types
-// in the package `google.rpc` that can be used for common error
-// conditions.
-//
-// # Language mapping
-//
-// The `Status` message is the logical representation of the error
-// model, but it
-// is not necessarily the actual wire format. When the `Status` message
-// is
-// exposed in different client libraries and different wire protocols,
-// it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions
-// in Java, but more likely mapped to some error codes in C.
-//
-// # Other uses
-//
-// The error model and the `Status` message can be used in a variety
-// of
-// environments, either with or without APIs, to provide a
-// consistent developer experience across different
-// environments.
-//
-// Example uses of this error model include:
-//
-// - Partial errors. If a service needs to return partial errors to the
-// client,
-//     it may embed the `Status` in the normal response to indicate the
-// partial
-//     errors.
-//
-// - Workflow errors. A typical workflow has multiple steps. Each step
-// may
-//     have a `Status` message for error reporting.
-//
-// - Batch operations. If a client uses batch request and batch
-// response, the
-//     `Status` message should be used directly inside batch response,
-// one for
-//     each error sub-response.
-//
-// - Asynchronous operations. If an API call embeds asynchronous
-// operation
-//     results in its response, the status of those operations should
-// be
-//     represented directly using the `Status` message.
-//
-// - Logging. If some API errors are stored in logs, the message
-// `Status` could
-//     be used directly after any stripping needed for security/privacy
-// reasons.
+// You can find out more about this error model and how to work with it
+// in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
 type Status struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -2511,6 +2484,109 @@ type UpdateContactGroupRequest struct {
 
 func (s *UpdateContactGroupRequest) MarshalJSON() ([]byte, error) {
 	type NoMethod UpdateContactGroupRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// UpdateContactPhotoRequest: A request to update an existing contact's
+// photo.
+// All requests must have a valid photo format: JPEG or PNG.
+type UpdateContactPhotoRequest struct {
+	// PersonFields: **Optional.** Not specifying any fields will skip the
+	// post mutate read.
+	// A field mask to restrict which fields on the person are
+	// returned. Multiple fields can be specified by separating them with
+	// commas.
+	// Valid values are:
+	//
+	// * addresses
+	// * ageRanges
+	// * biographies
+	// * birthdays
+	// * braggingRights
+	// * coverPhotos
+	// * emailAddresses
+	// * events
+	// * genders
+	// * imClients
+	// * interests
+	// * locales
+	// * memberships
+	// * metadata
+	// * names
+	// * nicknames
+	// * occupations
+	// * organizations
+	// * phoneNumbers
+	// * photos
+	// * relations
+	// * relationshipInterests
+	// * relationshipStatuses
+	// * residences
+	// * sipAddresses
+	// * skills
+	// * taglines
+	// * urls
+	// * userDefined
+	PersonFields string `json:"personFields,omitempty"`
+
+	// PhotoBytes: Raw photo bytes
+	PhotoBytes string `json:"photoBytes,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PersonFields") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PersonFields") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UpdateContactPhotoRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod UpdateContactPhotoRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// UpdateContactPhotoResponse: The response for updating a contact's
+// photo.
+type UpdateContactPhotoResponse struct {
+	// Person: The updated person, if person_fields is set in
+	// the
+	// UpdateContactPhotoRequest; otherwise this will be unset.
+	Person *Person `json:"person,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Person") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Person") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UpdateContactPhotoResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod UpdateContactPhotoResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3936,6 +4012,182 @@ func (c *PeopleDeleteContactCall) Do(opts ...googleapi.CallOption) (*Empty, erro
 
 }
 
+// method id "people.people.deleteContactPhoto":
+
+type PeopleDeleteContactPhotoCall struct {
+	s            *Service
+	resourceName string
+	urlParams_   gensupport.URLParams
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// DeleteContactPhoto: Delete a contact's photo.
+func (r *PeopleService) DeleteContactPhoto(resourceName string) *PeopleDeleteContactPhotoCall {
+	c := &PeopleDeleteContactPhotoCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resourceName = resourceName
+	return c
+}
+
+// PersonFields sets the optional parameter "personFields": **** Not
+// specifying any fields will skip the post mutate read.
+// A field mask to restrict which fields on the person are
+// returned. Multiple fields can be specified by separating them with
+// commas.
+// Valid values are:
+//
+// * addresses
+// * ageRanges
+// * biographies
+// * birthdays
+// * braggingRights
+// * coverPhotos
+// * emailAddresses
+// * events
+// * genders
+// * imClients
+// * interests
+// * locales
+// * memberships
+// * metadata
+// * names
+// * nicknames
+// * occupations
+// * organizations
+// * phoneNumbers
+// * photos
+// * relations
+// * relationshipInterests
+// * relationshipStatuses
+// * residences
+// * sipAddresses
+// * skills
+// * taglines
+// * urls
+// * userDefined
+func (c *PeopleDeleteContactPhotoCall) PersonFields(personFields string) *PeopleDeleteContactPhotoCall {
+	c.urlParams_.Set("personFields", personFields)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *PeopleDeleteContactPhotoCall) Fields(s ...googleapi.Field) *PeopleDeleteContactPhotoCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *PeopleDeleteContactPhotoCall) Context(ctx context.Context) *PeopleDeleteContactPhotoCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *PeopleDeleteContactPhotoCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *PeopleDeleteContactPhotoCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resourceName}:deleteContactPhoto")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resourceName": c.resourceName,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "people.people.deleteContactPhoto" call.
+// Exactly one of *DeleteContactPhotoResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *DeleteContactPhotoResponse.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *PeopleDeleteContactPhotoCall) Do(opts ...googleapi.CallOption) (*DeleteContactPhotoResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &DeleteContactPhotoResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Delete a contact's photo.",
+	//   "flatPath": "v1/people/{peopleId}:deleteContactPhoto",
+	//   "httpMethod": "DELETE",
+	//   "id": "people.people.deleteContactPhoto",
+	//   "parameterOrder": [
+	//     "resourceName"
+	//   ],
+	//   "parameters": {
+	//     "personFields": {
+	//       "description": "**Optional.** Not specifying any fields will skip the post mutate read.\nA field mask to restrict which fields on the person are\nreturned. Multiple fields can be specified by separating them with commas.\nValid values are:\n\n* addresses\n* ageRanges\n* biographies\n* birthdays\n* braggingRights\n* coverPhotos\n* emailAddresses\n* events\n* genders\n* imClients\n* interests\n* locales\n* memberships\n* metadata\n* names\n* nicknames\n* occupations\n* organizations\n* phoneNumbers\n* photos\n* relations\n* relationshipInterests\n* relationshipStatuses\n* residences\n* sipAddresses\n* skills\n* taglines\n* urls\n* userDefined",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "resourceName": {
+	//       "description": "The resource name of the contact whose photo will be deleted.",
+	//       "location": "path",
+	//       "pattern": "^people/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+resourceName}:deleteContactPhoto",
+	//   "response": {
+	//     "$ref": "DeleteContactPhotoResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/contacts"
+	//   ]
+	// }
+
+}
+
 // method id "people.people.get":
 
 type PeopleGetCall struct {
@@ -4143,7 +4395,6 @@ func (c *PeopleGetCall) Do(opts ...googleapi.CallOption) (*Person, error) {
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/contacts",
 	//     "https://www.googleapis.com/auth/contacts.readonly",
-	//     "https://www.googleapis.com/auth/plus.login",
 	//     "https://www.googleapis.com/auth/user.addresses.read",
 	//     "https://www.googleapis.com/auth/user.birthday.read",
 	//     "https://www.googleapis.com/auth/user.emails.read",
@@ -4375,7 +4626,6 @@ func (c *PeopleGetBatchGetCall) Do(opts ...googleapi.CallOption) (*GetPeopleResp
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/contacts",
 	//     "https://www.googleapis.com/auth/contacts.readonly",
-	//     "https://www.googleapis.com/auth/plus.login",
 	//     "https://www.googleapis.com/auth/user.addresses.read",
 	//     "https://www.googleapis.com/auth/user.birthday.read",
 	//     "https://www.googleapis.com/auth/user.emails.read",
@@ -4439,6 +4689,7 @@ func (r *PeopleService) UpdateContact(resourceName string, person *Person) *Peop
 // * imClients
 // * interests
 // * locales
+// * memberships
 // * names
 // * nicknames
 // * occupations
@@ -4560,7 +4811,7 @@ func (c *PeopleUpdateContactCall) Do(opts ...googleapi.CallOption) (*Person, err
 	//       "type": "string"
 	//     },
 	//     "updatePersonFields": {
-	//       "description": "**Required.** A field mask to restrict which fields on the person are\nupdated. Multiple fields can be specified by separating them with commas.\nAll updated fields will be replaced. Valid values are:\n\n* addresses\n* biographies\n* birthdays\n* emailAddresses\n* events\n* genders\n* imClients\n* interests\n* locales\n* names\n* nicknames\n* occupations\n* organizations\n* phoneNumbers\n* relations\n* residences\n* sipAddresses\n* urls\n* userDefined",
+	//       "description": "**Required.** A field mask to restrict which fields on the person are\nupdated. Multiple fields can be specified by separating them with commas.\nAll updated fields will be replaced. Valid values are:\n\n* addresses\n* biographies\n* birthdays\n* emailAddresses\n* events\n* genders\n* imClients\n* interests\n* locales\n* memberships\n* names\n* nicknames\n* occupations\n* organizations\n* phoneNumbers\n* relations\n* residences\n* sipAddresses\n* urls\n* userDefined",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -4572,6 +4823,145 @@ func (c *PeopleUpdateContactCall) Do(opts ...googleapi.CallOption) (*Person, err
 	//   },
 	//   "response": {
 	//     "$ref": "Person"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/contacts"
+	//   ]
+	// }
+
+}
+
+// method id "people.people.updateContactPhoto":
+
+type PeopleUpdateContactPhotoCall struct {
+	s                         *Service
+	resourceName              string
+	updatecontactphotorequest *UpdateContactPhotoRequest
+	urlParams_                gensupport.URLParams
+	ctx_                      context.Context
+	header_                   http.Header
+}
+
+// UpdateContactPhoto: Update a contact's photo.
+func (r *PeopleService) UpdateContactPhoto(resourceName string, updatecontactphotorequest *UpdateContactPhotoRequest) *PeopleUpdateContactPhotoCall {
+	c := &PeopleUpdateContactPhotoCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resourceName = resourceName
+	c.updatecontactphotorequest = updatecontactphotorequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *PeopleUpdateContactPhotoCall) Fields(s ...googleapi.Field) *PeopleUpdateContactPhotoCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *PeopleUpdateContactPhotoCall) Context(ctx context.Context) *PeopleUpdateContactPhotoCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *PeopleUpdateContactPhotoCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *PeopleUpdateContactPhotoCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.updatecontactphotorequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resourceName}:updateContactPhoto")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resourceName": c.resourceName,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "people.people.updateContactPhoto" call.
+// Exactly one of *UpdateContactPhotoResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *UpdateContactPhotoResponse.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *PeopleUpdateContactPhotoCall) Do(opts ...googleapi.CallOption) (*UpdateContactPhotoResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &UpdateContactPhotoResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Update a contact's photo.",
+	//   "flatPath": "v1/people/{peopleId}:updateContactPhoto",
+	//   "httpMethod": "PATCH",
+	//   "id": "people.people.updateContactPhoto",
+	//   "parameterOrder": [
+	//     "resourceName"
+	//   ],
+	//   "parameters": {
+	//     "resourceName": {
+	//       "description": "Person resource name",
+	//       "location": "path",
+	//       "pattern": "^people/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+resourceName}:updateContactPhoto",
+	//   "request": {
+	//     "$ref": "UpdateContactPhotoRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "UpdateContactPhotoResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/contacts"
@@ -4689,6 +5079,7 @@ func (c *PeopleConnectionsListCall) RequestSyncToken(requestSyncToken bool) *Peo
 //
 // Possible values:
 //   "LAST_MODIFIED_ASCENDING"
+//   "LAST_MODIFIED_DESCENDING"
 //   "FIRST_NAME_ASCENDING"
 //   "LAST_NAME_ASCENDING"
 func (c *PeopleConnectionsListCall) SortOrder(sortOrder string) *PeopleConnectionsListCall {
@@ -4852,6 +5243,7 @@ func (c *PeopleConnectionsListCall) Do(opts ...googleapi.CallOption) (*ListConne
 	//       "description": "The order in which the connections should be sorted. Defaults to\n`LAST_MODIFIED_ASCENDING`.",
 	//       "enum": [
 	//         "LAST_MODIFIED_ASCENDING",
+	//         "LAST_MODIFIED_DESCENDING",
 	//         "FIRST_NAME_ASCENDING",
 	//         "LAST_NAME_ASCENDING"
 	//       ],

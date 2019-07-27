@@ -25,7 +25,7 @@ func TestUnlock(t *testing.T) {
 		if err != nil {
 			t.Fatalf("err: %s", err)
 		}
-		err = terraform.WriteState(testState(), f)
+		err = terraform.WriteState(terraform.NewState(), f)
 		f.Close()
 		if err != nil {
 			t.Fatalf("err: %s", err)
@@ -44,6 +44,16 @@ func TestUnlock(t *testing.T) {
 	args := []string{
 		"-force",
 		"LOCK_ID",
+	}
+
+	if code := c.Run(args); code != 1 {
+		t.Fatalf("bad: %d\n%s\n%s", code, ui.OutputWriter.String(), ui.ErrorWriter.String())
+	}
+
+	// make sure we don't crash with arguments in the wrong order
+	args = []string{
+		"LOCK_ID",
+		"-force",
 	}
 
 	if code := c.Run(args); code != 1 {

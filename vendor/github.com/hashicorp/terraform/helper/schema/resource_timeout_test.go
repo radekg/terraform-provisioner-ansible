@@ -16,7 +16,7 @@ func TestResourceTimeout_ConfigDecode_badkey(t *testing.T) {
 		// what the resource has defined in source
 		ResourceDefaultTimeout *ResourceTimeout
 		// configuration provider by user in tf file
-		Config []map[string]interface{}
+		Config map[string]interface{}
 		// what we expect the parsed ResourceTimeout to be
 		Expected *ResourceTimeout
 		// Should we have an error (key not defined in source)
@@ -46,10 +46,9 @@ func TestResourceTimeout_ConfigDecode_badkey(t *testing.T) {
 		{
 			Name:                   "Use something besides 'minutes'",
 			ResourceDefaultTimeout: timeoutForValues(10, 0, 5, 0, 3),
-			Config: []map[string]interface{}{
-				map[string]interface{}{
-					"create": "2h",
-				}},
+			Config: map[string]interface{}{
+				"create": "2h",
+			},
 			Expected:  timeoutForValues(120, 0, 5, 0, 3),
 			ShouldErr: false,
 		},
@@ -87,7 +86,7 @@ func TestResourceTimeout_ConfigDecode_badkey(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(c.Expected, timeout) {
-				t.Fatalf("ConfigDecode match error case (%d), expected:\n%#v\ngot:\n%#v", i, c.Expected, timeout)
+				t.Fatalf("ConfigDecode match error case (%d).\nExpected:\n%#v\nGot:\n%#v", i, c.Expected, timeout)
 			}
 		})
 	}
@@ -104,11 +103,46 @@ func TestResourceTimeout_ConfigDecode(t *testing.T) {
 	raw, err := config.NewRawConfig(
 		map[string]interface{}{
 			"foo": "bar",
+			TimeoutsConfigKey: map[string]interface{}{
+				"create": "2m",
+				"update": "1m",
+			},
+		})
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	c := terraform.NewResourceConfig(raw)
+
+	timeout := &ResourceTimeout{}
+	err = timeout.ConfigDecode(r, c)
+	if err != nil {
+		t.Fatalf("Expected good timeout returned:, %s", err)
+	}
+
+	expected := &ResourceTimeout{
+		Create: DefaultTimeout(2 * time.Minute),
+		Update: DefaultTimeout(1 * time.Minute),
+	}
+
+	if !reflect.DeepEqual(timeout, expected) {
+		t.Fatalf("bad timeout decode.\nExpected:\n%#v\nGot:\n%#v\n", expected, timeout)
+	}
+}
+
+func TestResourceTimeout_legacyConfigDecode(t *testing.T) {
+	r := &Resource{
+		Timeouts: &ResourceTimeout{
+			Create: DefaultTimeout(10 * time.Minute),
+			Update: DefaultTimeout(5 * time.Minute),
+		},
+	}
+
+	raw, err := config.NewRawConfig(
+		map[string]interface{}{
+			"foo": "bar",
 			TimeoutsConfigKey: []map[string]interface{}{
-				map[string]interface{}{
+				{
 					"create": "2m",
-				},
-				map[string]interface{}{
 					"update": "1m",
 				},
 			},
@@ -130,7 +164,7 @@ func TestResourceTimeout_ConfigDecode(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(timeout, expected) {
-		t.Fatalf("bad timeout decode, expected (%#v), got (%#v)", expected, timeout)
+		t.Fatalf("bad timeout decode.\nExpected:\n%#v\nGot:\n%#v\n", expected, timeout)
 	}
 }
 
@@ -329,24 +363,24 @@ func expectedForValues(create, read, update, del, def int) map[string]interface{
 	return ex
 }
 
-func expectedConfigForValues(create, read, update, delete, def int) []map[string]interface{} {
-	ex := make([]map[string]interface{}, 0)
+func expectedConfigForValues(create, read, update, delete, def int) map[string]interface{} {
+	ex := make(map[string]interface{}, 0)
 
 	if create != 0 {
-		ex = append(ex, map[string]interface{}{"create": fmt.Sprintf("%dm", create)})
+		ex["create"] = fmt.Sprintf("%dm", create)
 	}
 	if read != 0 {
-		ex = append(ex, map[string]interface{}{"read": fmt.Sprintf("%dm", read)})
+		ex["read"] = fmt.Sprintf("%dm", read)
 	}
 	if update != 0 {
-		ex = append(ex, map[string]interface{}{"update": fmt.Sprintf("%dm", update)})
+		ex["update"] = fmt.Sprintf("%dm", update)
 	}
 	if delete != 0 {
-		ex = append(ex, map[string]interface{}{"delete": fmt.Sprintf("%dm", delete)})
+		ex["delete"] = fmt.Sprintf("%dm", delete)
 	}
 
 	if def != 0 {
-		ex = append(ex, map[string]interface{}{"default": fmt.Sprintf("%dm", def)})
+		ex["default"] = fmt.Sprintf("%dm", def)
 	}
 	return ex
 }
