@@ -678,7 +678,7 @@ func (s *BatchCreateOccurrencesResponse) MarshalJSON() ([]byte, error) {
 // Binding: Associates `members` with a `role`.
 type Binding struct {
 	// Condition: The condition that is associated with this binding.
-	// NOTE: an unsatisfied condition will not allow user access via
+	// NOTE: An unsatisfied condition will not allow user access via
 	// current
 	// binding. Different bindings, including their conditions, are
 	// examined
@@ -929,6 +929,117 @@ func (s *BuildSignature) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// CVSSv3: Common Vulnerability Scoring System version 3.
+// For details, see https://www.first.org/cvss/specification-document
+type CVSSv3 struct {
+	// Possible values:
+	//   "ATTACK_COMPLEXITY_UNSPECIFIED"
+	//   "ATTACK_COMPLEXITY_LOW"
+	//   "ATTACK_COMPLEXITY_HIGH"
+	AttackComplexity string `json:"attackComplexity,omitempty"`
+
+	// AttackVector: Base Metrics
+	// Represents the intrinsic characteristics of a vulnerability that
+	// are
+	// constant over time and across user environments.
+	//
+	// Possible values:
+	//   "ATTACK_VECTOR_UNSPECIFIED"
+	//   "ATTACK_VECTOR_NETWORK"
+	//   "ATTACK_VECTOR_ADJACENT"
+	//   "ATTACK_VECTOR_LOCAL"
+	//   "ATTACK_VECTOR_PHYSICAL"
+	AttackVector string `json:"attackVector,omitempty"`
+
+	// Possible values:
+	//   "IMPACT_UNSPECIFIED"
+	//   "IMPACT_HIGH"
+	//   "IMPACT_LOW"
+	//   "IMPACT_NONE"
+	AvailabilityImpact string `json:"availabilityImpact,omitempty"`
+
+	// BaseScore: The base score is a function of the base metric scores.
+	BaseScore float64 `json:"baseScore,omitempty"`
+
+	// Possible values:
+	//   "IMPACT_UNSPECIFIED"
+	//   "IMPACT_HIGH"
+	//   "IMPACT_LOW"
+	//   "IMPACT_NONE"
+	ConfidentialityImpact string `json:"confidentialityImpact,omitempty"`
+
+	ExploitabilityScore float64 `json:"exploitabilityScore,omitempty"`
+
+	ImpactScore float64 `json:"impactScore,omitempty"`
+
+	// Possible values:
+	//   "IMPACT_UNSPECIFIED"
+	//   "IMPACT_HIGH"
+	//   "IMPACT_LOW"
+	//   "IMPACT_NONE"
+	IntegrityImpact string `json:"integrityImpact,omitempty"`
+
+	// Possible values:
+	//   "PRIVILEGES_REQUIRED_UNSPECIFIED"
+	//   "PRIVILEGES_REQUIRED_NONE"
+	//   "PRIVILEGES_REQUIRED_LOW"
+	//   "PRIVILEGES_REQUIRED_HIGH"
+	PrivilegesRequired string `json:"privilegesRequired,omitempty"`
+
+	// Possible values:
+	//   "SCOPE_UNSPECIFIED"
+	//   "SCOPE_UNCHANGED"
+	//   "SCOPE_CHANGED"
+	Scope string `json:"scope,omitempty"`
+
+	// Possible values:
+	//   "USER_INTERACTION_UNSPECIFIED"
+	//   "USER_INTERACTION_NONE"
+	//   "USER_INTERACTION_REQUIRED"
+	UserInteraction string `json:"userInteraction,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AttackComplexity") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AttackComplexity") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CVSSv3) MarshalJSON() ([]byte, error) {
+	type NoMethod CVSSv3
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+func (s *CVSSv3) UnmarshalJSON(data []byte) error {
+	type NoMethod CVSSv3
+	var s1 struct {
+		BaseScore           gensupport.JSONFloat64 `json:"baseScore"`
+		ExploitabilityScore gensupport.JSONFloat64 `json:"exploitabilityScore"`
+		ImpactScore         gensupport.JSONFloat64 `json:"impactScore"`
+		*NoMethod
+	}
+	s1.NoMethod = (*NoMethod)(s)
+	if err := json.Unmarshal(data, &s1); err != nil {
+		return err
+	}
+	s.BaseScore = float64(s1.BaseScore)
+	s.ExploitabilityScore = float64(s1.ExploitabilityScore)
+	s.ImpactScore = float64(s1.ImpactScore)
+	return nil
+}
+
 // CloudRepoSourceContext: A CloudRepoSourceContext denotes a particular
 // revision in a Google Cloud
 // Source Repo.
@@ -1174,8 +1285,10 @@ type Detail struct {
 	// obsolete details.
 	IsObsolete bool `json:"isObsolete,omitempty"`
 
-	// MaxAffectedVersion: The max version of the package in which the
-	// vulnerability exists.
+	// MaxAffectedVersion: Deprecated, do not use. Use fixed_location
+	// instead.
+	//
+	// The max version of the package in which the vulnerability exists.
 	MaxAffectedVersion *Version `json:"maxAffectedVersion,omitempty"`
 
 	// MinAffectedVersion: The min version of the package in which the
@@ -1606,11 +1719,11 @@ func (s *FixableTotalByDigest) MarshalJSON() ([]byte, error) {
 
 // GenericSignedAttestation: An attestation wrapper that uses the
 // Grafeas `Signature` message.
-// This attestation must define the `plaintext` that the `signatures`
-// verify
-// and any metadata necessary to interpret that plaintext.  The
-// signatures
-// should always be over the `plaintext` bytestring.
+// This attestation must define the `serialized_payload` that the
+// `signatures`
+// verify and any metadata necessary to interpret that plaintext.
+// The
+// signatures should always be over the `serialized_payload` bytestring.
 type GenericSignedAttestation struct {
 	// ContentType: Type (for example schema) of the attestation payload
 	// that was signed.
@@ -1713,6 +1826,67 @@ func (s *GerritSourceContext) MarshalJSON() ([]byte, error) {
 
 // GetIamPolicyRequest: Request message for `GetIamPolicy` method.
 type GetIamPolicyRequest struct {
+	// Options: OPTIONAL: A `GetPolicyOptions` object for specifying options
+	// to
+	// `GetIamPolicy`. This field is only used by Cloud IAM.
+	Options *GetPolicyOptions `json:"options,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Options") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Options") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GetIamPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GetIamPolicyRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GetPolicyOptions: Encapsulates settings provided to GetIamPolicy.
+type GetPolicyOptions struct {
+	// RequestedPolicyVersion: Optional. The policy format version to be
+	// returned.
+	// Acceptable values are 0 and 1.
+	// If the value is 0, or the field is omitted, policy format version 1
+	// will be
+	// returned.
+	RequestedPolicyVersion int64 `json:"requestedPolicyVersion,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "RequestedPolicyVersion") to unconditionally include in API requests.
+	// By default, fields with empty values are omitted from API requests.
+	// However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "RequestedPolicyVersion")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GetPolicyOptions) MarshalJSON() ([]byte, error) {
+	type NoMethod GetPolicyOptions
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // GitSourceContext: A GitSourceContext denotes a particular revision in
@@ -3007,12 +3181,15 @@ func (s *RepoId) MarshalJSON() ([]byte, error) {
 // Resource: An entity that can have metadata. For example, a Docker
 // image.
 type Resource struct {
-	// ContentHash: The hash of the resource content. For example, the
-	// Docker digest.
+	// ContentHash: Deprecated, do not use. Use uri instead.
+	//
+	// The hash of the resource content. For example, the Docker digest.
 	ContentHash *Hash `json:"contentHash,omitempty"`
 
-	// Name: The name of the resource. For example, the name of a Docker
-	// image -
+	// Name: Deprecated, do not use. Use uri instead.
+	//
+	// The name of the resource. For example, the name of a Docker image
+	// -
 	// "Debian".
 	Name string `json:"name,omitempty"`
 
@@ -3339,81 +3516,14 @@ func (s *SourceContext) MarshalJSON() ([]byte, error) {
 // suitable for
 // different programming environments, including REST APIs and RPC APIs.
 // It is
-// used by [gRPC](https://github.com/grpc). The error model is designed
-// to be:
+// used by [gRPC](https://github.com/grpc). Each `Status` message
+// contains
+// three pieces of data: error code, error message, and error
+// details.
 //
-// - Simple to use and understand for most users
-// - Flexible enough to meet unexpected needs
-//
-// # Overview
-//
-// The `Status` message contains three pieces of data: error code,
-// error
-// message, and error details. The error code should be an enum value
-// of
-// google.rpc.Code, but it may accept additional error codes if needed.
-// The
-// error message should be a developer-facing English message that
-// helps
-// developers *understand* and *resolve* the error. If a localized
-// user-facing
-// error message is needed, put the localized message in the error
-// details or
-// localize it in the client. The optional error details may contain
-// arbitrary
-// information about the error. There is a predefined set of error
-// detail types
-// in the package `google.rpc` that can be used for common error
-// conditions.
-//
-// # Language mapping
-//
-// The `Status` message is the logical representation of the error
-// model, but it
-// is not necessarily the actual wire format. When the `Status` message
-// is
-// exposed in different client libraries and different wire protocols,
-// it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions
-// in Java, but more likely mapped to some error codes in C.
-//
-// # Other uses
-//
-// The error model and the `Status` message can be used in a variety
-// of
-// environments, either with or without APIs, to provide a
-// consistent developer experience across different
-// environments.
-//
-// Example uses of this error model include:
-//
-// - Partial errors. If a service needs to return partial errors to the
-// client,
-//     it may embed the `Status` in the normal response to indicate the
-// partial
-//     errors.
-//
-// - Workflow errors. A typical workflow has multiple steps. Each step
-// may
-//     have a `Status` message for error reporting.
-//
-// - Batch operations. If a client uses batch request and batch
-// response, the
-//     `Status` message should be used directly inside batch response,
-// one for
-//     each error sub-response.
-//
-// - Asynchronous operations. If an API call embeds asynchronous
-// operation
-//     results in its response, the status of those operations should
-// be
-//     represented directly using the `Status` message.
-//
-// - Logging. If some API errors are stored in logs, the message
-// `Status` could
-//     be used directly after any stripping needed for security/privacy
-// reasons.
+// You can find out more about this error model and how to work with it
+// in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
 type Status struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -3577,6 +3687,9 @@ func (s *Version) MarshalJSON() ([]byte, error) {
 type Vulnerability struct {
 	// CvssScore: The CVSS score for this vulnerability.
 	CvssScore float64 `json:"cvssScore,omitempty"`
+
+	// CvssV3: The full description of the CVSSv3.
+	CvssV3 *CVSSv3 `json:"cvssV3,omitempty"`
 
 	// Details: All information about the package to specifically identify
 	// this

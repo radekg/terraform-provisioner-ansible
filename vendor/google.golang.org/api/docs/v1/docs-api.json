@@ -209,7 +209,7 @@
       }
     }
   },
-  "revision": "20190312",
+  "revision": "20190718",
   "rootUrl": "https://docs.googleapis.com/",
   "schemas": {
     "AutoText": {
@@ -652,89 +652,89 @@
       "properties": {
         "body": {
           "$ref": "Body",
-          "description": "The main body of the document."
+          "description": "Output only. The main body of the document."
         },
         "documentId": {
-          "description": "The ID of the document.",
+          "description": "Output only. The ID of the document.",
           "type": "string"
         },
         "documentStyle": {
           "$ref": "DocumentStyle",
-          "description": "The style of the document."
+          "description": "Output only. The style of the document."
         },
         "footers": {
           "additionalProperties": {
             "$ref": "Footer"
           },
-          "description": "The footers in the document, keyed by footer ID.",
+          "description": "Output only. The footers in the document, keyed by footer ID.",
           "type": "object"
         },
         "footnotes": {
           "additionalProperties": {
             "$ref": "Footnote"
           },
-          "description": "The footnotes in the document, keyed by footnote ID.",
+          "description": "Output only. The footnotes in the document, keyed by footnote ID.",
           "type": "object"
         },
         "headers": {
           "additionalProperties": {
             "$ref": "Header"
           },
-          "description": "The headers in the document, keyed by header ID.",
+          "description": "Output only. The headers in the document, keyed by header ID.",
           "type": "object"
         },
         "inlineObjects": {
           "additionalProperties": {
             "$ref": "InlineObject"
           },
-          "description": "The inline objects in the document, keyed by object ID.",
+          "description": "Output only. The inline objects in the document, keyed by object ID.",
           "type": "object"
         },
         "lists": {
           "additionalProperties": {
             "$ref": "List"
           },
-          "description": "The lists in the document, keyed by list ID.",
+          "description": "Output only. The lists in the document, keyed by list ID.",
           "type": "object"
         },
         "namedRanges": {
           "additionalProperties": {
             "$ref": "NamedRanges"
           },
-          "description": "The named ranges in the document, keyed by name.",
+          "description": "Output only. The named ranges in the document, keyed by name.",
           "type": "object"
         },
         "namedStyles": {
           "$ref": "NamedStyles",
-          "description": "The named styles of the document."
+          "description": "Output only. The named styles of the document."
         },
         "positionedObjects": {
           "additionalProperties": {
             "$ref": "PositionedObject"
           },
-          "description": "The positioned objects in the document, keyed by object ID.",
+          "description": "Output only. The positioned objects in the document, keyed by object ID.",
           "type": "object"
         },
         "revisionId": {
-          "description": "The revision ID of the document. Can be used in update requests to specify\nwhich revision of a document to apply updates to and how the request should\nbehave if the document has been edited since that revision. Only populated\nif the user has edit access to the document.\n\nThe format of the revision ID may change over time, so it should be treated\nopaquely. A returned revision ID is only guaranteed to be valid for 24\nhours after it has been returned and cannot be shared across users. If the\nrevision ID is unchanged between calls, then the document has not changed.\nConversely, a changed ID (for the same document and user) usually means the\ndocument has been updated; however, a changed ID can also be due to\ninternal factors such as ID format changes.",
+          "description": "Output only. The revision ID of the document. Can be used in update\nrequests to specify which revision of a document to apply updates to and\nhow the request should behave if the document has been edited since that\nrevision. Only populated if the user has edit access to the document.\n\nThe format of the revision ID may change over time, so it should be treated\nopaquely. A returned revision ID is only guaranteed to be valid for 24\nhours after it has been returned and cannot be shared across users. If the\nrevision ID is unchanged between calls, then the document has not changed.\nConversely, a changed ID (for the same document and user) usually means the\ndocument has been updated; however, a changed ID can also be due to\ninternal factors such as ID format changes.",
           "type": "string"
         },
         "suggestedDocumentStyleChanges": {
           "additionalProperties": {
             "$ref": "SuggestedDocumentStyle"
           },
-          "description": "The suggested changes to the style of the document, keyed by suggestion ID.",
+          "description": "Output only. The suggested changes to the style of the document, keyed by\nsuggestion ID.",
           "type": "object"
         },
         "suggestedNamedStylesChanges": {
           "additionalProperties": {
             "$ref": "SuggestedNamedStyles"
           },
-          "description": "The suggested changes to the named styles of the document, keyed by\nsuggestion ID.",
+          "description": "Output only. The suggested changes to the named styles of the document,\nkeyed by suggestion ID.",
           "type": "object"
         },
         "suggestionsViewMode": {
-          "description": "The suggestions view mode applied to the document.\n\nNote: When editing a document, changes must be based on a document with\nSUGGESTIONS_INLINE.",
+          "description": "Output only. The suggestions view mode applied to the document.\n\nNote: When editing a document, changes must be based on a document with\nSUGGESTIONS_INLINE.",
           "enum": [
             "DEFAULT_FOR_CURRENT_ACCESS",
             "SUGGESTIONS_INLINE",
@@ -762,47 +762,47 @@
       "properties": {
         "background": {
           "$ref": "Background",
-          "description": "The background of the document."
+          "description": "The background of the document. Documents cannot have a transparent\nbackground color."
         },
         "defaultFooterId": {
-          "description": "The ID of the default footer. If not set, there is no default footer.",
+          "description": "The ID of the default footer. If not set, there is no default footer.\n\nThis property is read-only.",
           "type": "string"
         },
         "defaultHeaderId": {
-          "description": "The ID of the default header. If not set, there is no default header.",
+          "description": "The ID of the default header. If not set, there is no default header.\n\nThis property is read-only.",
           "type": "string"
         },
         "evenPageFooterId": {
-          "description": "The ID of the footer used only for even pages. The value of\nuse_even_page_header_footer determines\nwhether to use the default_footer_id or this value for the\nfooter on even pages. If not set, there is no even page footer.",
+          "description": "The ID of the footer used only for even pages. The value of\nuse_even_page_header_footer determines\nwhether to use the default_footer_id or this value for the\nfooter on even pages. If not set, there is no even page footer.\n\nThis property is read-only.",
           "type": "string"
         },
         "evenPageHeaderId": {
-          "description": "The ID of the header used only for even pages. The value of\nuse_even_page_header_footer determines\nwhether to use the default_header_id or this value for the\nheader on even pages. If not set, there is no even page header.",
+          "description": "The ID of the header used only for even pages. The value of\nuse_even_page_header_footer determines\nwhether to use the default_header_id or this value for the\nheader on even pages. If not set, there is no even page header.\n\nThis property is read-only.",
           "type": "string"
         },
         "firstPageFooterId": {
-          "description": "The ID of the footer used only for the first page. If not set then\na unique footer for the first page does not exist. The value of\nuse_first_page_header_footer determines\nwhether to use the default_footer_id or this value for the\nfooter on the first page. If not set, there is no first page footer.",
+          "description": "The ID of the footer used only for the first page. If not set then\na unique footer for the first page does not exist. The value of\nuse_first_page_header_footer determines\nwhether to use the default_footer_id or this value for the\nfooter on the first page. If not set, there is no first page footer.\n\nThis property is read-only.",
           "type": "string"
         },
         "firstPageHeaderId": {
-          "description": "The ID of the header used only for the first page. If not set then\na unique header for the first page does not exist.\nThe value of use_first_page_header_footer determines\nwhether to use the default_header_id or this value for the\nheader on the first page. If not set, there is no first page header.",
+          "description": "The ID of the header used only for the first page. If not set then\na unique header for the first page does not exist.\nThe value of use_first_page_header_footer determines\nwhether to use the default_header_id or this value for the\nheader on the first page. If not set, there is no first page header.\n\nThis property is read-only.",
           "type": "string"
         },
         "marginBottom": {
           "$ref": "Dimension",
-          "description": "The bottom page margin."
+          "description": "The bottom page margin.\n\nUpdating the bottom page margin on the document style clears the bottom\npage margin on all section styles."
         },
         "marginLeft": {
           "$ref": "Dimension",
-          "description": "The left page margin."
+          "description": "The left page margin.\n\nUpdating the left page margin on the document style clears the left page\nmargin on all section styles. It may also cause columns to resize in all\nsections."
         },
         "marginRight": {
           "$ref": "Dimension",
-          "description": "The right page margin."
+          "description": "The right page margin.\n\nUpdating the right page margin on the document style clears the right page\nmargin on all section styles. It may also cause columns to resize in all\nsections."
         },
         "marginTop": {
           "$ref": "Dimension",
-          "description": "The top page margin."
+          "description": "The top page margin.\n\nUpdating the top page margin on the document style clears the top page\nmargin on all section styles."
         },
         "pageNumberStart": {
           "description": "The page number from which to start counting the number of pages.",
@@ -814,11 +814,11 @@
           "description": "The size of a page in the document."
         },
         "useEvenPageHeaderFooter": {
-          "description": "Indicates whether to use the even page header / footer IDs for the even\npages.",
+          "description": "Indicates whether to use the even page header / footer IDs for the even\npages.\n\nThis property is read-only.",
           "type": "boolean"
         },
         "useFirstPageHeaderFooter": {
-          "description": "Indicates whether to use the first page header / footer IDs for the first\npage.",
+          "description": "Indicates whether to use the first page header / footer IDs for the first\npage.\n\nThis property is read-only.",
           "type": "boolean"
         }
       },
@@ -945,7 +945,7 @@
         },
         "size": {
           "$ref": "Size",
-          "description": "The size of the embedded object."
+          "description": "The visible size of the image after cropping."
         },
         "title": {
           "description": "The title of the embedded object. The `title` and `description` are both\ncombined to display alt text.",
@@ -1254,7 +1254,7 @@
         },
         "cropProperties": {
           "$ref": "CropProperties",
-          "description": "The crop properties of the image.\n\nAfter cropping, the image will be stretched to fit in its container."
+          "description": "The crop properties of the image."
         },
         "sourceUri": {
           "description": "The source URI is the URI used to insert the image. The source URI can be\nempty.",
@@ -1450,6 +1450,21 @@
         "location": {
           "$ref": "Location",
           "description": "Inserts the page break at a specific index in the document.\n\nThe page break must be inserted inside the bounds of an existing\nParagraph. For instance, it cannot be\ninserted at a table's start index (i.e. between the table and its\npreceding paragraph).\n\nPage breaks cannot be inserted inside a table, equation, footnote, header\nor footer. Since page breaks can only be inserted inside the body, the\nsegment ID field must be\nempty."
+        }
+      },
+      "type": "object"
+    },
+    "InsertTableColumnRequest": {
+      "description": "Inserts an empty column into a table.",
+      "id": "InsertTableColumnRequest",
+      "properties": {
+        "insertRight": {
+          "description": "Whether to insert new column to the right of the reference cell location.\n\n- `True`: insert to the right.\n- `False`: insert to the left.",
+          "type": "boolean"
+        },
+        "tableCellLocation": {
+          "$ref": "TableCellLocation",
+          "description": "The reference table cell location from which columns will be inserted.\n\nA new column will be inserted to the left (or right) of the column where\nthe reference cell is. If the reference cell is a merged cell, a new\ncolumn will be inserted to the left (or right) of the merged cell."
         }
       },
       "type": "object"
@@ -2144,7 +2159,7 @@
           "type": "string"
         },
         "headingId": {
-          "description": "The heading ID of the paragraph. If empty, then this paragraph is not a\nheading. This property is read-only.",
+          "description": "The heading ID of the paragraph. If empty, then this paragraph is not a\nheading.\n\nThis property is read-only.",
           "type": "string"
         },
         "indentEnd": {
@@ -2227,7 +2242,7 @@
           "type": "string"
         },
         "tabStops": {
-          "description": "A list of the tab stops for this paragraph. The list of tab stops is not\ninherited. This property is read-only.",
+          "description": "A list of the tab stops for this paragraph. The list of tab stops is not\ninherited.\n\nThis property is read-only.",
           "items": {
             "$ref": "TabStop"
           },
@@ -2536,6 +2551,10 @@
           "$ref": "InsertTableRequest",
           "description": "Inserts a table at the specified location."
         },
+        "insertTableColumn": {
+          "$ref": "InsertTableColumnRequest",
+          "description": "Inserts an empty column into a table."
+        },
         "insertTableRow": {
           "$ref": "InsertTableRowRequest",
           "description": "Inserts an empty row into a table."
@@ -2548,9 +2567,25 @@
           "$ref": "ReplaceAllTextRequest",
           "description": "Replaces all instances of the specified text."
         },
+        "updateDocumentStyle": {
+          "$ref": "UpdateDocumentStyleRequest",
+          "description": "Updates the style of the document."
+        },
         "updateParagraphStyle": {
           "$ref": "UpdateParagraphStyleRequest",
           "description": "Updates the paragraph style at the specified range."
+        },
+        "updateTableCellStyle": {
+          "$ref": "UpdateTableCellStyleRequest",
+          "description": "Updates the style of table cells."
+        },
+        "updateTableColumnProperties": {
+          "$ref": "UpdateTableColumnPropertiesRequest",
+          "description": "Updates the properties of columns in a table."
+        },
+        "updateTableRowStyle": {
+          "$ref": "UpdateTableRowStyleRequest",
+          "description": "Updates the row style in a table."
         },
         "updateTextStyle": {
           "$ref": "UpdateTextStyleRequest",
@@ -3162,7 +3197,7 @@
           "description": "The top border of the cell."
         },
         "columnSpan": {
-          "description": "The column span of the cell. This property is read-only.",
+          "description": "The column span of the cell.\n\nThis property is read-only.",
           "format": "int32",
           "type": "integer"
         },
@@ -3201,7 +3236,7 @@
           "description": "The top padding of the cell."
         },
         "rowSpan": {
-          "description": "The row span of the cell. This property is read-only.",
+          "description": "The row span of the cell.\n\nThis property is read-only.",
           "format": "int32",
           "type": "integer"
         }
@@ -3312,6 +3347,27 @@
             "type": "string"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "TableRange": {
+      "description": "A table range represents a reference to a subset of a table.\n\nIt's important to note that the cells specified by a table range do not\nnecessarily form a rectangle. For example, let's say we have a 3 x 3 table\nwhere all the cells of the last row are merged together. The table looks\nlike this:\n\n              \n     [             ]\n\nA table range with table cell location = (table_start_location, row = 0,\ncolumn = 0), row span = 3 and column span = 2 specifies the following cells:\n\n      x     x \n     [ x    x    x ]",
+      "id": "TableRange",
+      "properties": {
+        "columnSpan": {
+          "description": "The column span of the table range.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "rowSpan": {
+          "description": "The row span of the table range.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "tableCellLocation": {
+          "$ref": "TableCellLocation",
+          "description": "The cell location where the table range starts."
         }
       },
       "type": "object"
@@ -3551,6 +3607,22 @@
       },
       "type": "object"
     },
+    "UpdateDocumentStyleRequest": {
+      "description": "Updates the DocumentStyle.",
+      "id": "UpdateDocumentStyleRequest",
+      "properties": {
+        "documentStyle": {
+          "$ref": "DocumentStyle",
+          "description": "The styles to set on the document.\n\nCertain document style changes may cause other changes in order to mirror\nthe behavior of the Docs editor. See the documentation of DocumentStyle for more information."
+        },
+        "fields": {
+          "description": "The fields that should be updated.\n\nAt least one field must be specified. The root `document_style` is\nimplied and should not be specified. A single `\"*\"` can be used as\nshort-hand for listing every field.\n\nFor example to update the background, set `fields` to `\"background\"`.",
+          "format": "google-fieldmask",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "UpdateParagraphStyleRequest": {
       "description": "Update the styling of all paragraphs that overlap with the given range.",
       "id": "UpdateParagraphStyleRequest",
@@ -3567,6 +3639,86 @@
         "range": {
           "$ref": "Range",
           "description": "The range overlapping the paragraphs to style."
+        }
+      },
+      "type": "object"
+    },
+    "UpdateTableCellStyleRequest": {
+      "description": "Updates the style of a range of table cells.",
+      "id": "UpdateTableCellStyleRequest",
+      "properties": {
+        "fields": {
+          "description": "The fields that should be updated.\n\nAt least one field must be specified. The root `tableCellStyle` is implied\nand should not be specified. A single `\"*\"` can be used as short-hand for\nlisting every field.\n\nFor example to update the table cell background color, set `fields` to\n`\"backgroundColor\"`.\n\nTo reset a property to its default value, include its field name in the\nfield mask but leave the field itself unset.",
+          "format": "google-fieldmask",
+          "type": "string"
+        },
+        "tableCellStyle": {
+          "$ref": "TableCellStyle",
+          "description": "The style to set on the table cells.\n\nWhen updating borders, if a cell shares a border with an adjacent cell, the\ncorresponding border property of the adjacent cell is updated as well.\nBorders that are merged and invisible are not updated.\n\nSince updating a border shared by adjacent cells in the same request can\ncause conflicting border updates, border updates are applied in the\nfollowing order:\n\n- `border_right`\n- `border_left`\n- `border_bottom`\n- `border_top`"
+        },
+        "tableRange": {
+          "$ref": "TableRange",
+          "description": "The table range representing the subset of the table to which the updates\nare applied."
+        },
+        "tableStartLocation": {
+          "$ref": "Location",
+          "description": "The location where the table starts in the document. When specified, the\nupdates are applied to all the cells in the table."
+        }
+      },
+      "type": "object"
+    },
+    "UpdateTableColumnPropertiesRequest": {
+      "description": "Updates the\nTableColumnProperties of columns\nin a table.",
+      "id": "UpdateTableColumnPropertiesRequest",
+      "properties": {
+        "columnIndices": {
+          "description": "The list of zero-based column indices whose property should be updated. If\nno indices are specified, all columns will be updated.",
+          "items": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "fields": {
+          "description": "The fields that should be updated.\n\nAt least one field must be specified. The root `tableColumnProperties` is\nimplied and should not be specified. A single `\"*\"` can be used as\nshort-hand for listing every field.\n\nFor example to update the column width, set `fields` to `\"width\"`.",
+          "format": "google-fieldmask",
+          "type": "string"
+        },
+        "tableColumnProperties": {
+          "$ref": "TableColumnProperties",
+          "description": "The table column properties to update.\n\nIf the value of `table_column_properties#width` is less than 5 points\n(5/72 inch), a 400 bad request error is returned."
+        },
+        "tableStartLocation": {
+          "$ref": "Location",
+          "description": "The location where the table starts in the document."
+        }
+      },
+      "type": "object"
+    },
+    "UpdateTableRowStyleRequest": {
+      "description": "Updates the TableRowStyle of rows in a\ntable.",
+      "id": "UpdateTableRowStyleRequest",
+      "properties": {
+        "fields": {
+          "description": "The fields that should be updated.\n\nAt least one field must be specified. The root `tableRowStyle` is implied\nand should not be specified. A single `\"*\"` can be used as short-hand for\nlisting every field.\n\nFor example to update the minimum row height, set `fields` to\n`\"min_row_height\"`.",
+          "format": "google-fieldmask",
+          "type": "string"
+        },
+        "rowIndices": {
+          "description": "The list of zero-based row indices whose style should be updated. If no\nindices are specified, all rows will be updated.",
+          "items": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "tableRowStyle": {
+          "$ref": "TableRowStyle",
+          "description": "The styles to be set on the rows."
+        },
+        "tableStartLocation": {
+          "$ref": "Location",
+          "description": "The location where the table starts in the document."
         }
       },
       "type": "object"

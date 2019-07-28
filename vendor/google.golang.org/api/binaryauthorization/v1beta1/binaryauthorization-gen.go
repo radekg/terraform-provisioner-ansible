@@ -397,7 +397,7 @@ func (s *AttestorPublicKey) MarshalJSON() ([]byte, error) {
 // Binding: Associates `members` with a `role`.
 type Binding struct {
 	// Condition: The condition that is associated with this binding.
-	// NOTE: an unsatisfied condition will not allow user access via
+	// NOTE: An unsatisfied condition will not allow user access via
 	// current
 	// binding. Different bindings, including their conditions, are
 	// examined
@@ -1025,7 +1025,14 @@ type ProjectsGetPolicyCall struct {
 	header_      http.Header
 }
 
-// GetPolicy: Gets the policy for this project. Returns a default
+// GetPolicy: A policy specifies the attestors that must attest to
+// a container image, before the project is allowed to deploy
+// that
+// image. There is at most one policy per project. All image
+// admission
+// requests are permitted if a project has no policy.
+//
+// Gets the policy for this project. Returns a default
 // policy if the project does not have one.
 func (r *ProjectsService) GetPolicy(name string) *ProjectsGetPolicyCall {
 	c := &ProjectsGetPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -1131,7 +1138,7 @@ func (c *ProjectsGetPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, error
 	}
 	return ret, nil
 	// {
-	//   "description": "Gets the policy for this project. Returns a default\npolicy if the project does not have one.",
+	//   "description": "A policy specifies the attestors that must attest to\na container image, before the project is allowed to deploy that\nimage. There is at most one policy per project. All image admission\nrequests are permitted if a project has no policy.\n\nGets the policy for this project. Returns a default\npolicy if the project does not have one.",
 	//   "flatPath": "v1beta1/projects/{projectsId}/policy",
 	//   "httpMethod": "GET",
 	//   "id": "binaryauthorization.projects.getPolicy",
@@ -1756,6 +1763,18 @@ func (r *ProjectsAttestorsService) GetIamPolicy(resource string) *ProjectsAttest
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned.
+// Acceptable values are 0 and 1.
+// If the value is 0, or the field is omitted, policy format version 1
+// will be
+// returned.
+func (c *ProjectsAttestorsGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsAttestorsGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -1862,6 +1881,12 @@ func (c *ProjectsAttestorsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*I
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned.\nAcceptable values are 0 and 1.\nIf the value is 0, or the field is omitted, policy format version 1 will be\nreturned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested.\nSee the operation documentation for the appropriate value for this field.",
 	//       "location": "path",
@@ -2527,6 +2552,18 @@ func (r *ProjectsPolicyService) GetIamPolicy(resource string) *ProjectsPolicyGet
 	return c
 }
 
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The policy format version to be
+// returned.
+// Acceptable values are 0 and 1.
+// If the value is 0, or the field is omitted, policy format version 1
+// will be
+// returned.
+func (c *ProjectsPolicyGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsPolicyGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -2633,6 +2670,12 @@ func (c *ProjectsPolicyGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*IamP
 	//     "resource"
 	//   ],
 	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The policy format version to be returned.\nAcceptable values are 0 and 1.\nIf the value is 0, or the field is omitted, policy format version 1 will be\nreturned.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
 	//     "resource": {
 	//       "description": "REQUIRED: The resource for which the policy is being requested.\nSee the operation documentation for the appropriate value for this field.",
 	//       "location": "path",

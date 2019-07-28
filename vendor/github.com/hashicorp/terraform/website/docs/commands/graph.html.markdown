@@ -36,9 +36,11 @@ Options:
 * `-draw-cycles`    - Highlight any cycles in the graph with colored edges.
                       This helps when diagnosing cycle errors.
 
-* `-no-color`       - If specified, output won't contain any color.
+* `-module-depth=n` - Specifies the depth of modules to show in the output.
+                      By default this is `-1`, which will expand all.
 
-* `-type=plan`      - Type of graph to output. Can be: plan, plan-destroy, apply, legacy.
+* `-type=plan`      - Type of graph to output. Can be: `plan`, `plan-destroy`, `apply`,
+                      `validate`, `input`, `refresh`.
 
 ## Generating Images
 

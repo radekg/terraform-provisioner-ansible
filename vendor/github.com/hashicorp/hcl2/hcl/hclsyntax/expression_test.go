@@ -237,6 +237,18 @@ func TestExpressionParseAndValue(t *testing.T) {
 			0,
 		},
 		{
+			`"$"`,
+			nil,
+			cty.StringVal("$"),
+			0,
+		},
+		{
+			`"%"`,
+			nil,
+			cty.StringVal("%"),
+			0,
+		},
+		{
 			`upper("foo")`,
 			&hcl.EvalContext{
 				Functions: map[string]function.Function{
@@ -1339,6 +1351,101 @@ EOT
 			cty.False,
 			0,
 		},
+		{
+			`true ? var : null`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"var": cty.ObjectVal(map[string]cty.Value{"a": cty.StringVal("A")}),
+				},
+			},
+			cty.ObjectVal(map[string]cty.Value{"a": cty.StringVal("A")}),
+			0,
+		},
+		{
+			`true ? var : null`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"var": cty.UnknownVal(cty.DynamicPseudoType),
+				},
+			},
+			cty.UnknownVal(cty.DynamicPseudoType),
+			0,
+		},
+		{
+			`true ? ["a", "b"] : null`,
+			nil,
+			cty.TupleVal([]cty.Value{cty.StringVal("a"), cty.StringVal("b")}),
+			0,
+		},
+		{
+			`true ? null: ["a", "b"]`,
+			nil,
+			cty.NullVal(cty.Tuple([]cty.Type{cty.String, cty.String})),
+			0,
+		},
+		{
+			`false ? ["a", "b"] : null`,
+			nil,
+			cty.NullVal(cty.Tuple([]cty.Type{cty.String, cty.String})),
+			0,
+		},
+		{
+			`false ? null: ["a", "b"]`,
+			nil,
+			cty.TupleVal([]cty.Value{cty.StringVal("a"), cty.StringVal("b")}),
+			0,
+		},
+		{
+			`false ? null: null`,
+			nil,
+			cty.NullVal(cty.DynamicPseudoType),
+			0,
+		},
+		{
+			`false ? var: {a = "b"}`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"var": cty.DynamicVal,
+				},
+			},
+			cty.ObjectVal(map[string]cty.Value{
+				"a": cty.StringVal("b"),
+			}),
+			0,
+		},
+		{
+			`true ? ["a", "b"]: var`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"var": cty.UnknownVal(cty.DynamicPseudoType),
+				},
+			},
+			cty.TupleVal([]cty.Value{
+				cty.StringVal("a"),
+				cty.StringVal("b"),
+			}),
+			0,
+		},
+		{
+			`false ? ["a", "b"]: var`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"var": cty.DynamicVal,
+				},
+			},
+			cty.DynamicVal,
+			0,
+		},
+		{
+			`false ? ["a", "b"]: var`,
+			&hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"var": cty.UnknownVal(cty.DynamicPseudoType),
+				},
+			},
+			cty.DynamicVal,
+			0,
+		},
 	}
 
 	for _, test := range tests {
@@ -1546,16 +1653,37 @@ func TestFunctionCallExprValue(t *testing.T) {
 }
 
 func TestExpressionAsTraversal(t *testing.T) {
-	expr, _ := ParseExpression([]byte("a.b[0]"), "", hcl.Pos{})
+	expr, _ := ParseExpression([]byte("a.b[0][\"c\"]"), "", hcl.Pos{})
 	traversal, diags := hcl.AbsTraversalForExpr(expr)
 	if len(diags) != 0 {
-		t.Fatalf("unexpected diagnostics")
+		t.Fatalf("unexpected diagnostics:\n%s", diags.Error())
 	}
-	if len(traversal) != 3 {
+	if len(traversal) != 4 {
 		t.Fatalf("wrong traversal %#v; want length 3", traversal)
 	}
 	if traversal.RootName() != "a" {
-		t.Fatalf("wrong root name %q; want %q", traversal.RootName(), "a")
+		t.Errorf("wrong root name %q; want %q", traversal.RootName(), "a")
+	}
+	if step, ok := traversal[1].(hcl.TraverseAttr); ok {
+		if got, want := step.Name, "b"; got != want {
+			t.Errorf("wrong name %q for step 1; want %q", got, want)
+		}
+	} else {
+		t.Errorf("wrong type %T for step 1; want %T", traversal[1], step)
+	}
+	if step, ok := traversal[2].(hcl.TraverseIndex); ok {
+		if got, want := step.Key, cty.Zero; !want.RawEquals(got) {
+			t.Errorf("wrong name %#v for step 2; want %#v", got, want)
+		}
+	} else {
+		t.Errorf("wrong type %T for step 2; want %T", traversal[2], step)
+	}
+	if step, ok := traversal[3].(hcl.TraverseIndex); ok {
+		if got, want := step.Key, cty.StringVal("c"); !want.RawEquals(got) {
+			t.Errorf("wrong name %#v for step 3; want %#v", got, want)
+		}
+	} else {
+		t.Errorf("wrong type %T for step 3; want %T", traversal[3], step)
 	}
 }
 
@@ -1563,7 +1691,7 @@ func TestStaticExpressionList(t *testing.T) {
 	expr, _ := ParseExpression([]byte("[0, a, true]"), "", hcl.Pos{})
 	exprs, diags := hcl.ExprList(expr)
 	if len(diags) != 0 {
-		t.Fatalf("unexpected diagnostics")
+		t.Fatalf("unexpected diagnostics:\n%s", diags.Error())
 	}
 	if len(exprs) != 3 {
 		t.Fatalf("wrong result %#v; want length 3", exprs)

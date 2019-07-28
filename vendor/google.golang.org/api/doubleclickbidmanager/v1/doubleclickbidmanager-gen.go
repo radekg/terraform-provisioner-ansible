@@ -262,15 +262,16 @@ func (s *DownloadLineItemsResponse) MarshalJSON() ([]byte, error) {
 // DownloadRequest: Request to fetch stored inventory sources,
 // campaigns, insertion orders, line items, TrueView ad groups and ads.
 type DownloadRequest struct {
-	// FileTypes: File types that will be returned.
+	// FileTypes: File types that will be returned. If INVENTORY_SOURCE is
+	// requested, no other file types may be requested.
 	//
 	// Acceptable values are:
 	// - "AD"
 	// - "AD_GROUP"
 	// - "CAMPAIGN"
 	// - "INSERTION_ORDER"
-	// - "LINE_ITEM"
 	// - "INVENTORY_SOURCE"
+	// - "LINE_ITEM"
 	//
 	// Possible values:
 	//   "AD"
@@ -285,7 +286,9 @@ type DownloadRequest struct {
 	// filter entities to fetch. At least one ID must be specified.
 	FilterIds googleapi.Int64s `json:"filterIds,omitempty"`
 
-	// FilterType: Filter type used to filter entities to fetch.
+	// FilterType: Filter type used to filter entities to fetch. PARTNER_ID
+	// and INVENTORY_SOURCE_ID may only be used when downloading inventory
+	// sources.
 	//
 	// Possible values:
 	//   "ADVERTISER_ID"
@@ -417,6 +420,7 @@ type FilterPair struct {
 	//   "FILTER_INVENTORY_FORMAT"
 	//   "FILTER_INVENTORY_RATE_TYPE"
 	//   "FILTER_INVENTORY_SOURCE"
+	//   "FILTER_INVENTORY_SOURCE_EXTERNAL_ID"
 	//   "FILTER_INVENTORY_SOURCE_TYPE"
 	//   "FILTER_KEYWORD"
 	//   "FILTER_LINE_ITEM"
@@ -653,6 +657,7 @@ type Parameters struct {
 	//   "FILTER_INVENTORY_FORMAT"
 	//   "FILTER_INVENTORY_RATE_TYPE"
 	//   "FILTER_INVENTORY_SOURCE"
+	//   "FILTER_INVENTORY_SOURCE_EXTERNAL_ID"
 	//   "FILTER_INVENTORY_SOURCE_TYPE"
 	//   "FILTER_KEYWORD"
 	//   "FILTER_LINE_ITEM"
@@ -740,7 +745,7 @@ type Parameters struct {
 	//   "FILTER_ZIP_CODE"
 	GroupBys []string `json:"groupBys,omitempty"`
 
-	// IncludeInviteData: Whether to include data from Invite Media.
+	// IncludeInviteData: Deprecated. This field is no longer in use.
 	IncludeInviteData bool `json:"includeInviteData,omitempty"`
 
 	// Metrics: Metrics to include as columns in your report.
@@ -774,6 +779,7 @@ type Parameters struct {
 	//   "METRIC_BILLABLE_COST_ADVERTISER"
 	//   "METRIC_BILLABLE_COST_PARTNER"
 	//   "METRIC_BILLABLE_COST_USD"
+	//   "METRIC_BILLABLE_IMPRESSIONS"
 	//   "METRIC_CLICKS"
 	//   "METRIC_CLICK_TO_POST_CLICK_CONVERSION_RATE"
 	//   "METRIC_CM_POST_CLICK_REVENUE"
@@ -983,7 +989,6 @@ type Parameters struct {
 	//   "METRIC_RICH_MEDIA_VIDEO_THIRD_QUARTILE_COMPLETES"
 	//   "METRIC_TEA_TRUEVIEW_IMPRESSIONS"
 	//   "METRIC_TEA_TRUEVIEW_UNIQUE_COOKIES"
-	//   "METRIC_TEA_TRUEVIEW_UNIQUE_PEOPLE"
 	//   "METRIC_TOTAL_CONVERSIONS"
 	//   "METRIC_TOTAL_MEDIA_COST_ADVERTISER"
 	//   "METRIC_TOTAL_MEDIA_COST_ECPAPC_ADVERTISER"

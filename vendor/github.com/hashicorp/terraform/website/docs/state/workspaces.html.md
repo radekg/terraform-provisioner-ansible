@@ -30,6 +30,8 @@ Multiple workspaces are currently supported by the following backends:
  * [GCS](/docs/backends/types/gcs.html)
  * [Local](/docs/backends/types/local.html)
  * [Manta](/docs/backends/types/manta.html)
+ * [Postgres](/docs/backends/types/pg.html)
+ * [Remote](/docs/backends/types/remote.html)
  * [S3](/docs/backends/types/s3.html)
 
 In the 0.9 line of Terraform releases, this concept was known as "environment".
@@ -175,7 +177,7 @@ aren't any more complex than that. Terraform wraps this simple notion with
 a set of protections and support for remote state.
 
 For local state, Terraform stores the workspace states in a directory called
-`terraform.tfstate.d`. This directory should be be treated similarly to
+`terraform.tfstate.d`. This directory should be treated similarly to
 local-only `terraform.tfstate`; some teams commit these files to version
 control, although using a remote backend instead is recommended when there are
 multiple collaborators.

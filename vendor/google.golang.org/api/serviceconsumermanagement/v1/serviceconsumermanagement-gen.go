@@ -376,7 +376,7 @@ func (s *AttachTenantProjectRequest) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// AuthProvider: Configuration for an anthentication provider, including
+// AuthProvider: Configuration for an authentication provider, including
 // support for
 // [JSON Web
 // Token
@@ -633,46 +633,6 @@ type AuthenticationRule struct {
 
 func (s *AuthenticationRule) MarshalJSON() ([]byte, error) {
 	type NoMethod AuthenticationRule
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// AuthorizationConfig: Configuration of authorization.
-//
-// This section determines the authorization provider, if unspecified,
-// then no
-// authorization check will be done.
-//
-// Example:
-//
-//     experimental:
-//       authorization:
-//         provider: firebaserules.googleapis.com
-type AuthorizationConfig struct {
-	// Provider: The name of the authorization provider, such
-	// as
-	// firebaserules.googleapis.com.
-	Provider string `json:"provider,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Provider") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Provider") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *AuthorizationConfig) MarshalJSON() ([]byte, error) {
-	type NoMethod AuthorizationConfig
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1413,6 +1373,15 @@ type Documentation struct {
 	// order.
 	Rules []*DocumentationRule `json:"rules,omitempty"`
 
+	// ServiceRootUrl: Specifies the service root url if the default one
+	// (the service name
+	// from the yaml file) is not suitable. This can be seen in any
+	// fully
+	// specified service urls as well as sections that show a base that
+	// other
+	// urls are relative to.
+	ServiceRootUrl string `json:"serviceRootUrl,omitempty"`
+
 	// Summary: A short summary of what the service does. Can only be
 	// provided by
 	// plain text.
@@ -1672,36 +1641,6 @@ func (s *EnumValue) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Experimental: Experimental service configuration. These configuration
-// options can
-// only be used by whitelisted users.
-type Experimental struct {
-	// Authorization: Authorization configuration.
-	Authorization *AuthorizationConfig `json:"authorization,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Authorization") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Authorization") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *Experimental) MarshalJSON() ([]byte, error) {
-	type NoMethod Experimental
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
 // Field: A single field of a message type.
 type Field struct {
 	// Cardinality: The field cardinality.
@@ -1927,9 +1866,11 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 //
 // HTTP | gRPC
 // -----|-----
-// `GET /v1/messages/123456?revision=2&sub.subfield=foo` |
+// `GET /v1/messages/123456?revision=2&sub.subfield=foo`
+// |
 // `GetMessage(message_id: "123456" revision: 2 sub:
-// SubMessage(subfield: "foo"))`
+// SubMessage(subfield:
+// "foo"))`
 //
 // Note that fields which are mapped to URL query parameters must have
 // a
@@ -1970,7 +1911,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // HTTP | gRPC
 // -----|-----
 // `PATCH /v1/messages/123456 { "text": "Hi!" }` |
-// `UpdateMessage(message_id: "123456" message { text: "Hi!" })`
+// `UpdateMessage(message_id:
+// "123456" message { text: "Hi!" })`
 //
 // The special name `*` can be used in the body mapping to define
 // that
@@ -1999,7 +1941,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // HTTP | gRPC
 // -----|-----
 // `PATCH /v1/messages/123456 { "text": "Hi!" }` |
-// `UpdateMessage(message_id: "123456" text: "Hi!")`
+// `UpdateMessage(message_id:
+// "123456" text: "Hi!")`
 //
 // Note that when using `*` in the body mapping, it is not possible
 // to
@@ -2036,7 +1979,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // -----|-----
 // `GET /v1/messages/123456` | `GetMessage(message_id: "123456")`
 // `GET /v1/users/me/messages/123456` | `GetMessage(user_id: "me"
-// message_id: "123456")`
+// message_id:
+// "123456")`
 //
 // ## Rules for HTTP mapping
 //
@@ -2099,9 +2043,9 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // server side does the reverse decoding. Such variables show up in
 // the
 // [Discovery
-// Document](https://developers.google.com/discovery/v1/reference/apis)
-// a
-// s `{var}`.
+// Document](https://developers.google.com/discovery/v1/re
+// ference/apis) as
+// `{var}`.
 //
 // If a variable contains multiple path segments, such as
 // "{var=foo/*}"
@@ -2111,11 +2055,12 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // percent-encoded.
 // The server side does the reverse decoding, except "%2F" and "%2f" are
 // left
-// unchanged. Such variables show up in the
+// unchanged. Such variables show up in
+// the
 // [Discovery
-// Document](https://developers.google.com/discovery/v1/reference/apis)
-// a
-// s `{+var}`.
+// Document](https://developers.google.com/discovery/v1/re
+// ference/apis) as
+// `{+var}`.
 //
 // ## Using gRPC API Service Configuration
 //
@@ -2640,6 +2585,58 @@ type MetricDescriptor struct {
 	// for responses that failed.
 	Labels []*LabelDescriptor `json:"labels,omitempty"`
 
+	// LaunchStage: Optional. The launch stage of the metric definition.
+	//
+	// Possible values:
+	//   "LAUNCH_STAGE_UNSPECIFIED" - Do not use this default value.
+	//   "EARLY_ACCESS" - Early Access features are limited to a closed
+	// group of testers. To use
+	// these features, you must sign up in advance and sign a Trusted
+	// Tester
+	// agreement (which includes confidentiality provisions). These features
+	// may
+	// be unstable, changed in backward-incompatible ways, and are
+	// not
+	// guaranteed to be released.
+	//   "ALPHA" - Alpha is a limited availability test for releases before
+	// they are cleared
+	// for widespread use. By Alpha, all significant design issues are
+	// resolved
+	// and we are in the process of verifying functionality. Alpha
+	// customers
+	// need to apply for access, agree to applicable terms, and have
+	// their
+	// projects whitelisted. Alpha releases don’t have to be feature
+	// complete,
+	// no SLAs are provided, and there are no technical support obligations,
+	// but
+	// they will be far enough along that customers can actually use them
+	// in
+	// test environments or for limited-use tests -- just like they would
+	// in
+	// normal production cases.
+	//   "BETA" - Beta is the point at which we are ready to open a release
+	// for any
+	// customer to use. There are no SLA or technical support obligations in
+	// a
+	// Beta release. Products will be complete from a feature perspective,
+	// but
+	// may have some open outstanding issues. Beta releases are suitable
+	// for
+	// limited production use cases.
+	//   "GA" - GA features are open to all developers and are considered
+	// stable and
+	// fully qualified for production use.
+	//   "DEPRECATED" - Deprecated features are scheduled to be shut down
+	// and removed. For more
+	// information, see the “Deprecation Policy” section of our [Terms
+	// of
+	// Service](https://cloud.google.com/terms/)
+	// and the [Google Cloud Platform Subject to the
+	// Deprecation
+	// Policy](https://cloud.google.com/terms/deprecation) documentation.
+	LaunchStage string `json:"launchStage,omitempty"`
+
 	// Metadata: Optional. Metadata which can be used to guide usage of the
 	// metric.
 	Metadata *MetricDescriptorMetadata `json:"metadata,omitempty"`
@@ -2798,7 +2795,9 @@ type MetricDescriptorMetadata struct {
 	// data loss due to errors.
 	IngestDelay string `json:"ingestDelay,omitempty"`
 
-	// LaunchStage: The launch stage of the metric definition.
+	// LaunchStage: Deprecated. Please use the MetricDescriptor.launch_stage
+	// instead.
+	// The launch stage of the metric definition.
 	//
 	// Possible values:
 	//   "LAUNCH_STAGE_UNSPECIFIED" - Do not use this default value.
@@ -3078,6 +3077,59 @@ type MonitoredResourceDescriptor struct {
 	// identified by values for the labels "database_id" and "zone".
 	Labels []*LabelDescriptor `json:"labels,omitempty"`
 
+	// LaunchStage: Optional. The launch stage of the monitored resource
+	// definition.
+	//
+	// Possible values:
+	//   "LAUNCH_STAGE_UNSPECIFIED" - Do not use this default value.
+	//   "EARLY_ACCESS" - Early Access features are limited to a closed
+	// group of testers. To use
+	// these features, you must sign up in advance and sign a Trusted
+	// Tester
+	// agreement (which includes confidentiality provisions). These features
+	// may
+	// be unstable, changed in backward-incompatible ways, and are
+	// not
+	// guaranteed to be released.
+	//   "ALPHA" - Alpha is a limited availability test for releases before
+	// they are cleared
+	// for widespread use. By Alpha, all significant design issues are
+	// resolved
+	// and we are in the process of verifying functionality. Alpha
+	// customers
+	// need to apply for access, agree to applicable terms, and have
+	// their
+	// projects whitelisted. Alpha releases don’t have to be feature
+	// complete,
+	// no SLAs are provided, and there are no technical support obligations,
+	// but
+	// they will be far enough along that customers can actually use them
+	// in
+	// test environments or for limited-use tests -- just like they would
+	// in
+	// normal production cases.
+	//   "BETA" - Beta is the point at which we are ready to open a release
+	// for any
+	// customer to use. There are no SLA or technical support obligations in
+	// a
+	// Beta release. Products will be complete from a feature perspective,
+	// but
+	// may have some open outstanding issues. Beta releases are suitable
+	// for
+	// limited production use cases.
+	//   "GA" - GA features are open to all developers and are considered
+	// stable and
+	// fully qualified for production use.
+	//   "DEPRECATED" - Deprecated features are scheduled to be shut down
+	// and removed. For more
+	// information, see the “Deprecation Policy” section of our [Terms
+	// of
+	// Service](https://cloud.google.com/terms/)
+	// and the [Google Cloud Platform Subject to the
+	// Deprecation
+	// Policy](https://cloud.google.com/terms/deprecation) documentation.
+	LaunchStage string `json:"launchStage,omitempty"`
+
 	// Name: Optional. The resource name of the monitored resource
 	// descriptor:
 	// "projects/{project_id}/monitoredResourceDescriptors/{type
@@ -3344,7 +3396,8 @@ type Operation struct {
 	// service that
 	// originally returns it. If you use the default HTTP mapping,
 	// the
-	// `name` should have the format of `operations/some/unique/name`.
+	// `name` should be a resource name ending with
+	// `operations/{unique_id}`.
 	Name string `json:"name,omitempty"`
 
 	// Response: The normal response of the operation in case of success.
@@ -3913,9 +3966,6 @@ type Service struct {
 	//     - name: google.someapi.v1.SomeEnum
 	Enums []*Enum `json:"enums,omitempty"`
 
-	// Experimental: Experimental configuration.
-	Experimental *Experimental `json:"experimental,omitempty"`
-
 	// Http: HTTP configuration.
 	Http *Http `json:"http,omitempty"`
 
@@ -4124,81 +4174,14 @@ func (s *SourceInfo) MarshalJSON() ([]byte, error) {
 // suitable for
 // different programming environments, including REST APIs and RPC APIs.
 // It is
-// used by [gRPC](https://github.com/grpc). The error model is designed
-// to be:
+// used by [gRPC](https://github.com/grpc). Each `Status` message
+// contains
+// three pieces of data: error code, error message, and error
+// details.
 //
-// - Simple to use and understand for most users
-// - Flexible enough to meet unexpected needs
-//
-// # Overview
-//
-// The `Status` message contains three pieces of data: error code,
-// error
-// message, and error details. The error code should be an enum value
-// of
-// google.rpc.Code, but it may accept additional error codes if needed.
-// The
-// error message should be a developer-facing English message that
-// helps
-// developers *understand* and *resolve* the error. If a localized
-// user-facing
-// error message is needed, put the localized message in the error
-// details or
-// localize it in the client. The optional error details may contain
-// arbitrary
-// information about the error. There is a predefined set of error
-// detail types
-// in the package `google.rpc` that can be used for common error
-// conditions.
-//
-// # Language mapping
-//
-// The `Status` message is the logical representation of the error
-// model, but it
-// is not necessarily the actual wire format. When the `Status` message
-// is
-// exposed in different client libraries and different wire protocols,
-// it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions
-// in Java, but more likely mapped to some error codes in C.
-//
-// # Other uses
-//
-// The error model and the `Status` message can be used in a variety
-// of
-// environments, either with or without APIs, to provide a
-// consistent developer experience across different
-// environments.
-//
-// Example uses of this error model include:
-//
-// - Partial errors. If a service needs to return partial errors to the
-// client,
-//     it may embed the `Status` in the normal response to indicate the
-// partial
-//     errors.
-//
-// - Workflow errors. A typical workflow has multiple steps. Each step
-// may
-//     have a `Status` message for error reporting.
-//
-// - Batch operations. If a client uses batch request and batch
-// response, the
-//     `Status` message should be used directly inside batch response,
-// one for
-//     each error sub-response.
-//
-// - Asynchronous operations. If an API call embeds asynchronous
-// operation
-//     results in its response, the status of those operations should
-// be
-//     represented directly using the `Status` message.
-//
-// - Logging. If some API errors are stored in logs, the message
-// `Status` could
-//     be used directly after any stripping needed for security/privacy
-// reasons.
+// You can find out more about this error model and how to work with it
+// in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
 type Status struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -4804,6 +4787,341 @@ type UsageRule struct {
 
 func (s *UsageRule) MarshalJSON() ([]byte, error) {
 	type NoMethod UsageRule
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// V1AddVisibilityLabelsResponse: Response message for the
+// `AddVisibilityLabels` method.
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1AddVisibilityLabelsResponse struct {
+	// Labels: The updated set of visibility labels for this consumer on
+	// this service.
+	Labels []string `json:"labels,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Labels") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Labels") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *V1AddVisibilityLabelsResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod V1AddVisibilityLabelsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// V1Beta1BatchCreateProducerOverridesResponse: Response message for
+// BatchCreateProducerOverrides
+type V1Beta1BatchCreateProducerOverridesResponse struct {
+	// Overrides: The overrides that were created.
+	Overrides []*V1Beta1QuotaOverride `json:"overrides,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Overrides") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Overrides") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *V1Beta1BatchCreateProducerOverridesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod V1Beta1BatchCreateProducerOverridesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// V1Beta1DisableConsumerResponse: Response message for the
+// `DisableConsumer` method.
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1Beta1DisableConsumerResponse struct {
+}
+
+// V1Beta1EnableConsumerResponse: Response message for the
+// `EnableConsumer` method.
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1Beta1EnableConsumerResponse struct {
+}
+
+// V1Beta1ImportProducerOverridesResponse: Response message for
+// ImportProducerOverrides
+type V1Beta1ImportProducerOverridesResponse struct {
+	// Overrides: The overrides that were created from the imported data.
+	Overrides []*V1Beta1QuotaOverride `json:"overrides,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Overrides") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Overrides") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *V1Beta1ImportProducerOverridesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod V1Beta1ImportProducerOverridesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// V1Beta1QuotaOverride: A quota override
+type V1Beta1QuotaOverride struct {
+	// Dimensions: If this map is nonempty, then this override applies only
+	// to specific values
+	// for dimensions defined in the limit unit.
+	//
+	// For example, an override on a limit with the unit
+	// 1/{project}/{region}
+	// could contain an entry with the key "region" and the value
+	// "us-east-1";
+	// the override is only applied to quota consumed in that region.
+	//
+	// This map has the following restrictions:
+	// - Keys that are not defined in the limit's unit are not valid keys.
+	//   Any string appearing in {brackets} in the unit (besides {project}
+	// or
+	//   {user}) is a defined key.
+	// - "project" is not a valid key; the project is already specified in
+	//   the parent resource name.
+	// - "user" is not a valid key; the API does not support quota
+	// overrides
+	//   that apply only to a specific user.
+	// - If "region" appears as a key, its value must be a valid Cloud
+	// region.
+	// - If "zone" appears as a key, its value must be a valid Cloud zone.
+	// - If any valid key other than "region" or "zone" appears in the map,
+	// then
+	//   all valid keys other than "region" or "zone" must also appear in
+	// the map.
+	Dimensions map[string]string `json:"dimensions,omitempty"`
+
+	// Metric: The name of the metric to which this override applies.
+	//
+	// An example name would be:
+	// `compute.googleapis.com/cpus`
+	Metric string `json:"metric,omitempty"`
+
+	// Name: The resource name of the producer override.
+	// An example name would
+	// be:
+	// `services/compute.googleapis.com/projects/123/consumerQuotaMetrics
+	// /compute.googleapis.com%2Fcpus/limits/%2Fproject%2Fregion/producerOver
+	// rides/4a3f2c1d`
+	Name string `json:"name,omitempty"`
+
+	// OverrideValue: The overriding quota limit value.
+	// Can be any nonnegative integer, or -1 (unlimited quota).
+	OverrideValue int64 `json:"overrideValue,omitempty,string"`
+
+	// Unit: The limit unit of the limit to which this override applies.
+	//
+	// An example unit would be:
+	// `1/{project}/{region}`
+	// Note that `{project}` and `{region}` are not placeholders in this
+	// example;
+	// the literal characters `{` and `}` occur in the string.
+	Unit string `json:"unit,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Dimensions") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Dimensions") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *V1Beta1QuotaOverride) MarshalJSON() ([]byte, error) {
+	type NoMethod V1Beta1QuotaOverride
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// V1Beta1RefreshConsumerResponse: Response message for the
+// `RefreshConsumer` method.
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1Beta1RefreshConsumerResponse struct {
+}
+
+// V1DisableConsumerResponse: Response message for the `DisableConsumer`
+// method.
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1DisableConsumerResponse struct {
+}
+
+// V1EnableConsumerResponse: Response message for the `EnableConsumer`
+// method.
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1EnableConsumerResponse struct {
+}
+
+// V1GenerateServiceAccountResponse: Response message for the
+// `GenerateServiceAccount` method.
+//
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1GenerateServiceAccountResponse struct {
+	// Account: ServiceAccount that was created or retrieved.
+	Account *V1ServiceAccount `json:"account,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Account") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Account") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *V1GenerateServiceAccountResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod V1GenerateServiceAccountResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// V1RefreshConsumerResponse: Response message for the `RefreshConsumer`
+// method.
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1RefreshConsumerResponse struct {
+}
+
+// V1RemoveVisibilityLabelsResponse: Response message for the
+// `RemoveVisibilityLabels` method.
+// This response message is assigned to the `response` field of the
+// returned
+// Operation when that operation is done.
+type V1RemoveVisibilityLabelsResponse struct {
+	// Labels: The updated set of visibility labels for this consumer on
+	// this service.
+	Labels []string `json:"labels,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Labels") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Labels") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *V1RemoveVisibilityLabelsResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod V1RemoveVisibilityLabelsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// V1ServiceAccount: A service account in the Identity and Access
+// Management API.
+type V1ServiceAccount struct {
+	// Email: The email address of the service account.
+	Email string `json:"email,omitempty"`
+
+	// IamAccountName: Deprecated. See b/136209818.
+	IamAccountName string `json:"iamAccountName,omitempty"`
+
+	// Name: P4 SA resource name.
+	//
+	// An example name would
+	// be:
+	// `services/serviceconsumermanagement.googleapis.com/projects/123/se
+	// rviceAccounts/default`
+	Name string `json:"name,omitempty"`
+
+	// Tag: The P4 SA configuration tag. This must be defined in
+	// activation_grants.
+	// If not specified when creating the account, the tag is set to
+	// "default".
+	Tag string `json:"tag,omitempty"`
+
+	// UniqueId: The unique and stable id of the service account.
+	UniqueId string `json:"uniqueId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Email") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Email") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *V1ServiceAccount) MarshalJSON() ([]byte, error) {
+	type NoMethod V1ServiceAccount
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -5819,7 +6137,7 @@ func (c *ServicesTenancyUnitsAddProjectCall) Do(opts ...googleapi.CallOption) (*
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "Name of the tenancy unit.",
+	//       "description": "Name of the tenancy unit.\nSuch as 'services/service.googleapis.com/projects/12345/tenancyUnits/abcd'.",
 	//       "location": "path",
 	//       "pattern": "^services/[^/]+/[^/]+/[^/]+/tenancyUnits/[^/]+$",
 	//       "required": true,
@@ -5867,6 +6185,10 @@ type ServicesTenancyUnitsApplyProjectConfigCall struct {
 // Omit a billing configuration to keep the existing one.
 // A service account in the project is created if previously non
 // existed.
+// Specified labels will be appended to tenant project, note that the
+// value of
+// existing label key will be updated if the same label key is
+// requested.
 // The specified folder is ignored, as moving a tenant project to a
 // different
 // folder isn't supported.
@@ -5971,7 +6293,7 @@ func (c *ServicesTenancyUnitsApplyProjectConfigCall) Do(opts ...googleapi.CallOp
 	}
 	return ret, nil
 	// {
-	//   "description": "Apply a configuration to an existing tenant project.\nThis project must exist in an active state and have the original owner\naccount. The caller must have permission to add a project to the given\ntenancy unit. The configuration is applied, but any existing settings on\nthe project aren't modified.\nSpecified policy bindings are applied. Existing bindings aren't modified.\nSpecified services are activated. No service is deactivated.\nIf specified, new billing configuration is applied.\nOmit a billing configuration to keep the existing one.\nA service account in the project is created if previously non existed.\nThe specified folder is ignored, as moving a tenant project to a different\nfolder isn't supported.\nThe operation fails if any of the steps fail, but no rollback of already\napplied configuration changes is attempted.\nOperation\u003cresponse: Empty\u003e.",
+	//   "description": "Apply a configuration to an existing tenant project.\nThis project must exist in an active state and have the original owner\naccount. The caller must have permission to add a project to the given\ntenancy unit. The configuration is applied, but any existing settings on\nthe project aren't modified.\nSpecified policy bindings are applied. Existing bindings aren't modified.\nSpecified services are activated. No service is deactivated.\nIf specified, new billing configuration is applied.\nOmit a billing configuration to keep the existing one.\nA service account in the project is created if previously non existed.\nSpecified labels will be appended to tenant project, note that the value of\nexisting label key will be updated if the same label key is requested.\nThe specified folder is ignored, as moving a tenant project to a different\nfolder isn't supported.\nThe operation fails if any of the steps fail, but no rollback of already\napplied configuration changes is attempted.\nOperation\u003cresponse: Empty\u003e.",
 	//   "flatPath": "v1/services/{servicesId}/{servicesId1}/{servicesId2}/tenancyUnits/{tenancyUnitsId}:applyProjectConfig",
 	//   "httpMethod": "POST",
 	//   "id": "serviceconsumermanagement.services.tenancyUnits.applyProjectConfig",
@@ -5980,7 +6302,7 @@ func (c *ServicesTenancyUnitsApplyProjectConfigCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Name of the tenancy unit.",
+	//       "description": "Name of the tenancy unit.\nSuch as 'services/service.googleapis.com/projects/12345/tenancyUnits/abcd'.",
 	//       "location": "path",
 	//       "pattern": "^services/[^/]+/[^/]+/[^/]+/tenancyUnits/[^/]+$",
 	//       "required": true,
@@ -6136,7 +6458,7 @@ func (c *ServicesTenancyUnitsAttachProjectCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Name of the tenancy unit that the project will be attached to.",
+	//       "description": "Name of the tenancy unit that the project will be attached to.\nSuch as 'services/service.googleapis.com/projects/12345/tenancyUnits/abcd'.",
 	//       "location": "path",
 	//       "pattern": "^services/[^/]+/[^/]+/[^/]+/tenancyUnits/[^/]+$",
 	//       "required": true,

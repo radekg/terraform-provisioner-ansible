@@ -14,7 +14,7 @@ resource "aws_vpc" "vpc" {
   cidr_block = "${var.vpc_cidr_block}"
   enable_dns_support = true
   enable_dns_hostnames = true
-  tags {
+  tags = {
     Name = "${var.infrastructure_name}_vpc"
   }
 }
@@ -24,14 +24,14 @@ resource "aws_subnet" "public" {
   availability_zone       = "${var.region}a"
   cidr_block              = "${cidrsubnet(aws_vpc.vpc.cidr_block, 8, 1)}"
   map_public_ip_on_launch = true
-  tags {
+  tags = {
     Name = "${var.infrastructure_name}_public_subnet"
   }
 }
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.vpc.id}"
-  tags {
+  tags = {
     Name = "${var.infrastructure_name}_gw"
   }
 }
@@ -105,6 +105,7 @@ resource "aws_instance" "bastion" {
   subnet_id = "${aws_subnet.public.id}"
 
   connection {
+    host = "${self.public_ip}"
     user = "centos"
   }
 
@@ -123,7 +124,7 @@ resource "aws_instance" "test_box" {
   connection {
     user         = "centos"
     host         = "${self.private_ip}"
-    bastion_host = "${aws_instance.bastion.public_ip}"
+    bastion_host = "${aws_instance.bastion.0.public_ip}"
   }
 
   vpc_security_group_ids = ["${aws_security_group.ssh_box.id}"]
@@ -132,7 +133,7 @@ resource "aws_instance" "test_box" {
 
   provisioner "ansible" {
     plays {
-      playbook = {
+      playbook {
         file_path = "${path.module}/../ansible-data/playbooks/install-tree.yml"
         roles_path = [
             "${path.module}/../ansible-data/roles"

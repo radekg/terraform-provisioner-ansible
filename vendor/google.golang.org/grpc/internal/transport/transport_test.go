@@ -27,7 +27,6 @@ import (
 	"io"
 	"math"
 	"net"
-	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -40,6 +39,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/internal/leakcheck"
 	"google.golang.org/grpc/internal/syscall"
+	"google.golang.org/grpc/internal/testutils"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/status"
 )
@@ -1130,9 +1130,7 @@ func TestGracefulClose(t *testing.T) {
 	if _, err := s.Read(recvMsg); err != nil {
 		t.Fatalf("Error while reading: %v", err)
 	}
-	if err = ct.GracefulClose(); err != nil {
-		t.Fatalf("GracefulClose() = %v, want <nil>", err)
-	}
+	ct.GracefulClose()
 	var wg sync.WaitGroup
 	// Expect the failure for all the follow-up streams because ct has been closed gracefully.
 	for i := 0; i < 200; i++ {
@@ -1692,7 +1690,7 @@ func TestEncodingRequiredStatus(t *testing.T) {
 	if _, err := s.trReader.(*transportReader).Read(p); err != io.EOF {
 		t.Fatalf("Read got error %v, want %v", err, io.EOF)
 	}
-	if !reflect.DeepEqual(s.Status(), encodingTestStatus) {
+	if !testutils.StatusErrEqual(s.Status().Err(), encodingTestStatus.Err()) {
 		t.Fatalf("stream with status %v, want %v", s.Status(), encodingTestStatus)
 	}
 	ct.Close()
@@ -1717,6 +1715,24 @@ func TestInvalidHeaderField(t *testing.T) {
 	}
 	ct.Close()
 	server.stop()
+}
+
+func TestHeaderChanClosedAfterReceivingAnInvalidHeader(t *testing.T) {
+	server, ct, cancel := setUp(t, 0, math.MaxUint32, invalidHeaderField)
+	defer cancel()
+	defer server.stop()
+	defer ct.Close()
+	s, err := ct.NewStream(context.Background(), &CallHdr{Host: "localhost", Method: "foo"})
+	if err != nil {
+		t.Fatalf("failed to create the stream")
+	}
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
+	select {
+	case <-s.headerChan:
+	case <-timer.C:
+		t.Errorf("s.headerChan: got open, want closed")
+	}
 }
 
 func TestIsReservedHeader(t *testing.T) {
@@ -1952,16 +1968,18 @@ func TestReadGivesSameErrorAfterAnyErrorOccurs(t *testing.T) {
 	}
 	s.trReader = &transportReader{
 		reader: &recvBufferReader{
-			ctx:     s.ctx,
-			ctxDone: s.ctx.Done(),
-			recv:    s.buf,
+			ctx:        s.ctx,
+			ctxDone:    s.ctx.Done(),
+			recv:       s.buf,
+			freeBuffer: func(*bytes.Buffer) {},
 		},
 		windowHandler: func(int) {},
 	}
 	testData := make([]byte, 1)
 	testData[0] = 5
+	testBuffer := bytes.NewBuffer(testData)
 	testErr := errors.New("test error")
-	s.write(recvMsg{data: testData, err: testErr})
+	s.write(recvMsg{buffer: testBuffer, err: testErr})
 
 	inBuf := make([]byte, 1)
 	actualCount, actualErr := s.Read(inBuf)
@@ -1972,8 +1990,8 @@ func TestReadGivesSameErrorAfterAnyErrorOccurs(t *testing.T) {
 		t.Errorf("_ , actualErr := s.Read(_) differs; want actualErr.Error() to be %v; got %v", testErr.Error(), actualErr.Error())
 	}
 
-	s.write(recvMsg{data: testData, err: nil})
-	s.write(recvMsg{data: testData, err: errors.New("different error from first")})
+	s.write(recvMsg{buffer: testBuffer, err: nil})
+	s.write(recvMsg{buffer: testBuffer, err: errors.New("different error from first")})
 
 	for i := 0; i < 2; i++ {
 		inBuf := make([]byte, 1)

@@ -88,7 +88,7 @@ resource "aws_instance" "test_box" {
   }
   provisioner "ansible" {
     plays {
-      playbook = {
+      playbook {
         file_path = "/path/to/playbook/file.yml"
         roles_path = ["/path1", "/path2"]
         force_handlers = false
@@ -118,7 +118,7 @@ resource "aws_instance" "test_box" {
       verbose = false
     }
     plays {
-      module = {
+      module {
         module = "module-name"
         args = {
           "arbitrary" = "arguments"
@@ -183,7 +183,7 @@ resource "null_resource" "test_box" {
   }
   provisioner "ansible" {
     plays {
-      playbook = {
+      playbook {
         file_path = "/path/to/playbook/file.yml"
         roles_path = ["/path1", "/path2"]
         force_handlers = false
@@ -456,7 +456,7 @@ In the first case, to reference the roles, it is necessary to use `plays.playboo
 
 ```tf
     plays {
-      playbook = {
+      playbook {
         file_path = ".../playbooks/install-tree.yml"
         roles_path = [
             ".../ansible-data/roles"
@@ -469,7 +469,7 @@ In the second case, it is sufficient to use only the `plays.playbook.file_path`,
 
 ```tf
     plays {
-      playbook = {
+      playbook {
         file_path = ".../playbooks/install-tree.yml"
       }
     }

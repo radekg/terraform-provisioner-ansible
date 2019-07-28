@@ -142,7 +142,7 @@ After testing each of the examples, you will need to destroy the infrastructure.
         -var "infrastructure_name=${R_NAME}-remote"
     ```
 
-5. `sshagent-local-no-bastion-null-resource`: run local provisioning using a null_resource for a host without a bastion
+5. `sshagent-local-no-bastion-null-resource`: run local provisioning using a `null_resource` for a host without a bastion
     
     ```
     cd sshagent-local-no-bastion-null-resource

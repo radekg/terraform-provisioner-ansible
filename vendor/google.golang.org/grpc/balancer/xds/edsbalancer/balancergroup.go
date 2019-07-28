@@ -22,6 +22,10 @@ import (
 
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
+	"google.golang.org/grpc/balancer/internal/wrr"
+	"google.golang.org/grpc/balancer/xds/internal"
+	orcapb "google.golang.org/grpc/balancer/xds/internal/proto/udpa/data/orca/v1/orca_load_report"
+	"google.golang.org/grpc/balancer/xds/lrs"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/resolver"
@@ -56,27 +60,35 @@ type balancerGroup struct {
 	cc balancer.ClientConn
 
 	mu           sync.Mutex
-	idToBalancer map[string]balancer.Balancer
-	scToID       map[balancer.SubConn]string
+	idToBalancer map[internal.Locality]balancer.Balancer
+	scToID       map[balancer.SubConn]internal.Locality
+	loadStore    lrs.Store
 
 	pickerMu sync.Mutex
 	// All balancer IDs exist as keys in this map. If an ID is not in map, it's
 	// either removed or never added.
-	idToPickerState map[string]*pickerState
+	idToPickerState map[internal.Locality]*pickerState
 }
 
-func newBalancerGroup(cc balancer.ClientConn) *balancerGroup {
+func newBalancerGroup(cc balancer.ClientConn, loadStore lrs.Store) *balancerGroup {
 	return &balancerGroup{
 		cc: cc,
 
-		scToID:          make(map[balancer.SubConn]string),
-		idToBalancer:    make(map[string]balancer.Balancer),
-		idToPickerState: make(map[string]*pickerState),
+		scToID:          make(map[balancer.SubConn]internal.Locality),
+		idToBalancer:    make(map[internal.Locality]balancer.Balancer),
+		idToPickerState: make(map[internal.Locality]*pickerState),
+		loadStore:       loadStore,
 	}
 }
 
 // add adds a balancer built by builder to the group, with given id and weight.
-func (bg *balancerGroup) add(id string, weight uint32, builder balancer.Builder) {
+//
+// weight should never be zero.
+func (bg *balancerGroup) add(id internal.Locality, weight uint32, builder balancer.Builder) {
+	if weight == 0 {
+		grpclog.Errorf("balancerGroup.add called with weight 0, locality: %v. Locality is not added to balancer group", id)
+		return
+	}
 	bg.mu.Lock()
 	if _, ok := bg.idToBalancer[id]; ok {
 		bg.mu.Unlock()
@@ -108,7 +120,7 @@ func (bg *balancerGroup) add(id string, weight uint32, builder balancer.Builder)
 //
 // It also removes the picker generated from this balancer from the picker
 // group. It always results in a picker update.
-func (bg *balancerGroup) remove(id string) {
+func (bg *balancerGroup) remove(id internal.Locality) {
 	bg.mu.Lock()
 	// Close balancer.
 	if b, ok := bg.idToBalancer[id]; ok {
@@ -135,10 +147,16 @@ func (bg *balancerGroup) remove(id string) {
 
 // changeWeight changes the weight of the balancer.
 //
+// newWeight should never be zero.
+//
 // NOTE: It always results in a picker update now. This probably isn't
 // necessary. But it seems better to do the update because it's a change in the
 // picker (which is balancer's snapshot).
-func (bg *balancerGroup) changeWeight(id string, newWeight uint32) {
+func (bg *balancerGroup) changeWeight(id internal.Locality, newWeight uint32) {
+	if newWeight == 0 {
+		grpclog.Errorf("balancerGroup.changeWeight called with newWeight 0. Weight is not changed")
+		return
+	}
 	bg.pickerMu.Lock()
 	defer bg.pickerMu.Unlock()
 	pState, ok := bg.idToPickerState[id]
@@ -180,7 +198,7 @@ func (bg *balancerGroup) handleSubConnStateChange(sc balancer.SubConn, state con
 }
 
 // Address change: forward to balancer.
-func (bg *balancerGroup) handleResolvedAddrs(id string, addrs []resolver.Address) {
+func (bg *balancerGroup) handleResolvedAddrs(id internal.Locality, addrs []resolver.Address) {
 	bg.mu.Lock()
 	b, ok := bg.idToBalancer[id]
 	bg.mu.Unlock()
@@ -189,7 +207,7 @@ func (bg *balancerGroup) handleResolvedAddrs(id string, addrs []resolver.Address
 		return
 	}
 	if ub, ok := b.(balancer.V2Balancer); ok {
-		ub.UpdateResolverState(resolver.State{Addresses: addrs})
+		ub.UpdateClientConnState(balancer.ClientConnState{ResolverState: resolver.State{Addresses: addrs}})
 	} else {
 		b.HandleResolvedAddrs(addrs, nil)
 	}
@@ -209,7 +227,7 @@ func (bg *balancerGroup) handleResolvedAddrs(id string, addrs []resolver.Address
 // from map. Delete sc from the map only when state changes to Shutdown. Since
 // it's just forwarding the action, there's no need for a removeSubConn()
 // wrapper function.
-func (bg *balancerGroup) newSubConn(id string, addrs []resolver.Address, opts balancer.NewSubConnOptions) (balancer.SubConn, error) {
+func (bg *balancerGroup) newSubConn(id internal.Locality, addrs []resolver.Address, opts balancer.NewSubConnOptions) (balancer.SubConn, error) {
 	sc, err := bg.cc.NewSubConn(addrs, opts)
 	if err != nil {
 		return nil, err
@@ -222,7 +240,7 @@ func (bg *balancerGroup) newSubConn(id string, addrs []resolver.Address, opts ba
 
 // updateBalancerState: create an aggregated picker and an aggregated
 // connectivity state, then forward to ClientConn.
-func (bg *balancerGroup) updateBalancerState(id string, state connectivity.State, picker balancer.Picker) {
+func (bg *balancerGroup) updateBalancerState(id internal.Locality, state connectivity.State, picker balancer.Picker) {
 	grpclog.Infof("balancer group: update balancer state: %v, %v, %p", id, state, picker)
 	bg.pickerMu.Lock()
 	defer bg.pickerMu.Unlock()
@@ -233,7 +251,7 @@ func (bg *balancerGroup) updateBalancerState(id string, state connectivity.State
 		grpclog.Infof("balancer group: pickerState not found when update picker/state")
 		return
 	}
-	pickerSt.picker = picker
+	pickerSt.picker = newLoadReportPicker(picker, id, bg.loadStore)
 	pickerSt.state = state
 	bg.cc.UpdateBalancerState(buildPickerAndState(bg.idToPickerState))
 }
@@ -250,7 +268,7 @@ func (bg *balancerGroup) close() {
 	bg.mu.Unlock()
 }
 
-func buildPickerAndState(m map[string]*pickerState) (connectivity.State, balancer.Picker) {
+func buildPickerAndState(m map[internal.Locality]*pickerState) (connectivity.State, balancer.Picker) {
 	var readyN, connectingN int
 	readyPickerWithWeights := make([]pickerState, 0, len(m))
 	for _, ps := range m {
@@ -277,13 +295,12 @@ func buildPickerAndState(m map[string]*pickerState) (connectivity.State, balance
 	return aggregatedState, newPickerGroup(readyPickerWithWeights)
 }
 
-type pickerGroup struct {
-	readyPickerWithWeights []pickerState
-	length                 int
+// RandomWRR constructor, to be modified in tests.
+var newRandomWRR = wrr.NewRandom
 
-	mu    sync.Mutex
-	idx   int    // The index of the picker that will be picked
-	count uint32 // The number of times the current picker has been picked.
+type pickerGroup struct {
+	length int
+	w      wrr.WRR
 }
 
 // newPickerGroup takes pickers with weights, and group them into one picker.
@@ -294,9 +311,14 @@ type pickerGroup struct {
 // TODO: (bg) confirm this is the expected behavior: non-ready balancers should
 // be ignored when picking. Only ready balancers are picked.
 func newPickerGroup(readyPickerWithWeights []pickerState) *pickerGroup {
+	w := newRandomWRR()
+	for _, ps := range readyPickerWithWeights {
+		w.Add(ps.picker, int64(ps.weight))
+	}
+
 	return &pickerGroup{
-		readyPickerWithWeights: readyPickerWithWeights,
-		length:                 len(readyPickerWithWeights),
+		length: len(readyPickerWithWeights),
+		w:      w,
 	}
 }
 
@@ -304,18 +326,53 @@ func (pg *pickerGroup) Pick(ctx context.Context, opts balancer.PickOptions) (con
 	if pg.length <= 0 {
 		return nil, nil, balancer.ErrNoSubConnAvailable
 	}
-	// TODO: the WRR algorithm needs a design.
-	// MAYBE: move WRR implmentation to util.go as a separate struct.
-	pg.mu.Lock()
-	pickerSt := pg.readyPickerWithWeights[pg.idx]
-	p := pickerSt.picker
-	pg.count++
-	if pg.count >= pickerSt.weight {
-		pg.idx = (pg.idx + 1) % pg.length
-		pg.count = 0
-	}
-	pg.mu.Unlock()
+	p := pg.w.Next().(balancer.Picker)
 	return p.Pick(ctx, opts)
+}
+
+const (
+	serverLoadCPUName    = "cpu_utilization"
+	serverLoadMemoryName = "mem_utilization"
+)
+
+type loadReportPicker struct {
+	balancer.Picker
+
+	id        internal.Locality
+	loadStore lrs.Store
+}
+
+func newLoadReportPicker(p balancer.Picker, id internal.Locality, loadStore lrs.Store) *loadReportPicker {
+	return &loadReportPicker{
+		Picker:    p,
+		id:        id,
+		loadStore: loadStore,
+	}
+}
+
+func (lrp *loadReportPicker) Pick(ctx context.Context, opts balancer.PickOptions) (conn balancer.SubConn, done func(balancer.DoneInfo), err error) {
+	conn, done, err = lrp.Picker.Pick(ctx, opts)
+	if lrp.loadStore != nil && err == nil {
+		lrp.loadStore.CallStarted(lrp.id)
+		td := done
+		done = func(info balancer.DoneInfo) {
+			lrp.loadStore.CallFinished(lrp.id, info.Err)
+			if load, ok := info.ServerLoad.(*orcapb.OrcaLoadReport); ok {
+				lrp.loadStore.CallServerLoad(lrp.id, serverLoadCPUName, load.CpuUtilization)
+				lrp.loadStore.CallServerLoad(lrp.id, serverLoadMemoryName, load.MemUtilization)
+				for n, d := range load.RequestCost {
+					lrp.loadStore.CallServerLoad(lrp.id, n, d)
+				}
+				for n, d := range load.Utilization {
+					lrp.loadStore.CallServerLoad(lrp.id, n, d)
+				}
+			}
+			if td != nil {
+				td(info)
+			}
+		}
+	}
+	return
 }
 
 // balancerGroupCC implements the balancer.ClientConn API and get passed to each
@@ -325,7 +382,7 @@ func (pg *pickerGroup) Pick(ctx context.Context, opts balancer.PickOptions) (con
 // Some of the actions are forwarded to the parent ClientConn with no change.
 // Some are forward to balancer group with the sub-balancer ID.
 type balancerGroupCC struct {
-	id    string
+	id    internal.Locality
 	group *balancerGroup
 }
 
