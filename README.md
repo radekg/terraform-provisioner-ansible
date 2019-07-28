@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/radekg/terraform-provisioner-ansible.svg?style=svg)](https://circleci.com/gh/radekg/terraform-provisioner-ansible)
 
-Ansible with Terraform - `remote` and `local` provisioners.
+Ansible with Terraform 0.12.x - `remote` and `local` provisioners.
 
 ## General overview
 
@@ -84,6 +84,7 @@ Example:
 resource "aws_instance" "test_box" {
   # ...
   connection {
+    host = "..."
     user = "centos"
   }
   provisioner "ansible" {
@@ -118,7 +119,7 @@ resource "aws_instance" "test_box" {
       verbose = false
     }
     plays {
-      module = {
+      module {
         module = "module-name"
         args = {
           "arbitrary" = "arguments"
@@ -179,6 +180,7 @@ resource "aws_instance" "test_box" {
 resource "null_resource" "test_box" {
   depends_on = "aws_instance.test_box"
   connection {
+    host = "${aws_instance.test_box.0.public_ip}"
     private_key = "${file("./test_box")}"
   }
   provisioner "ansible" {
@@ -197,7 +199,6 @@ resource "null_resource" "test_box" {
   }
 }
 ```
-
 
 ### Plays
 
@@ -488,30 +489,6 @@ Integration tests require `ansible` and `ansible-playbook` on the `$PATH`. To ru
 ```sh
 make test-verbose
 ```
-
-## Changes from 1.0.0
-
-### Fixed
-
-- bastion host support in `1.0.0` was implemented very badly, generally, that version should not be used when bastion host should be used; there are no plans for fixing `1.0.0` bastion support, please switch to `2.x`
-
-### Breaking changes
-
-- **local provisioning becomes the default**, remote provisioning enabled with `remote {}` resource
-- change `plays.playbook` and `plays.module` to a resource
-- remove `yes/no` strings, boolean values are used instead
-- default values now provided using the `defaults` resource
-- `diff`, `become` and `verbose` can be set only on `plays`, no default override for boolean values
-
-### New features
-
-- added `--diff` support
-- added `--vault_id` support
-- added `ansible_ssh_settings {}` resource instead of magic environment variables
-- remote provisioner: use a custom Ansible installer: https://github.com/radekg/terraform-provisioner-ansible/issues/76
-- remote provisioner: use a custom remote directory for the Ansible installer: https://github.com/radekg/terraform-provisioner-ansible/issues/78
-- remote provisioner: use a custom bootstrap directory for Ansible data: https://github.com/radekg/terraform-provisioner-ansible/issues/79
-- support `connection.host_key` and `connection.bastion_host_key`
 
 ## Creating releases
 
