@@ -183,10 +183,6 @@ type ProjectsLocationsQueuesTasksService struct {
 // app when
 // the task is dispatched.
 //
-// This proto can only be used for tasks in a queue which
-// has
-// app_engine_http_queue set.
-//
 // Using AppEngineHttpRequest
 // requires
 // [`appengine.applications.get`](https://cloud.google.com/appen
@@ -251,18 +247,24 @@ type ProjectsLocationsQueuesTasksService struct {
 // ard/python/config/appref)
 // Task dispatches also do not follow redirects.
 //
-// The task attempt has succeeded if the app's request handler
-// returns
-// an HTTP response code in the range [`200` - `299`]. `503`
-// is
-// considered an App Engine system error instead of an
-// application
-// error. Requests returning error `503` will be retried regardless
-// of
-// retry configuration and not counted against retry counts.
-// Any other response code or a failure to receive a response before
-// the
-// deadline is a failed attempt.
+// The task attempt has succeeded if the app's request handler returns
+// an HTTP
+// response code in the range [`200` - `299`]. The task attempt has
+// failed if
+// the app's handler returns a non-2xx response code or Cloud Tasks
+// does
+// not receive response before the deadline. Failed
+// tasks will be retried according to the
+// retry configuration. `503` (Service Unavailable) is
+// considered an App Engine system error instead of an application error
+// and
+// will cause Cloud Tasks' traffic congestion control to temporarily
+// throttle
+// the queue's dispatches. Unlike other types of task targets, a `429`
+// (Too Many
+// Requests) response from an app handler does not cause traffic
+// congestion
+// control to throttle the queue.
 type AppEngineHttpRequest struct {
 	// AppEngineRouting: Task-level setting for App Engine routing.
 	//
@@ -577,7 +579,7 @@ func (s *Attempt) MarshalJSON() ([]byte, error) {
 // Binding: Associates `members` with a `role`.
 type Binding struct {
 	// Condition: The condition that is associated with this binding.
-	// NOTE: an unsatisfied condition will not allow user access via
+	// NOTE: An unsatisfied condition will not allow user access via
 	// current
 	// binding. Different bindings, including their conditions, are
 	// examined
@@ -1685,81 +1687,14 @@ func (s *SetIamPolicyRequest) MarshalJSON() ([]byte, error) {
 // suitable for
 // different programming environments, including REST APIs and RPC APIs.
 // It is
-// used by [gRPC](https://github.com/grpc). The error model is designed
-// to be:
+// used by [gRPC](https://github.com/grpc). Each `Status` message
+// contains
+// three pieces of data: error code, error message, and error
+// details.
 //
-// - Simple to use and understand for most users
-// - Flexible enough to meet unexpected needs
-//
-// # Overview
-//
-// The `Status` message contains three pieces of data: error code,
-// error
-// message, and error details. The error code should be an enum value
-// of
-// google.rpc.Code, but it may accept additional error codes if needed.
-// The
-// error message should be a developer-facing English message that
-// helps
-// developers *understand* and *resolve* the error. If a localized
-// user-facing
-// error message is needed, put the localized message in the error
-// details or
-// localize it in the client. The optional error details may contain
-// arbitrary
-// information about the error. There is a predefined set of error
-// detail types
-// in the package `google.rpc` that can be used for common error
-// conditions.
-//
-// # Language mapping
-//
-// The `Status` message is the logical representation of the error
-// model, but it
-// is not necessarily the actual wire format. When the `Status` message
-// is
-// exposed in different client libraries and different wire protocols,
-// it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions
-// in Java, but more likely mapped to some error codes in C.
-//
-// # Other uses
-//
-// The error model and the `Status` message can be used in a variety
-// of
-// environments, either with or without APIs, to provide a
-// consistent developer experience across different
-// environments.
-//
-// Example uses of this error model include:
-//
-// - Partial errors. If a service needs to return partial errors to the
-// client,
-//     it may embed the `Status` in the normal response to indicate the
-// partial
-//     errors.
-//
-// - Workflow errors. A typical workflow has multiple steps. Each step
-// may
-//     have a `Status` message for error reporting.
-//
-// - Batch operations. If a client uses batch request and batch
-// response, the
-//     `Status` message should be used directly inside batch response,
-// one for
-//     each error sub-response.
-//
-// - Asynchronous operations. If an API call embeds asynchronous
-// operation
-//     results in its response, the status of those operations should
-// be
-//     represented directly using the `Status` message.
-//
-// - Logging. If some API errors are stored in logs, the message
-// `Status` could
-//     be used directly after any stripping needed for security/privacy
-// reasons.
+// You can find out more about this error model and how to work with it
+// in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
 type Status struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -2413,9 +2348,11 @@ type ProjectsLocationsQueuesCreateCall struct {
 // using an App Engine `queue.yaml` or `queue.xml` file to manage your
 // queues.
 // Read
-// [Overview of Queue Management and
-// queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)
-// before using this method.
+// [Overview of Queue Management
+// and
+// queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before
+// using
+// this method.
 func (r *ProjectsLocationsQueuesService) Create(parent string, queue *Queue) *ProjectsLocationsQueuesCreateCall {
 	c := &ProjectsLocationsQueuesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2513,7 +2450,7 @@ func (c *ProjectsLocationsQueuesCreateCall) Do(opts ...googleapi.CallOption) (*Q
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a queue.\n\nQueues created with this method allow tasks to live for a maximum of 31\ndays. After a task is 31 days old, the task will be deleted regardless of whether\nit was dispatched or not.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)\nbefore using this method.",
+	//   "description": "Creates a queue.\n\nQueues created with this method allow tasks to live for a maximum of 31\ndays. After a task is 31 days old, the task will be deleted regardless of whether\nit was dispatched or not.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and\nqueue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before using\nthis method.",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/queues",
 	//   "httpMethod": "POST",
 	//   "id": "cloudtasks.projects.locations.queues.create",
@@ -2566,9 +2503,11 @@ type ProjectsLocationsQueuesDeleteCall struct {
 // using an App Engine `queue.yaml` or `queue.xml` file to manage your
 // queues.
 // Read
-// [Overview of Queue Management and
-// queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)
-// before using this method.
+// [Overview of Queue Management
+// and
+// queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before
+// using
+// this method.
 func (r *ProjectsLocationsQueuesService) Delete(name string) *ProjectsLocationsQueuesDeleteCall {
 	c := &ProjectsLocationsQueuesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2660,7 +2599,7 @@ func (c *ProjectsLocationsQueuesDeleteCall) Do(opts ...googleapi.CallOption) (*E
 	}
 	return ret, nil
 	// {
-	//   "description": "Deletes a queue.\n\nThis command will delete the queue even if it has tasks in it.\n\nNote: If you delete a queue, a queue with the same name can't be created\nfor 7 days.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)\nbefore using this method.",
+	//   "description": "Deletes a queue.\n\nThis command will delete the queue even if it has tasks in it.\n\nNote: If you delete a queue, a queue with the same name can't be created\nfor 7 days.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and\nqueue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before using\nthis method.",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/queues/{queuesId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "cloudtasks.projects.locations.queues.delete",
@@ -3005,9 +2944,10 @@ func (r *ProjectsLocationsQueuesService) List(parent string) *ProjectsLocationsQ
 // For example: `<=, <, >=, >, !=, =, :`. The filter syntax is the same
 // as
 // described in
-// [Stackdriver's Advanced Logs
-// Filters](https://cloud.google.com/logging/docs/view/advanced_filters).
-//
+// [Stackdriver's Advanced
+// Logs
+// Filters](https://cloud.google.com/logging/docs/view/advanced_filt
+// ers).
 //
 // Sample filter "state: PAUSED".
 //
@@ -3154,7 +3094,7 @@ func (c *ProjectsLocationsQueuesListCall) Do(opts ...googleapi.CallOption) (*Lis
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "`filter` can be used to specify a subset of queues. Any Queue\nfield can be used as a filter and several operators as supported.\nFor example: `\u003c=, \u003c, \u003e=, \u003e, !=, =, :`. The filter syntax is the same as\ndescribed in\n[Stackdriver's Advanced Logs Filters](https://cloud.google.com/logging/docs/view/advanced_filters).\n\nSample filter \"state: PAUSED\".\n\nNote that using filters might cause fewer queues than the\nrequested page_size to be returned.",
+	//       "description": "`filter` can be used to specify a subset of queues. Any Queue\nfield can be used as a filter and several operators as supported.\nFor example: `\u003c=, \u003c, \u003e=, \u003e, !=, =, :`. The filter syntax is the same as\ndescribed in\n[Stackdriver's Advanced Logs\nFilters](https://cloud.google.com/logging/docs/view/advanced_filters).\n\nSample filter \"state: PAUSED\".\n\nNote that using filters might cause fewer queues than the\nrequested page_size to be returned.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -3236,9 +3176,11 @@ type ProjectsLocationsQueuesPatchCall struct {
 // using an App Engine `queue.yaml` or `queue.xml` file to manage your
 // queues.
 // Read
-// [Overview of Queue Management and
-// queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)
-// before using this method.
+// [Overview of Queue Management
+// and
+// queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before
+// using
+// this method.
 func (r *ProjectsLocationsQueuesService) Patch(name string, queue *Queue) *ProjectsLocationsQueuesPatchCall {
 	c := &ProjectsLocationsQueuesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3345,7 +3287,7 @@ func (c *ProjectsLocationsQueuesPatchCall) Do(opts ...googleapi.CallOption) (*Qu
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a queue.\n\nThis method creates the queue if it does not exist and updates\nthe queue if it does exist.\n\nQueues created with this method allow tasks to live for a maximum of 31\ndays. After a task is 31 days old, the task will be deleted regardless of whether\nit was dispatched or not.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and queue.yaml](https://cloud.google.com/tasks/docs/queue-yaml)\nbefore using this method.",
+	//   "description": "Updates a queue.\n\nThis method creates the queue if it does not exist and updates\nthe queue if it does exist.\n\nQueues created with this method allow tasks to live for a maximum of 31\ndays. After a task is 31 days old, the task will be deleted regardless of whether\nit was dispatched or not.\n\nWARNING: Using this method may have unintended side effects if you are\nusing an App Engine `queue.yaml` or `queue.xml` file to manage your queues.\nRead\n[Overview of Queue Management and\nqueue.yaml](https://cloud.google.com/tasks/docs/queue-yaml) before using\nthis method.",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/queues/{queuesId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "cloudtasks.projects.locations.queues.patch",
@@ -3696,8 +3638,10 @@ type ProjectsLocationsQueuesResumeCall struct {
 // WARNING: Resuming many high-QPS queues at the same time can
 // lead to target overloading. If you are resuming high-QPS
 // queues, follow the 500/50/5 pattern described in
-// [Managing Cloud Tasks Scaling
-// Risks](https://cloud.google.com/tasks/docs/manage-cloud-task-scaling).
+// [Managing Cloud Tasks
+// Scaling
+// Risks](https://cloud.google.com/tasks/docs/manage-cloud-task-s
+// caling).
 func (r *ProjectsLocationsQueuesService) Resume(name string, resumequeuerequest *ResumeQueueRequest) *ProjectsLocationsQueuesResumeCall {
 	c := &ProjectsLocationsQueuesResumeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3795,7 +3739,7 @@ func (c *ProjectsLocationsQueuesResumeCall) Do(opts ...googleapi.CallOption) (*Q
 	}
 	return ret, nil
 	// {
-	//   "description": "Resume a queue.\n\nThis method resumes a queue after it has been\nPAUSED or\nDISABLED. The state of a queue is stored\nin the queue's state; after calling this method it\nwill be set to RUNNING.\n\nWARNING: Resuming many high-QPS queues at the same time can\nlead to target overloading. If you are resuming high-QPS\nqueues, follow the 500/50/5 pattern described in\n[Managing Cloud Tasks Scaling Risks](https://cloud.google.com/tasks/docs/manage-cloud-task-scaling).",
+	//   "description": "Resume a queue.\n\nThis method resumes a queue after it has been\nPAUSED or\nDISABLED. The state of a queue is stored\nin the queue's state; after calling this method it\nwill be set to RUNNING.\n\nWARNING: Resuming many high-QPS queues at the same time can\nlead to target overloading. If you are resuming high-QPS\nqueues, follow the 500/50/5 pattern described in\n[Managing Cloud Tasks Scaling\nRisks](https://cloud.google.com/tasks/docs/manage-cloud-task-scaling).",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/queues/{queuesId}:resume",
 	//   "httpMethod": "POST",
 	//   "id": "cloudtasks.projects.locations.queues.resume",
@@ -4143,8 +4087,7 @@ type ProjectsLocationsQueuesTasksCreateCall struct {
 // Tasks cannot be updated after creation; there is no UpdateTask
 // command.
 //
-// * For App Engine queues, the maximum task size is
-//   100KB.
+// * The maximum task size is 100KB.
 func (r *ProjectsLocationsQueuesTasksService) Create(parent string, createtaskrequest *CreateTaskRequest) *ProjectsLocationsQueuesTasksCreateCall {
 	c := &ProjectsLocationsQueuesTasksCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4242,7 +4185,7 @@ func (c *ProjectsLocationsQueuesTasksCreateCall) Do(opts ...googleapi.CallOption
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a task and adds it to a queue.\n\nTasks cannot be updated after creation; there is no UpdateTask command.\n\n* For App Engine queues, the maximum task size is\n  100KB.",
+	//   "description": "Creates a task and adds it to a queue.\n\nTasks cannot be updated after creation; there is no UpdateTask command.\n\n* The maximum task size is 100KB.",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/queues/{queuesId}/tasks",
 	//   "httpMethod": "POST",
 	//   "id": "cloudtasks.projects.locations.queues.tasks.create",
@@ -4613,14 +4556,17 @@ func (r *ProjectsLocationsQueuesTasksService) List(parent string) *ProjectsLocat
 	return c
 }
 
-// PageSize sets the optional parameter "pageSize": Requested page size.
-// Fewer tasks than requested might be returned.
+// PageSize sets the optional parameter "pageSize": Maximum page
+// size.
 //
-// The maximum page size is 1000. If unspecified, the page size will
-// be the maximum. Fewer tasks than requested might be returned,
-// even if more tasks exist; use
-// next_page_token in the
-// response to determine if more tasks exist.
+// Fewer tasks than requested might be returned, even if more tasks
+// exist; use
+// next_page_token in the response to
+// determine if more tasks exist.
+//
+// The maximum page size is 1000. If unspecified, the page size will be
+// the
+// maximum.
 func (c *ProjectsLocationsQueuesTasksListCall) PageSize(pageSize int64) *ProjectsLocationsQueuesTasksListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -4777,7 +4723,7 @@ func (c *ProjectsLocationsQueuesTasksListCall) Do(opts ...googleapi.CallOption) 
 	//   ],
 	//   "parameters": {
 	//     "pageSize": {
-	//       "description": "Requested page size. Fewer tasks than requested might be returned.\n\nThe maximum page size is 1000. If unspecified, the page size will\nbe the maximum. Fewer tasks than requested might be returned,\neven if more tasks exist; use\nnext_page_token in the\nresponse to determine if more tasks exist.",
+	//       "description": "Maximum page size.\n\nFewer tasks than requested might be returned, even if more tasks exist; use\nnext_page_token in the response to\ndetermine if more tasks exist.\n\nThe maximum page size is 1000. If unspecified, the page size will be the\nmaximum.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"

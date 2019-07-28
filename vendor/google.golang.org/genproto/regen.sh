@@ -69,8 +69,16 @@ rm -r googleapis/ protobuf/
 
 go run regen.go -go_out "$root/src" -pkg_prefix "$PKG" "$apidir" "$protodir"
 
+# throw away changes to some special libs
+for d in "googleapis/grafeas/v1" "googleapis/devtools/containeranalysis/v1"; do
+  git checkout $d
+  git clean -df $d
+done
+
 # Sanity check the build.
 echo 1>&2 "Checking that the libraries build..."
 go build -v ./...
+
+gofmt -s -l -w . && goimports -w .
 
 echo 1>&2 "All done!"

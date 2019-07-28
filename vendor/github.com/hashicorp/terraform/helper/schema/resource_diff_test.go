@@ -8,7 +8,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/hil/ast"
-	"github.com/hashicorp/terraform/config"
+	"github.com/hashicorp/terraform/config/hcl2shim"
 	"github.com/hashicorp/terraform/terraform"
 )
 
@@ -597,6 +597,37 @@ func testDiffCases(t *testing.T, oldPrefix string, oldOffset int, computed bool)
 						NewComputed: computed,
 					},
 				},
+			},
+		},
+		resourceDiffTestCase{
+			Name: "NewComputed should always propagate",
+			Schema: map[string]*Schema{
+				"foo": &Schema{
+					Type:     TypeString,
+					Computed: true,
+				},
+			},
+			State: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"foo": "",
+				},
+				ID: "pre-existing",
+			},
+			Config:   testConfig(t, map[string]interface{}{}),
+			Diff:     &terraform.InstanceDiff{Attributes: map[string]*terraform.ResourceAttrDiff{}},
+			Key:      "foo",
+			NewValue: "",
+			Expected: &terraform.InstanceDiff{
+				Attributes: func() map[string]*terraform.ResourceAttrDiff {
+					if computed {
+						return map[string]*terraform.ResourceAttrDiff{
+							"foo": &terraform.ResourceAttrDiff{
+								NewComputed: computed,
+							},
+						}
+					}
+					return map[string]*terraform.ResourceAttrDiff{}
+				}(),
 			},
 		},
 	}
@@ -1876,7 +1907,7 @@ func TestResourceDiffNewValueKnown(t *testing.T) {
 				},
 				map[string]ast.Variable{
 					"var.foo": ast.Variable{
-						Value: config.UnknownVariableValue,
+						Value: hcl2shim.UnknownVariableValue,
 						Type:  ast.TypeString,
 					},
 				},
@@ -1907,7 +1938,7 @@ func TestResourceDiffNewValueKnown(t *testing.T) {
 				},
 				map[string]ast.Variable{
 					"var.foo": ast.Variable{
-						Value: config.UnknownVariableValue,
+						Value: hcl2shim.UnknownVariableValue,
 						Type:  ast.TypeString,
 					},
 				},
@@ -1967,7 +1998,7 @@ func TestResourceDiffNewValueKnownSetNew(t *testing.T) {
 			},
 			map[string]ast.Variable{
 				"var.foo": ast.Variable{
-					Value: config.UnknownVariableValue,
+					Value: hcl2shim.UnknownVariableValue,
 					Type:  ast.TypeString,
 				},
 			},

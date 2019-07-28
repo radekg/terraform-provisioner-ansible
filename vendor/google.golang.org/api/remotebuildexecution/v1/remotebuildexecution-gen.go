@@ -224,7 +224,9 @@ type BuildBazelRemoteExecutionV2Action struct {
 	// ContentAddressableStorage.
 	CommandDigest *BuildBazelRemoteExecutionV2Digest `json:"commandDigest,omitempty"`
 
-	// DoNotCache: If true, then the `Action`'s result cannot be cached.
+	// DoNotCache: If true, then the `Action`'s result cannot be cached, and
+	// in-flight
+	// requests for the same `Action` may not be merged.
 	DoNotCache bool `json:"doNotCache,omitempty"`
 
 	// InputRootDigest: The digest of the root
@@ -369,6 +371,9 @@ type BuildBazelRemoteExecutionV2ActionResult struct {
 	//   }
 	// }
 	// ```
+	// If an output of the same name was found, but was not a directory,
+	// the
+	// server will return a FAILED_PRECONDITION.
 	OutputDirectories []*BuildBazelRemoteExecutionV2OutputDirectory `json:"outputDirectories,omitempty"`
 
 	// OutputDirectorySymlinks: The output directories of the action that
@@ -381,15 +386,18 @@ type BuildBazelRemoteExecutionV2ActionResult struct {
 	// SymlinkAbsolutePathStrategy.ALLOWED.
 	// For each output directory requested in the `output_directories` field
 	// of
-	// the Action, if the directory file existed after
-	// the action completed, a single entry will be present either in this
-	// field,
-	// or in the `output_directories` field, if the directory was not a
-	// symbolic link.
-	//
-	// If the action does not produce the requested output, or produces
+	// the Action, if the directory existed after the action completed,
 	// a
-	// file where a directory is expected or vice versa, then that
+	// single entry will be present either in this field, or in
+	// the
+	// `output_directories` field, if the directory was not a symbolic
+	// link.
+	//
+	// If an output of the same name was found, but was a symbolic link to a
+	// file
+	// instead of a directory, the server will return a
+	// FAILED_PRECONDITION.
+	// If the action does not produce the requested output, then that
 	// output
 	// will be omitted from the list. The server is free to arrange the
 	// output
@@ -412,9 +420,11 @@ type BuildBazelRemoteExecutionV2ActionResult struct {
 	// or in the `output_files` field, if the file was not a symbolic
 	// link.
 	//
-	// If the action does not produce the requested output, or produces
-	// a
-	// directory where a regular file is expected or vice versa, then that
+	// If an output symbolic link of the same name was found, but its
+	// target
+	// type was not a regular file, the server will return a
+	// FAILED_PRECONDITION.
+	// If the action does not produce the requested output, then that
 	// output
 	// will be omitted from the list. The server is free to arrange the
 	// output
@@ -428,13 +438,14 @@ type BuildBazelRemoteExecutionV2ActionResult struct {
 	// after
 	// the action completed, a single entry will be present either in this
 	// field,
-	// or in the output_file_symlinks field, if the file was a symbolic link
+	// or the `output_file_symlinks` field if the file was a symbolic link
 	// to
 	// another file.
 	//
-	// If the action does not produce the requested output, or produces
-	// a
-	// directory where a regular file is expected or vice versa, then that
+	// If an output of the same name was found, but was a directory
+	// rather
+	// than a regular file, the server will return a FAILED_PRECONDITION.
+	// If the action does not produce the requested output, then that
 	// output
 	// will be omitted from the list. The server is free to arrange the
 	// output
@@ -446,40 +457,32 @@ type BuildBazelRemoteExecutionV2ActionResult struct {
 	// the action, which
 	// can be retrieved from the
 	// ContentAddressableStorage.
-	// See `stderr_raw` for when this will be set.
 	StderrDigest *BuildBazelRemoteExecutionV2Digest `json:"stderrDigest,omitempty"`
 
-	// StderrRaw: The standard error buffer of the action. The server will
-	// determine, based
-	// on the size of the buffer, whether to return it in raw form or to
-	// return
-	// a digest in `stderr_digest` that points to the buffer. If neither is
-	// set,
-	// then the buffer is empty. The client SHOULD NOT assume it will get
-	// one of
-	// the raw buffer or a digest on any given request and should be
-	// prepared to
-	// handle either.
+	// StderrRaw: The standard error buffer of the action. The server SHOULD
+	// NOT inline
+	// stderr unless requested by the client in
+	// the
+	// GetActionResultRequest
+	// message. The server MAY omit inlining, even if requested, and MUST do
+	// so if inlining
+	// would cause the response to exceed message size limits.
 	StderrRaw string `json:"stderrRaw,omitempty"`
 
 	// StdoutDigest: The digest for a blob containing the standard output of
 	// the action, which
 	// can be retrieved from the
 	// ContentAddressableStorage.
-	// See `stdout_raw` for when this will be set.
 	StdoutDigest *BuildBazelRemoteExecutionV2Digest `json:"stdoutDigest,omitempty"`
 
-	// StdoutRaw: The standard output buffer of the action. The server will
-	// determine, based
-	// on the size of the buffer, whether to return it in raw form or to
-	// return
-	// a digest in `stdout_digest` that points to the buffer. If neither is
-	// set,
-	// then the buffer is empty. The client SHOULD NOT assume it will get
-	// one of
-	// the raw buffer or a digest on any given request and should be
-	// prepared to
-	// handle either.
+	// StdoutRaw: The standard output buffer of the action. The server
+	// SHOULD NOT inline
+	// stdout unless requested by the client in
+	// the
+	// GetActionResultRequest
+	// message. The server MAY omit inlining, even if requested, and MUST do
+	// so if inlining
+	// would cause the response to exceed message size limits.
 	StdoutRaw string `json:"stdoutRaw,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ExecutionMetadata")
@@ -573,7 +576,9 @@ type BuildBazelRemoteExecutionV2Command struct {
 	//
 	// An output directory cannot be duplicated or have the same path as any
 	// of
-	// the listed output files.
+	// the listed output files. An output directory is allowed to be a
+	// parent of
+	// another output directory.
 	//
 	// Directories leading up to the output directories (but not the
 	// output
@@ -624,6 +629,8 @@ type BuildBazelRemoteExecutionV2Command struct {
 	// the client SHOULD ensure that running the action on any such worker
 	// will
 	// have the same result.
+	// A detailed lexicon for this can be found in the accompanying
+	// platform.md.
 	Platform *BuildBazelRemoteExecutionV2Platform `json:"platform,omitempty"`
 
 	// WorkingDirectory: The working directory, relative to the input root,
@@ -797,6 +804,14 @@ func (s *BuildBazelRemoteExecutionV2Digest) MarshalJSON() ([]byte, error) {
 //   Multiple levels of directory hierarchy may not be collapsed.
 // * Each child in the directory must have a unique path segment (file
 // name).
+//   Note that while the API itself is case-sensitive, the environment
+// where
+//   the Action is executed may or may not be case-sensitive. That is,
+// it is
+//   legal to call the API with a Directory that has both "Foo" and
+// "foo" as
+//   children, but the Action may be rejected by the remote system upon
+//   execution.
 // * The files, directories and symlinks in the directory must each be
 // sorted
 //   in lexicographical order by path. The path strings must be sorted
@@ -930,8 +945,10 @@ type BuildBazelRemoteExecutionV2ExecuteOperationMetadata struct {
 	// being executed.
 	ActionDigest *BuildBazelRemoteExecutionV2Digest `json:"actionDigest,omitempty"`
 
+	// Stage: The current stage of execution.
+	//
 	// Possible values:
-	//   "UNKNOWN"
+	//   "UNKNOWN" - Invalid value.
 	//   "CACHE_CHECK" - Checking the result against the cache.
 	//   "QUEUED" - Currently idle, awaiting a free machine to execute.
 	//   "EXECUTING" - Currently being executed by a worker.
@@ -1238,9 +1255,17 @@ func (s *BuildBazelRemoteExecutionV2OutputDirectory) MarshalJSON() ([]byte, erro
 // output in an `ActionResult`. It allows a full file path rather
 // than
 // only a name.
-//
-// `OutputFile` is binary-compatible with `FileNode`.
 type BuildBazelRemoteExecutionV2OutputFile struct {
+	// Contents: The contents of the file if inlining was requested. The
+	// server SHOULD NOT inline
+	// file contents unless requested by the client in
+	// the
+	// GetActionResultRequest
+	// message. The server MAY omit inlining, even if requested, and MUST do
+	// so if inlining
+	// would cause the response to exceed message size limits.
+	Contents string `json:"contents,omitempty"`
+
 	// Digest: The digest of the file's content.
 	Digest *BuildBazelRemoteExecutionV2Digest `json:"digest,omitempty"`
 
@@ -1254,7 +1279,7 @@ type BuildBazelRemoteExecutionV2OutputFile struct {
 	// relative path, it MUST NOT begin with a leading forward slash.
 	Path string `json:"path,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Digest") to
+	// ForceSendFields is a list of field names (e.g. "Contents") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -1262,8 +1287,8 @@ type BuildBazelRemoteExecutionV2OutputFile struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Digest") to include in API
-	// requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "Contents") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -1432,7 +1457,18 @@ func (s *BuildBazelRemoteExecutionV2PlatformProperty) MarshalJSON() ([]byte, err
 // canonical proto serialization:
 //
 // * name: `build.bazel.remote.execution.v2.requestmetadata-bin`
-// * contents: the base64 encoded binary `RequestMetadata` message.
+// * contents: the base64 encoded binary `RequestMetadata`
+// message.
+// Note: the gRPC library serializes binary headers encoded in base 64
+// by
+// default
+// (https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md#reques
+// ts).
+// Therefore, if the gRPC library is used to pass/retrieve
+// this
+// metadata, the user may ignore the base64 encoding and assume it is
+// simply
+// serialized as a binary message.
 type BuildBazelRemoteExecutionV2RequestMetadata struct {
 	// ActionId: An identifier that ties multiple requests to the same
 	// action.
@@ -1730,6 +1766,69 @@ func (s *GoogleDevtoolsRemotebuildbotCommandEvents) UnmarshalJSON(data []byte) e
 	}
 	s.InputCacheMiss = float64(s1.InputCacheMiss)
 	return nil
+}
+
+// GoogleDevtoolsRemotebuildbotCommandStatus: The internal status of the
+// command result.
+type GoogleDevtoolsRemotebuildbotCommandStatus struct {
+	// Code: The status code.
+	//
+	// Possible values:
+	//   "OK" - The command succeeded.
+	//   "INVALID_ARGUMENT" - The command input was invalid.
+	//   "DEADLINE_EXCEEDED" - The command had passed its expiry time while
+	// it was still running.
+	//   "NOT_FOUND" - The resources requested by the command were not
+	// found.
+	//   "PERMISSION_DENIED" - The command failed due to permission errors.
+	//   "INTERNAL" - The command failed because of some invariants expected
+	// by the underlying
+	// system have been broken. This usually indicates a bug wit the system.
+	//   "ABORTED" - The command was aborted.
+	//   "CLEANUP_ERROR" - The bot failed to do the cleanup, e.g. unable to
+	// delete the command
+	// working directory or the command process.
+	//   "DOWNLOAD_INPUTS_ERROR" - The bot failed to download the inputs.
+	//   "UNKNOWN" - Unknown error.
+	//   "UPLOAD_OUTPUTS_ERROR" - The bot failed to upload the outputs.
+	//   "DOCKER_LOGIN_ERROR" - The bot failed to login to docker.
+	//   "DOCKER_IMAGE_PULL_ERROR" - The bot failed to pull docker image.
+	//   "DOCKER_IMAGE_EXIST_ERROR" - The bot failed to check docker images.
+	//   "DUPLICATE_INPUTS" - The inputs contain duplicate files.
+	//   "DOCKER_IMAGE_PERMISSION_DENIED" - The bot doesn't have the
+	// permissions to pull docker images.
+	//   "DOCKER_IMAGE_NOT_FOUND" - The docker image cannot be found.
+	//   "WORKING_DIR_NOT_FOUND" - Working directory is not found.
+	//   "WORKING_DIR_NOT_IN_BASE_DIR" - Working directory is not under the
+	// base directory
+	//   "DOCKER_UNAVAILABLE" - There are issues with docker
+	// service/runtime.
+	Code string `json:"code,omitempty"`
+
+	// Message: The error message.
+	Message string `json:"message,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Code") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Code") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleDevtoolsRemotebuildbotCommandStatus) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleDevtoolsRemotebuildbotCommandStatus
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // GoogleDevtoolsRemotebuildexecutionAdminV1alphaCreateInstanceRequest:
@@ -2069,11 +2168,50 @@ func (s *GoogleDevtoolsRemotebuildexecutionAdminV1alphaListInstancesResponse) Ma
 }
 
 type GoogleDevtoolsRemotebuildexecutionAdminV1alphaListWorkerPoolsRequest struct {
+	// Filter: Optional. A filter expression that filters resources listed
+	// in
+	// the response. The expression must specify the field name, a
+	// comparison
+	// operator, and the value that you want to use for filtering. The
+	// value
+	// must be a string, a number, or a boolean. String values
+	// are
+	// case-insensitive.
+	// The comparison operator must be either `:`, `=`, `!=`, `>`, `>=`,
+	// `<=` or
+	// `<`.
+	// The `:` operator can be used with string fields to match
+	// substrings.
+	// For non-string fields it is equivalent to the `=` operator.
+	// The `:*` comparison can be used to test  whether a key has been
+	// defined.
+	//
+	// You can also filter on nested fields.
+	//
+	// To filter on multiple expressions, you can separate expression
+	// using
+	// `AND` and `OR` operators, using parentheses to specify precedence.
+	// If
+	// neither operator is specified, `AND` is assumed.
+	//
+	// Examples:
+	//
+	// Include only pools with more than 100 reserved
+	// workers:
+	// `(worker_count > 100) (worker_config.reserved = true)`
+	//
+	// Include only pools with a certain label or machines of the
+	// n1-standard
+	// family:
+	// `worker_config.labels.key1 : * OR worker_config.machine_type:
+	// n1-standard`
+	Filter string `json:"filter,omitempty"`
+
 	// Parent: Resource name of the instance.
 	// Format: `projects/[PROJECT_ID]/instances/[INSTANCE_ID]`.
 	Parent string `json:"parent,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Parent") to
+	// ForceSendFields is a list of field names (e.g. "Filter") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -2081,7 +2219,7 @@ type GoogleDevtoolsRemotebuildexecutionAdminV1alphaListWorkerPoolsRequest struct
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Parent") to include in API
+	// NullFields is a list of field names (e.g. "Filter") to include in API
 	// requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
@@ -2127,9 +2265,11 @@ func (s *GoogleDevtoolsRemotebuildexecutionAdminV1alphaListWorkerPoolsResponse) 
 //  The request used for UpdateWorkerPool.
 type GoogleDevtoolsRemotebuildexecutionAdminV1alphaUpdateWorkerPoolRequest struct {
 	// UpdateMask: The update mask applies to worker_pool. For the
-	// `FieldMask` definition,
+	// `FieldMask`
+	// definition,
 	// see
-	// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+	// https://developers.google.com/protocol-buffers/docs/re
+	// ference/google.protobuf#fieldmask
 	// If an empty update_mask is provided, only the non-default valued
 	// field in
 	// the worker pool field will be updated. Note that in order to update a
@@ -2175,11 +2315,23 @@ type GoogleDevtoolsRemotebuildexecutionAdminV1alphaWorkerConfig struct {
 	DiskSizeGb int64 `json:"diskSizeGb,omitempty,string"`
 
 	// DiskType: Required. Disk Type to use for the worker.
-	// See [Storage
-	// options](https://cloud.google.com/compute/docs/disks/#introduction).
-	// C
-	// urrently only `pd-standard` is supported.
+	// See
+	// [Storage
+	// options](https://cloud.google.com/compute/docs/disks/#introdu
+	// ction).
+	// Currently only `pd-standard` is supported.
 	DiskType string `json:"diskType,omitempty"`
+
+	// Labels: Labels associated with the workers.
+	// Label keys and values can be no longer than 63 characters, can only
+	// contain
+	// lowercase letters, numeric characters, underscores and
+	// dashes.
+	// International letters are permitted. Label keys must start with a
+	// letter.
+	// Label values are optional.
+	// There can not be more than 64 labels per resource.
+	Labels map[string]string `json:"labels,omitempty"`
 
 	// MachineType: Required. Machine type of the worker, such as
 	// `n1-standard-2`.
@@ -3969,7 +4121,8 @@ type GoogleLongrunningOperation struct {
 	// service that
 	// originally returns it. If you use the default HTTP mapping,
 	// the
-	// `name` should have the format of `operations/some/unique/name`.
+	// `name` should be a resource name ending with
+	// `operations/{unique_id}`.
 	Name string `json:"name,omitempty"`
 
 	// Response: The normal response of the operation in case of success.
@@ -4038,81 +4191,14 @@ type GoogleProtobufEmpty struct {
 // is suitable for
 // different programming environments, including REST APIs and RPC APIs.
 // It is
-// used by [gRPC](https://github.com/grpc). The error model is designed
-// to be:
+// used by [gRPC](https://github.com/grpc). Each `Status` message
+// contains
+// three pieces of data: error code, error message, and error
+// details.
 //
-// - Simple to use and understand for most users
-// - Flexible enough to meet unexpected needs
-//
-// # Overview
-//
-// The `Status` message contains three pieces of data: error code,
-// error
-// message, and error details. The error code should be an enum value
-// of
-// google.rpc.Code, but it may accept additional error codes if needed.
-// The
-// error message should be a developer-facing English message that
-// helps
-// developers *understand* and *resolve* the error. If a localized
-// user-facing
-// error message is needed, put the localized message in the error
-// details or
-// localize it in the client. The optional error details may contain
-// arbitrary
-// information about the error. There is a predefined set of error
-// detail types
-// in the package `google.rpc` that can be used for common error
-// conditions.
-//
-// # Language mapping
-//
-// The `Status` message is the logical representation of the error
-// model, but it
-// is not necessarily the actual wire format. When the `Status` message
-// is
-// exposed in different client libraries and different wire protocols,
-// it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions
-// in Java, but more likely mapped to some error codes in C.
-//
-// # Other uses
-//
-// The error model and the `Status` message can be used in a variety
-// of
-// environments, either with or without APIs, to provide a
-// consistent developer experience across different
-// environments.
-//
-// Example uses of this error model include:
-//
-// - Partial errors. If a service needs to return partial errors to the
-// client,
-//     it may embed the `Status` in the normal response to indicate the
-// partial
-//     errors.
-//
-// - Workflow errors. A typical workflow has multiple steps. Each step
-// may
-//     have a `Status` message for error reporting.
-//
-// - Batch operations. If a client uses batch request and batch
-// response, the
-//     `Status` message should be used directly inside batch response,
-// one for
-//     each error sub-response.
-//
-// - Asynchronous operations. If an API call embeds asynchronous
-// operation
-//     results in its response, the status of those operations should
-// be
-//     represented directly using the `Status` message.
-//
-// - Logging. If some API errors are stored in logs, the message
-// `Status` could
-//     be used directly after any stripping needed for security/privacy
-// reasons.
+// You can find out more about this error model and how to work with it
+// in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
 type GoogleRpcStatus struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -4181,9 +4267,10 @@ type GoogleWatcherV1Change struct {
 	// a
 	// sequence number or a multi-part timestamp/version vector. This marker
 	// can
-	// be provided in the Request message, allowing the caller to resume the
-	// stream
-	// watching at a specific point without fetching the initial state.
+	// be provided in the Request message, allowing the caller to resume
+	// the
+	// stream watching at a specific point without fetching the initial
+	// state.
 	ResumeMarker string `json:"resumeMarker,omitempty"`
 
 	// State: The state of the `element`.

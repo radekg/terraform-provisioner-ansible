@@ -141,6 +141,8 @@ func Test_Metrics(t *testing.T) {
 			{"password", "pass1", "(minScore=0.6)", NewParams().MinScore(.6), e{4, 4, 0, 0, 0}},
 			{"password", "pass1wor", "(minScore=0.9)", NewParams().MinScore(.9), e{2, 4, 0, 0, 0}},
 			{"password", "password", "(minScore=1.1)", NewParams().MinScore(1.1), e{0, 8, 0, 0, 0}},
+			{"NetworkManager-glib-0.8.1-5.el6_0.1.i686.rpm", "NetworkManager-glib-0.9.3-15.el6_0.1.i686.rpm", "(minScore=0.92)", NewParams().MinScore(0.92), e{3, 22, 18, 42. / 45, 43.2 / 45}},
+			{"NetworkManager-glib-0.8.1-5.el6_0.1.i686.rpm", "gdm-plugin-fingerprint-2.30.4-39.el6.i686.rpm", "(minScore=0.92)", NewParams().MinScore(0.92), e{28, 0, 9, 0, 0}},
 
 			// The rest of these are miscellaneous examples.  They will
 			// be illustrated using the following key:

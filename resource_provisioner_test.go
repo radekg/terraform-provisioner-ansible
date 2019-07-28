@@ -47,14 +47,14 @@ func TestBadConfig(t *testing.T) {
 	// play.0.playbook with no file_path
 	// play.0.module with no module
 	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{},
 				},
 			},
 			map[string]interface{}{
-				"module": []map[string]interface{}{
+				"module": []interface{}{
 					map[string]interface{}{},
 				},
 			},
@@ -88,9 +88,9 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 	// warnings:
 	// = plays.0.playbook.roles_path
 	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{
 						"file_path":      playbookFile,
 						"roles_path":     []interface{}{"${path.module}/path/to/a/role/directory"},
@@ -102,7 +102,7 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 				},
 			},
 			map[string]interface{}{
-				"module": []map[string]interface{}{
+				"module": []interface{}{
 					map[string]interface{}{
 						"module":       "some_module",
 						"args":         map[string]interface{}{"ARG1": "value 1", "ARG2": "value 2"},
@@ -157,9 +157,9 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 
 func TestGoodLocalConfigWithoutPlaybookWarnings(t *testing.T) {
 	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{
 						"file_path": playbookFile,
 					},
@@ -178,9 +178,9 @@ func TestGoodLocalConfigWithoutPlaybookWarnings(t *testing.T) {
 
 func TestRequirePlaybookFilePath(t *testing.T) {
 	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{},
 				},
 			},
@@ -197,9 +197,9 @@ func TestRequirePlaybookFilePath(t *testing.T) {
 
 func TestRequireModuleName(t *testing.T) {
 	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"module": []map[string]interface{}{
+				"module": []interface{}{
 					map[string]interface{}{},
 				},
 			},
@@ -230,14 +230,14 @@ func TestConfigWithoutPlaysFails(t *testing.T) {
 func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
 	// no plays gives a warning:
 	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{
 						"file_path": playbookFile,
 					},
 				},
-				"module": []map[string]interface{}{
+				"module": []interface{}{
 					map[string]interface{}{
 						"module": "module-name",
 					},
@@ -258,9 +258,9 @@ func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
 func TestConfigWithInvalidValueTypeFailes(t *testing.T) {
 	// file_path is set to a boolean instead of a string
 	c := testConfig(t, map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{
 						"file_path": true,
 					},
@@ -280,9 +280,9 @@ func TestConfigWithInvalidValueTypeFailes(t *testing.T) {
 
 func TestConfigProvisionerParserDecoder(t *testing.T) {
 	c := map[string]interface{}{
-		"plays": []map[string]interface{}{
+		"plays": []interface{}{
 			map[string]interface{}{
-				"playbook": []map[string]interface{}{
+				"playbook": []interface{}{
 					map[string]interface{}{
 						"file_path": playbookFile,
 					},
@@ -290,7 +290,7 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 				"hosts": []interface{}{"host.to.play"},
 			},
 			map[string]interface{}{
-				"module": []map[string]interface{}{
+				"module": []interface{}{
 					map[string]interface{}{
 						"module": "some-module",
 					},

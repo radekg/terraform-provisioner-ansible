@@ -77,14 +77,41 @@ func ExampleClient_CreateSubscription() {
 	// Create a new subscription to the previously created topic
 	// with the given name.
 	sub, err := client.CreateSubscription(ctx, "subName", pubsub.SubscriptionConfig{
-		Topic:       topic,
-		AckDeadline: 10 * time.Second,
+		Topic:            topic,
+		AckDeadline:      10 * time.Second,
+		ExpirationPolicy: 25 * time.Hour,
 	})
 	if err != nil {
 		// TODO: Handle error.
 	}
 
 	_ = sub // TODO: use the subscription.
+}
+
+func ExampleClient_CreateSubscription_neverExpire() {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, "project-id")
+	if err != nil {
+		// TODO: Handle error.
+	}
+
+	// Create a new topic with the given name.
+	topic, err := client.CreateTopic(ctx, "topicName")
+	if err != nil {
+		// TODO: Handle error.
+	}
+
+	// Create a new subscription to the previously
+	// created topic and ensure it never expires.
+	sub, err := client.CreateSubscription(ctx, "subName", pubsub.SubscriptionConfig{
+		Topic:            topic,
+		AckDeadline:      10 * time.Second,
+		ExpirationPolicy: time.Duration(0),
+	})
+	if err != nil {
+		// TODO: Handle error.
+	}
+	_ = sub // TODO: Use the subscription
 }
 
 func ExampleTopic_Delete() {
@@ -273,6 +300,30 @@ func ExampleSubscription_Update() {
 	sub := client.Subscription("subName")
 	subConfig, err := sub.Update(ctx, pubsub.SubscriptionConfigToUpdate{
 		PushConfig: &pubsub.PushConfig{Endpoint: "https://example.com/push"},
+		// Make the subscription never expire.
+		ExpirationPolicy: time.Duration(0),
+	})
+	if err != nil {
+		// TODO: Handle error.
+	}
+	_ = subConfig // TODO: Use SubscriptionConfig.
+}
+
+func ExampleSubscription_Update_pushConfigAuthenticationMethod() {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, "project-id")
+	if err != nil {
+		// TODO: Handle error.
+	}
+	sub := client.Subscription("subName")
+	subConfig, err := sub.Update(ctx, pubsub.SubscriptionConfigToUpdate{
+		PushConfig: &pubsub.PushConfig{
+			Endpoint: "https://example.com/push",
+			AuthenticationMethod: &pubsub.OIDCToken{
+				ServiceAccountEmail: "foo@example.com",
+				Audience:            "client-12345",
+			},
+		},
 	})
 	if err != nil {
 		// TODO: Handle error.

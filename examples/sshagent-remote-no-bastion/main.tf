@@ -38,12 +38,13 @@ resource "aws_instance" "test_box" {
   security_groups = ["${aws_security_group.ssh_box.name}"]
 
   connection {
+    host = "${self.public_ip}"
     user = "centos"
   }
 
   provisioner "ansible" {
     plays {
-      playbook = {
+      playbook {
         file_path = "${path.module}/../ansible-data/playbooks/install-tree.yml"
         roles_path = [
             "${path.module}/../ansible-data/roles"

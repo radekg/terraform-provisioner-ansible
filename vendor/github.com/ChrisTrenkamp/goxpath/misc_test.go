@@ -5,6 +5,8 @@ import (
 	"encoding/xml"
 	"testing"
 
+	"github.com/ChrisTrenkamp/goxpath/lexer"
+	"github.com/ChrisTrenkamp/goxpath/parser"
 	"github.com/ChrisTrenkamp/goxpath/tree"
 	"github.com/ChrisTrenkamp/goxpath/tree/xmltree"
 )
@@ -117,4 +119,120 @@ func TestVariable(t *testing.T) {
 	if _, err := Parse(`$ = 'foo'`); err == nil {
 		t.Error("Parse error not nil")
 	}
+}
+
+func TestFunctionInteractions(t *testing.T) {
+	cases := []struct {
+		name     string
+		expected *parser.Node
+		xpath    string
+	}{{
+		name: "TestFunctionInteractions_1",
+		expected: &parser.Node{
+			Val:   lexer.XItem{lexer.XItemOperator, "="},
+			Left:  &parser.Node{Val: lexer.XItem{lexer.XItemFunction, "current"}},
+			Right: &parser.Node{Val: lexer.XItem{lexer.XItemNumLit, "1"}},
+		},
+		xpath: `current()=1`,
+	}, {
+		name: "TestFunctionInteractions_2",
+		expected: &parser.Node{
+			Val:   lexer.XItem{lexer.XItemOperator, "="},
+			Left:  &parser.Node{Val: lexer.XItem{lexer.XItemFunction, "current"}},
+			Right: &parser.Node{Val: lexer.XItem{lexer.XItemStrLit, "abc"}},
+		},
+		xpath: `current() = 'abc'`,
+	}, {
+		name: "TestFunctionInteractions_3",
+		expected: &parser.Node{
+			Val:  lexer.XItem{lexer.XItemOperator, "="},
+			Left: &parser.Node{Val: lexer.XItem{lexer.XItemFunction, "current"}},
+			Right: &parser.Node{
+				Val:  lexer.XItem{lexer.XItemRelLocPath, ""},
+				Left: &parser.Node{Val: lexer.XItem{lexer.XItemQName, "abc"}},
+			},
+		},
+		xpath: `current() = abc`,
+	}, {
+		name: "TestFunctionInteractions_4",
+		expected: &parser.Node{
+			Val:  lexer.XItem{lexer.XItemFunction, "current"},
+			Left: nil,
+			Right: &parser.Node{Val: lexer.XItem{lexer.XItemRelLocPath, ""},
+				Left: &parser.Node{Val: lexer.XItem{lexer.XItemNCName, "ns"},
+					Left: &parser.Node{
+						Val: lexer.XItem{lexer.XItemQName, "sub"},
+					},
+				},
+			},
+		},
+		xpath: `current()/ns:sub`,
+	}, {
+		name: "TestFunctionInteractions_5",
+		expected: &parser.Node{
+			Val: lexer.XItem{lexer.XItemOperator, "="},
+			Left: &parser.Node{
+				Val:  lexer.XItem{lexer.XItemFunction, "current"},
+				Left: nil,
+				Right: &parser.Node{
+					Val: lexer.XItem{lexer.XItemRelLocPath, ""},
+					Left: &parser.Node{
+						Val: lexer.XItem{lexer.XItemNCName, "ns"},
+						Left: &parser.Node{
+							Val: lexer.XItem{lexer.XItemQName, "sub"},
+						},
+					},
+				},
+			},
+			Right: &parser.Node{
+				Val: lexer.XItem{lexer.XItemStrLit, "abc"},
+			},
+		},
+		xpath: `current()/ns:sub = 'abc'`,
+	}, {
+		name: "TestFunctionInteractions_6",
+		expected: &parser.Node{
+			Val: lexer.XItem{lexer.XItemOperator, "="},
+			Left: &parser.Node{
+				Val:  lexer.XItem{lexer.XItemFunction, "current"},
+				Left: nil,
+				Right: &parser.Node{
+					Val: lexer.XItem{lexer.XItemRelLocPath, ""},
+					Left: &parser.Node{
+						Val: lexer.XItem{lexer.XItemNCName, "ns"},
+						Left: &parser.Node{
+							Val: lexer.XItem{lexer.XItemQName, "sub"},
+						},
+					},
+				},
+			},
+			Right: &parser.Node{
+				Val: lexer.XItem{lexer.XItemRelLocPath, ""},
+				Left: &parser.Node{
+					Val: lexer.XItem{lexer.XItemQName, "abc"},
+				},
+			},
+		},
+		xpath: `current()/ns:sub = abc`,
+	},
+	}
+
+	for _, val := range cases {
+		t.Run(val.name, func(t *testing.T) {
+			actual := MustParse(val.xpath).n
+			if !isEquivalentAST(val.expected, actual) {
+				t.Errorf("Expected AST tree is not the same as actual tree that goxpath parser returns")
+			}
+		})
+	}
+}
+
+func isEquivalentAST(node1, node2 *parser.Node) bool {
+	if node1 == nil && node2 == nil {
+		return true
+	}
+	if node1 != nil && node2 != nil {
+		return (node1.Val == node2.Val && isEquivalentAST(node1.Left, node2.Left) && isEquivalentAST(node1.Right, node2.Right))
+	}
+	return false
 }

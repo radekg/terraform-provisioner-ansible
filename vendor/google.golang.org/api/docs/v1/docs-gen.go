@@ -1131,48 +1131,53 @@ func (s *Dimension) UnmarshalJSON(data []byte) error {
 
 // Document: A Google Docs document.
 type Document struct {
-	// Body: The main body of the document.
+	// Body: Output only. The main body of the document.
 	Body *Body `json:"body,omitempty"`
 
-	// DocumentId: The ID of the document.
+	// DocumentId: Output only. The ID of the document.
 	DocumentId string `json:"documentId,omitempty"`
 
-	// DocumentStyle: The style of the document.
+	// DocumentStyle: Output only. The style of the document.
 	DocumentStyle *DocumentStyle `json:"documentStyle,omitempty"`
 
-	// Footers: The footers in the document, keyed by footer ID.
+	// Footers: Output only. The footers in the document, keyed by footer
+	// ID.
 	Footers map[string]Footer `json:"footers,omitempty"`
 
-	// Footnotes: The footnotes in the document, keyed by footnote ID.
+	// Footnotes: Output only. The footnotes in the document, keyed by
+	// footnote ID.
 	Footnotes map[string]Footnote `json:"footnotes,omitempty"`
 
-	// Headers: The headers in the document, keyed by header ID.
+	// Headers: Output only. The headers in the document, keyed by header
+	// ID.
 	Headers map[string]Header `json:"headers,omitempty"`
 
-	// InlineObjects: The inline objects in the document, keyed by object
-	// ID.
+	// InlineObjects: Output only. The inline objects in the document, keyed
+	// by object ID.
 	InlineObjects map[string]InlineObject `json:"inlineObjects,omitempty"`
 
-	// Lists: The lists in the document, keyed by list ID.
+	// Lists: Output only. The lists in the document, keyed by list ID.
 	Lists map[string]List `json:"lists,omitempty"`
 
-	// NamedRanges: The named ranges in the document, keyed by name.
+	// NamedRanges: Output only. The named ranges in the document, keyed by
+	// name.
 	NamedRanges map[string]NamedRanges `json:"namedRanges,omitempty"`
 
-	// NamedStyles: The named styles of the document.
+	// NamedStyles: Output only. The named styles of the document.
 	NamedStyles *NamedStyles `json:"namedStyles,omitempty"`
 
-	// PositionedObjects: The positioned objects in the document, keyed by
-	// object ID.
+	// PositionedObjects: Output only. The positioned objects in the
+	// document, keyed by object ID.
 	PositionedObjects map[string]PositionedObject `json:"positionedObjects,omitempty"`
 
-	// RevisionId: The revision ID of the document. Can be used in update
-	// requests to specify
-	// which revision of a document to apply updates to and how the request
-	// should
-	// behave if the document has been edited since that revision. Only
-	// populated
-	// if the user has edit access to the document.
+	// RevisionId: Output only. The revision ID of the document. Can be used
+	// in update
+	// requests to specify which revision of a document to apply updates to
+	// and
+	// how the request should behave if the document has been edited since
+	// that
+	// revision. Only populated if the user has edit access to the
+	// document.
 	//
 	// The format of the revision ID may change over time, so it should be
 	// treated
@@ -1189,17 +1194,18 @@ type Document struct {
 	// internal factors such as ID format changes.
 	RevisionId string `json:"revisionId,omitempty"`
 
-	// SuggestedDocumentStyleChanges: The suggested changes to the style of
-	// the document, keyed by suggestion ID.
+	// SuggestedDocumentStyleChanges: Output only. The suggested changes to
+	// the style of the document, keyed by
+	// suggestion ID.
 	SuggestedDocumentStyleChanges map[string]SuggestedDocumentStyle `json:"suggestedDocumentStyleChanges,omitempty"`
 
-	// SuggestedNamedStylesChanges: The suggested changes to the named
-	// styles of the document, keyed by
-	// suggestion ID.
+	// SuggestedNamedStylesChanges: Output only. The suggested changes to
+	// the named styles of the document,
+	// keyed by suggestion ID.
 	SuggestedNamedStylesChanges map[string]SuggestedNamedStyles `json:"suggestedNamedStylesChanges,omitempty"`
 
-	// SuggestionsViewMode: The suggestions view mode applied to the
-	// document.
+	// SuggestionsViewMode: Output only. The suggestions view mode applied
+	// to the document.
 	//
 	// Note: When editing a document, changes must be based on a document
 	// with
@@ -1263,15 +1269,21 @@ func (s *Document) MarshalJSON() ([]byte, error) {
 
 // DocumentStyle: The style of the document.
 type DocumentStyle struct {
-	// Background: The background of the document.
+	// Background: The background of the document. Documents cannot have a
+	// transparent
+	// background color.
 	Background *Background `json:"background,omitempty"`
 
 	// DefaultFooterId: The ID of the default footer. If not set, there is
 	// no default footer.
+	//
+	// This property is read-only.
 	DefaultFooterId string `json:"defaultFooterId,omitempty"`
 
 	// DefaultHeaderId: The ID of the default header. If not set, there is
 	// no default header.
+	//
+	// This property is read-only.
 	DefaultHeaderId string `json:"defaultHeaderId,omitempty"`
 
 	// EvenPageFooterId: The ID of the footer used only for even pages. The
@@ -1279,6 +1291,8 @@ type DocumentStyle struct {
 	// use_even_page_header_footer determines
 	// whether to use the default_footer_id or this value for the
 	// footer on even pages. If not set, there is no even page footer.
+	//
+	// This property is read-only.
 	EvenPageFooterId string `json:"evenPageFooterId,omitempty"`
 
 	// EvenPageHeaderId: The ID of the header used only for even pages. The
@@ -1286,6 +1300,8 @@ type DocumentStyle struct {
 	// use_even_page_header_footer determines
 	// whether to use the default_header_id or this value for the
 	// header on even pages. If not set, there is no even page header.
+	//
+	// This property is read-only.
 	EvenPageHeaderId string `json:"evenPageHeaderId,omitempty"`
 
 	// FirstPageFooterId: The ID of the footer used only for the first page.
@@ -1294,7 +1310,10 @@ type DocumentStyle struct {
 	// of
 	// use_first_page_header_footer determines
 	// whether to use the default_footer_id or this value for the
-	// footer on the first page. If not set, there is no first page footer.
+	// footer on the first page. If not set, there is no first page
+	// footer.
+	//
+	// This property is read-only.
 	FirstPageFooterId string `json:"firstPageFooterId,omitempty"`
 
 	// FirstPageHeaderId: The ID of the header used only for the first page.
@@ -1302,19 +1321,42 @@ type DocumentStyle struct {
 	// a unique header for the first page does not exist.
 	// The value of use_first_page_header_footer determines
 	// whether to use the default_header_id or this value for the
-	// header on the first page. If not set, there is no first page header.
+	// header on the first page. If not set, there is no first page
+	// header.
+	//
+	// This property is read-only.
 	FirstPageHeaderId string `json:"firstPageHeaderId,omitempty"`
 
 	// MarginBottom: The bottom page margin.
+	//
+	// Updating the bottom page margin on the document style clears the
+	// bottom
+	// page margin on all section styles.
 	MarginBottom *Dimension `json:"marginBottom,omitempty"`
 
 	// MarginLeft: The left page margin.
+	//
+	// Updating the left page margin on the document style clears the left
+	// page
+	// margin on all section styles. It may also cause columns to resize in
+	// all
+	// sections.
 	MarginLeft *Dimension `json:"marginLeft,omitempty"`
 
 	// MarginRight: The right page margin.
+	//
+	// Updating the right page margin on the document style clears the right
+	// page
+	// margin on all section styles. It may also cause columns to resize in
+	// all
+	// sections.
 	MarginRight *Dimension `json:"marginRight,omitempty"`
 
 	// MarginTop: The top page margin.
+	//
+	// Updating the top page margin on the document style clears the top
+	// page
+	// margin on all section styles.
 	MarginTop *Dimension `json:"marginTop,omitempty"`
 
 	// PageNumberStart: The page number from which to start counting the
@@ -1327,11 +1369,15 @@ type DocumentStyle struct {
 	// UseEvenPageHeaderFooter: Indicates whether to use the even page
 	// header / footer IDs for the even
 	// pages.
+	//
+	// This property is read-only.
 	UseEvenPageHeaderFooter bool `json:"useEvenPageHeaderFooter,omitempty"`
 
 	// UseFirstPageHeaderFooter: Indicates whether to use the first page
 	// header / footer IDs for the first
 	// page.
+	//
+	// This property is read-only.
 	UseFirstPageHeaderFooter bool `json:"useFirstPageHeaderFooter,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Background") to
@@ -1499,7 +1545,7 @@ type EmbeddedObject struct {
 	// MarginTop: The top margin of the embedded object.
 	MarginTop *Dimension `json:"marginTop,omitempty"`
 
-	// Size: The size of the embedded object.
+	// Size: The visible size of the image after cropping.
 	Size *Size `json:"size,omitempty"`
 
 	// Title: The title of the embedded object. The `title` and
@@ -2011,8 +2057,6 @@ type ImageProperties struct {
 	Contrast float64 `json:"contrast,omitempty"`
 
 	// CropProperties: The crop properties of the image.
-	//
-	// After cropping, the image will be stretched to fit in its container.
 	CropProperties *CropProperties `json:"cropProperties,omitempty"`
 
 	// SourceUri: The source URI is the URI used to insert the image. The
@@ -2486,6 +2530,48 @@ type InsertPageBreakRequest struct {
 
 func (s *InsertPageBreakRequest) MarshalJSON() ([]byte, error) {
 	type NoMethod InsertPageBreakRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// InsertTableColumnRequest: Inserts an empty column into a table.
+type InsertTableColumnRequest struct {
+	// InsertRight: Whether to insert new column to the right of the
+	// reference cell location.
+	//
+	// - `True`: insert to the right.
+	// - `False`: insert to the left.
+	InsertRight bool `json:"insertRight,omitempty"`
+
+	// TableCellLocation: The reference table cell location from which
+	// columns will be inserted.
+	//
+	// A new column will be inserted to the left (or right) of the column
+	// where
+	// the reference cell is. If the reference cell is a merged cell, a
+	// new
+	// column will be inserted to the left (or right) of the merged cell.
+	TableCellLocation *TableCellLocation `json:"tableCellLocation,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "InsertRight") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "InsertRight") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *InsertTableColumnRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod InsertTableColumnRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3821,7 +3907,9 @@ type ParagraphStyle struct {
 
 	// HeadingId: The heading ID of the paragraph. If empty, then this
 	// paragraph is not a
-	// heading. This property is read-only.
+	// heading.
+	//
+	// This property is read-only.
 	HeadingId string `json:"headingId,omitempty"`
 
 	// IndentEnd: The amount of indentation for the paragraph on the side
@@ -3910,7 +3998,9 @@ type ParagraphStyle struct {
 
 	// TabStops: A list of the tab stops for this paragraph. The list of tab
 	// stops is not
-	// inherited. This property is read-only.
+	// inherited.
+	//
+	// This property is read-only.
 	TabStops []*TabStop `json:"tabStops,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Alignment") to
@@ -4435,6 +4525,9 @@ type Request struct {
 	// InsertTable: Inserts a table at the specified location.
 	InsertTable *InsertTableRequest `json:"insertTable,omitempty"`
 
+	// InsertTableColumn: Inserts an empty column into a table.
+	InsertTableColumn *InsertTableColumnRequest `json:"insertTableColumn,omitempty"`
+
 	// InsertTableRow: Inserts an empty row into a table.
 	InsertTableRow *InsertTableRowRequest `json:"insertTableRow,omitempty"`
 
@@ -4444,9 +4537,22 @@ type Request struct {
 	// ReplaceAllText: Replaces all instances of the specified text.
 	ReplaceAllText *ReplaceAllTextRequest `json:"replaceAllText,omitempty"`
 
+	// UpdateDocumentStyle: Updates the style of the document.
+	UpdateDocumentStyle *UpdateDocumentStyleRequest `json:"updateDocumentStyle,omitempty"`
+
 	// UpdateParagraphStyle: Updates the paragraph style at the specified
 	// range.
 	UpdateParagraphStyle *UpdateParagraphStyleRequest `json:"updateParagraphStyle,omitempty"`
+
+	// UpdateTableCellStyle: Updates the style of table cells.
+	UpdateTableCellStyle *UpdateTableCellStyleRequest `json:"updateTableCellStyle,omitempty"`
+
+	// UpdateTableColumnProperties: Updates the properties of columns in a
+	// table.
+	UpdateTableColumnProperties *UpdateTableColumnPropertiesRequest `json:"updateTableColumnProperties,omitempty"`
+
+	// UpdateTableRowStyle: Updates the row style in a table.
+	UpdateTableRowStyle *UpdateTableRowStyleRequest `json:"updateTableRowStyle,omitempty"`
 
 	// UpdateTextStyle: Updates the text style at the specified range.
 	UpdateTextStyle *UpdateTextStyleRequest `json:"updateTextStyle,omitempty"`
@@ -5621,7 +5727,9 @@ type TableCellStyle struct {
 	// BorderTop: The top border of the cell.
 	BorderTop *TableCellBorder `json:"borderTop,omitempty"`
 
-	// ColumnSpan: The column span of the cell. This property is read-only.
+	// ColumnSpan: The column span of the cell.
+	//
+	// This property is read-only.
 	ColumnSpan int64 `json:"columnSpan,omitempty"`
 
 	// ContentAlignment: The alignment of the content in the table cell. The
@@ -5657,7 +5765,9 @@ type TableCellStyle struct {
 	// PaddingTop: The top padding of the cell.
 	PaddingTop *Dimension `json:"paddingTop,omitempty"`
 
-	// RowSpan: The row span of the cell. This property is read-only.
+	// RowSpan: The row span of the cell.
+	//
+	// This property is read-only.
 	RowSpan int64 `json:"rowSpan,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "BackgroundColor") to
@@ -5846,6 +5956,60 @@ type TableOfContents struct {
 
 func (s *TableOfContents) MarshalJSON() ([]byte, error) {
 	type NoMethod TableOfContents
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// TableRange: A table range represents a reference to a subset of a
+// table.
+//
+// It's important to note that the cells specified by a table range do
+// not
+// necessarily form a rectangle. For example, let's say we have a 3 x 3
+// table
+// where all the cells of the last row are merged together. The table
+// looks
+// like this:
+//
+//
+//      [             ]
+//
+// A table range with table cell location = (table_start_location, row =
+// 0,
+// column = 0), row span = 3 and column span = 2 specifies the following
+// cells:
+//
+//       x     x
+//      [ x    x    x ]
+type TableRange struct {
+	// ColumnSpan: The column span of the table range.
+	ColumnSpan int64 `json:"columnSpan,omitempty"`
+
+	// RowSpan: The row span of the table range.
+	RowSpan int64 `json:"rowSpan,omitempty"`
+
+	// TableCellLocation: The cell location where the table range starts.
+	TableCellLocation *TableCellLocation `json:"tableCellLocation,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ColumnSpan") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ColumnSpan") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *TableRange) MarshalJSON() ([]byte, error) {
+	type NoMethod TableRange
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -6276,6 +6440,50 @@ func (s *TextStyleSuggestionState) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// UpdateDocumentStyleRequest: Updates the DocumentStyle.
+type UpdateDocumentStyleRequest struct {
+	// DocumentStyle: The styles to set on the document.
+	//
+	// Certain document style changes may cause other changes in order to
+	// mirror
+	// the behavior of the Docs editor. See the documentation of
+	// DocumentStyle for more information.
+	DocumentStyle *DocumentStyle `json:"documentStyle,omitempty"`
+
+	// Fields: The fields that should be updated.
+	//
+	// At least one field must be specified. The root `document_style`
+	// is
+	// implied and should not be specified. A single "*" can be used
+	// as
+	// short-hand for listing every field.
+	//
+	// For example to update the background, set `fields` to "background".
+	Fields string `json:"fields,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DocumentStyle") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DocumentStyle") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UpdateDocumentStyleRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod UpdateDocumentStyleRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // UpdateParagraphStyleRequest: Update the styling of all paragraphs
 // that overlap with the given range.
 type UpdateParagraphStyleRequest struct {
@@ -6324,6 +6532,185 @@ type UpdateParagraphStyleRequest struct {
 
 func (s *UpdateParagraphStyleRequest) MarshalJSON() ([]byte, error) {
 	type NoMethod UpdateParagraphStyleRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// UpdateTableCellStyleRequest: Updates the style of a range of table
+// cells.
+type UpdateTableCellStyleRequest struct {
+	// Fields: The fields that should be updated.
+	//
+	// At least one field must be specified. The root `tableCellStyle` is
+	// implied
+	// and should not be specified. A single "*" can be used as short-hand
+	// for
+	// listing every field.
+	//
+	// For example to update the table cell background color, set `fields`
+	// to
+	// "backgroundColor".
+	//
+	// To reset a property to its default value, include its field name in
+	// the
+	// field mask but leave the field itself unset.
+	Fields string `json:"fields,omitempty"`
+
+	// TableCellStyle: The style to set on the table cells.
+	//
+	// When updating borders, if a cell shares a border with an adjacent
+	// cell, the
+	// corresponding border property of the adjacent cell is updated as
+	// well.
+	// Borders that are merged and invisible are not updated.
+	//
+	// Since updating a border shared by adjacent cells in the same request
+	// can
+	// cause conflicting border updates, border updates are applied in
+	// the
+	// following order:
+	//
+	// - `border_right`
+	// - `border_left`
+	// - `border_bottom`
+	// - `border_top`
+	TableCellStyle *TableCellStyle `json:"tableCellStyle,omitempty"`
+
+	// TableRange: The table range representing the subset of the table to
+	// which the updates
+	// are applied.
+	TableRange *TableRange `json:"tableRange,omitempty"`
+
+	// TableStartLocation: The location where the table starts in the
+	// document. When specified, the
+	// updates are applied to all the cells in the table.
+	TableStartLocation *Location `json:"tableStartLocation,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Fields") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Fields") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UpdateTableCellStyleRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod UpdateTableCellStyleRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// UpdateTableColumnPropertiesRequest: Updates the
+// TableColumnProperties of columns
+// in a table.
+type UpdateTableColumnPropertiesRequest struct {
+	// ColumnIndices: The list of zero-based column indices whose property
+	// should be updated. If
+	// no indices are specified, all columns will be updated.
+	ColumnIndices []int64 `json:"columnIndices,omitempty"`
+
+	// Fields: The fields that should be updated.
+	//
+	// At least one field must be specified. The root
+	// `tableColumnProperties` is
+	// implied and should not be specified. A single "*" can be used
+	// as
+	// short-hand for listing every field.
+	//
+	// For example to update the column width, set `fields` to "width".
+	Fields string `json:"fields,omitempty"`
+
+	// TableColumnProperties: The table column properties to update.
+	//
+	// If the value of `table_column_properties#width` is less than 5
+	// points
+	// (5/72 inch), a 400 bad request error is returned.
+	TableColumnProperties *TableColumnProperties `json:"tableColumnProperties,omitempty"`
+
+	// TableStartLocation: The location where the table starts in the
+	// document.
+	TableStartLocation *Location `json:"tableStartLocation,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ColumnIndices") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ColumnIndices") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UpdateTableColumnPropertiesRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod UpdateTableColumnPropertiesRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// UpdateTableRowStyleRequest: Updates the TableRowStyle of rows in
+// a
+// table.
+type UpdateTableRowStyleRequest struct {
+	// Fields: The fields that should be updated.
+	//
+	// At least one field must be specified. The root `tableRowStyle` is
+	// implied
+	// and should not be specified. A single "*" can be used as short-hand
+	// for
+	// listing every field.
+	//
+	// For example to update the minimum row height, set `fields`
+	// to
+	// "min_row_height".
+	Fields string `json:"fields,omitempty"`
+
+	// RowIndices: The list of zero-based row indices whose style should be
+	// updated. If no
+	// indices are specified, all rows will be updated.
+	RowIndices []int64 `json:"rowIndices,omitempty"`
+
+	// TableRowStyle: The styles to be set on the rows.
+	TableRowStyle *TableRowStyle `json:"tableRowStyle,omitempty"`
+
+	// TableStartLocation: The location where the table starts in the
+	// document.
+	TableStartLocation *Location `json:"tableStartLocation,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Fields") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Fields") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UpdateTableRowStyleRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod UpdateTableRowStyleRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }

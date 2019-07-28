@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/config"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/zclconf/go-cty/cty"
 )
 
-func TestBackendValidate(t *testing.T) {
+func TestBackendPrepare(t *testing.T) {
 	cases := []struct {
 		Name   string
 		B      *Backend
-		Config map[string]interface{}
+		Config map[string]cty.Value
+		Expect map[string]cty.Value
 		Err    bool
 	}{
 		{
@@ -26,7 +26,23 @@ func TestBackendValidate(t *testing.T) {
 					},
 				},
 			},
+			map[string]cty.Value{},
+			map[string]cty.Value{},
+			true,
+		},
+
+		{
+			"Null config",
+			&Backend{
+				Schema: map[string]*Schema{
+					"foo": &Schema{
+						Required: true,
+						Type:     TypeString,
+					},
+				},
+			},
 			nil,
+			map[string]cty.Value{},
 			true,
 		},
 
@@ -40,8 +56,69 @@ func TestBackendValidate(t *testing.T) {
 					},
 				},
 			},
-			map[string]interface{}{
-				"foo": "bar",
+			map[string]cty.Value{
+				"foo": cty.StringVal("bar"),
+			},
+			map[string]cty.Value{
+				"foo": cty.StringVal("bar"),
+			},
+			false,
+		},
+
+		{
+			"unused default",
+			&Backend{
+				Schema: map[string]*Schema{
+					"foo": &Schema{
+						Optional: true,
+						Type:     TypeString,
+						Default:  "baz",
+					},
+				},
+			},
+			map[string]cty.Value{
+				"foo": cty.StringVal("bar"),
+			},
+			map[string]cty.Value{
+				"foo": cty.StringVal("bar"),
+			},
+			false,
+		},
+
+		{
+			"default",
+			&Backend{
+				Schema: map[string]*Schema{
+					"foo": &Schema{
+						Type:     TypeString,
+						Optional: true,
+						Default:  "baz",
+					},
+				},
+			},
+			map[string]cty.Value{},
+			map[string]cty.Value{
+				"foo": cty.StringVal("baz"),
+			},
+			false,
+		},
+
+		{
+			"default func",
+			&Backend{
+				Schema: map[string]*Schema{
+					"foo": &Schema{
+						Type:     TypeString,
+						Optional: true,
+						DefaultFunc: func() (interface{}, error) {
+							return "baz", nil
+						},
+					},
+				},
+			},
+			map[string]cty.Value{},
+			map[string]cty.Value{
+				"foo": cty.StringVal("baz"),
 			},
 			false,
 		},
@@ -49,14 +126,24 @@ func TestBackendValidate(t *testing.T) {
 
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("%d-%s", i, tc.Name), func(t *testing.T) {
-			c, err := config.NewRawConfig(tc.Config)
-			if err != nil {
-				t.Fatalf("err: %s", err)
+			cfgVal := cty.NullVal(cty.Object(map[string]cty.Type{}))
+			if tc.Config != nil {
+				cfgVal = cty.ObjectVal(tc.Config)
+			}
+			configVal, diags := tc.B.PrepareConfig(cfgVal)
+			if diags.HasErrors() != tc.Err {
+				for _, d := range diags {
+					t.Error(d.Description())
+				}
 			}
 
-			_, es := tc.B.Validate(terraform.NewResourceConfig(c))
-			if len(es) > 0 != tc.Err {
-				t.Fatalf("%d: %#v", i, es)
+			if tc.Err {
+				return
+			}
+
+			expect := cty.ObjectVal(tc.Expect)
+			if !expect.RawEquals(configVal) {
+				t.Fatalf("\nexpected: %#v\ngot:     %#v\n", expect, configVal)
 			}
 		})
 	}
@@ -66,7 +153,7 @@ func TestBackendConfigure(t *testing.T) {
 	cases := []struct {
 		Name   string
 		B      *Backend
-		Config map[string]interface{}
+		Config map[string]cty.Value
 		Err    bool
 	}{
 		{
@@ -88,8 +175,8 @@ func TestBackendConfigure(t *testing.T) {
 					return nil
 				},
 			},
-			map[string]interface{}{
-				"foo": 42,
+			map[string]cty.Value{
+				"foo": cty.NumberIntVal(42),
 			},
 			false,
 		},
@@ -97,14 +184,9 @@ func TestBackendConfigure(t *testing.T) {
 
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("%d-%s", i, tc.Name), func(t *testing.T) {
-			c, err := config.NewRawConfig(tc.Config)
-			if err != nil {
-				t.Fatalf("err: %s", err)
-			}
-
-			err = tc.B.Configure(terraform.NewResourceConfig(c))
-			if err != nil != tc.Err {
-				t.Fatalf("%d: %s", i, err)
+			diags := tc.B.Configure(cty.ObjectVal(tc.Config))
+			if diags.HasErrors() != tc.Err {
+				t.Errorf("wrong number of diagnostics")
 			}
 		})
 	}

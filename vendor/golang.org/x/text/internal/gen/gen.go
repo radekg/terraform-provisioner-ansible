@@ -85,7 +85,7 @@ func CLDRVersion() string {
 
 var tags = []struct{ version, buildTags string }{
 	{"9.0.0", "!go1.10"},
-	{"10.0.0", "go1.10, !go1.13"},
+	{"10.0.0", "go1.10,!go1.13"},
 	{"11.0.0", "go1.13"},
 }
 

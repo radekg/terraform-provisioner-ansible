@@ -26,8 +26,6 @@ terraform {
 ```
 This will create a container called `terraform-state` and an object within that container called `tfstate.tf`. It will enable versioning using the `terraform-state-archive` container to contain the older version.
 
--> Note: Currently, the object name is statically defined as 'tfstate.tf'. Therefore Swift [pseudo-folders](https://docs.openstack.org/user-guide/cli-swift-pseudo-hierarchical-folders-directories.html) are not currently supported.
-
 For the access credentials we recommend using a
 [partial configuration](/docs/backends/config.html).
 
@@ -53,6 +51,9 @@ The following configuration options are supported:
  * `container` - (Required) The name of the container to create for storing
    the Terraform state file.
 
+ * `state_name` - (Optional) The name of the state file in the container.
+   Defaults to `tfstate.tf`.
+
  * `path` - (Optional) DEPRECATED: Use `container` instead.
    The name of the container to create in order to store the state file.
 
@@ -64,6 +65,19 @@ The following configuration options are supported:
 
  * `password` - (Optional) The Password to login with. If omitted, the
    `OS_PASSWORD` environment variable is used.
+
+ * `application_credential_id` - (Optional) (Identity v3 only) The ID of an
+    application credential to authenticate with. An
+    `application_credential_secret` has to bet set along with this parameter.
+
+ * `application_credential_name` - (Optional) (Identity v3 only) The name of an
+    application credential to authenticate with. Conflicts with the
+    `application_credential_name`, requires `user_id`, or `user_name` and
+    `domain_name` (or `domain_id`) to be set.
+
+ * `application_credential_secret` - (Optional) (Identity v3 only) The secret of an
+    application credential to authenticate with. Required by
+    `application_credential_id` or `application_credential_name`.
 
  * `token` - (Optional) Access token to login with instead of user and password.
     If omitted, the `OS_AUTH_TOKEN` variable is used.

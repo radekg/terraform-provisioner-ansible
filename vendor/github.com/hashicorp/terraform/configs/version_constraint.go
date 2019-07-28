@@ -24,6 +24,9 @@ func decodeVersionConstraint(attr *hcl.Attribute) (VersionConstraint, hcl.Diagno
 	}
 
 	val, diags := attr.Expr.Value(nil)
+	if diags.HasErrors() {
+		return ret, diags
+	}
 	var err error
 	val, err = convert.Convert(val, cty.String)
 	if err != nil {
@@ -39,6 +42,13 @@ func decodeVersionConstraint(attr *hcl.Attribute) (VersionConstraint, hcl.Diagno
 	if val.IsNull() {
 		// A null version constraint is strange, but we'll just treat it
 		// like an empty constraint set.
+		return ret, diags
+	}
+
+	if !val.IsWhollyKnown() {
+		// If there is a syntax error, HCL sets the value of the given attribute
+		// to cty.DynamicVal. A diagnostic for the syntax error will already
+		// bubble up, so we will move forward gracefully here.
 		return ret, diags
 	}
 
