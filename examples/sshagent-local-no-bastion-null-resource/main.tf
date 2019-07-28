@@ -49,18 +49,19 @@ resource "aws_instance" "test_box" {
 
 resource "null_resource" "null01" {
   connection {
+    host = "${aws_instance.test_box.0.public_ip}"
     user = "centos"
   }
   provisioner "ansible" {
     plays {
-      playbook = {
-        file_path = "${path.module}/ansible-data/playbooks/install-tree.yml"
+      playbook {
+        file_path = "${path.module}/../ansible-data/playbooks/install-tree.yml"
         roles_path = [
-            "${path.module}/ansible-data/roles"
+          "${path.module}/../ansible-data/roles"
         ]
       }
       groups = ["servers"]
-      hosts = ["${aws_instance.test_box.ipv4_address}"]
+      hosts = ["${aws_instance.test_box.0.public_ip}"]
     }
   }    
 }
