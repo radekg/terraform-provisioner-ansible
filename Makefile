@@ -6,6 +6,8 @@ CI_ANSIBLE_VERSION=2.6.5
 CI_GOLANG_VERSION=1.12.5
 CI_PROJECT_PATH=/go/src/github.com/radekg/terraform-provisioner-ansible
 
+TEST_TIMEOUT?=120s
+
 .PHONY: plugins-dir
 plugins-dir:
 	mkdir -p ${PLUGINS_DIR}
@@ -67,9 +69,9 @@ coverage:
 .PHONY: test
 test:
 	go clean -testcache
-	go test -cover
+	go test -timeout ${TEST_TIMEOUT} -cover
 
 .PHONY: test-verbose
 test-verbose:
 	go clean -testcache
-	go test -cover -v ./...
+	go test -timeout ${TEST_TIMEOUT} -cover -v ./...

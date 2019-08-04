@@ -23,18 +23,21 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const installerProgramTemplate = `#!/usr/bin/env sh
+// The command is executed with sudo, we do not need sudo here.
+const installerProgramTemplate = `#!/bin/sh
+if [ -n "${TAF_DOCKER_CENTOS_LATEST_RUN}" ]; then
+  yum update -y && yum install -y which
+fi
+set -eu
 if [ -z "$(which ansible-playbook)" ]; then
-  
   # only check the cloud boot finished if the directory exists
   if [ -d /var/lib/cloud/instance ]; then
     until [[ -f /var/lib/cloud/instance/boot-finished ]]; do
       sleep 1
     done
   fi
-
   # install dependencies
-  if [[ -f /etc/redhat-release ]]; then
+  if [ -f /etc/redhat-release ]; then
     yum update -y \
     && yum groupinstall -y "Development Tools" \
     && yum install -y python-devel
@@ -42,17 +45,13 @@ if [ -z "$(which ansible-playbook)" ]; then
     apt-get update \
     && apt-get install -y build-essential python-dev
   fi
-
   # install pip, if necessary
   if [ -z "$(which pip)" ]; then
-    curl https://bootstrap.pypa.io/get-pip.py | sudo python
+    curl https://bootstrap.pypa.io/get-pip.py | python
   fi
-
   # install ansible
   pip install {{ .AnsibleVersion}}
-
 else
-
   expected_version="{{ .AnsibleVersion}}"
   installed_version=$(ansible-playbook --version | head -n1 | awk '{print $2}')
   installed_version="ansible==$installed_version"
@@ -61,7 +60,6 @@ else
       pip install $expected_version
     fi
   fi
-  
 fi
 `
 
