@@ -158,7 +158,7 @@ func (s *TestingSSHServer) serveConnection(listener net.Listener, config *ssh.Se
 
 	nConn, err := listener.Accept()
 	if err != nil {
-		s.logInfo("[%s] failed to accept incoming connection: %v", s.config.ServerID, err)
+		//s.logInfo("[%s] failed to accept incoming connection: %v", s.config.ServerID, err)
 		return
 	}
 
