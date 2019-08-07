@@ -42,9 +42,32 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
 	validPlaysCount := 0
 
-	if plays, hasPlays := c.Get("plays"); hasPlays {
-		for _, rawVPlay := range plays.([]interface{}) {
+	// Workaround to enable backward compatibility
+	var computedTfVersion string
 
+	if plays, hasPlays := c.Get("plays"); hasPlays {
+		switch plays.(type) {
+		case []interface{}:
+			computedTfVersion = "0.12"
+		case []map[string]interface{}:
+			computedTfVersion = "0.11"
+		}
+
+		var sanitizedPlays []interface{}
+
+		if computedTfVersion == "0.12" {
+			sanitizedPlays = plays.([]interface{})
+		} else {
+			sanitizedPlays = make([]interface{}, len(plays.([]map[string]interface{})))
+
+			i := 0
+			for _, v := range plays.([]map[string]interface{}) {
+				sanitizedPlays[i] = v
+				i++
+			}
+		}
+
+		for _, rawVPlay := range sanitizedPlays {
 			vPlay := rawVPlay.(map[string]interface{})
 
 			currentErrorCount := len(es)
@@ -59,10 +82,20 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 			} else {
 
 				if playHasPlaybook {
-					vPlaybookTyped := vPlaybook.([]interface{})
-					rolesPath, hasRolesPath := vPlaybookTyped[0].(map[string]interface{})["roles_path"]
+
+					var rolesPath []interface{}
+					var hasRolesPath bool
+
+					if computedTfVersion == "0.12" {
+						vPlaybookTyped := vPlaybook.([]interface{})
+						rolesPath, hasRolesPath = vPlaybookTyped[0].(map[string]interface{})["roles_path"].([]interface{})
+					} else {
+						vPlaybookTyped := vPlaybook.([]map[string]interface{})
+						rolesPath, hasRolesPath = vPlaybookTyped[0]["roles_path"].([]interface{})
+					}
+
 					if hasRolesPath {
-						for _, singlePath := range rolesPath.([]interface{}) {
+						for _, singlePath := range rolesPath {
 							vws, ves := types.VfPathDirectory(singlePath, "roles_path")
 
 							for _, w := range vws {
