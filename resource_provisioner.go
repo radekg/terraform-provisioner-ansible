@@ -11,6 +11,13 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+type terraformVersion int
+
+const (
+	terraform011 terraformVersion = iota
+	terraform012
+)
+
 type provisioner struct {
 	defaults           *types.Defaults
 	plays              []*types.Play
@@ -43,28 +50,24 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 	validPlaysCount := 0
 
 	// Workaround to enable backward compatibility
-	var computedTfVersion string
+	var computedTfVersion terraformVersion
 
 	if plays, hasPlays := c.Get("plays"); hasPlays {
-		switch plays.(type) {
-		case []interface{}:
-			computedTfVersion = "0.12"
-		case []map[string]interface{}:
-			computedTfVersion = "0.11"
-		}
 
 		var sanitizedPlays []interface{}
 
-		if computedTfVersion == "0.12" {
+		switch plays.(type) {
+		case []interface{}: // Terraform 0.12.x
+			computedTfVersion = terraform012
 			sanitizedPlays = plays.([]interface{})
-		} else {
-			sanitizedPlays = make([]interface{}, len(plays.([]map[string]interface{})))
-
-			i := 0
+		case []map[string]interface{}: // Terraform 0.11.x
+			computedTfVersion = terraform011
 			for _, v := range plays.([]map[string]interface{}) {
-				sanitizedPlays[i] = v
-				i++
+				sanitizedPlays = append(sanitizedPlays, v)
 			}
+		default:
+			es = append(es, fmt.Errorf("could not establish Terrafrom version from plays type: %T", plays))
+			return ws, es // return early
 		}
 
 		for _, rawVPlay := range sanitizedPlays {
@@ -86,12 +89,16 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 					var rolesPath []interface{}
 					var hasRolesPath bool
 
-					if computedTfVersion == "0.12" {
+					switch computedTfVersion {
+					case terraform012:
 						vPlaybookTyped := vPlaybook.([]interface{})
 						rolesPath, hasRolesPath = vPlaybookTyped[0].(map[string]interface{})["roles_path"].([]interface{})
-					} else {
+					case terraform011:
 						vPlaybookTyped := vPlaybook.([]map[string]interface{})
 						rolesPath, hasRolesPath = vPlaybookTyped[0]["roles_path"].([]interface{})
+					default:
+						es = append(es, fmt.Errorf("unsupported Terrafrom version detected: %d", computedTfVersion))
+						return ws, es // return early
 					}
 
 					if hasRolesPath {
