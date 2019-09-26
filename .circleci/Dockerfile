@@ -1,4 +1,4 @@
-FROM golang:1.12.5
+FROM golang:1.13.1
 
 ARG ANSIBLE_VERSION=2.6.5
 

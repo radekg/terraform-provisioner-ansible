@@ -261,12 +261,12 @@ func GetNewSSHInstanceState(t *testing.T, sshUsername string) *terraform.Instanc
 // GetPlayModuleSchema returns a Terraform *schema.ResourceData for a given module name.
 func GetPlayModuleSchema(t *testing.T, moduleName string) *schema.ResourceData {
 	playModuleEntity := map[string]interface{}{
-		"module": []map[string]interface{}{
+		"module": []interface{}{
 			map[string]interface{}{
 				"module": moduleName,
 			},
 		},
-		"playbook": []map[string]interface{}{},
+		"playbook": []interface{}{},
 	}
 	playEntitySchemas := map[string]*schema.Schema{
 		"module":   types.NewModuleSchema(),
@@ -278,12 +278,12 @@ func GetPlayModuleSchema(t *testing.T, moduleName string) *schema.ResourceData {
 // GetPlayPlaybookSchema returns a Terraform *schema.ResourceData for a given playbook file path.
 func GetPlayPlaybookSchema(t *testing.T, playbookFilePath string) *schema.ResourceData {
 	playPlaybookEntity := map[string]interface{}{
-		"playbook": []map[string]interface{}{
+		"playbook": []interface{}{
 			map[string]interface{}{
 				"file_path": playbookFilePath,
 			},
 		},
-		"module": []map[string]interface{}{},
+		"module": []interface{}{},
 	}
 	playEntitySchemas := map[string]*schema.Schema{
 		"module":   types.NewModuleSchema(),

@@ -130,7 +130,7 @@ func (b *bastionKeyScan) scan() (string, error) {
 		return "", err
 	}
 
-	u1 := uuid.Must(uuid.NewV4())
+	u1 := uuid.Must(uuid.NewV4(), nil)
 	targetPath := filepath.Join(b.quotedSSHKnownFileDir(), u1.String())
 
 	timeoutMs := b.sshKeyscanTimeout * 1000
