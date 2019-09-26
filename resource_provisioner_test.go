@@ -60,7 +60,7 @@ func TestBadConfig(t *testing.T) {
 			},
 		},
 
-		"remote": []map[string]interface{}{
+		"remote": []interface{}{
 			map[string]interface{}{
 				"use_sudo":        false,
 				"skip_install":    true,
@@ -69,7 +69,7 @@ func TestBadConfig(t *testing.T) {
 			},
 		},
 
-		"defaults": []map[string]interface{}{
+		"defaults": []interface{}{
 			map[string]interface{}{
 				"hosts": []interface{}{},
 			},
@@ -115,7 +115,7 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 			},
 		},
 
-		"remote": []map[string]interface{}{
+		"remote": []interface{}{
 			map[string]interface{}{
 				"use_sudo":        false,
 				"skip_install":    true,
@@ -124,7 +124,7 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 			},
 		},
 
-		"defaults": []map[string]interface{}{
+		"defaults": []interface{}{
 			map[string]interface{}{
 				"hosts":               []interface{}{"localhost"},
 				"groups":              []interface{}{"group1", "group2"},
@@ -137,7 +137,7 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 			},
 		},
 
-		"ansible_ssh_settings": []map[string]interface{}{
+		"ansible_ssh_settings": []interface{}{
 			map[string]interface{}{
 				"connect_timeout_seconds": 5,
 				"connection_attempts":     5,
@@ -298,7 +298,7 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 			},
 		},
 
-		"remote": []map[string]interface{}{
+		"remote": []interface{}{
 			map[string]interface{}{
 				"use_sudo":        false,
 				"skip_install":    true,
@@ -307,7 +307,7 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 			},
 		},
 
-		"defaults": []map[string]interface{}{
+		"defaults": []interface{}{
 			map[string]interface{}{
 				"hosts":               []interface{}{"localhost"},
 				"groups":              []interface{}{"group1", "group2"},
@@ -320,7 +320,7 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 			},
 		},
 
-		"ansible_ssh_settings": []map[string]interface{}{
+		"ansible_ssh_settings": []interface{}{
 			map[string]interface{}{
 				"connect_timeout_seconds": 5,
 				"connection_attempts":     5,
