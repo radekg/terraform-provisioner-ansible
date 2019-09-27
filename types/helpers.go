@@ -22,6 +22,20 @@ var (
 	}
 )
 
+// HasMoreThanOneTrue checks if a list of booleans contains more than one true value.
+func HasMoreThanOneTrue(vals ...bool) bool {
+	f := false
+	for _, v := range vals {
+		if f && v {
+			return true
+		}
+		if !f && v {
+			f = v
+		}
+	}
+	return false
+}
+
 func vfBecomeMethod(val interface{}, key string) (warns []string, errs []error) {
 	v := val.(string)
 	if !becomeMethods[v] {
@@ -34,6 +48,8 @@ func vfPath(val interface{}, key string) (warns []string, errs []error) {
 	v := val.(string)
 	if strings.Index(v, "${path.module}") > -1 {
 		warns = append(warns, fmt.Sprintf("Unable to determine the existence of '%s', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.", v))
+	} else if strings.HasPrefix(v, "galaxy_install:") { // TODO: extract this hard coded value
+		warns = append(warns, fmt.Sprintf("Not validating existence of '%s', galaxy_install roles path directory.", v))
 	} else {
 		if _, err := ResolvePath(v); err != nil {
 			errs = append(errs, fmt.Errorf("file '%s' does not exist", v))
@@ -47,6 +63,8 @@ func VfPathDirectory(val interface{}, key string) (warns []string, errs []error)
 	v := val.(string)
 	if strings.Index(v, "${path.module}") > -1 {
 		warns = append(warns, fmt.Sprintf("Unable to determine the existence of '%s', most likely because of https://github.com/hashicorp/terraform/issues/17439. If the file does not exist, you'll experience a failure at runtime.", v))
+	} else if strings.HasPrefix(v, "galaxy_install:") { // TODO: extract this hard coded value
+		warns = append(warns, fmt.Sprintf("Not validating existence of '%s', galaxy_install roles path directory.", v))
 	} else {
 		if _, err := ResolveDirectory(v); err != nil {
 			errs = append(errs, fmt.Errorf("directory '%s' does not exist or path is not a directory", v))

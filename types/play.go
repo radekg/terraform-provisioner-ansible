@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -48,6 +49,7 @@ const (
 	playAttributeEnabled           = "enabled"
 	playAttributePlaybook          = "playbook"
 	playAttributeModule            = "module"
+	playAttributeGalaxyInstall     = "galaxy_install"
 	playAttributeHosts             = "hosts"
 	playAttributeGroups            = "groups"
 	playAttributeBecome            = "become"
@@ -77,8 +79,9 @@ func NewPlaySchema() *schema.Schema {
 					Optional: true,
 					Default:  true,
 				},
-				playAttributePlaybook: NewPlaybookSchema(),
-				playAttributeModule:   NewModuleSchema(),
+				playAttributePlaybook:      NewPlaybookSchema(),
+				playAttributeModule:        NewModuleSchema(),
+				playAttributeGalaxyInstall: NewGalaxyInstallSchema(),
 				playAttributeHosts: &schema.Schema{
 					Type:     schema.TypeList,
 					Elem:     &schema.Schema{Type: schema.TypeString},
@@ -183,6 +186,8 @@ func NewPlayFromMapInterface(vals map[string]interface{}, defaults *Defaults) *P
 		v.entity = NewPlaybookFromInterface(vals[playAttributePlaybook])
 	} else if vals[playAttributeModule].(*schema.Set).GoString() != emptySet {
 		v.entity = NewModuleFromInterface(vals[playAttributeModule])
+	} else if vals[playAttributeGalaxyInstall].(*schema.Set).GoString() != emptySet {
+		v.entity = NewGalaxyInstallFromInterface(vals[playAttributeGalaxyInstall])
 	}
 
 	if val, ok := vals[playAttributeHosts]; ok {
@@ -388,6 +393,7 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 	// entity to call:
 	switch entity := v.Entity().(type) {
 	case *Playbook:
+
 		// handling role directories:
 		rolePaths := v.defaultRolePaths()
 		for _, rp := range entity.RolesPath() {
@@ -418,7 +424,10 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 			command = fmt.Sprintf("%s --tags='%s'", command, strings.Join(entity.Tags(), ","))
 		}
 
+		return v.appendSharedArguments(command, ansibleArgs)
+
 	case *Module:
+
 		hostPattern := entity.HostPattern()
 		if hostPattern == "" {
 			hostPattern = ansibleModuleDefaultHostPattern
@@ -443,12 +452,74 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 		if entity.OneLine() {
 			command = fmt.Sprintf("%s --one-line", command)
 		}
+
+		return v.appendSharedArguments(command, ansibleArgs)
+
+	case *GalaxyInstall:
+
+		command = fmt.Sprintf("%s ansible-galaxy install --role-file='%s'", command, entity.RoleFile())
+		// force:
+		if entity.Force() {
+			command = fmt.Sprintf("%s --force", command)
+		}
+		// ignore certs:
+		if entity.IgnoreCerts() {
+			command = fmt.Sprintf("%s --ignore-certs", command)
+		}
+		// ignore errors:
+		if entity.IgnoreErrors() {
+			command = fmt.Sprintf("%s --ignore-errors", command)
+		}
+		// keep scm meta:
+		if entity.KeepScmMeta() {
+			command = fmt.Sprintf("%s --keep-scm-meta", command)
+		}
+		// no deps:
+		if entity.NoDeps() {
+			command = fmt.Sprintf("%s --no-deps", command)
+		}
+		// no deps:
+		if entity.Verbose() {
+			command = fmt.Sprintf("%s --verbose", command)
+		}
+		// roles path:
+		if len(entity.RolesPath()) > 0 {
+			command = fmt.Sprintf("%s --roles-path='%s'", command, entity.RolesPath())
+		}
+		// API server:
+		if len(entity.Server()) > 0 {
+			command = fmt.Sprintf("%s --server='%s'", command, entity.Server())
+		}
+
+		// Galaxy Install does not support shared arguments
+		return command, nil
+
+	default:
+
+		return "", errors.New("Unsupported entity type")
+
 	}
+}
+
+// ToLocalCommand serializes the play to an executable local provisioning Ansible command.
+func (v *Play) ToLocalCommand(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSettings *AnsibleSSHSettings) (string, error) {
+	baseCommand, err := v.ToCommand(ansibleArgs)
+	if err != nil {
+		return "", err
+	}
+
+	switch v.Entity().(type) {
+	case *GalaxyInstall:
+		return baseCommand, nil
+	}
+
+	return fmt.Sprintf("%s %s", baseCommand, v.toCommandArguments(ansibleArgs, ansibleSSHSettings)), nil
+}
+
+func (v *Play) appendSharedArguments(command string, ansibleArgs LocalModeAnsibleArgs) (string, error) {
 
 	// inventory file:
 	command = fmt.Sprintf("%s --inventory-file='%s'", command, v.InventoryFile())
-
-	// shared arguments:
 
 	// become:
 	if v.Become() {
@@ -504,15 +575,6 @@ func (v *Play) ToCommand(ansibleArgs LocalModeAnsibleArgs) (string, error) {
 	return command, nil
 }
 
-// ToLocalCommand serializes the play to an executable local provisioning Ansible command.
-func (v *Play) ToLocalCommand(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSettings *AnsibleSSHSettings) (string, error) {
-	baseCommand, err := v.ToCommand(ansibleArgs)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%s %s", baseCommand, v.toCommandArguments(ansibleArgs, ansibleSSHSettings)), nil
-}
-
 func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSettings *AnsibleSSHSettings) string {
 	args := fmt.Sprintf("--user='%s'", ansibleArgs.Username)
 	if ansibleArgs.PemFile != "" {
@@ -523,7 +585,7 @@ func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSe
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-p %d", ansibleArgs.Port))
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectTimeout=%d", ansibleSSHSettings.ConnectTimeoutSeconds()))
 	sshExtraAgrsOptions = append(sshExtraAgrsOptions, fmt.Sprintf("-o ConnectionAttempts=%d", ansibleSSHSettings.ConnectAttempts()))
-	
+
 	if ansibleSSHSettings.InsecureNoStrictHostKeyChecking() || v.InventoryFile() != "" {
 		sshExtraAgrsOptions = append(sshExtraAgrsOptions, "-o StrictHostKeyChecking=no")
 	} else {
@@ -540,7 +602,7 @@ func (v *Play) toCommandArguments(ansibleArgs LocalModeAnsibleArgs, ansibleSSHSe
 		if ansibleArgs.BastionPemFile != "" {
 			proxyCommand = fmt.Sprintf("%s -i %s", proxyCommand, ansibleArgs.BastionPemFile)
 		}
-		if ansibleSSHSettings.InsecureBastionNoStrictHostKeyChecking()  {
+		if ansibleSSHSettings.InsecureBastionNoStrictHostKeyChecking() {
 			proxyCommand = fmt.Sprintf("%s -o StrictHostKeyChecking=no", proxyCommand)
 		} else {
 			if ansibleSSHSettings.BastionUserKnownHostsFile() != "" {

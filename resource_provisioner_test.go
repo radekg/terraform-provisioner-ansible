@@ -13,22 +13,26 @@ import (
 var vaultPasswordFile string
 var alternativeVaultPasswordFile string
 var playbookFile string
+var galaxyInstallRequirementsFile string
 
 func TestMain(m *testing.M) {
 
 	tempVaultPasswordFile, _ := ioutil.TempFile("", "vault-password-file")
 	tempAlternativeVaultPasswordFile, _ := ioutil.TempFile("", "vault-password-file")
 	tempPlaybookFile, _ := ioutil.TempFile("", "playbook-file")
+	tempGalaxyInstallRequirementsFile, _ := ioutil.TempFile("", "requirements-file")
 
 	vaultPasswordFile = tempVaultPasswordFile.Name()
 	alternativeVaultPasswordFile = tempAlternativeVaultPasswordFile.Name()
 	playbookFile = tempPlaybookFile.Name()
+	galaxyInstallRequirementsFile = tempGalaxyInstallRequirementsFile.Name()
 
 	result := m.Run()
 
 	os.Remove(vaultPasswordFile)
 	os.Remove(alternativeVaultPasswordFile)
 	os.Remove(playbookFile)
+	os.Remove(galaxyInstallRequirementsFile)
 
 	os.Exit(result)
 }
@@ -45,7 +49,9 @@ func TestProvisioner(t *testing.T) {
 
 func TestBadConfig(t *testing.T) {
 	// play.0.playbook with no file_path
-	// play.0.module with no module
+	// play.1.module with no module
+	// play.2.galaxy_install with no role_file
+	expectedErrorCount := 3
 	c := testConfig(t, map[string]interface{}{
 		"plays": []interface{}{
 			map[string]interface{}{
@@ -55,6 +61,11 @@ func TestBadConfig(t *testing.T) {
 			},
 			map[string]interface{}{
 				"module": []interface{}{
+					map[string]interface{}{},
+				},
+			},
+			map[string]interface{}{
+				"galaxy_install": []interface{}{
 					map[string]interface{}{},
 				},
 			},
@@ -79,14 +90,16 @@ func TestBadConfig(t *testing.T) {
 	if len(warn) > 0 {
 		t.Fatalf("Warnings: %v", warn)
 	}
-	if len(errs) != 2 {
-		t.Fatalf("Expected 2 errors but got: %v", errs)
+	if len(errs) != expectedErrorCount {
+		t.Fatalf("Expected %d errors but got: %v", expectedErrorCount, errs)
 	}
 }
 
 func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 	// warnings:
 	// = plays.0.playbook.roles_path
+	// = plays.2.galaxy_install.role_file
+	expectedWarningCount := 2
 	c := testConfig(t, map[string]interface{}{
 		"plays": []interface{}{
 			map[string]interface{}{
@@ -110,6 +123,16 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 						"host_pattern": "all-tests",
 						"one_line":     false,
 						"poll":         15,
+					},
+				},
+			},
+			map[string]interface{}{
+				"galaxy_install": []interface{}{
+					map[string]interface{}{
+						"server":       "https://localhost:1234",
+						"ignore_certs": false,
+						"verbose":      true,
+						"role_file":    "${path.module}/path/to/a/galaxy/requirements.txt",
 					},
 				},
 			},
@@ -147,8 +170,8 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 	})
 
 	warn, errs := Provisioner().Validate(c)
-	if len(warn) != 1 {
-		t.Fatalf("Expected one warning.")
+	if len(warn) != expectedWarningCount {
+		t.Fatalf("Expected %d warnings but got: %v", expectedWarningCount, warn)
 	}
 	if len(errs) > 0 {
 		t.Fatalf("Errors: %v", errs)
@@ -240,6 +263,34 @@ func TestConfigWithPlaysbookAndModuleFails(t *testing.T) {
 				"module": []interface{}{
 					map[string]interface{}{
 						"module": "module-name",
+					},
+				},
+			},
+		},
+	})
+
+	warn, errs := Provisioner().Validate(c)
+	if len(warn) != 1 {
+		t.Fatalf("Should have 1 warning.")
+	}
+	if len(errs) != 1 {
+		t.Fatalf("Should have 1 error.")
+	}
+}
+
+func TestConfigWithPlaysbookAndGalaxyInstallFails(t *testing.T) {
+	// no plays gives a warning:
+	c := testConfig(t, map[string]interface{}{
+		"plays": []interface{}{
+			map[string]interface{}{
+				"playbook": []interface{}{
+					map[string]interface{}{
+						"file_path": playbookFile,
+					},
+				},
+				"galaxy_install": []interface{}{
+					map[string]interface{}{
+						"role_file": galaxyInstallRequirementsFile,
 					},
 				},
 			},

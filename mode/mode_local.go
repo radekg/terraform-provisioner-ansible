@@ -284,7 +284,7 @@ func (v *LocalMode) writeKnownHosts(knownHosts []string) (string, error) {
 		trimmedKnownHosts = append(trimmedKnownHosts, strings.TrimSpace(entry))
 	}
 	knownHostsFileContents := strings.Join(trimmedKnownHosts, "\n")
-	file, err := ioutil.TempFile(os.TempDir(), uuid.Must(uuid.NewV4(), nil).String())
+	file, err := ioutil.TempFile(os.TempDir(), uuid.NewV4().String())
 	defer file.Close()
 	if err != nil {
 		return "", err
@@ -298,7 +298,7 @@ func (v *LocalMode) writeKnownHosts(knownHosts []string) (string, error) {
 
 func (v *LocalMode) writePem(pk string) (string, error) {
 	if v.connInfo.PrivateKey != "" {
-		file, err := ioutil.TempFile(os.TempDir(), uuid.Must(uuid.NewV4(), nil).String())
+		file, err := ioutil.TempFile(os.TempDir(), uuid.NewV4().String())
 		defer file.Close()
 		if err != nil {
 			return "", err

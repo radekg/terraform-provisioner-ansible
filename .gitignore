@@ -3,6 +3,7 @@
 **/**/.terraform
 **/**/crash.log
 **/**/terraform.*
+**/**/ansible-data/roles/**/
 /terraform-provisioner-ansible*
 /bin/.build_output
 .coverage/
