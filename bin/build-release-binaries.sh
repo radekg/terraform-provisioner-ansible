@@ -18,6 +18,7 @@ mkdir -p "${local_output_dir}"
 path="/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${docker_gopath}/bin"
 
 docker run \
+  -e GO111MODULE=on \
   -e GOPATH="${docker_gopath}" \
   -e RELEASE_VERSION="v${version}" \
   --rm \
