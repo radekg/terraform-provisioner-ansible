@@ -30,7 +30,7 @@ func NewModuleSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:          schema.TypeSet,
 		Optional:      true,
-		ConflictsWith: []string{"plays.playbook"},
+		ConflictsWith: []string{"plays.galaxy_install", "plays.playbook"},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				// Ansible parameters:

@@ -72,7 +72,25 @@ All examples execute a great task of installing `tree` on the bootstrapped host.
 
 After testing each of the examples, you will need to destroy the infrastructure. Examples share names but they don't share state.
 
-1. `sshagent-local-no-bastion`: run local provisioning for a host without a bastion
+1. `sshagent-galaxy-local`: run local provisioning for a host using `ansible-galaxy` provided role file:
+
+    ```
+    cd sshagent-galaxy-local
+    terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
+    # ...
+    terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
+    ```
+
+2. `sshagent-galaxy-remote`: run remote provisioning for a host using `ansible-galaxy` provided role file:
+
+    ```
+    cd sshagent-galaxy-remote
+    terraform apply -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
+    # ...
+    terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
+    ```
+
+3. `sshagent-local-no-bastion`: run local provisioning for a host without a bastion
     
     ```
     cd sshagent-local-no-bastion
@@ -81,7 +99,7 @@ After testing each of the examples, you will need to destroy the infrastructure.
     terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
     ```
 
-2. `sshagent-remote-no-bastion`: run remote provisioning for a host without a bastion
+4. `sshagent-remote-no-bastion`: run remote provisioning for a host without a bastion
 
     ```
     cd sshagent-remote-no-bastion
@@ -90,7 +108,7 @@ After testing each of the examples, you will need to destroy the infrastructure.
     terraform destroy -var "ami_id=${TERRAFORM_PROVISIONER_ANSIBLE_AMI_ID}"
     ```
 
-3. `sshagent-local-with-bastion`: VPC setup, bastion, provision local over bastion
+5. `sshagent-local-with-bastion`: VPC setup, bastion, provision local over bastion
     
     ```
     cd sshagent-local-with-bastion
@@ -116,7 +134,7 @@ After testing each of the examples, you will need to destroy the infrastructure.
         -var "infrastructure_name=${R_NAME}-local"
     ```
 
-4. `sshagent-remote-with-bastion`: VPC setup, bastion, provision remote over bastion
+6. `sshagent-remote-with-bastion`: VPC setup, bastion, provision remote over bastion
     
     ```
     cd sshagent-remote-with-bastion
@@ -142,7 +160,7 @@ After testing each of the examples, you will need to destroy the infrastructure.
         -var "infrastructure_name=${R_NAME}-remote"
     ```
 
-5. `sshagent-local-no-bastion-null-resource`: run local provisioning using a `null_resource` for a host without a bastion
+7. `sshagent-local-no-bastion-null-resource`: run local provisioning using a `null_resource` for a host without a bastion
     
     ```
     cd sshagent-local-no-bastion-null-resource

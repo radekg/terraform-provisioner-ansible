@@ -133,6 +133,22 @@ resource "aws_instance" "test_box" {
       # enabled = ...
       # ...
     }
+    plays {
+      galaxy_install {
+        force = false
+        server = "https://optional.api.server"
+        ignore_certs = false
+        ignore_errors = false
+        keep_scm_meta = false
+        no_deps = false
+        role_file = "/path/to/role/file"
+        roles_path = "/optional/path/to/the/directory/containing/your/roles"
+        verbose = false
+      }
+      # shared attributes other than:
+      # enabled = ...
+      # are NOT taken into consideration for galaxy_install
+    }
     defaults {
       hosts = ["eu-central-1"]
       groups = ["platform"]
@@ -223,9 +239,21 @@ Each `plays` must contain exactly one `playbook` or `module`. Define multiple `p
 - `plays.module.one_line`: `ansible --one-line`, boolean , default `false` (not applied)
 - `plays.module.poll`: `ansible --poll`, int, default `15` (applied only when `background > 0`)
 
+#### Galaxy Install attributes
+
+- `play.galaxy_install.force`: `ansible-galaxy install --force`, bool, force overwriting an existing role, default `false`
+- `play.galaxy_install.ignore_certs`: `ansible-galaxy --ignore-certs`, bool, ignore SSL certificate validation errors, default `false`
+- `play.galaxy_install.ignore_errors`: `ansible-galaxy install --ignore-errors`, bool, ignore errors and continue with the next specified role, default `false`
+- `play.galaxy_install.keep_scm_meta`: `ansible-galaxy install --keep-scm-meta`, bool, use tar instead of the scm archive option when packaging the role, default `false`
+- `play.galaxy_install.no_deps`: `ansible-galaxy install --no-deps`, bool, don't download roles listed as dependencies, default `false`
+- `play.galaxy_install.role_file`: `ansible-galaxy install --role-file`, string, required full path to the requirements file
+- `play.galaxy_install.roles_path`: `ansible-galaxy install --roles-path`, string, the path to the directory containing your roles, the default is the roles_path configured in your `ansible.cfgfile` (`/etc/ansible/roles` if not configured); **for the remote provisioner:** if the path starts with `filesystem path separator`, the bootstrap directory will not be prepended, if the path does not start with `filesystem path separator`, the path will appended to the bootstrap directory, if the value is empty, the default value of `galaxy-roles` is used
+- `play.galaxy_install.server`: `ansible-galaxy install --server`, string, optional API server
+- `play.galaxy_install.verbose`: `ansible-galaxy --verbose`, bool, verbose mode, default `false`
+
 #### Plays attributes
 
-- `plays.hosts`: list of hosts to include in auto-generated inventory file when `inventory_file` not given, string list, default `empty list`; When used with nulll_resource this can be an interpolated list of host IP address public or private; more details below
+- `plays.hosts`: list of hosts to include in auto-generated inventory file when `inventory_file` not given, string list, default `empty list`; When used with null_resource this can be an interpolated list of host IP address public or private; more details below
 - `plays.groups`: list of groups to include in auto-generated inventory file when `inventory_file` not given, string list, default `empty list`; more details below
 - `plays.enabled`: boolean, default `true`; set to `false` to skip execution
 - `plays.become`: `ansible[-playbook] --become`, boolean, default `false` (not applied)

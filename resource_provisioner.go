@@ -77,11 +77,12 @@ func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) {
 
 			vPlaybook, playHasPlaybook := vPlay["playbook"]
 			_, playHasModule := vPlay["module"]
+			_, playHasGalaxyInstall := vPlay["galaxy_install"]
 
-			if playHasPlaybook && playHasModule {
-				es = append(es, fmt.Errorf("playbook and module can't be used together"))
-			} else if !playHasPlaybook && !playHasModule {
-				es = append(es, fmt.Errorf("playbook or module must be set"))
+			if types.HasMoreThanOneTrue([]bool{playHasPlaybook, playHasModule, playHasGalaxyInstall}...) {
+				es = append(es, fmt.Errorf("play can have only one of: galaxy_install, playbook or module"))
+			} else if !playHasPlaybook && !playHasModule && !playHasGalaxyInstall {
+				es = append(es, fmt.Errorf("galaxy_install, playbook or module must be set"))
 			} else {
 
 				if playHasPlaybook {

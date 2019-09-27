@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -80,6 +81,8 @@ const inventoryTemplateRemote = `{{$top := . -}}
 {{end}}
 
 {{end}}`
+
+const defaultAnsibleGalaxyRolesPath = "ansible-galaxy-roles"
 
 // RemoteMode represents remote provisioner mode.
 type RemoteMode struct {
@@ -262,6 +265,12 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 			// upload roles paths, if any:
 			remoteRolesPath := make([]string, 0)
 			for _, path := range entity.RolesPath() {
+
+				if strings.HasPrefix(path, "galaxy_install:") { // TODO: extract this hard coded value
+					remoteRolesPath = append(remoteRolesPath, strings.TrimPrefix(path, "galaxy_install:"))
+					continue
+				}
+
 				resolvedPath, err := types.ResolvePath(path)
 				if err != nil {
 					return err
@@ -322,6 +331,43 @@ func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error {
 				return err
 			}
 			play.SetOverrideInventoryFile(inventoryFile)
+
+		case *types.GalaxyInstall:
+
+			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"",
+				v.remoteSettings.BootstrapDirectory())); err != nil {
+				return err
+			}
+
+			rolesPathDir := entity.RolesPath()
+			if rolesPathDir == "" {
+				rolesPathDir = "galaxy-roles" // TODO: find a method to customize this
+			}
+			if !strings.HasPrefix(rolesPathDir, string(os.PathSeparator)) {
+				rolesPathDir = filepath.Join(v.remoteSettings.BootstrapDirectory(), rolesPathDir)
+			}
+			entity.SetRolesPath(rolesPathDir)
+			v.o.Output(fmt.Sprintf("galaxy_install roles path used is: '%s'...", entity.RolesPath()))
+			if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", entity.RolesPath())); err != nil {
+				return err
+			}
+
+			originalRoleFile := entity.RoleFile()
+			roleFileHash := v.getMD5Hash(entity.RoleFile())
+			roleFileRemotePath := filepath.Join(v.remoteSettings.BootstrapDirectory(), fmt.Sprintf("%s.yml", roleFileHash))
+			entity.SetRoleFile(roleFileRemotePath)
+			v.o.Output(fmt.Sprintf("galaxy_install role file path used is: '%s'...", entity.RoleFile()))
+
+			v.o.Output(fmt.Sprintf("reading original role file at: '%s'...", originalRoleFile))
+			roleFileBytes, readFileError := ioutil.ReadFile(originalRoleFile)
+			if readFileError != nil {
+				return readFileError
+			}
+
+			v.o.Output(fmt.Sprintf("uploading role file to: '%s'...", entity.RoleFile()))
+			if err := v.comm.Upload(roleFileRemotePath, bytes.NewReader(roleFileBytes)); err != nil {
+				return err
+			}
 
 		}
 	}
@@ -399,7 +445,7 @@ func (v *RemoteMode) uploadVaultPasswordOrIDFile(destination string, source stri
 		return "", err
 	}
 
-	u1 := uuid.Must(uuid.NewV4(), nil)
+	u1 := uuid.NewV4()
 	targetPath := filepath.Join(destination, fmt.Sprintf(".vault-file-%s", u1))
 
 	v.o.Output(fmt.Sprintf("Uploading ansible vault password file / ID to '%s'...", targetPath))
@@ -428,7 +474,7 @@ func (v *RemoteMode) writeInventory(destination string, play *types.Play) (strin
 		if err != nil {
 			return "", err
 		}
-		u1 := uuid.Must(uuid.NewV4(), nil)
+		u1 := uuid.NewV4()
 		targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
 		v.o.Output(fmt.Sprintf("Uploading provided inventory file '%s' to '%s'...", play.InventoryFile(), targetPath))
 
@@ -461,7 +507,7 @@ func (v *RemoteMode) writeInventory(destination string, play *types.Play) (strin
 		return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
 	}
 
-	u1 := uuid.Must(uuid.NewV4(), nil)
+	u1 := uuid.NewV4()
 	targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
 
 	v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
