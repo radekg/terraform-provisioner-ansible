@@ -598,7 +598,9 @@ func (v *RemoteMode) copyOutput(r io.Reader, doneCh chan<- struct{}) {
 	defer close(doneCh)
 	lr := linereader.New(r)
 	for line := range lr.Ch {
-		v.o.Output(line)
+		// Use strings.ToValidUTF8 to avoid RPC errors:
+		// https://github.com/radekg/terraform-provisioner-ansible/issues/139
+		v.o.Output(strings.ToValidUTF8(line, ""))
 	}
 }
 
