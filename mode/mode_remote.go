@@ -529,10 +529,12 @@ func (v *RemoteMode) cleanupAfterBootstrap() {
 }
 
 func (v *RemoteMode) checkRemoteDirExists(remoteDir string) (bool, error) {
-	command := "/bin/sh -c 'if [ -d \"%s\" ]; then exit 50; fi'"
-	if err := v.runCommandNoSudo(fmt.Sprintf(command, remoteDir)); err != nil {
-		errDetail := strings.Split(fmt.Sprintf("%v", err), ": ")
-		if errDetail[len(errDetail)-1] == "50" {
+	magicErrorCode := 50
+	command := fmt.Sprintf("/bin/sh -c 'if [ -d \"%s\" ]; then exit %d; fi'", remoteDir, magicErrorCode)
+	if err := v.runCommandNoSudo(command); err != nil {
+		if strings.Contains(err.Error(), fmt.Sprintf("exited with non-zero exit status: %d,", magicErrorCode)) {
+			// we have found the exact match of the magic error,
+			// directory exists
 			return true, nil
 		}
 		return false, err
