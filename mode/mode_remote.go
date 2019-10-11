@@ -29,7 +29,7 @@ const installerProgramTemplate = `#!/bin/sh
 if [ -n "${TAF_DOCKER_CENTOS_LATEST_RUN}" ]; then
   yum update -y && yum install -y which
 fi
-set -eu
+set -euo pipefail
 if [ -z "$(which ansible-playbook)" ]; then
   # only check the cloud boot finished if the directory exists
   if [ -d /var/lib/cloud/instance ]; then
