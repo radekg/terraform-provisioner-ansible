@@ -29,7 +29,7 @@ const installerProgramTemplate = `#!/bin/sh
 if [ -n "${TAF_DOCKER_CENTOS_LATEST_RUN}" ]; then
   yum update -y && yum install -y which
 fi
-set -eu
+set -euo pipefail
 if [ -z "$(which ansible-playbook)" ]; then
   # only check the cloud boot finished if the directory exists
   if [ -d /var/lib/cloud/instance ]; then
@@ -41,10 +41,10 @@ if [ -z "$(which ansible-playbook)" ]; then
   if [ -f /etc/redhat-release ]; then
     yum update -y \
     && yum groupinstall -y "Development Tools" \
-    && yum install -y python-devel
+    && yum install -y python-devel curl
   else
     apt-get update \
-    && apt-get install -y build-essential python-dev
+    && apt-get install -y build-essential python-dev curl
   fi
   # install pip, if necessary
   if [ -z "$(which pip)" ]; then
