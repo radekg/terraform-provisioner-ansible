@@ -28,9 +28,21 @@ const (
 	DefaultTimeout = 5 * time.Minute
 )
 
+type connectionType struct {
+	WINRM string
+	SSH   string
+}
+
 type connectionInfo struct {
-	User       string
-	Password   string
+	User     string
+	Password string
+	//TODO WINDOWS: winrm cconnnection details
+	Type     string
+	Https    bool
+	Insecure bool
+	Ntlm     bool
+	Cacert   string
+
 	PrivateKey string `mapstructure:"private_key"`
 	Host       string
 	HostKey    string `mapstructure:"host_key"`
@@ -46,8 +58,7 @@ type connectionInfo struct {
 	BastionHost       string `mapstructure:"bastion_host"`
 	BastionHostKey    string `mapstructure:"bastion_host_key"`
 	BastionPort       int    `mapstructure:"bastion_port"`
-
-	AgentIdentity string `mapstructure:"agent_identity"`
+	AgentIdentity     string `mapstructure:"agent_identity"`
 }
 
 func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
@@ -63,6 +74,7 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 	if err := dec.Decode(s.Ephemeral.ConnInfo); err != nil {
 		return nil, err
 	}
+	//	log.Fatal(&connInfo)
 
 	// To default Agent to true, we need to check the raw string, since the
 	// decoded boolean can't represent "absence of config".
@@ -84,9 +96,19 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 	if connInfo.Port == 0 {
 		connInfo.Port = DefaultPort
 	}
+
+	//host:35.160.142.7 https:false insecure:true password:password@123 port:5985 timeout:15m type:winrm use_ntlm:false user:Administrator]
+	if connInfo.Type == "winrm" {
+		if connInfo.Https == true {
+			connInfo.Port = 5986
+		} else {
+			connInfo.Port = 5985
+		}
+	}
 	if connInfo.ScriptPath == "" {
 		connInfo.ScriptPath = DefaultScriptPath
 	}
+
 	if connInfo.Timeout != "" {
 		connInfo.TimeoutVal = safeDuration(connInfo.Timeout, DefaultTimeout)
 	} else {

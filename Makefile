@@ -5,7 +5,7 @@ CURRENT_DIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 CI_ANSIBLE_VERSION=2.6.5
 CI_GOLANG_VERSION=1.13.1
 CI_PROJECT_PATH=/go/src/github.com/radekg/terraform-provisioner-ansible
-
+RELEASE_VERSION=2.2.1
 TEST_TIMEOUT?=120s
 
 .PHONY: plugins-dir

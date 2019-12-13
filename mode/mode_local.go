@@ -16,6 +16,12 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+//TODO WINDOWS : LocalModeByType represents local provisioner mode
+type LocalModeByType struct {
+	o              terraform.UIOutput
+	connectionInfo *connectionInfo
+}
+
 // LocalMode represents local provisioner mode.
 type LocalMode struct {
 	o        terraform.UIOutput
@@ -31,6 +37,59 @@ type inventoryTemplateLocalData struct {
 	Hosts  []inventoryTemplateLocalDataHost
 	Groups []string
 }
+
+type windowsInventoryTemplateLocalDataHost struct {
+	AnsibleHost    string
+	ConnectionType string
+	Username       string
+	Password       string
+	Port           int
+	NTLM           bool
+	Cacert         string
+}
+
+type windowsInventoryTemplateLocalData struct {
+	Windows []windowsInventoryTemplateLocalDataHost
+}
+
+const windowsInventoryTemplateLocal = `{{$top := . -}}
+[windows]
+{{range .Windows -}}
+{{if ne .AnsibleHost "" -}}
+{{" "}}{{.AnsibleHost -}}
+{{end -}}
+{{printf "\n" -}}
+
+[windows:vars]
+{{if ne .Username "" -}}
+{{" "}}ansible_user={{.Username -}}
+{{printf "\n" -}}
+{{end -}}
+
+{{if ne .Password "" -}}
+{{" "}}ansible_password={{.Password -}}
+{{end -}}
+
+{{if ne .Port 0 }}
+{{" "}}ansible_port={{.Port -}}
+{{printf "\n" -}}
+{{end -}}
+
+{{if ne .ConnectionType "" -}}
+{{" "}}ansible_connection={{.ConnectionType -}}
+{{end -}}
+
+{{if .NTLM }}
+{{" "}}ansible_winrm_transport={{.NTLM -}}
+{{printf "\n" -}}
+{{end -}}
+
+{{if ne .Cacert "" -}}
+{{" "}}ansible_winrm_ca_trust_path={{.Cacert -}}
+{{printf "\n" -}}
+{{end -}}
+
+{{end}}`
 
 const inventoryTemplateLocal = `{{$top := . -}}
 {{range .Hosts -}}
@@ -57,16 +116,24 @@ const inventoryTemplateLocal = `{{$top := . -}}
 func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode, error) {
 
 	connType := s.Ephemeral.ConnInfo["type"]
-	switch connType {
-	case "ssh", "": // The default connection type is ssh, so if connType is empty use ssh
-	default:
-		return nil, fmt.Errorf("Currently, only SSH connection is supported")
-	}
+	//connType = "winrm"
+	o.Output(fmt.Sprintf("before parsing connection type is %+v ", connType))
+	o.Output(fmt.Sprintf("before parsing connection type with complate connType :  ", s.Ephemeral.ConnInfo))
+	// switch connType {
+	// case "ssh", "": // The default connection type is ssh, so if connType is empty use ssh
+	// case "winrm":
+	// 	//@here add winrm type
+	// default:
+	// 	return nil, fmt.Errorf("Currently, only SSH connection is supported")
+	// }
 
 	connInfo, err := parseConnectionInfo(s)
 	if err != nil {
 		return nil, err
 	}
+
+	o.Output(fmt.Sprintf("after parsing", connInfo))
+	o.Output(fmt.Sprintf("after parsing with & : ", &connInfo))
 
 	// Checks on connInfo unnecessary
 	// connInfo.User defaulted to "root" by Terraform
@@ -122,12 +189,25 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		defer os.Remove(targetPemFile)
 	}
 
+	cacertPemFile := ""
+	if v.connInfo.Cacert != "" {
+		var err error
+		cacertPemFile, err = v.writePem(v.connInfo.Cacert)
+		if err != nil {
+			return err
+		}
+		defer os.Remove(cacertPemFile)
+	}
+
+	v.connInfo.Cacert = cacertPemFile
+
 	bastion := newBastionHostFromConnectionInfo(v.connInfo)
 	target := newTargetHostFromConnectionInfo(v.connInfo)
 
 	knownHostsTarget := make([]string, 0)
 	knownHostsBastion := make([]string, 0)
 
+	v.o.Output(fmt.Sprintf("This is conecction type before bastion condition", v, v.connInfo.Type))
 	if bastion.inUse() {
 		// wait for bastion:
 		sshClient, err := bastion.connect()
@@ -173,7 +253,7 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 				bastion.port()))
 		}
 		knownHostsBastion = append(knownHostsBastion, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))
-	} else {
+	} else if v.connInfo.Type != "winrm" {
 		if !ansibleSSHSettings.InsecureNoStrictHostKeyChecking() {
 			v.o.Output(fmt.Sprintf("InsecureNoStrictHostKeyChecking false"))
 			if compute_resource {
@@ -239,6 +319,8 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 
 		inventoryFile, err := v.writeInventory(play)
 
+		v.o.Output(fmt.Sprintf("This is & connection v : %+v", &v.connInfo))
+		v.o.Output(fmt.Sprintf("This is * connection v : %+v", *v.connInfo))
 		if err != nil {
 			v.o.Output(fmt.Sprintf("%+v", err))
 			return err
@@ -252,9 +334,10 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		// we can't pass bastion instance into this function
 		// we would end up with a circular import
 		command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
-			Username:              v.connInfo.User,
-			Port:                  v.connInfo.Port,
-			PemFile:               targetPemFile,
+			Username: v.connInfo.User,
+			Port:     v.connInfo.Port,
+			PemFile:  targetPemFile,
+			//add password and other winrm fields
 			KnownHostsFile:        knownHostsFileTarget,
 			BastionKnownHostsFile: knownHostsFileBastion,
 			BastionHost:           bastion.host(),
@@ -317,70 +400,127 @@ func (v *LocalMode) writePem(pk string) (string, error) {
 
 func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 	if play.InventoryFile() == "" {
+		var buf bytes.Buffer
+		var templateData inventoryTemplateLocalData
 
-		playHosts := play.Hosts()
+		//winrm struct
+		windowsTemplateData := &windowsInventoryTemplateLocalData{
+			Windows: make([]windowsInventoryTemplateLocalDataHost, 0),
+		}
 
-		templateData := inventoryTemplateLocalData{
+		//ssh struct
+		templateData = inventoryTemplateLocalData{
 			Hosts:  make([]inventoryTemplateLocalDataHost, 0),
 			Groups: play.Groups(),
 		}
+		v.o.Output(fmt.Sprintf("This is just play host : %s", play.Hosts()))
+		if v.connInfo.Type == "ssh" {
+			playHosts := play.Hosts()
 
-		// Compute resource path
-		if v.connInfo.Host != "" {
-			if len(playHosts) > 0 {
-				if playHosts[0] != "" {
-					templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
-						Alias:       playHosts[0],
-						AnsibleHost: v.connInfo.Host,
-					})
+			v.o.Output(fmt.Sprintf(" ------------- "))
+			v.o.Output(fmt.Sprintf(" %s", templateData))
+			v.o.Output(fmt.Sprintf(" /////////////s "))
+			// Compute resource path
+			if v.connInfo.Host != "" {
+				if len(playHosts) > 0 {
+					if playHosts[0] != "" {
+						templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+							Alias:       playHosts[0],
+							AnsibleHost: v.connInfo.Host,
+						})
+						v.o.Output(fmt.Sprintf("This is template host 1st case : %s", templateData.Hosts))
+					} else {
+						templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+							Alias: v.connInfo.Host,
+						})
+						v.o.Output(fmt.Sprintf("This is template host 2nd case : %s", templateData.Hosts))
+					}
 				} else {
+
 					templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
 						Alias: v.connInfo.Host,
 					})
+					v.o.Output(fmt.Sprintf("This is template host 3rd case : %s", templateData.Hosts))
 				}
 			} else {
-				templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
-					Alias: v.connInfo.Host,
-				})
-			}
-		} else {
-			// Path for null resource, which does not use v.connInfo.Host
-			for _, host := range playHosts {
-				if host != "" {
-					templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
-						Alias: host,
-					})
+				// Path for null resource, which does not use v.connInfo.Host
+				for _, host := range playHosts {
+					if host != "" {
+						templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+							Alias: host,
+						})
+					}
 				}
+
 			}
+		} else if v.connInfo.Type == "winrm" {
+			v.o.Output(fmt.Sprintf("itss in else"))
 
+			windowsTemplateData.Windows = append(windowsTemplateData.Windows, windowsInventoryTemplateLocalDataHost{
+				AnsibleHost:    v.connInfo.Host,
+				Username:       v.connInfo.User,
+				Password:       v.connInfo.Password,
+				Port:           v.connInfo.Port,
+				ConnectionType: v.connInfo.Type,
+				NTLM:           v.connInfo.Ntlm,
+				Cacert:         v.connInfo.Cacert,
+			})
+			v.o.Output(fmt.Sprintf("windowsTemplateData inside else: ", windowsTemplateData))
+			v.o.Output(fmt.Sprintf("windowsTemplateData.windows inside else: ", windowsTemplateData.Windows))
 		}
-
-		v.o.Output("Generating temporary ansible inventory...")
-		t := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
-		var buf bytes.Buffer
-		err := t.Execute(&buf, templateData)
-		if err != nil {
-			return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+		var t *template.Template
+		fmt.Println("Generating temporary ansible inventory...")
+		v.o.Output(fmt.Sprintf("windowsTemplateData.windows : ", windowsTemplateData.Windows))
+		v.o.Output(fmt.Sprintf("windowsTemplateData.windows with & : ", &windowsTemplateData.Windows))
+		v.o.Output(fmt.Sprintf(v.connInfo.Type))
+		if v.connInfo.Type == "ssh" {
+			t = template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
+			err := t.Execute(&buf, templateData)
+			if err != nil {
+				fmt.Errorf("Error executing 'linux' template: ", err)
+			}
+		} else if v.connInfo.Type == "winrm" {
+			t = template.Must(template.New("Windows").Parse(windowsInventoryTemplateLocal))
+			err := t.Execute(&buf, windowsTemplateData)
+			if err != nil {
+				fmt.Errorf("Error executing 'windows' template: ", err)
+			}
 		}
-
 		file, err := ioutil.TempFile(os.TempDir(), "temporary-ansible-inventory")
 		defer file.Close()
 		if err != nil {
 			return "", err
 		}
-
 		v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", file.Name()))
-		if err := ioutil.WriteFile(file.Name(), buf.Bytes(), 0644); err != nil {
+		if err := ioutil.WriteFile(file.Name(), []byte(buf.Bytes()), 0644); err != nil {
 			return "", err
+
 		}
-
-		v.o.Output("Ansible inventory written.")
-
+		v.o.Output("reading and Printing inventory file")
+		fileData, err := os.Open(file.Name())
+		if err != nil {
+			return "", fmt.Errorf("Inventory file read error: %s", err)
+		}
+		defer fileData.Close()
+		b, err := ioutil.ReadAll(fileData)
+		s := string(b)
+		v.o.Output(fmt.Sprintf("This is inventory : %s", s))
 		return file.Name(), nil
 	}
-
 	return play.InventoryFile(), nil
 }
+
+// file, err := ioutil.TempFile(os.TempDir(), "temporary-ansible-inventory")
+// defer file.Close()
+// if err != nil {
+// 	return "", err
+// }
+// v.o.Output(fmt.Sprintf("This is before writting inventory : %s", buf.Bytes()))
+// v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", file.Name()))
+// if err := ioutil.WriteFile(file.Name(), buf.Bytes(), 0644); err != nil {
+// 	return "", err
+
+// 	v.o.Output("Ansible inventory written.")
 
 func (v *LocalMode) runCommand(command string) error {
 	localExecProvisioner := localExec.Provisioner()
