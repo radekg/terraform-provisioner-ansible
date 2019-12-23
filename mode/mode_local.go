@@ -332,13 +332,11 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		if err != nil {
 			return err
 		}
-
 		v.o.Output(fmt.Sprintf("running local command: %s", command))
 
 		if err := v.runCommand(command); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
@@ -438,8 +436,6 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 				NTLM:           v.connInfo.Ntlm,
 				Cacert:         v.connInfo.Cacert,
 			})
-			v.o.Output(fmt.Sprintf("windowsTemplateData inside else: ", windowsTemplateData))
-			v.o.Output(fmt.Sprintf("windowsTemplateData.windows inside else: ", windowsTemplateData.Windows))
 		}
 		var t *template.Template
 		if v.connInfo.Type == "ssh" {
