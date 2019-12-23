@@ -36,7 +36,6 @@ type connectionType struct {
 type connectionInfo struct {
 	User     string
 	Password string
-	//TODO WINDOWS: winrm cconnnection details
 	Type     string
 	Https    bool
 	Insecure bool
