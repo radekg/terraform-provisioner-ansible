@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-//TODO WINDOWS : LocalModeByType represents local provisioner mode
 type LocalModeByType struct {
 	o              terraform.UIOutput
 	connectionInfo *connectionInfo
@@ -116,17 +115,6 @@ const inventoryTemplateLocal = `{{$top := . -}}
 func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode, error) {
 
 	connType := s.Ephemeral.ConnInfo["type"]
-	//connType = "winrm"
-	o.Output(fmt.Sprintf("before parsing connection type is %+v ", connType))
-	o.Output(fmt.Sprintf("before parsing connection type with complate connType :  ", s.Ephemeral.ConnInfo))
-	// switch connType {
-	// case "ssh", "": // The default connection type is ssh, so if connType is empty use ssh
-	// case "winrm":
-	// 	//@here add winrm type
-	// default:
-	// 	return nil, fmt.Errorf("Currently, only SSH connection is supported")
-	// }
-
 	connInfo, err := parseConnectionInfo(s)
 	if err != nil {
 		return nil, err
@@ -207,7 +195,6 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 	knownHostsTarget := make([]string, 0)
 	knownHostsBastion := make([]string, 0)
 
-	v.o.Output(fmt.Sprintf("This is conecction type before bastion condition", v, v.connInfo.Type))
 	if bastion.inUse() {
 		// wait for bastion:
 		sshClient, err := bastion.connect()
@@ -318,9 +305,6 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		}
 
 		inventoryFile, err := v.writeInventory(play)
-
-		v.o.Output(fmt.Sprintf("This is & connection v : %+v", &v.connInfo))
-		v.o.Output(fmt.Sprintf("This is * connection v : %+v", *v.connInfo))
 		if err != nil {
 			v.o.Output(fmt.Sprintf("%+v", err))
 			return err
@@ -337,7 +321,6 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 			Username: v.connInfo.User,
 			Port:     v.connInfo.Port,
 			PemFile:  targetPemFile,
-			//add password and other winrm fields
 			KnownHostsFile:        knownHostsFileTarget,
 			BastionKnownHostsFile: knownHostsFileBastion,
 			BastionHost:           bastion.host(),
@@ -416,11 +399,6 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 		v.o.Output(fmt.Sprintf("This is just play host : %s", play.Hosts()))
 		if v.connInfo.Type == "ssh" {
 			playHosts := play.Hosts()
-
-			v.o.Output(fmt.Sprintf(" ------------- "))
-			v.o.Output(fmt.Sprintf(" %s", templateData))
-			v.o.Output(fmt.Sprintf(" /////////////s "))
-			// Compute resource path
 			if v.connInfo.Host != "" {
 				if len(playHosts) > 0 {
 					if playHosts[0] != "" {
@@ -428,19 +406,16 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 							Alias:       playHosts[0],
 							AnsibleHost: v.connInfo.Host,
 						})
-						v.o.Output(fmt.Sprintf("This is template host 1st case : %s", templateData.Hosts))
 					} else {
 						templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
 							Alias: v.connInfo.Host,
 						})
-						v.o.Output(fmt.Sprintf("This is template host 2nd case : %s", templateData.Hosts))
 					}
 				} else {
 
 					templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
 						Alias: v.connInfo.Host,
 					})
-					v.o.Output(fmt.Sprintf("This is template host 3rd case : %s", templateData.Hosts))
 				}
 			} else {
 				// Path for null resource, which does not use v.connInfo.Host
@@ -469,10 +444,6 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 			v.o.Output(fmt.Sprintf("windowsTemplateData.windows inside else: ", windowsTemplateData.Windows))
 		}
 		var t *template.Template
-		fmt.Println("Generating temporary ansible inventory...")
-		v.o.Output(fmt.Sprintf("windowsTemplateData.windows : ", windowsTemplateData.Windows))
-		v.o.Output(fmt.Sprintf("windowsTemplateData.windows with & : ", &windowsTemplateData.Windows))
-		v.o.Output(fmt.Sprintf(v.connInfo.Type))
 		if v.connInfo.Type == "ssh" {
 			t = template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
 			err := t.Execute(&buf, templateData)
@@ -509,18 +480,6 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 	}
 	return play.InventoryFile(), nil
 }
-
-// file, err := ioutil.TempFile(os.TempDir(), "temporary-ansible-inventory")
-// defer file.Close()
-// if err != nil {
-// 	return "", err
-// }
-// v.o.Output(fmt.Sprintf("This is before writting inventory : %s", buf.Bytes()))
-// v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", file.Name()))
-// if err := ioutil.WriteFile(file.Name(), buf.Bytes(), 0644); err != nil {
-// 	return "", err
-
-// 	v.o.Output("Ansible inventory written.")
 
 func (v *LocalMode) runCommand(command string) error {
 	localExecProvisioner := localExec.Provisioner()
