@@ -120,9 +120,6 @@ func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode,
 		return nil, err
 	}
 
-	o.Output(fmt.Sprintf("after parsing", connInfo))
-	o.Output(fmt.Sprintf("after parsing with & : ", &connInfo))
-
 	// Checks on connInfo unnecessary
 	// connInfo.User defaulted to "root" by Terraform
 	// connInfo.Host always populated when running under compute resource.
