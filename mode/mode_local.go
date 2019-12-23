@@ -461,6 +461,7 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 			return "", err
 
 		}
+		v.o.Output("Ansible inventory written.")
 		return file.Name(), nil
 	}
 	return play.InventoryFile(), nil
