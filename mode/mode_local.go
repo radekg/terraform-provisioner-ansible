@@ -394,7 +394,6 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 			Hosts:  make([]inventoryTemplateLocalDataHost, 0),
 			Groups: play.Groups(),
 		}
-		v.o.Output(fmt.Sprintf("This is just play host : %s", play.Hosts()))
 		if v.connInfo.Type == "ssh" {
 			playHosts := play.Hosts()
 			if v.connInfo.Host != "" {
