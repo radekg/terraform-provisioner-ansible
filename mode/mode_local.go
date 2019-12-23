@@ -429,8 +429,6 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 
 			}
 		} else if v.connInfo.Type == "winrm" {
-			v.o.Output(fmt.Sprintf("itss in else"))
-
 			windowsTemplateData.Windows = append(windowsTemplateData.Windows, windowsInventoryTemplateLocalDataHost{
 				AnsibleHost:    v.connInfo.Host,
 				Username:       v.connInfo.User,
@@ -467,15 +465,6 @@ func (v *LocalMode) writeInventory(play *types.Play) (string, error) {
 			return "", err
 
 		}
-		v.o.Output("reading and Printing inventory file")
-		fileData, err := os.Open(file.Name())
-		if err != nil {
-			return "", fmt.Errorf("Inventory file read error: %s", err)
-		}
-		defer fileData.Close()
-		b, err := ioutil.ReadAll(fileData)
-		s := string(b)
-		v.o.Output(fmt.Sprintf("This is inventory : %s", s))
 		return file.Name(), nil
 	}
 	return play.InventoryFile(), nil
