@@ -115,6 +115,9 @@ const inventoryTemplateLocal = `{{$top := . -}}
 func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode, error) {
 
 	connType := s.Ephemeral.ConnInfo["type"]
+	if connType == "" {
+		return nil, fmt.Errorf("Connection type can not be empty")
+	}
 	connInfo, err := parseConnectionInfo(s)
 	if err != nil {
 		return nil, err
@@ -315,9 +318,9 @@ func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSS
 		// we can't pass bastion instance into this function
 		// we would end up with a circular import
 		command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
-			Username: v.connInfo.User,
-			Port:     v.connInfo.Port,
-			PemFile:  targetPemFile,
+			Username:              v.connInfo.User,
+			Port:                  v.connInfo.Port,
+			PemFile:               targetPemFile,
 			KnownHostsFile:        knownHostsFileTarget,
 			BastionKnownHostsFile: knownHostsFileBastion,
 			BastionHost:           bastion.host(),

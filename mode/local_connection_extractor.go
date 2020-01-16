@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform/communicator/shared"
@@ -90,17 +91,12 @@ func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) {
 	// Needed for IPv6 support.
 	connInfo.Host = shared.IpFormat(connInfo.Host)
 
+	connInfo.Port, err = strconv.Atoi(s.Ephemeral.ConnInfo["port"])
+
 	if connInfo.Port == 0 {
 		connInfo.Port = DefaultPort
 	}
 
-	if connInfo.Type == "winrm" {
-		if connInfo.Https == true {
-			connInfo.Port = 5986
-		} else {
-			connInfo.Port = 5985
-		}
-	}
 	if connInfo.ScriptPath == "" {
 		connInfo.ScriptPath = DefaultScriptPath
 	}
