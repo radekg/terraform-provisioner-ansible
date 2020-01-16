@@ -35,20 +35,20 @@ type connectionType struct {
 }
 
 type connectionInfo struct {
-	User     string
-	Password string
-	Type     string
-	Https    bool
-	Insecure bool
-	Ntlm     bool
-	Cacert   string
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	Type     string `mapstructure:"type"`
+	Https    bool   `mapstructure:"https"`
+	Insecure bool   `mapstructure:"insecure"`
+	Ntlm     bool   `mapstructure:"use_ntlm"`
+	Cacert   string `mapstructure:"cacert"`
 
 	PrivateKey string `mapstructure:"private_key"`
-	Host       string
+	Host       string `mapstructure:"host"`
 	HostKey    string `mapstructure:"host_key"`
-	Port       int
+	Port       int    `mapstructure:"port"`
 	Agent      bool
-	Timeout    string
+	Timeout    string        `mapstructure:"timeout"`
 	ScriptPath string        `mapstructure:"script_path"`
 	TimeoutVal time.Duration `mapstructure:"-"`
 
