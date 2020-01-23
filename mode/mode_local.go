@@ -84,6 +84,15 @@ const windowsInventoryTemplateLocal = `{{$top := . -}}
 {{printf "\n" -}}
 {{end -}}
 
+{{if eq .Cacert "" -}}
+{{" "}}ansible_winrm_server_cert_validation=ignore
+{{printf "\n" -}}
+{{end -}}
+
+{{" "}}ansible_winrm_read_timeout_sec=900
+{{" "}}ansible_winrm_operation_timeout_sec=800
+{{printf "\n" -}}
+
 {{if ne .Cacert "" -}}
 {{" "}}ansible_winrm_ca_trust_path={{.Cacert -}}
 {{printf "\n" -}}
