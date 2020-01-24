@@ -370,7 +370,7 @@ func (v *LocalMode) writeKnownHosts(knownHosts []string) (string, error) {
 }
 
 func (v *LocalMode) writePem(pk string) (string, error) {
-	if v.connInfo.PrivateKey != "" || v.connInfo.Cacert != "" {
+	if pk != "" {
 		file, err := ioutil.TempFile(os.TempDir(), uuid.NewV4().String())
 		defer file.Close()
 		if err != nil {
