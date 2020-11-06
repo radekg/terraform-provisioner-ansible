@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/config"
+	"github.com/hashicorp/terraform/configs"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -398,7 +398,7 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 }
 
 func testConfig(t *testing.T, c map[string]interface{}) *terraform.ResourceConfig {
-	r, err := config.NewRawConfig(c)
+	r, err := configs.NewRawConfig(c)
 	if err != nil {
 		t.Fatalf("config error: %s", err)
 	}

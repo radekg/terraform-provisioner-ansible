@@ -33,11 +33,11 @@ resource "aws_security_group" "ssh_box" {
 ## -- machine:
 
 resource "aws_instance" "test_box" {
-  ami           = "${var.ami_id}"
+  ami           = var.ami_id
   count         = "1"
   instance_type = "m3.medium"
 
-  security_groups = ["${aws_security_group.ssh_box.name}"]
+  security_groups = [aws_security_group.ssh_box.name]
 
   root_block_device {
     delete_on_termination = true
@@ -49,7 +49,7 @@ resource "aws_instance" "test_box" {
 
 resource "null_resource" "null01" {
   connection {
-    host = "${aws_instance.test_box.0.public_ip}"
+    host = aws_instance.test_box.0.public_ip
     user = "centos"
   }
   provisioner "ansible" {
@@ -61,7 +61,7 @@ resource "null_resource" "null01" {
         ]
       }
       groups = ["servers"]
-      hosts = ["${aws_instance.test_box.0.public_ip}"]
+      hosts = [aws_instance.test_box.0.public_ip]
     }
   }    
 }

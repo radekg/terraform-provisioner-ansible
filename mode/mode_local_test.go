@@ -11,8 +11,8 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/radekg/terraform-provisioner-ansible/test"
-	"github.com/radekg/terraform-provisioner-ansible/types"
+	"github.com/radekg/terraform-provisioner-ansible/v2/test"
+	"github.com/radekg/terraform-provisioner-ansible/v2/types"
 )
 
 func TestLocalInventoryTemplateGeneratesWithAlias(t *testing.T) {
@@ -170,6 +170,8 @@ func TestIntegrationLocalModeProvisioning(t *testing.T) {
 	// Module:
 	// Ansible creates a directory in ANSIBLE_REMOTE_TMP dirctory:
 	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '( umask 77 && mkdir -p \"` echo %s", tempRemoteTmp))
+	// Command appeared after updating dependencies (tf 0.13.5)
+	//test.CommandTest(t, sshServer, "/bin/sh -c 'echo PLATFORM; uname; echo FOUND")
 	// ... then it chmod u+x it ...
 	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'chmod u+x %s", tempRemoteTmp))
 	// ... the module is executed:
@@ -179,6 +181,8 @@ func TestIntegrationLocalModeProvisioning(t *testing.T) {
 
 	// Playbook:
 	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '( umask 77 && mkdir -p \"` echo %s", tempRemoteTmp))
+	// Command appeared after updating dependencies (tf 0.13.5)
+	//test.CommandTest(t, sshServer, "/bin/sh -c 'echo PLATFORM; uname; echo FOUND")
 	// ... then it chmod u+x on the setup.py ...
 	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'chmod u+x %s", tempRemoteTmp))
 	// ... the setup.py is executed ...

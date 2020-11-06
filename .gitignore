@@ -2,6 +2,7 @@
 **/**/*.retry
 **/**/.terraform
 **/**/crash.log
+**/**/.terraform.*
 **/**/terraform.*
 **/**/ansible-data/roles/**/
 /terraform-provisioner-ansible*
