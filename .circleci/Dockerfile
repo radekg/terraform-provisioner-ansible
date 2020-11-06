@@ -1,6 +1,6 @@
-FROM golang:1.13.1
+FROM golang:1.15.3
 
-ARG ANSIBLE_VERSION=2.6.5
+ARG ANSIBLE_VERSION=2.9.15
 
 # make Apt non-interactive
 RUN echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90circleci \

@@ -6,12 +6,12 @@ variable "infrastructure_name" {}
 variable "ami_id" {}
 
 provider "aws" {
-  region  = "${var.region}"
-  profile = "${var.aws_admin_profile}"
+  region  = var.region
+  profile = var.aws_admin_profile
 }
 
 resource "aws_vpc" "vpc" {
-  cidr_block = "${var.vpc_cidr_block}"
+  cidr_block = var.vpc_cidr_block
   enable_dns_support = true
   enable_dns_hostnames = true
   tags = {
@@ -20,9 +20,9 @@ resource "aws_vpc" "vpc" {
 }
 
 resource "aws_subnet" "public" {
-  vpc_id                  = "${aws_vpc.vpc.id}"
+  vpc_id                  = aws_vpc.vpc.id
   availability_zone       = "${var.region}a"
-  cidr_block              = "${cidrsubnet(aws_vpc.vpc.cidr_block, 8, 1)}"
+  cidr_block              = cidrsubnet(aws_vpc.vpc.cidr_block, 8, 1)
   map_public_ip_on_launch = true
   tags = {
     Name = "${var.infrastructure_name}_public_subnet"
@@ -30,23 +30,23 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_internet_gateway" "gw" {
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = aws_vpc.vpc.id
   tags = {
     Name = "${var.infrastructure_name}_gw"
   }
 }
 
 resource "aws_route_table" "rt" {
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = aws_vpc.vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.gw.id}"
+    gateway_id = aws_internet_gateway.gw.id
   }
 }
 
 resource "aws_route_table_association" "rta" {
-  subnet_id      = "${aws_subnet.public.id}"
-  route_table_id = "${aws_route_table.rt.id}"
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.rt.id
 }
 
 ## -- security groups:
@@ -54,7 +54,7 @@ resource "aws_route_table_association" "rta" {
 resource "aws_security_group" "ssh_bastion" {
   name        = "ssh_bastion"
   description = "SSH bastion"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = aws_vpc.vpc.id
 
   ingress {
     from_port   = 22
@@ -75,13 +75,13 @@ resource "aws_security_group" "ssh_bastion" {
 resource "aws_security_group" "ssh_box" {
   name        = "ssh_box"
   description = "SSH box"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = aws_vpc.vpc.id
 
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    security_groups = ["${aws_security_group.ssh_bastion.id}"]
+    security_groups = [aws_security_group.ssh_bastion.id]
     self        = true
   }
 
@@ -96,16 +96,16 @@ resource "aws_security_group" "ssh_box" {
 ## -- machine:
 
 resource "aws_instance" "bastion" {
-  ami           = "${var.ami_id}"
+  ami           = var.ami_id
   count         = "1"
   instance_type = "t2.medium"
 
-  vpc_security_group_ids = ["${aws_security_group.ssh_bastion.id}"]
+  vpc_security_group_ids = [aws_security_group.ssh_bastion.id]
 
-  subnet_id = "${aws_subnet.public.id}"
+  subnet_id = aws_subnet.public.id
 
   connection {
-    host = "${self.public_ip}"
+    host = self.public_ip
     user = "centos"
   }
 
@@ -117,19 +117,19 @@ resource "aws_instance" "bastion" {
 }
 
 resource "aws_instance" "test_box" {
-  ami           = "${var.ami_id}"
+  ami           = var.ami_id
   count         = "1"
   instance_type = "m3.medium"
 
   connection {
     user         = "centos"
-    host         = "${self.private_ip}"
-    bastion_host = "${aws_instance.bastion.0.public_ip}"
+    host         = self.private_ip
+    bastion_host = aws_instance.bastion.0.public_ip
   }
 
-  vpc_security_group_ids = ["${aws_security_group.ssh_box.id}"]
+  vpc_security_group_ids = [aws_security_group.ssh_box.id]
 
-  subnet_id = "${aws_subnet.public.id}"
+  subnet_id = aws_subnet.public.id
 
   provisioner "ansible" {
     plays {

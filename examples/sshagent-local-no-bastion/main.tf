@@ -33,14 +33,14 @@ resource "aws_security_group" "ssh_box" {
 ## -- machine:
 
 resource "aws_instance" "test_box" {
-  ami           = "${var.ami_id}"
+  ami           = var.ami_id
   count         = "1"
   instance_type = "m3.medium"
 
-  security_groups = ["${aws_security_group.ssh_box.name}"]
+  security_groups = [aws_security_group.ssh_box.name]
 
   connection {
-    host = "${self.public_ip}"
+    host = self.public_ip
     user = "centos"
   }
 
@@ -55,7 +55,7 @@ resource "aws_instance" "test_box" {
       hosts = ["testBoxToBootstrap"]
     }
     ansible_ssh_settings {
-      insecure_no_strict_host_key_checking = "${var.insecure_no_strict_host_key_checking}"
+      insecure_no_strict_host_key_checking = var.insecure_no_strict_host_key_checking
     }
   }
 

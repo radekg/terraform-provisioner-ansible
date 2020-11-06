@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/radekg/terraform-provisioner-ansible.svg?style=svg)](https://circleci.com/gh/radekg/terraform-provisioner-ansible)
 
-Ansible with Terraform 0.12.x - `remote` and `local` provisioners.
+Ansible with Terraform 0.13.x - `remote` and `local` provisioners.
 
 ## General overview
 
