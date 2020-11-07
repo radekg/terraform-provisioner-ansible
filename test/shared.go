@@ -149,7 +149,7 @@ func CommandTest(t *testing.T, sshServer *TestingSSHServer, commandPrefix string
 	}
 }
 
-// CommandTestWithOptionalPrecommand tests an SSH server output channel for optional first given command.
+// CommandTestWithOptional tests an SSH server output channel for optional first given command.
 // If first command was not matched, the second must match.
 // If second command was matched, all input is considered matched.
 // This function is used for optionally handling the interpreter discovery command in the local provisioner tests.
