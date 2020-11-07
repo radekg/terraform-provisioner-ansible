@@ -138,7 +138,7 @@ func TestIntegrationLocalModeProvisioning(t *testing.T) {
 		"limit":               "",
 		"vault_id":            []interface{}{tempVaultIDFilePath},
 		"vault_password_file": "",
-		"verbose":             false,
+		"verbose":             true,
 		"extra_vars": map[string]interface{}{
 			"var1": "value1",
 			"var2": 100,
@@ -170,10 +170,14 @@ func TestIntegrationLocalModeProvisioning(t *testing.T) {
 	// Module:
 	// Ansible creates a directory in ANSIBLE_REMOTE_TMP dirctory:
 	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '( umask 77 && mkdir -p \"` echo %s", tempRemoteTmp))
-	// Command appeared after updating dependencies (tf 0.13.5)
-	//test.CommandTest(t, sshServer, "/bin/sh -c 'echo PLATFORM; uname; echo FOUND")
 	// ... then it chmod u+x it ...
-	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'chmod u+x %s", tempRemoteTmp))
+	// ... optionally an interpreter discovery command may be issued by ansible
+	remainingCommand := test.CommandTestWithOptional(t, sshServer,
+		"/bin/sh -c 'echo PLATFORM; uname; echo FOUND", // this is an interpreter discovery command optionally appearing in the output
+		fmt.Sprintf("/bin/sh -c 'chmod u+x %s", tempRemoteTmp))
+	if remainingCommand != "" {
+		test.CommandTest(t, sshServer, remainingCommand)
+	}
 	// ... the module is executed:
 	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '/usr/bin/python %s", tempRemoteTmp))
 	// ... and Ansible cleans up after module execution.
@@ -181,10 +185,14 @@ func TestIntegrationLocalModeProvisioning(t *testing.T) {
 
 	// Playbook:
 	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '( umask 77 && mkdir -p \"` echo %s", tempRemoteTmp))
-	// Command appeared after updating dependencies (tf 0.13.5)
-	//test.CommandTest(t, sshServer, "/bin/sh -c 'echo PLATFORM; uname; echo FOUND")
 	// ... then it chmod u+x on the setup.py ...
-	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c 'chmod u+x %s", tempRemoteTmp))
+	// ... optionally an interpreter discovery command may be issued by ansible
+	remainingCommand = test.CommandTestWithOptional(t, sshServer,
+		"/bin/sh -c 'echo PLATFORM; uname; echo FOUND", // this is an interpreter discovery command optionally appearing in the output
+		fmt.Sprintf("/bin/sh -c 'chmod u+x %s", tempRemoteTmp))
+	if remainingCommand != "" {
+		test.CommandTest(t, sshServer, remainingCommand)
+	}
 	// ... the setup.py is executed ...
 	test.CommandTest(t, sshServer, fmt.Sprintf("/bin/sh -c '/usr/bin/python %s", tempRemoteTmp))
 	// ... and Ansible cleans up after playbook execution.

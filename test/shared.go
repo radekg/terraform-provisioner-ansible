@@ -149,6 +149,32 @@ func CommandTest(t *testing.T, sshServer *TestingSSHServer, commandPrefix string
 	}
 }
 
+// CommandTestWithOptionalPrecommand tests an SSH server output channel for optional first given command.
+// If first command was not matched, the second must match.
+// If second command was matched, all input is considered matched.
+// This function is used for optionally handling the interpreter discovery command in the local provisioner tests.
+// https://github.com/ansible/ansible/blob/3e9943bc5e7a9cd393757aa8100d7fed80bd316e/lib/ansible/executor/interpreter_discovery.py#L65
+func CommandTestWithOptional(t *testing.T, sshServer *TestingSSHServer, commandPrefix1, commandPrefix2 string) string {
+	select {
+	case event := <-sshServer.Notifications():
+		switch tevent := event.(type) {
+		case NotificationCommandExecuted:
+			if strings.HasPrefix(tevent.Command, commandPrefix1) {
+				return commandPrefix2
+			}
+			if strings.HasPrefix(tevent.Command, commandPrefix2) {
+				return ""
+			}
+			t.Fatalf("Received command '%s' but expected one of: '%s', '%s'", tevent.Command, commandPrefix1, commandPrefix2)
+		default:
+			t.Fatal("Expected a command execution but received", tevent)
+		}
+	case <-time.After(CommandWaitTimeoutDuration):
+		t.Fatal("Excepted a notification from the SSH server.")
+	}
+	return ""
+}
+
 // CreateTempAnsibleBootstrapDir creates a temp Ansible bootstrap directory.
 func CreateTempAnsibleBootstrapDir(t *testing.T) string {
 	tmp, err := ioutil.TempDir("", ".temp-bootstrap")
