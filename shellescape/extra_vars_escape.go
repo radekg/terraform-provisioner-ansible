@@ -2,7 +2,9 @@ package shellescape
 
 import "io"
 
+// ShellEscape defines a shell escape interface.
 type ShellEscape interface {
+	// Safe returns a safe to use copy of the input.
 	Safe() string
 }
 
@@ -98,10 +100,12 @@ func newDefaultEscape(input string, delimiter rune) ShellEscape {
 	}
 }
 
+// NewDoubleQuoteEscape returns a new shell escape for use within double quoted string.
 func NewDoubleQuoteEscape(input string) ShellEscape {
 	return newDefaultEscape(input, '"')
 }
 
+// NewSingleQuoteEscape returns a new shell escape for use within single quoted string.
 func NewSingleQuoteEscape(input string) ShellEscape {
 	return newDefaultEscape(input, '\'')
 }
