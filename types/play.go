@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/radekg/terraform-provisioner-ansible/v2/shellescape"
 )
 
 // Play return a new Ansible item to play.
@@ -545,7 +546,8 @@ func (v *Play) appendSharedArguments(command string, ansibleArgs LocalModeAnsibl
 		if err != nil {
 			return "", err
 		}
-		command = fmt.Sprintf("%s --extra-vars='%s'", command, string(extraVars))
+		singleQuotteEscape := shellescape.NewSingleQuoteEscape(string(extraVars))
+		command = fmt.Sprintf("%s --extra-vars='%s'", command, singleQuotteEscape.Safe())
 	}
 	// forks:
 	if v.Forks() > 0 {

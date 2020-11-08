@@ -1,4 +1,4 @@
-package main
+package provisioner
 
 import (
 	"io/ioutil"
