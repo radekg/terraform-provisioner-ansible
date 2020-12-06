@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/configs"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -108,9 +107,9 @@ func TestGoodAndCompleteRemoteConfig(t *testing.T) {
 						"file_path":      playbookFile,
 						"roles_path":     []interface{}{"${path.module}/path/to/a/role/directory"},
 						"force_handlers": false,
-						"skip_tags":      []string{"tag2"},
+						"skip_tags":      []interface{}{"tag2"},
 						"start_at_task":  "test task",
-						"tags":           []string{"tag1", "tag2"},
+						"tags":           []interface{}{"tag1", "tag2"},
 					},
 				},
 			},
@@ -398,9 +397,9 @@ func TestConfigProvisionerParserDecoder(t *testing.T) {
 }
 
 func testConfig(t *testing.T, c map[string]interface{}) *terraform.ResourceConfig {
-	r, err := configs.NewRawConfig(c)
-	if err != nil {
-		t.Fatalf("config error: %s", err)
-	}
-	return terraform.NewResourceConfig(r)
+	//r, err := configs.NewRawConfig(c)
+	//if err != nil {
+	//	t.Fatalf("config error: %s", err)
+	//}
+	return terraform.NewResourceConfigRaw(c)
 }
