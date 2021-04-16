@@ -7,5 +7,4 @@
 **/**/ansible-data/roles/**/
 /terraform-provisioner-ansible*
 /bin/.build_output
-.coverage/
 .vscode/

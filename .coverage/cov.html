@@ -1,0 +1,2046 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>mode: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/radekg/terraform-provisioner-ansible/v2/mode/local_connection_extractor.go (86.0%)</option>
+				
+				<option value="file1">github.com/radekg/terraform-provisioner-ansible/v2/mode/mode_local.go (56.1%)</option>
+				
+				<option value="file2">github.com/radekg/terraform-provisioner-ansible/v2/mode/mode_remote.go (57.8%)</option>
+				
+				<option value="file3">github.com/radekg/terraform-provisioner-ansible/v2/mode/ssh_bastion_host.go (93.3%)</option>
+				
+				<option value="file4">github.com/radekg/terraform-provisioner-ansible/v2/mode/ssh_bastion_keyscan.go (0.0%)</option>
+				
+				<option value="file5">github.com/radekg/terraform-provisioner-ansible/v2/mode/ssh_configurable.go (82.1%)</option>
+				
+				<option value="file6">github.com/radekg/terraform-provisioner-ansible/v2/mode/ssh_target_host.go (86.4%)</option>
+				
+				<option value="file7">github.com/radekg/terraform-provisioner-ansible/v2/provisioner/resource_provisioner.go (61.3%)</option>
+				
+				<option value="file8">github.com/radekg/terraform-provisioner-ansible/v2/shellescape/extra_vars_escape.go (97.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package mode
+
+import (
+        "encoding/pem"
+        "fmt"
+        "log"
+        "os"
+        "time"
+
+        "github.com/hashicorp/terraform/communicator/shared"
+        "github.com/hashicorp/terraform/terraform"
+        "github.com/mitchellh/mapstructure"
+        "golang.org/x/crypto/ssh"
+)
+
+const (
+        // DefaultUser is used if there is no user given
+        DefaultUser = "root"
+
+        // DefaultPort is used if there is no port given
+        DefaultPort = 22
+
+        // DefaultScriptPath is used as the path to copy the file to
+        // for remote execution if not provided otherwise.
+        DefaultScriptPath = "/tmp/terraform_%RAND%.sh"
+
+        // DefaultTimeout is used if there is no timeout given
+        DefaultTimeout = 5 * time.Minute
+)
+
+type connectionInfo struct {
+        User       string
+        Password   string
+        PrivateKey string `mapstructure:"private_key"`
+        Host       string
+        HostKey    string `mapstructure:"host_key"`
+        Port       int
+        Agent      bool
+        Timeout    string
+        ScriptPath string        `mapstructure:"script_path"`
+        TimeoutVal time.Duration `mapstructure:"-"`
+
+        BastionUser       string `mapstructure:"bastion_user"`
+        BastionPassword   string `mapstructure:"bastion_password"`
+        BastionPrivateKey string `mapstructure:"bastion_private_key"`
+        BastionHost       string `mapstructure:"bastion_host"`
+        BastionHostKey    string `mapstructure:"bastion_host_key"`
+        BastionPort       int    `mapstructure:"bastion_port"`
+
+        AgentIdentity string `mapstructure:"agent_identity"`
+}
+
+func parseConnectionInfo(s *terraform.InstanceState) (*connectionInfo, error) <span class="cov8" title="1">{
+        connInfo := &amp;connectionInfo{}
+        decConf := &amp;mapstructure.DecoderConfig{
+                WeaklyTypedInput: true,
+                Result:           connInfo,
+        }
+        dec, err := mapstructure.NewDecoder(decConf)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if err := dec.Decode(s.Ephemeral.ConnInfo); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        // To default Agent to true, we need to check the raw string, since the
+        // decoded boolean can't represent "absence of config".
+        //
+        // And if SSH_AUTH_SOCK is not set, there's no agent to connect to, so we
+        // shouldn't try.
+        <span class="cov8" title="1">if s.Ephemeral.ConnInfo["agent"] == "" &amp;&amp; os.Getenv("SSH_AUTH_SOCK") != "" </span><span class="cov8" title="1">{
+                connInfo.Agent = true
+        }</span>
+
+        <span class="cov8" title="1">if connInfo.User == "" </span><span class="cov0" title="0">{
+                connInfo.User = DefaultUser
+        }</span>
+
+        // Format the host if needed.
+        // Needed for IPv6 support.
+        <span class="cov8" title="1">connInfo.Host = shared.IpFormat(connInfo.Host)
+
+        if connInfo.Port == 0 </span><span class="cov0" title="0">{
+                connInfo.Port = DefaultPort
+        }</span>
+        <span class="cov8" title="1">if connInfo.ScriptPath == "" </span><span class="cov8" title="1">{
+                connInfo.ScriptPath = DefaultScriptPath
+        }</span>
+        <span class="cov8" title="1">if connInfo.Timeout != "" </span><span class="cov8" title="1">{
+                connInfo.TimeoutVal = safeDuration(connInfo.Timeout, DefaultTimeout)
+        }</span> else<span class="cov8" title="1"> {
+                connInfo.TimeoutVal = DefaultTimeout
+        }</span>
+
+        <span class="cov8" title="1">if connInfo.PrivateKey != "" </span><span class="cov8" title="1">{
+                if err := validatePrivateKey(&amp;connInfo.PrivateKey); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+        }
+        // Default all bastion config attrs to their non-bastion counterparts
+        <span class="cov8" title="1">if connInfo.BastionHost != "" </span><span class="cov8" title="1">{
+                // Format the bastion host if needed.
+                // Needed for IPv6 support.
+                connInfo.BastionHost = shared.IpFormat(connInfo.BastionHost)
+
+                if connInfo.BastionUser == "" </span><span class="cov8" title="1">{
+                        connInfo.BastionUser = connInfo.User
+                }</span>
+                <span class="cov8" title="1">if connInfo.BastionPassword == "" </span><span class="cov8" title="1">{
+                        connInfo.BastionPassword = connInfo.Password
+                }</span>
+                <span class="cov8" title="1">if connInfo.BastionPrivateKey == "" </span><span class="cov8" title="1">{
+                        connInfo.BastionPrivateKey = connInfo.PrivateKey
+                }</span> else<span class="cov8" title="1"> {
+                        if err := validatePrivateKey(&amp;connInfo.BastionPrivateKey); err != nil </span><span class="cov0" title="0">{
+                                return nil, err
+                        }</span>
+                }
+                <span class="cov8" title="1">if connInfo.BastionPort == 0 </span><span class="cov8" title="1">{
+                        connInfo.BastionPort = connInfo.Port
+                }</span>
+        }
+
+        <span class="cov8" title="1">return connInfo, nil</span>
+}
+
+func safeDuration(dur string, defaultDur time.Duration) time.Duration <span class="cov8" title="1">{
+        d, err := time.ParseDuration(dur)
+        if err != nil </span><span class="cov8" title="1">{
+                log.Printf("Invalid duration '%s', using default of %s", dur, defaultDur)
+                return defaultDur
+        }</span>
+        <span class="cov8" title="1">return d</span>
+}
+
+func validatePrivateKey(key *string) error <span class="cov8" title="1">{
+        pk := []byte(*key)
+        block, _ := pem.Decode(pk)
+        if block == nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("Failed to decode private key %q: no key found", pk)
+        }</span>
+        // from https://github.com/hashicorp/terraform/blob/d4ac68423c4998279f33404db46809d27a5c2362/communicator/ssh/provisioner.go#L257
+        // ... preferably Terraform exposes some public interface for these operations.
+        <span class="cov8" title="1">if block.Headers["Proc-Type"] == "4,ENCRYPTED" </span><span class="cov8" title="1">{
+                return fmt.Errorf(
+                        "Failed to read key %q: password protected keys are "+
+                                "not supported; please decrypt the key prior to use", pk)
+        }</span>
+        <span class="cov8" title="1">if _, err := ssh.ParsePrivateKey([]byte(pk)); err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("Failed to parse private key file %q: %s", pk, err)
+        }</span>
+        // end from
+        <span class="cov8" title="1">*key = string(pem.EncodeToMemory(block))
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package mode
+
+import (
+        "bytes"
+        "fmt"
+        "io/ioutil"
+        "os"
+        "strings"
+        "text/template"
+        "time"
+
+        "github.com/radekg/terraform-provisioner-ansible/v2/types"
+        uuid "github.com/satori/go.uuid"
+
+        localExec "github.com/hashicorp/terraform/builtin/provisioners/local-exec"
+        "github.com/hashicorp/terraform/terraform"
+)
+
+// LocalMode represents local provisioner mode.
+type LocalMode struct {
+        o        terraform.UIOutput
+        connInfo *connectionInfo
+}
+
+type inventoryTemplateLocalDataHost struct {
+        Alias       string
+        AnsibleHost string
+}
+
+type inventoryTemplateLocalData struct {
+        Hosts  []inventoryTemplateLocalDataHost
+        Groups []string
+}
+
+const inventoryTemplateLocal = `{{$top := . -}}
+{{range .Hosts -}}
+{{.Alias -}}
+{{if ne .AnsibleHost "" -}}
+{{" "}}ansible_host={{.AnsibleHost -}}
+{{end -}}
+{{printf "\n" -}}
+{{end}}
+
+{{range .Groups -}}
+[{{.}}]
+{{range $top.Hosts -}}
+{{.Alias -}}
+{{if ne .AnsibleHost "" -}}
+{{" "}}ansible_host={{.AnsibleHost -}}
+{{end -}}
+{{printf "\n" -}}
+{{end}}
+
+{{end}}`
+
+// NewLocalMode returns configured local mode provisioner.
+func NewLocalMode(o terraform.UIOutput, s *terraform.InstanceState) (*LocalMode, error) <span class="cov8" title="1">{
+
+        connType := s.Ephemeral.ConnInfo["type"]
+        switch connType </span>{
+        case "ssh", "":<span class="cov8" title="1"></span> // The default connection type is ssh, so if connType is empty use ssh
+        default:<span class="cov0" title="0">
+                return nil, fmt.Errorf("Currently, only SSH connection is supported")</span>
+        }
+
+        <span class="cov8" title="1">connInfo, err := parseConnectionInfo(s)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        // Checks on connInfo unnecessary
+        // connInfo.User defaulted to "root" by Terraform
+        // connInfo.Host always populated when running under compute resource.
+
+        <span class="cov8" title="1">return &amp;LocalMode{
+                o:        o,
+                connInfo: connInfo,
+        }, nil</span>
+}
+
+func (v *LocalMode) ComputeResource() bool <span class="cov8" title="1">{
+        if v.connInfo.Host != "" </span><span class="cov8" title="1">{
+                return true
+        }</span> else<span class="cov0" title="0"> {
+                return false
+        }</span>
+}
+
+// Run executes local provisioning process.
+func (v *LocalMode) Run(plays []*types.Play, ansibleSSHSettings *types.AnsibleSSHSettings) error <span class="cov8" title="1">{
+
+        // Validate config for null_resource
+        compute_resource := v.ComputeResource()
+        if !compute_resource </span><span class="cov0" title="0">{
+                for _, play := range plays </span><span class="cov0" title="0">{
+                        if len(play.Hosts()) == 0 &amp;&amp; play.InventoryFile() == "" </span><span class="cov0" title="0">{
+                                return fmt.Errorf("Hosts or Inventory file must be specified on each plays attribute when using null_resource")
+                        }</span>
+                }
+                // Force StrictHostKeyChecking=no for null_resource
+                <span class="cov0" title="0">ansibleSSHSettings.SetOverrideStrictHostKeyChecking()</span>
+        }
+
+        <span class="cov8" title="1">bastionPemFile := ""
+        if v.connInfo.BastionPrivateKey != "" </span><span class="cov0" title="0">{
+                var err error
+                bastionPemFile, err = v.writePem(v.connInfo.BastionPrivateKey)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">defer os.Remove(bastionPemFile)</span>
+        }
+
+        <span class="cov8" title="1">targetPemFile := ""
+        if v.connInfo.PrivateKey != "" </span><span class="cov8" title="1">{
+                var err error
+                targetPemFile, err = v.writePem(v.connInfo.PrivateKey)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">defer os.Remove(targetPemFile)</span>
+        }
+
+        <span class="cov8" title="1">bastion := newBastionHostFromConnectionInfo(v.connInfo)
+        target := newTargetHostFromConnectionInfo(v.connInfo)
+
+        knownHostsTarget := make([]string, 0)
+        knownHostsBastion := make([]string, 0)
+
+        if bastion.inUse() </span><span class="cov0" title="0">{
+                // wait for bastion:
+                sshClient, err := bastion.connect()
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">defer sshClient.Close()
+                if !ansibleSSHSettings.InsecureNoStrictHostKeyChecking() </span><span class="cov0" title="0">{
+                        if ansibleSSHSettings.UserKnownHostsFile() == "" </span><span class="cov0" title="0">{
+                                if target.hostKey() == "" </span><span class="cov0" title="0">{
+                                        v.o.Output(fmt.Sprintf("Host key not given, executing ssh-keyscan on bastion: %s@%s:%d",
+                                                bastion.user(),
+                                                bastion.host(),
+                                                bastion.port()))
+                                        targetKnownHosts, err := newBastionKeyScan(v.o,
+                                                sshClient,
+                                                target.host(),
+                                                target.port(),
+                                                ansibleSSHSettings.SSHKeyscanSeconds()).scan()
+                                        if err != nil </span><span class="cov0" title="0">{
+                                                return err
+                                        }</span>
+                                        // ssh-keyscan gave us full lines with hosts, like this:
+                                        // &lt;ip&gt; ecdsa-sha2-nistp256 AAAA...
+                                        // &lt;ip&gt; ssh-rsa AAAAB...
+                                        // &lt;ip&gt; ssh-ed25519 AAAAC...
+                                        <span class="cov0" title="0">knownHostsTarget = append(knownHostsTarget, targetKnownHosts)</span>
+                                } else<span class="cov0" title="0"> {
+                                        knownHostsTarget = append(knownHostsTarget, fmt.Sprintf("%s %s", target.host(), target.hostKey()))
+                                }</span>
+                        } else<span class="cov0" title="0"> {
+                                v.o.Output(fmt.Sprintf("bastion %s@%s:%d will use '%s' as a user known hosts file",
+                                        bastion.user(),
+                                        bastion.host(),
+                                        bastion.port(),
+                                        ansibleSSHSettings.UserKnownHostsFile()))
+                        }</span>
+
+                } else<span class="cov0" title="0"> {
+                        v.o.Output(fmt.Sprintf("target host StrictHostKeyChecking=no, not verifying host keys on bastion: %s@%s:%d",
+                                bastion.user(),
+                                bastion.host(),
+                                bastion.port()))
+                }</span>
+                <span class="cov0" title="0">knownHostsBastion = append(knownHostsBastion, fmt.Sprintf("%s %s", bastion.host(), bastion.hostKey()))</span>
+        } else<span class="cov8" title="1"> {
+                if !ansibleSSHSettings.InsecureNoStrictHostKeyChecking() </span><span class="cov8" title="1">{
+                        v.o.Output(fmt.Sprintf("InsecureNoStrictHostKeyChecking false"))
+                        if compute_resource </span><span class="cov8" title="1">{
+                                if ansibleSSHSettings.UserKnownHostsFile() == "" </span><span class="cov8" title="1">{
+                                        if target.hostKey() == "" </span><span class="cov0" title="0">{
+                                                v.o.Output(fmt.Sprintf("host key for '%s' not passed", target.host()))
+                                                // fetchHostKey will issue an ssh Dial and update the hostKey() value
+                                                // as with bastionKeyScan, we might ask for the host key while the instance
+                                                // is not ready to respond to SSH, we need to retry for a number of times
+                                                timeoutMs := ansibleSSHSettings.SSHKeyscanSeconds() * 1000
+                                                timeSpentMs := 0
+                                                intervalMs := 5000
+
+                                                for </span><span class="cov0" title="0">{
+                                                        if err := target.fetchHostKey(); err != nil </span><span class="cov0" title="0">{
+                                                                v.o.Output(fmt.Sprintf("host key for '%s' not received yet; retrying...", target.host()))
+                                                                time.Sleep(time.Duration(intervalMs) * time.Millisecond)
+                                                                timeSpentMs = timeSpentMs + intervalMs
+                                                                if timeSpentMs &gt; timeoutMs </span><span class="cov0" title="0">{
+                                                                        v.o.Output(fmt.Sprintf("host key for '%s' not received within %d seconds",
+                                                                                target.host(),
+                                                                                ansibleSSHSettings.SSHKeyscanSeconds()))
+                                                                        return err
+                                                                }</span>
+                                                        } else<span class="cov0" title="0"> {
+                                                                break</span>
+                                                        }
+                                                }
+                                                <span class="cov0" title="0">if target.hostKey() == "" </span><span class="cov0" title="0">{
+                                                        return fmt.Errorf("expected to receive the host key for '%s', but no host key arrived", target.host())
+                                                }</span>
+                                        }
+                                        <span class="cov8" title="1">knownHostsTarget = append(knownHostsTarget, fmt.Sprintf("%s %s", target.host(), target.hostKey()))</span>
+                                } else<span class="cov0" title="0"> {
+                                        v.o.Output(fmt.Sprintf("using '%s' as a known hosts file", ansibleSSHSettings.UserKnownHostsFile()))
+                                }</span>
+                        } else<span class="cov0" title="0"> {
+                                v.o.Output("null_resource, not verifying host keys")
+                                // StrictHostKeyChecking=no set during play execution
+                        }</span>
+                } else<span class="cov0" title="0"> {
+                        v.o.Output("StrictHostKeyChecking=no specified or set for null_resource, not verifying host keys")
+                }</span>
+        }
+
+        <span class="cov8" title="1">knownHostsFileBastion, err := v.writeKnownHosts(knownHostsBastion)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer os.Remove(knownHostsFileBastion)
+
+        knownHostsFileTarget, err := v.writeKnownHosts(knownHostsTarget)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer os.Remove(knownHostsFileTarget)
+
+        for _, play := range plays </span><span class="cov8" title="1">{
+
+                if !play.Enabled() </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">inventoryFile, err := v.writeInventory(play)
+
+                if err != nil </span><span class="cov0" title="0">{
+                        v.o.Output(fmt.Sprintf("%+v", err))
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">if inventoryFile != play.InventoryFile() </span><span class="cov8" title="1">{
+                        play.SetOverrideInventoryFile(inventoryFile)
+                        defer os.Remove(play.InventoryFile())
+                }</span>
+
+                // we can't pass bastion instance into this function
+                // we would end up with a circular import
+                <span class="cov8" title="1">command, err := play.ToLocalCommand(types.LocalModeAnsibleArgs{
+                        Username:              v.connInfo.User,
+                        Port:                  v.connInfo.Port,
+                        PemFile:               targetPemFile,
+                        KnownHostsFile:        knownHostsFileTarget,
+                        BastionKnownHostsFile: knownHostsFileBastion,
+                        BastionHost:           bastion.host(),
+                        BastionPemFile:        bastionPemFile,
+                        BastionPort:           bastion.port(),
+                        BastionUsername:       bastion.user(),
+                }, ansibleSSHSettings)
+
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">v.o.Output(fmt.Sprintf("running local command: %s", command))
+
+                if err := v.runCommand(command); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (v *LocalMode) writeKnownHosts(knownHosts []string) (string, error) <span class="cov8" title="1">{
+        trimmedKnownHosts := make([]string, 0)
+        for _, entry := range knownHosts </span><span class="cov8" title="1">{
+                trimmedKnownHosts = append(trimmedKnownHosts, strings.TrimSpace(entry))
+        }</span>
+        <span class="cov8" title="1">knownHostsFileContents := strings.Join(trimmedKnownHosts, "\n")
+        file, err := ioutil.TempFile(os.TempDir(), uuid.NewV4().String())
+        defer file.Close()
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">v.o.Output(fmt.Sprintf("Write known hosts %s\n", knownHostsFileContents))
+        if err := ioutil.WriteFile(file.Name(), []byte(fmt.Sprintf("%s\n", knownHostsFileContents)), 0644); err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">return file.Name(), nil</span>
+}
+
+func (v *LocalMode) writePem(pk string) (string, error) <span class="cov8" title="1">{
+        if v.connInfo.PrivateKey != "" </span><span class="cov8" title="1">{
+                file, err := ioutil.TempFile(os.TempDir(), uuid.NewV4().String())
+                defer file.Close()
+                if err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+
+                <span class="cov8" title="1">v.o.Output(fmt.Sprintf("Writing temprary PEM to '%s'...", file.Name()))
+                if err := ioutil.WriteFile(file.Name(), []byte(pk), 0400); err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+
+                <span class="cov8" title="1">v.o.Output("Ansible inventory written.")
+                return file.Name(), nil</span>
+        }
+        <span class="cov0" title="0">return "", nil</span>
+}
+
+func (v *LocalMode) writeInventory(play *types.Play) (string, error) <span class="cov8" title="1">{
+        if play.InventoryFile() == "" </span><span class="cov8" title="1">{
+
+                playHosts := play.Hosts()
+
+                templateData := inventoryTemplateLocalData{
+                        Hosts:  make([]inventoryTemplateLocalDataHost, 0),
+                        Groups: play.Groups(),
+                }
+
+                // Compute resource path
+                if v.connInfo.Host != "" </span><span class="cov8" title="1">{
+                        if len(playHosts) &gt; 0 </span><span class="cov8" title="1">{
+                                if playHosts[0] != "" </span><span class="cov8" title="1">{
+                                        templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+                                                Alias:       playHosts[0],
+                                                AnsibleHost: v.connInfo.Host,
+                                        })
+                                }</span> else<span class="cov0" title="0"> {
+                                        templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+                                                Alias: v.connInfo.Host,
+                                        })
+                                }</span>
+                        } else<span class="cov0" title="0"> {
+                                templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+                                        Alias: v.connInfo.Host,
+                                })
+                        }</span>
+                } else<span class="cov0" title="0"> {
+                        // Path for null resource, which does not use v.connInfo.Host
+                        for _, host := range playHosts </span><span class="cov0" title="0">{
+                                if host != "" </span><span class="cov0" title="0">{
+                                        templateData.Hosts = append(templateData.Hosts, inventoryTemplateLocalDataHost{
+                                                Alias: host,
+                                        })
+                                }</span>
+                        }
+
+                }
+
+                <span class="cov8" title="1">v.o.Output("Generating temporary ansible inventory...")
+                t := template.Must(template.New("hosts").Parse(inventoryTemplateLocal))
+                var buf bytes.Buffer
+                err := t.Execute(&amp;buf, templateData)
+                if err != nil </span><span class="cov0" title="0">{
+                        return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+                }</span>
+
+                <span class="cov8" title="1">file, err := ioutil.TempFile(os.TempDir(), "temporary-ansible-inventory")
+                defer file.Close()
+                if err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+
+                <span class="cov8" title="1">v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", file.Name()))
+                if err := ioutil.WriteFile(file.Name(), buf.Bytes(), 0644); err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+
+                <span class="cov8" title="1">v.o.Output("Ansible inventory written.")
+
+                return file.Name(), nil</span>
+        }
+
+        <span class="cov0" title="0">return play.InventoryFile(), nil</span>
+}
+
+func (v *LocalMode) runCommand(command string) error <span class="cov8" title="1">{
+        localExecProvisioner := localExec.Provisioner()
+
+        instanceState := &amp;terraform.InstanceState{
+                ID:         command,
+                Attributes: make(map[string]string),
+                Ephemeral: terraform.EphemeralState{
+                        ConnInfo: make(map[string]string),
+                        Type:     "local-exec",
+                },
+                Meta: map[string]interface{}{
+                        "command": command,
+                },
+                Tainted: false,
+        }
+
+        config := &amp;terraform.ResourceConfig{
+                ComputedKeys: make([]string, 0),
+                Raw: map[string]interface{}{
+                        "command": command,
+                },
+                Config: map[string]interface{}{
+                        "command": command,
+                },
+        }
+
+        return localExecProvisioner.Apply(v.o, instanceState, config)
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package mode
+
+import (
+        "bufio"
+        "bytes"
+        "crypto/md5"
+        "encoding/hex"
+        "fmt"
+        "io"
+        "io/ioutil"
+        "log"
+        "os"
+        "path/filepath"
+        "strings"
+        "text/template"
+        "time"
+
+        linereader "github.com/mitchellh/go-linereader"
+        "github.com/radekg/terraform-provisioner-ansible/v2/types"
+
+        "github.com/hashicorp/terraform/communicator"
+        "github.com/hashicorp/terraform/communicator/remote"
+        "github.com/hashicorp/terraform/terraform"
+        uuid "github.com/satori/go.uuid"
+)
+
+// The command is executed with sudo, we do not need sudo here.
+const installerProgramTemplate = `#!/bin/sh
+if [ -n "${TAF_DOCKER_CENTOS_LATEST_RUN}" ]; then
+  yum update -y &amp;&amp; yum install -y which
+fi
+set -euo pipefail
+if [ -z "$(which ansible-playbook)" ]; then
+  # only check the cloud boot finished if the directory exists
+  if [ -d /var/lib/cloud/instance ]; then
+    while [ ! -f /var/lib/cloud/instance/boot-finished ]; do
+      sleep 1
+    done
+  fi
+  # install dependencies
+  if [ -f /etc/redhat-release ]; then
+    yum update -y \
+    &amp;&amp; yum groupinstall -y "Development Tools" \
+    &amp;&amp; yum install -y python-devel curl
+  else
+    apt-get update \
+    &amp;&amp; apt-get install -y build-essential python-dev curl
+  fi
+  # install pip, if necessary
+  if [ -z "$(which pip)" ]; then
+    curl https://bootstrap.pypa.io/get-pip.py | python
+  fi
+  # install ansible
+  pip install {{ .AnsibleVersion}}
+else
+  expected_version="{{ .AnsibleVersion}}"
+  installed_version=$(ansible-playbook --version | head -n1 | awk '{print $2}')
+  installed_version="ansible==$installed_version"
+  case "$expected_version" in
+        *==*)
+          if [ "$expected_version" != "$installed_version" ]; then
+        pip install $expected_version
+          fi
+        ;;
+  esac
+fi
+`
+
+type inventoryTemplateRemoteData struct {
+        Hosts  []string
+        Groups []string
+}
+
+const inventoryTemplateRemote = `{{$top := . -}}
+{{range .Hosts -}}
+{{.}} ansible_connection=local
+{{end}}
+
+{{range .Groups -}}
+[{{.}}]
+{{range $top.Hosts -}}
+{{.}} ansible_connection=local
+{{end}}
+
+{{end}}`
+
+const defaultAnsibleGalaxyRolesPath = "ansible-galaxy-roles"
+
+// RemoteMode represents remote provisioner mode.
+type RemoteMode struct {
+        o              terraform.UIOutput
+        comm           communicator.Communicator
+        connInfo       *connectionInfo
+        remoteSettings *types.RemoteSettings
+}
+
+type ansibleInstaller struct {
+        AnsibleVersion string
+}
+
+// NewRemoteMode returns configured remote mode provisioner.
+func NewRemoteMode(o terraform.UIOutput, s *terraform.InstanceState, remoteSettings *types.RemoteSettings) (*RemoteMode, error) <span class="cov8" title="1">{
+        // Get a new communicator
+        comm, err := communicator.New(s)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">connType := s.Ephemeral.ConnInfo["type"]
+        switch connType </span>{
+        case "ssh", "":<span class="cov8" title="1"></span> // The default connection type is ssh, so if connType is empty use ssh
+        default:<span class="cov0" title="0">
+                return nil, fmt.Errorf("Currently, only SSH connection is supported")</span>
+        }
+        <span class="cov8" title="1">connInfo, err := parseConnectionInfo(s)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;RemoteMode{
+                o:              o,
+                comm:           comm,
+                connInfo:       connInfo,
+                remoteSettings: remoteSettings,
+        }, nil</span>
+}
+
+// Run executes remote provisioning process.
+func (v *RemoteMode) Run(plays []*types.Play) error <span class="cov8" title="1">{
+        // Wait and retry until we establish the connection
+        err := v.retryFunc(v.comm.Timeout(), func() error </span><span class="cov8" title="1">{
+                return v.comm.Connect(v.o)
+        }</span>)
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer v.comm.Disconnect()
+
+        err = v.deployAnsibleData(plays)
+
+        if err != nil </span><span class="cov0" title="0">{
+                v.o.Output(fmt.Sprintf("%+v", err))
+                return err
+        }</span>
+
+        <span class="cov8" title="1">if !v.remoteSettings.SkipInstall() </span><span class="cov8" title="1">{
+                if err := v.installAnsible(v.remoteSettings); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+
+        <span class="cov8" title="1">for _, play := range plays </span><span class="cov8" title="1">{
+                command, err := play.ToCommand(types.LocalModeAnsibleArgs{Username: v.connInfo.User})
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">v.o.Output(fmt.Sprintf("running command: %s", command))
+                if err := v.runCommandSudo(command); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+
+        <span class="cov8" title="1">if !v.remoteSettings.SkipCleanup() </span><span class="cov8" title="1">{
+                v.cleanupAfterBootstrap()
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+
+}
+
+// retryFunc is used to retry a function for a given duration
+func (v *RemoteMode) retryFunc(timeout time.Duration, f func() error) error <span class="cov8" title="1">{
+        finish := time.After(timeout)
+        for </span><span class="cov8" title="1">{
+                err := f()
+                if err == nil </span><span class="cov8" title="1">{
+                        return nil
+                }</span>
+                <span class="cov0" title="0">log.Printf("Retryable error: %v", err)
+
+                select </span>{
+                case &lt;-finish:<span class="cov0" title="0">
+                        return err</span>
+                case &lt;-time.After(3 * time.Second):<span class="cov0" title="0"></span>
+                }
+        }
+}
+
+func (v *RemoteMode) getMD5Hash(text string) string <span class="cov8" title="1">{
+        hasher := md5.New()
+        hasher.Write([]byte(text))
+        return hex.EncodeToString(hasher.Sum(nil))
+}</span>
+
+func (v *RemoteMode) deployAnsibleData(plays []*types.Play) error <span class="cov8" title="1">{
+
+        for _, play := range plays </span><span class="cov8" title="1">{
+                if !play.Enabled() </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">switch entity := play.Entity().(type) </span>{
+                case *types.Playbook:<span class="cov8" title="1">
+
+                        playbookPath, err := types.ResolvePath(entity.FilePath())
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        // playbook file is at the top level of the module
+                        // parse the playbook path's directory and upload the entire directory
+                        <span class="cov8" title="1">playbookDir := filepath.Dir(playbookPath)
+                        playbookDirHash := v.getMD5Hash(playbookDir)
+
+                        remotePlaybookDir := filepath.Join(v.remoteSettings.BootstrapDirectory(), playbookDirHash)
+                        remotePlaybookPath := filepath.Join(remotePlaybookDir, filepath.Base(playbookPath))
+
+                        if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"",
+                                v.remoteSettings.BootstrapDirectory())); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">dirExists, err := v.checkRemoteDirExists(remotePlaybookDir)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">if dirExists </span><span class="cov0" title="0">{
+                                v.o.Output(fmt.Sprintf("The playbook '%s' directory '%s' has been already uploaded.", entity.FilePath(), playbookDir))
+                        }</span> else<span class="cov8" title="1"> {
+                                v.o.Output(fmt.Sprintf("Uploading the parent directory '%s' of playbook '%s' to '%s'...", playbookDir, entity.FilePath(), remotePlaybookDir))
+                                // upload ansible source and playbook to the host
+                                if err := v.comm.UploadDir(remotePlaybookDir, playbookDir); err != nil </span><span class="cov0" title="0">{
+                                        return err
+                                }</span>
+                        }
+
+                        <span class="cov8" title="1">entity.SetOverrideFilePath(remotePlaybookPath)
+
+                        // always create temp inventory:
+                        inventoryFile, err := v.writeInventory(remotePlaybookDir, play)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">play.SetOverrideInventoryFile(inventoryFile)
+
+                        // always handle Vault ID or password file
+                        if len(play.VaultID()) &gt; 0 </span><span class="cov8" title="1">{
+                                overrideVaultIDs := make([]string, 0)
+                                for _, vaultID := range play.VaultID() </span><span class="cov8" title="1">{
+                                        uploadedVaultIDPath, err := v.uploadVaultPasswordOrIDFile(remotePlaybookDir, vaultID)
+                                        if err != nil </span><span class="cov0" title="0">{
+                                                return err
+                                        }</span>
+                                        <span class="cov8" title="1">if uploadedVaultIDPath != "" </span><span class="cov8" title="1">{
+                                                overrideVaultIDs = append(overrideVaultIDs, uploadedVaultIDPath)
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">play.SetOverrideVaultID(overrideVaultIDs)</span>
+                        } else<span class="cov0" title="0"> {
+                                uploadedVaultPasswordFilePath, err := v.uploadVaultPasswordOrIDFile(remotePlaybookDir, play.VaultPasswordFile())
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return err
+                                }</span>
+                                <span class="cov0" title="0">play.SetOverrideVaultPasswordPath(uploadedVaultPasswordFilePath)</span>
+                        }
+
+                        // upload roles paths, if any:
+                        <span class="cov8" title="1">remoteRolesPath := make([]string, 0)
+                        for _, path := range entity.RolesPath() </span><span class="cov0" title="0">{
+
+                                if strings.HasPrefix(path, "galaxy_install:") </span><span class="cov0" title="0">{ // TODO: extract this hard coded value
+                                        remoteRolesPath = append(remoteRolesPath, strings.TrimPrefix(path, "galaxy_install:"))
+                                        continue</span>
+                                }
+
+                                <span class="cov0" title="0">resolvedPath, err := types.ResolvePath(path)
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return err
+                                }</span>
+                                <span class="cov0" title="0">dirHash := v.getMD5Hash(resolvedPath)
+                                remoteDir := filepath.Join(v.remoteSettings.BootstrapDirectory(), dirHash)
+                                dirExists, err := v.checkRemoteDirExists(remoteDir)
+
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return err
+                                }</span>
+                                <span class="cov0" title="0">if dirExists </span><span class="cov0" title="0">{
+                                        v.o.Output(fmt.Sprintf("Roles path '%s' has been already uploaded.", resolvedPath))
+                                }</span> else<span class="cov0" title="0"> {
+                                        v.o.Output(fmt.Sprintf("Uploading roles path '%s' to '%s'...", resolvedPath, remoteDir))
+                                        // upload ansible source and playbook to the host
+                                        if err := v.comm.UploadDir(remoteDir, resolvedPath); err != nil </span><span class="cov0" title="0">{
+                                                return err
+                                        }</span>
+                                }
+                                <span class="cov0" title="0">remoteRolesPath = append(remoteRolesPath, remoteDir)</span>
+                        }
+                        <span class="cov8" title="1">entity.SetOverrideRolesPath(remoteRolesPath)</span>
+
+                case *types.Module:<span class="cov8" title="1">
+
+                        moduleDirHash := v.getMD5Hash(entity.Module())
+                        remoteModuleDir := filepath.Join(v.remoteSettings.BootstrapDirectory(), moduleDirHash)
+
+                        if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", remoteModuleDir)); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        // always handle Vault ID or password file
+                        <span class="cov8" title="1">if len(play.VaultID()) &gt; 0 </span><span class="cov8" title="1">{
+                                overrideVaultIDs := make([]string, 0)
+                                for _, vaultID := range play.VaultID() </span><span class="cov8" title="1">{
+                                        uploadedVaultIDPath, err := v.uploadVaultPasswordOrIDFile(remoteModuleDir, vaultID)
+                                        if err != nil </span><span class="cov0" title="0">{
+                                                return err
+                                        }</span>
+                                        <span class="cov8" title="1">if uploadedVaultIDPath != "" </span><span class="cov8" title="1">{
+                                                overrideVaultIDs = append(overrideVaultIDs, uploadedVaultIDPath)
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">play.SetOverrideVaultID(overrideVaultIDs)</span>
+                        } else<span class="cov0" title="0"> {
+                                uploadedVaultPasswordFilePath, err := v.uploadVaultPasswordOrIDFile(remoteModuleDir, play.VaultPasswordFile())
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return err
+                                }</span>
+                                <span class="cov0" title="0">play.SetOverrideVaultPasswordPath(uploadedVaultPasswordFilePath)</span>
+                        }
+
+                        // always create temp inventory:
+                        <span class="cov8" title="1">inventoryFile, err := v.writeInventory(remoteModuleDir, play)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">play.SetOverrideInventoryFile(inventoryFile)</span>
+
+                case *types.GalaxyInstall:<span class="cov0" title="0">
+
+                        if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"",
+                                v.remoteSettings.BootstrapDirectory())); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov0" title="0">rolesPathDir := entity.RolesPath()
+                        if rolesPathDir == "" </span><span class="cov0" title="0">{
+                                rolesPathDir = "galaxy-roles" // TODO: find a method to customize this
+                        }</span>
+                        <span class="cov0" title="0">if !strings.HasPrefix(rolesPathDir, string(os.PathSeparator)) </span><span class="cov0" title="0">{
+                                rolesPathDir = filepath.Join(v.remoteSettings.BootstrapDirectory(), rolesPathDir)
+                        }</span>
+                        <span class="cov0" title="0">entity.SetRolesPath(rolesPathDir)
+                        v.o.Output(fmt.Sprintf("galaxy_install roles path used is: '%s'...", entity.RolesPath()))
+                        if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"", entity.RolesPath())); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov0" title="0">originalRoleFile := entity.RoleFile()
+                        roleFileHash := v.getMD5Hash(entity.RoleFile())
+                        roleFileRemotePath := filepath.Join(v.remoteSettings.BootstrapDirectory(), fmt.Sprintf("%s.yml", roleFileHash))
+                        entity.SetRoleFile(roleFileRemotePath)
+                        v.o.Output(fmt.Sprintf("galaxy_install role file path used is: '%s'...", entity.RoleFile()))
+
+                        v.o.Output(fmt.Sprintf("reading original role file at: '%s'...", originalRoleFile))
+                        roleFileBytes, readFileError := ioutil.ReadFile(originalRoleFile)
+                        if readFileError != nil </span><span class="cov0" title="0">{
+                                return readFileError
+                        }</span>
+
+                        <span class="cov0" title="0">v.o.Output(fmt.Sprintf("uploading role file to: '%s'...", entity.RoleFile()))
+                        if err := v.comm.Upload(roleFileRemotePath, bytes.NewReader(roleFileBytes)); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                }
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (v *RemoteMode) installAnsible(remoteSettings *types.RemoteSettings) error <span class="cov8" title="1">{
+
+        var installerScript *bufio.Reader
+        if remoteSettings.LocalInstallerPath() != "" </span><span class="cov0" title="0">{
+
+                cleanInstallerPath := filepath.Clean(remoteSettings.LocalInstallerPath())
+                file, err := os.Open(cleanInstallerPath)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">defer file.Close()
+
+                v.o.Output(fmt.Sprintf("Installing Ansible using provided installer '%s'...", cleanInstallerPath))
+
+                installerScript = bufio.NewReader(file)</span>
+
+        } else<span class="cov8" title="1"> {
+
+                embeddedInstaller := &amp;ansibleInstaller{
+                        AnsibleVersion: "ansible",
+                }
+
+                if remoteSettings.InstallVersion() != "" </span><span class="cov8" title="1">{
+                        embeddedInstaller.AnsibleVersion = fmt.Sprintf("%s==%s",
+                                embeddedInstaller.AnsibleVersion,
+                                remoteSettings.InstallVersion())
+                }</span>
+
+                <span class="cov8" title="1">v.o.Output(fmt.Sprintf("Installing Ansible '%s' using default installer...", embeddedInstaller.AnsibleVersion))
+
+                t := template.Must(template.New("installer").Parse(installerProgramTemplate))
+                var buf bytes.Buffer
+                err := t.Execute(&amp;buf, embeddedInstaller)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("Error executing 'installer' template: %s", err)
+                }</span>
+                <span class="cov8" title="1">installerScript = bufio.NewReader(bytes.NewReader(buf.Bytes()))</span>
+        }
+
+        <span class="cov8" title="1">if err := v.runCommandNoSudo(fmt.Sprintf("mkdir -p \"%s\"",
+                filepath.Dir(remoteSettings.RemoteInstallerPath()))); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">v.o.Output(fmt.Sprintf("Uploading Ansible installer program to '%s'...", remoteSettings.RemoteInstallerPath()))
+        if err := v.comm.UploadScript(remoteSettings.RemoteInstallerPath(), installerScript); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">if err := v.runCommandSudo(fmt.Sprintf("/bin/sh -c '\"%s\" &amp;&amp; rm \"%s\"'",
+                remoteSettings.RemoteInstallerPath(),
+                remoteSettings.RemoteInstallerPath())); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">v.o.Output("Ansible installed.")
+        return nil</span>
+}
+
+func (v *RemoteMode) uploadVaultPasswordOrIDFile(destination string, source string) (string, error) <span class="cov8" title="1">{
+
+        if source == "" </span><span class="cov0" title="0">{
+                return "", nil
+        }</span>
+
+        <span class="cov8" title="1">source, err := types.ResolvePath(source)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">u1 := uuid.NewV4()
+        targetPath := filepath.Join(destination, fmt.Sprintf(".vault-file-%s", u1))
+
+        v.o.Output(fmt.Sprintf("Uploading ansible vault password file / ID to '%s'...", targetPath))
+
+        file, err := os.Open(source)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">defer file.Close()
+
+        if err := v.comm.Upload(targetPath, bufio.NewReader(file)); err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">v.o.Output("Ansible vault password file uploaded.")
+
+        return targetPath, nil</span>
+}
+
+func (v *RemoteMode) writeInventory(destination string, play *types.Play) (string, error) <span class="cov8" title="1">{
+
+        if play.InventoryFile() != "" </span><span class="cov0" title="0">{
+
+                v.o.Output(fmt.Sprintf("Using provided inventory file '%s'...", play.InventoryFile()))
+                source, err := types.ResolvePath(play.InventoryFile())
+                if err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+                <span class="cov0" title="0">u1 := uuid.NewV4()
+                targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
+                v.o.Output(fmt.Sprintf("Uploading provided inventory file '%s' to '%s'...", play.InventoryFile(), targetPath))
+
+                file, err := os.Open(source)
+                if err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+                <span class="cov0" title="0">defer file.Close()
+
+                if err := v.comm.Upload(targetPath, bufio.NewReader(file)); err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+
+                <span class="cov0" title="0">v.o.Output("Ansible inventory uploaded.")
+
+                return targetPath, nil</span>
+
+        }
+
+        <span class="cov8" title="1">templateData := inventoryTemplateRemoteData{
+                Hosts:  ensureLocalhostInHosts(play.Hosts()),
+                Groups: play.Groups(),
+        }
+
+        v.o.Output("Generating temporary ansible inventory...")
+        t := template.Must(template.New("hosts").Parse(inventoryTemplateRemote))
+        var buf bytes.Buffer
+        err := t.Execute(&amp;buf, templateData)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", fmt.Errorf("Error executing 'hosts' template: %s", err)
+        }</span>
+
+        <span class="cov8" title="1">u1 := uuid.NewV4()
+        targetPath := filepath.Join(destination, fmt.Sprintf(".inventory-%s", u1))
+
+        v.o.Output(fmt.Sprintf("Writing temporary ansible inventory to '%s'...", targetPath))
+        if err := v.comm.Upload(targetPath, bytes.NewReader(buf.Bytes())); err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">v.o.Output("Ansible inventory written.")
+        return targetPath, nil</span>
+
+}
+
+func (v *RemoteMode) cleanupAfterBootstrap() <span class="cov8" title="1">{
+        v.o.Output("Cleaning up after bootstrap...")
+        v.runCommandNoSudo(fmt.Sprintf("rm -rf \"%s\"", v.remoteSettings.BootstrapDirectory()))
+        v.o.Output("Cleanup complete.")
+}</span>
+
+func (v *RemoteMode) checkRemoteDirExists(remoteDir string) (bool, error) <span class="cov8" title="1">{
+        magicErrorCode := 50
+        command := fmt.Sprintf("/bin/sh -c 'if [ -d \"%s\" ]; then exit %d; fi'", remoteDir, magicErrorCode)
+        if err := v.runCommandNoSudo(command); err != nil </span><span class="cov0" title="0">{
+                if strings.Contains(err.Error(), fmt.Sprintf("exited with non-zero exit status: %d,", magicErrorCode)) </span><span class="cov0" title="0">{
+                        // we have found the exact match of the magic error,
+                        // directory exists
+                        return true, nil
+                }</span>
+                <span class="cov0" title="0">return false, err</span>
+        }
+        <span class="cov8" title="1">return false, nil</span>
+}
+
+func (v *RemoteMode) runCommandSudo(command string) error <span class="cov8" title="1">{
+        return v.runCommand(command, true)
+}</span>
+
+func (v *RemoteMode) runCommandNoSudo(command string) error <span class="cov8" title="1">{
+        return v.runCommand(command, false)
+}</span>
+
+func (v *RemoteMode) runCommand(command string, shouldSudo bool) error <span class="cov8" title="1">{
+        // Unless prevented, prefix the command with sudo
+        if shouldSudo &amp;&amp; v.remoteSettings.UseSudo() </span><span class="cov8" title="1">{
+                command = fmt.Sprintf("sudo %s", command)
+        }</span>
+
+        <span class="cov8" title="1">outR, outW := io.Pipe()
+        errR, errW := io.Pipe()
+        outDoneCh := make(chan struct{})
+        errDoneCh := make(chan struct{})
+        go v.copyOutput(outR, outDoneCh)
+        go v.copyOutput(errR, errDoneCh)
+
+        cmd := &amp;remote.Cmd{
+                Command: command,
+                Stdout:  outW,
+                Stderr:  errW,
+        }
+
+        err := v.comm.Start(cmd)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("Error executing command %q: %v", cmd.Command, err)
+        }</span>
+
+        <span class="cov8" title="1">err = cmd.Wait()
+        if err != nil </span><span class="cov0" title="0">{
+                if exitErr, ok := err.(*remote.ExitError); ok </span><span class="cov0" title="0">{
+                        err = fmt.Errorf(
+                                "Command '%q' exited with non-zero exit status: %d, reason %+v", cmd.Command, exitErr.ExitStatus, exitErr.Err)
+                }</span> else<span class="cov0" title="0"> {
+                        err = fmt.Errorf(
+                                "Command '%q' failed, reason: %+v", cmd.Command, err)
+                }</span>
+        }
+
+        // Wait for output to clean up
+        <span class="cov8" title="1">outW.Close()
+        errW.Close()
+        &lt;-outDoneCh
+        &lt;-errDoneCh
+
+        return err</span>
+}
+
+func (v *RemoteMode) copyOutput(r io.Reader, doneCh chan&lt;- struct{}) <span class="cov8" title="1">{
+        defer close(doneCh)
+        lr := linereader.New(r)
+        for line := range lr.Ch </span><span class="cov0" title="0">{
+                // Use strings.ToValidUTF8 to avoid RPC errors:
+                // https://github.com/radekg/terraform-provisioner-ansible/issues/139
+                v.o.Output(strings.ToValidUTF8(line, ""))
+        }</span>
+}
+
+func ensureLocalhostInHosts(hosts []string) []string <span class="cov8" title="1">{
+        found := false
+        for _, host := range hosts </span><span class="cov8" title="1">{
+                if host == "localhost" </span><span class="cov0" title="0">{
+                        found = true
+                        break</span>
+                }
+        }
+        <span class="cov8" title="1">if !found </span><span class="cov8" title="1">{
+                newHosts := []string{"localhost"}
+                for _, host := range hosts </span><span class="cov8" title="1">{
+                        newHosts = append(newHosts, host)
+                }</span>
+                <span class="cov8" title="1">return newHosts</span>
+        }
+        <span class="cov0" title="0">return hosts</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package mode
+
+import (
+        "fmt"
+        "time"
+
+        "golang.org/x/crypto/ssh"
+)
+
+type bastionHost struct {
+        connInfo *connectionInfo
+}
+
+func newBastionHostFromConnectionInfo(connInfo *connectionInfo) *bastionHost <span class="cov8" title="1">{
+        return &amp;bastionHost{
+                connInfo: connInfo,
+        }
+}</span>
+
+func (v *bastionHost) agent() bool <span class="cov8" title="1">{
+        return v.connInfo.Agent
+}</span>
+
+func (v *bastionHost) inUse() bool <span class="cov8" title="1">{
+        return v.connInfo.BastionHost != ""
+}</span>
+
+func (v *bastionHost) host() string <span class="cov8" title="1">{
+        return v.connInfo.BastionHost
+}</span>
+
+func (v *bastionHost) port() int <span class="cov8" title="1">{
+        return v.connInfo.BastionPort
+}</span>
+
+func (v *bastionHost) user() string <span class="cov8" title="1">{
+        return v.connInfo.BastionUser
+}</span>
+
+func (v *bastionHost) pemFile() string <span class="cov8" title="1">{
+        return v.connInfo.BastionPrivateKey
+}</span>
+
+func (v *bastionHost) hostKey() string <span class="cov8" title="1">{
+        return v.connInfo.BastionHostKey
+}</span>
+
+func (v *bastionHost) timeout() time.Duration <span class="cov8" title="1">{
+        return v.connInfo.TimeoutVal
+}</span>
+
+func (v *bastionHost) receiveHostKey(hostKey string) <span class="cov8" title="1">{
+        v.connInfo.BastionHostKey = hostKey
+}</span>
+
+func (v *bastionHost) connect() (*ssh.Client, error) <span class="cov8" title="1">{
+        configurator := &amp;sshConfigurator{
+                provider: v,
+        }
+        sshConfig, err := configurator.sshConfig()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return ssh.Dial("tcp", fmt.Sprintf("%s:%d", v.host(), v.port()), sshConfig)</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package mode
+
+import (
+        "bytes"
+        "fmt"
+        "io"
+        "path/filepath"
+        "strings"
+        "time"
+
+        "github.com/hashicorp/terraform/terraform"
+        linereader "github.com/mitchellh/go-linereader"
+        uuid "github.com/satori/go.uuid"
+        "golang.org/x/crypto/ssh"
+)
+
+const (
+        homeSSHDirectory = "~/.ssh"
+)
+
+type cleanup func()
+
+type bastionKeyScan struct {
+        o                 terraform.UIOutput
+        sshClient         *ssh.Client
+        host              string
+        port              int
+        sshKeyscanTimeout int
+}
+
+func newBastionKeyScan(o terraform.UIOutput,
+        sshClient *ssh.Client,
+        host string,
+        port int,
+        sshKeyscanTimeout int) *bastionKeyScan <span class="cov0" title="0">{
+        return &amp;bastionKeyScan{
+                o:                 o,
+                sshClient:         sshClient,
+                host:              host,
+                port:              port,
+                sshKeyscanTimeout: sshKeyscanTimeout,
+        }
+}</span>
+
+func (b *bastionKeyScan) sshModes() ssh.TerminalModes <span class="cov0" title="0">{
+        return ssh.TerminalModes{
+                ssh.ECHO:          0,     // disable echoing
+                ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+                ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+        }
+}</span>
+
+func (b *bastionKeyScan) makeError(pattern string, e error) error <span class="cov0" title="0">{
+        if e == nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("Bastion ssh-keyscan: %s", pattern)
+        }</span>
+        <span class="cov0" title="0">return fmt.Errorf("Bastion ssh-keyscan: %s", fmt.Sprintf(pattern, e))</span>
+}
+
+func (b *bastionKeyScan) output(message string) <span class="cov0" title="0">{
+        b.o.Output(fmt.Sprintf("Bastion host: %s", message))
+}</span>
+
+func (b *bastionKeyScan) copyOutput(r io.Reader, doneCh chan&lt;- struct{}) <span class="cov0" title="0">{
+        defer close(doneCh)
+        lr := linereader.New(r)
+        for line := range lr.Ch </span><span class="cov0" title="0">{
+                b.o.Output(line)
+        }</span>
+}
+
+func (b *bastionKeyScan) redirectOutputs(s *ssh.Session) (cleanup, error) <span class="cov0" title="0">{
+        outR, outW := io.Pipe()
+        errR, errW := io.Pipe()
+        outDoneCh := make(chan struct{})
+        errDoneCh := make(chan struct{})
+        go b.copyOutput(outR, outDoneCh)
+        go b.copyOutput(errR, errDoneCh)
+        stdout, err := s.StdoutPipe()
+
+        cleanupF := func() </span><span class="cov0" title="0">{
+                outW.Close()
+                errW.Close()
+                &lt;-outDoneCh
+                &lt;-errDoneCh
+        }</span>
+
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                cleanupF()
+                return nil, fmt.Errorf("Unable to setup stdout for session: %v", err)
+        }</span>
+        <span class="cov0" title="0">go io.Copy(outW, stdout)
+
+        stderr, err := s.StderrPipe()
+        if err != nil </span><span class="cov0" title="0">{
+                cleanupF()
+                return nil, fmt.Errorf("Unable to setup stderr for session: %v", err)
+        }</span>
+        <span class="cov0" title="0">go io.Copy(errW, stderr)
+
+        return cleanupF, nil</span>
+}
+
+func (b *bastionKeyScan) execute(command string) error <span class="cov0" title="0">{
+        b.output(fmt.Sprintf("running command: %s", command))
+        session, err := b.sshClient.NewSession()
+        if err != nil </span><span class="cov0" title="0">{
+                return b.makeError("failed to create session: %s.", err)
+        }</span>
+        <span class="cov0" title="0">defer session.Close()
+        if err := session.RequestPty("xterm", 80, 40, b.sshModes()); err != nil </span><span class="cov0" title="0">{
+                return b.makeError("request for pseudo terminal failed: %s.", err)
+        }</span>
+        <span class="cov0" title="0">cleanupF, err := b.redirectOutputs(session)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">defer cleanupF()
+        commandResult := session.Run(command)
+        return commandResult</span>
+}
+
+func (b *bastionKeyScan) scan() (string, error) <span class="cov0" title="0">{
+
+        b.output(fmt.Sprintf("ensuring the existence of '%s'...", homeSSHDirectory))
+        if err := b.execute(
+                fmt.Sprintf(
+                        "mkdir -p \"%s\"",
+                        b.quotedSSHKnownFileDir())); err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov0" title="0">u1 := uuid.NewV4()
+        targetPath := filepath.Join(b.quotedSSHKnownFileDir(), u1.String())
+
+        timeoutMs := b.sshKeyscanTimeout * 1000
+        timeSpentMs := 0
+        intervalMs := 5000
+
+        sshKeyScanCommand := fmt.Sprintf("ssh_keyscan_result=$(ssh-keyscan -T %d -p %d %s 2&gt;/dev/null | grep %s) &amp;&amp; echo -e \"${ssh_keyscan_result}\" &gt; \"%s\"",
+                b.sshKeyscanTimeout,
+                b.port,
+                b.host,
+                b.host,
+                targetPath)
+
+        // do not rely just on the ssh-keyscan -T;
+        // it may take time until the instance starts replying to ssh requests
+        // until then, we may be getting "no route to host",
+        // in such case the keyscan would fail regardless of timeout
+        // we need to repeat until we succeed or time out
+        for </span><span class="cov0" title="0">{
+                keyScanError := b.execute(sshKeyScanCommand)
+                if keyScanError == nil </span><span class="cov0" title="0">{
+                        break</span>
+                }
+                <span class="cov0" title="0">b.output(fmt.Sprintf("ssh-keyscan hasn't succeeded yet (last error: %s); retrying...", keyScanError))
+                time.Sleep(time.Duration(intervalMs) * time.Millisecond)
+                timeSpentMs = timeSpentMs + intervalMs
+                if timeSpentMs &gt; timeoutMs </span><span class="cov0" title="0">{
+                        return "", b.makeError(
+                                fmt.Sprintf(
+                                        "failed receive target ssh key for %s:%d within time specified period of %d seconds.",
+                                        b.host, b.port, b.sshKeyscanTimeout), nil)
+                }</span>
+        }
+
+        // read and remove the temporary known hosts file:
+        <span class="cov0" title="0">var buf bytes.Buffer
+        session, err := b.sshClient.NewSession()
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov0" title="0">defer session.Close()
+        session.Stdout = &amp;buf
+        if err := session.Run(fmt.Sprintf("echo -e \"$(cat \"%s\")\"", targetPath)); err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov0" title="0">return buf.String(), nil</span>
+}
+
+func (b *bastionKeyScan) quotedSSHKnownFileDir() string <span class="cov0" title="0">{
+        return strings.Replace(homeSSHDirectory, "~/", "$HOME/", 1)
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package mode
+
+import (
+        "fmt"
+        "io/ioutil"
+        "net"
+        "os"
+        "time"
+
+        "golang.org/x/crypto/ssh"
+        "golang.org/x/crypto/ssh/agent"
+        "golang.org/x/crypto/ssh/knownhosts"
+)
+
+type sshConfigurable interface {
+        agent() bool
+        host() string
+        port() int
+        user() string
+        pemFile() string
+        hostKey() string
+        timeout() time.Duration
+        receiveHostKey(string)
+}
+
+type sshConfigurator struct {
+        provider sshConfigurable
+}
+
+func (c *sshConfigurator) sshConfig() (*ssh.ClientConfig, error) <span class="cov8" title="1">{
+        authMethods := make([]ssh.AuthMethod, 0)
+        if c.provider.pemFile() != "" </span><span class="cov8" title="1">{
+                authMethods = append(authMethods, c.publicKeyFile())
+        }</span>
+        <span class="cov8" title="1">if c.provider.agent() </span><span class="cov8" title="1">{
+                authMethods = append(authMethods, c.sshAgent())
+        }</span>
+
+        <span class="cov8" title="1">hostKeyCallback := func(hostname string, remote net.Addr, key ssh.PublicKey) error </span><span class="cov8" title="1">{
+                c.provider.receiveHostKey(string(ssh.MarshalAuthorizedKey(key)))
+                return nil
+        }</span>
+
+        <span class="cov8" title="1">if c.provider.hostKey() != "" </span><span class="cov8" title="1">{
+                // from terraform/communicator/ssh/provisioner.go
+                // ----------------------------------------------
+                // The knownhosts package only takes paths to files, but terraform
+                // generally wants to handle config data in-memory. Rather than making
+                // the known_hosts file an exception, write out the data to a temporary
+                // file to create the HostKeyCallback.
+                tf, err := ioutil.TempFile("", "tf-provisioner-known_hosts")
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("failed to create temp known_hosts file: %s", err)
+                }</span>
+                <span class="cov8" title="1">defer tf.Close()
+                defer os.RemoveAll(tf.Name())
+
+                // we mark this as a CA as well, but the host key fallback will still
+                // use it as a direct match if the remote host doesn't return a
+                // certificate.
+                if _, err := tf.WriteString(fmt.Sprintf("@cert-authority %s %s\n", c.provider.host(), c.provider.hostKey())); err != nil </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("failed to write temp known_hosts file: %s", err)
+                }</span>
+                <span class="cov8" title="1">tf.Sync()
+
+                hostKeyCallback, err = knownhosts.New(tf.Name())
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+        }
+
+        <span class="cov8" title="1">return &amp;ssh.ClientConfig{
+                User:            c.provider.user(),
+                Auth:            authMethods,
+                HostKeyCallback: hostKeyCallback,
+                Timeout:         c.provider.timeout(),
+        }, nil</span>
+}
+
+func (c *sshConfigurator) sshAgent() ssh.AuthMethod <span class="cov8" title="1">{
+        if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil </span><span class="cov8" title="1">{
+                return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (c *sshConfigurator) publicKeyFile() ssh.AuthMethod <span class="cov8" title="1">{
+        // public key file is actually not a file, it contains
+        // the contents of the file, as documented in
+        // - https://www.terraform.io/docs/provisioners/connection.html#private_key
+        // = https://www.terraform.io/docs/provisioners/connection.html#bastion_private_key
+        // So, don't read the file, just convert it into bytes.
+        key, err := ssh.ParsePrivateKey([]byte(c.provider.pemFile()))
+        if err != nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov8" title="1">return ssh.PublicKeys(key)</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package mode
+
+import (
+        "fmt"
+        "time"
+        
+
+        "golang.org/x/crypto/ssh"
+)
+
+type targetHost struct {
+        connInfo *connectionInfo
+}
+
+func newTargetHostFromConnectionInfo(connInfo *connectionInfo) *targetHost <span class="cov8" title="1">{
+        return &amp;targetHost{
+                connInfo: connInfo,
+        }
+}</span>
+
+func (v *targetHost) agent() bool <span class="cov8" title="1">{
+        return v.connInfo.Agent
+}</span>
+
+func (v *targetHost) host() string <span class="cov8" title="1">{
+        return v.connInfo.Host
+}</span>
+
+func (v *targetHost) port() int <span class="cov8" title="1">{
+        return v.connInfo.Port
+}</span>
+
+func (v *targetHost) user() string <span class="cov8" title="1">{
+        return v.connInfo.User
+}</span>
+
+func (v *targetHost) pemFile() string <span class="cov8" title="1">{
+        return v.connInfo.PrivateKey
+}</span>
+
+func (v *targetHost) hostKey() string <span class="cov8" title="1">{
+        return v.connInfo.HostKey
+}</span>
+
+func (v *targetHost) timeout() time.Duration <span class="cov8" title="1">{
+        return v.connInfo.TimeoutVal
+}</span>
+
+func (v *targetHost) receiveHostKey(hostKey string) <span class="cov8" title="1">{
+        v.connInfo.HostKey = hostKey
+}</span>
+
+func (v *targetHost) fetchHostKey() error <span class="cov8" title="1">{
+
+        var returnError error
+
+        defer func() </span><span class="cov8" title="1">{
+                if e := recover(); e != nil </span><span class="cov0" title="0">{
+                        returnError = e.(error)
+                }</span>
+        }()
+
+        <span class="cov8" title="1">configurator := &amp;sshConfigurator{
+                provider: v,
+        }
+        sshConfig, err := configurator.sshConfig()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", v.host(), v.port()), sshConfig)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer client.Close()
+        return returnError</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package provisioner
+
+import (
+        "context"
+        "fmt"
+
+        "github.com/radekg/terraform-provisioner-ansible/v2/mode"
+        "github.com/radekg/terraform-provisioner-ansible/v2/types"
+
+        "github.com/hashicorp/terraform/helper/schema"
+        "github.com/hashicorp/terraform/terraform"
+)
+
+type terraformVersion int
+
+const (
+        terraform011 terraformVersion = iota
+        terraform012
+)
+
+type provisioner struct {
+        defaults           *types.Defaults
+        plays              []*types.Play
+        ansibleSSHSettings *types.AnsibleSSHSettings
+        remote             *types.RemoteSettings
+}
+
+// Provisioner describes this provisioner configuration.
+func Provisioner() terraform.ResourceProvisioner <span class="cov8" title="1">{
+        return &amp;schema.Provisioner{
+                Schema: map[string]*schema.Schema{
+                        "plays":                types.NewPlaySchema(),
+                        "defaults":             types.NewDefaultsSchema(),
+                        "remote":               types.NewRemoteSchema(),
+                        "ansible_ssh_settings": types.NewAnsibleSSHSettingsSchema(),
+                },
+                ValidateFunc: validateFn,
+                ApplyFunc:    applyFn,
+        }
+}</span>
+
+func validateFn(c *terraform.ResourceConfig) (ws []string, es []error) <span class="cov8" title="1">{
+
+        defer func() </span><span class="cov8" title="1">{
+                if r := recover(); r != nil </span><span class="cov0" title="0">{
+                        es = append(es, fmt.Errorf("error while validating the provisioner, reason: %+v", r))
+                }</span>
+        }()
+
+        <span class="cov8" title="1">validPlaysCount := 0
+
+        // Workaround to enable backward compatibility
+        var computedTfVersion terraformVersion
+
+        if plays, hasPlays := c.Get("plays"); hasPlays </span><span class="cov8" title="1">{
+
+                var sanitizedPlays []interface{}
+
+                switch plays.(type) </span>{
+                case []interface{}:<span class="cov8" title="1"> // Terraform 0.12.x
+                        computedTfVersion = terraform012
+                        sanitizedPlays = plays.([]interface{})</span>
+                case []map[string]interface{}:<span class="cov0" title="0"> // Terraform 0.11.x
+                        computedTfVersion = terraform011
+                        for _, v := range plays.([]map[string]interface{}) </span><span class="cov0" title="0">{
+                                sanitizedPlays = append(sanitizedPlays, v)
+                        }</span>
+                default:<span class="cov0" title="0">
+                        es = append(es, fmt.Errorf("could not establish Terrafrom version from plays type: %T", plays))
+                        return ws, es</span> // return early
+                }
+
+                <span class="cov8" title="1">for _, rawVPlay := range sanitizedPlays </span><span class="cov8" title="1">{
+                        vPlay := rawVPlay.(map[string]interface{})
+
+                        currentErrorCount := len(es)
+
+                        vPlaybook, playHasPlaybook := vPlay["playbook"]
+                        _, playHasModule := vPlay["module"]
+                        _, playHasGalaxyInstall := vPlay["galaxy_install"]
+
+                        if types.HasMoreThanOneTrue([]bool{playHasPlaybook, playHasModule, playHasGalaxyInstall}...) </span><span class="cov8" title="1">{
+                                es = append(es, fmt.Errorf("play can have only one of: galaxy_install, playbook or module"))
+                        }</span> else<span class="cov8" title="1"> if !playHasPlaybook &amp;&amp; !playHasModule &amp;&amp; !playHasGalaxyInstall </span><span class="cov0" title="0">{
+                                es = append(es, fmt.Errorf("galaxy_install, playbook or module must be set"))
+                        }</span> else<span class="cov8" title="1"> {
+
+                                if playHasPlaybook </span><span class="cov8" title="1">{
+
+                                        var rolesPath []interface{}
+                                        var hasRolesPath bool
+
+                                        switch computedTfVersion </span>{
+                                        case terraform012:<span class="cov8" title="1">
+                                                vPlaybookTyped := vPlaybook.([]interface{})
+                                                rolesPath, hasRolesPath = vPlaybookTyped[0].(map[string]interface{})["roles_path"].([]interface{})</span>
+                                        case terraform011:<span class="cov0" title="0">
+                                                vPlaybookTyped := vPlaybook.([]map[string]interface{})
+                                                rolesPath, hasRolesPath = vPlaybookTyped[0]["roles_path"].([]interface{})</span>
+                                        default:<span class="cov0" title="0">
+                                                es = append(es, fmt.Errorf("unsupported Terrafrom version detected: %d", computedTfVersion))
+                                                return ws, es</span> // return early
+                                        }
+
+                                        <span class="cov8" title="1">if hasRolesPath </span><span class="cov8" title="1">{
+                                                for _, singlePath := range rolesPath </span><span class="cov8" title="1">{
+                                                        vws, ves := types.VfPathDirectory(singlePath, "roles_path")
+
+                                                        for _, w := range vws </span><span class="cov8" title="1">{
+                                                                ws = append(ws, w)
+                                                        }</span>
+                                                        <span class="cov8" title="1">for _, e := range ves </span><span class="cov0" title="0">{
+                                                                es = append(es, e)
+                                                        }</span>
+                                                }
+                                        }
+                                }
+
+                        }
+
+                        <span class="cov8" title="1">if currentErrorCount == len(es) </span><span class="cov8" title="1">{
+                                validPlaysCount++
+                        }</span>
+                }
+
+                <span class="cov8" title="1">if validPlaysCount == 0 </span><span class="cov8" title="1">{
+                        ws = append(ws, "nothing to play")
+                }</span>
+
+        } else<span class="cov8" title="1"> {
+                ws = append(ws, "nothing to play")
+        }</span>
+
+        <span class="cov8" title="1">return ws, es</span>
+}
+
+func applyFn(ctx context.Context) error <span class="cov0" title="0">{
+
+        o := ctx.Value(schema.ProvOutputKey).(terraform.UIOutput)
+        s := ctx.Value(schema.ProvRawStateKey).(*terraform.InstanceState)
+        d := ctx.Value(schema.ProvConfigDataKey).(*schema.ResourceData)
+
+        // Decode the provisioner config
+        p, err := decodeConfig(d)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">if p.remote.IsRemoteInUse() </span><span class="cov0" title="0">{
+                remoteMode, err := mode.NewRemoteMode(o, s, p.remote)
+                if err != nil </span><span class="cov0" title="0">{
+                        o.Output(fmt.Sprintf("%+v", err))
+                        return err
+                }</span>
+                <span class="cov0" title="0">return remoteMode.Run(p.plays)</span>
+        }
+
+        <span class="cov0" title="0">localMode, err := mode.NewLocalMode(o, s)
+        if err != nil </span><span class="cov0" title="0">{
+                o.Output(fmt.Sprintf("%+v", err))
+                return err
+        }</span>
+        <span class="cov0" title="0">return localMode.Run(p.plays, p.ansibleSSHSettings)</span>
+
+}
+
+func decodeConfig(d *schema.ResourceData) (*provisioner, error) <span class="cov8" title="1">{
+
+        vRemoteSettings := types.NewRemoteSettingsFromInterface(d.GetOk("remote"))
+        vAnsibleSSHSettings := types.NewAnsibleSSHSettingsFromInterface(d.GetOk("ansible_ssh_settings"))
+        vDefaults := types.NewDefaultsFromInterface(d.GetOk("defaults"))
+
+        plays := make([]*types.Play, 0)
+        if rawPlays, ok := d.GetOk("plays"); ok </span><span class="cov8" title="1">{
+                playSchema := types.NewPlaySchema()
+                for _, iface := range rawPlays.([]interface{}) </span><span class="cov8" title="1">{
+                        plays = append(plays, types.NewPlayFromInterface(schema.NewSet(schema.HashResource(playSchema.Elem.(*schema.Resource)), []interface{}{iface}), vDefaults))
+                }</span>
+        }
+        <span class="cov8" title="1">return &amp;provisioner{
+                defaults:           vDefaults,
+                remote:             vRemoteSettings,
+                ansibleSSHSettings: vAnsibleSSHSettings,
+                plays:              plays,
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package shellescape
+
+import "io"
+
+// ShellEscape defines a shell escape interface.
+type ShellEscape interface {
+        // Safe returns a safe to use copy of the input.
+        Safe() string
+}
+
+type defaultEscape struct {
+        delimitter rune
+        input      []rune
+        pos        int
+        max        int
+
+        seqEscaped        []rune
+        seqLookAheadLong  string
+        seqLookAheadShort string
+}
+
+func (p *defaultEscape) lookup(count int) (string, error) <span class="cov8" title="1">{
+        runes := []rune{}
+        pos := p.pos
+        for </span><span class="cov8" title="1">{
+                if len(runes) == count </span><span class="cov8" title="1">{
+                        break</span>
+                }
+                <span class="cov8" title="1">if pos &gt;= p.max </span><span class="cov8" title="1">{
+                        return string(runes), io.EOF
+                }</span>
+                <span class="cov8" title="1">runes = append(runes, p.input[pos])
+                pos = pos + 1</span>
+        }
+        <span class="cov8" title="1">return string(runes), io.EOF</span>
+}
+
+func (p *defaultEscape) skip(n int) <span class="cov8" title="1">{
+        p.pos = p.pos + n
+}</span>
+
+func (p *defaultEscape) next() (rune, error) <span class="cov8" title="1">{
+        if p.pos &lt; p.max </span><span class="cov8" title="1">{
+                r := p.input[p.pos]
+                p.pos = p.pos + 1
+                return r, nil
+        }</span>
+        <span class="cov8" title="1">return ' ', io.EOF</span>
+}
+
+func (p *defaultEscape) Safe() string <span class="cov8" title="1">{
+        newRunes := []rune{}
+        for </span><span class="cov8" title="1">{
+
+                r, e := p.next()
+                if e == io.EOF </span><span class="cov8" title="1">{
+                        break</span>
+                }
+
+                <span class="cov8" title="1">if r == p.delimitter </span><span class="cov8" title="1">{
+                        if lookup, _ := p.lookup(3); lookup == p.seqLookAheadLong </span><span class="cov8" title="1">{
+                                // this is okay...
+                                newRunes = append(newRunes, p.seqEscaped...)
+                                p.skip(3)
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">if lookup, _ := p.lookup(2); lookup == p.seqLookAheadShort </span><span class="cov8" title="1">{
+                                // this is okay...
+                                newRunes = append(newRunes, p.seqEscaped...)
+                                p.skip(2)
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">newRunes = append(newRunes, p.seqEscaped...)
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">if r == '\\' </span><span class="cov8" title="1">{
+                        if lookup, _ := p.lookup(1); lookup == string([]rune{p.delimitter}) </span><span class="cov8" title="1">{
+                                newRunes = append(newRunes, p.seqEscaped...)
+                                p.skip(1)
+                                continue</span>
+                        }
+                }
+
+                <span class="cov8" title="1">newRunes = append(newRunes, r)</span>
+        }
+        <span class="cov8" title="1">return string(newRunes)</span>
+}
+
+func newDefaultEscape(input string, delimiter rune) ShellEscape <span class="cov8" title="1">{
+        runes := []rune(input)
+        return &amp;defaultEscape{
+                delimitter:        delimiter,
+                input:             runes,
+                pos:               0,
+                max:               len(runes),
+                seqEscaped:        []rune{delimiter, '\\', delimiter, delimiter},
+                seqLookAheadLong:  string([]rune{'\\', delimiter, delimiter}),
+                seqLookAheadShort: string([]rune{'\\', delimiter}),
+        }
+}</span>
+
+// NewDoubleQuoteEscape returns a new shell escape for use within double quoted string.
+func NewDoubleQuoteEscape(input string) ShellEscape <span class="cov0" title="0">{
+        return newDefaultEscape(input, '"')
+}</span>
+
+// NewSingleQuoteEscape returns a new shell escape for use within single quoted string.
+func NewSingleQuoteEscape(input string) ShellEscape <span class="cov8" title="1">{
+        return newDefaultEscape(input, '\'')
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
